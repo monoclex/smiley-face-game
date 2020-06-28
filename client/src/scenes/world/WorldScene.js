@@ -105,13 +105,13 @@ export class WorldScene extends Phaser.Scene {
     };
 
     this._networkClient.events.onMovement = (event) => {
-      const { sender, position, velocity, inputs } = event;
+      const { sender, position, inputs } = event;
 
       /** @type {NetworkControlledPlayer} */
       const player = players.get(sender);
 
       if (player !== undefined) {
-        player.onMove(position, velocity, inputs);
+        player.onMove(position, inputs);
       }
     };
 

@@ -1,14 +1,14 @@
-import { NetworkEvents } from './NetworkEvents';
+import { TileId } from '../libcore/core/models/TileId';
+import { TileLayer } from '../libcore/core/models/TileLayer';
+import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../libcore/core/networking/game/BlockSingle';
+import { MovementPacket, MOVEMENT_ID } from '../libcore/core/networking/game/Movement';
 import { SERVER_BLOCK_SINGLE_ID, validateServerBlockSingle } from '../libcore/core/networking/game/ServerBlockSingle';
+import { SERVER_INIT_ID, validateServerInit } from '../libcore/core/networking/game/ServerInit';
 import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/networking/game/ServerMovement';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from '../libcore/core/networking/game/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from '../libcore/core/networking/game/ServerPlayerLeave';
-import { SERVER_INIT_ID, validateServerInit } from '../libcore/core/networking/game/ServerInit';
-import { BLOCK_SINGLE_ID, BlockSinglePacket } from '../libcore/core/networking/game/BlockSingle';
-import { TileId } from '../libcore/core/models/TileId';
-import { TileLayer } from '../libcore/core/models/TileLayer';
-import { MovementPacket, MOVEMENT_ID } from '../libcore/core/networking/game/Movement';
 import { ControllerState } from '../scenes/world/components/KeyboardControlledPlayer';
+import { NetworkEvents } from './NetworkEvents';
 
 interface Position {
   readonly x: number;
@@ -113,11 +113,10 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  move(position: Position, velocity: Position, inputs: ControllerState) {
+  move(position: Position, inputs: ControllerState) {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position,
-      velocity,
       inputs,
     };
 

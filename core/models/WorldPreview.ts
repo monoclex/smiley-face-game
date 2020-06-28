@@ -5,5 +5,5 @@ export const GamePreviewSchema = Schema({
   id: RoomIdSchema,
   playerCount: number.gte(0).integer(),
 });
-export type GamePreview = Type<typeof GamePreviewSchema>;
+export type WorldPreview = Type<typeof GamePreviewSchema>;
 export const validateGamePreview = GamePreviewSchema.destruct();

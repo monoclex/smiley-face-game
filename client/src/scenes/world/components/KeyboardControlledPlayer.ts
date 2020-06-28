@@ -1,7 +1,6 @@
-import { CharacterController, Character } from './Character';
-import MultiKey from './MultiKey';
 import { NetworkClient } from '../../../networking/NetworkClient';
-import { RoomIdSchema } from '../../../libcore/core/models/RoomId';
+import { Character, CharacterController } from './Character';
+import MultiKey from './MultiKey';
 
 class KeyboardController implements CharacterController {
   constructor(
@@ -46,6 +45,9 @@ export class KeyboardControlledPlayer {
   readonly character: Character;
   private readonly _controller: KeyboardController;
 
+  /** since i can't figure out how to get physics to properly sync, every 100 updates or so it just re-sends movement data because why not */
+  private _updateCounter: number;
+
   constructor(
     scene: Phaser.Scene,
     spawnPosition: Position,
@@ -70,17 +72,16 @@ export class KeyboardControlledPlayer {
   private _last: ControllerState;
 
   private _update() {
+    this._updateCounter++;
     const state = capture(this._controller);
 
     if (this._last.left !== state.left
       || this._last.right !== state.right
-      || this._last.up !== state.up) {
+      || this._last.up !== state.up
+      || this._updateCounter > 100) {
 
-      this._networkClient.move(
-        this.character.getMatterJSBody().position,
-        this.character.getMatterJSBody().velocity,
-        state
-      );
+      this._updateCounter = 0;
+      this._networkClient.move(this.character.getPosition(), state);
     }
 
     this._last = state;

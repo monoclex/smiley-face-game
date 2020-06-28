@@ -39,7 +39,7 @@ export class LoadingScene extends Phaser.Scene {
     if (!this._didNetworkJoin) {
       this._didNetworkJoin = true;
       //
-      NetworkClient.connect('ws://ws-api.sirjosh3917.com/smiley-face-game/ws/game/' + globalVariableParkour.worldId, ((/** @type {NetworkEvents} */ events) => {
+      NetworkClient.connect('ws://localhost:8080/ws/game/' + globalVariableParkour.worldId, ((/** @type {NetworkEvents} */ events) => {
         const packetHandler = (name) => (packet) => console.log('onpacket', name, packet);
 
         events.onPlayerJoin = packetHandler('onPlayerJoin');

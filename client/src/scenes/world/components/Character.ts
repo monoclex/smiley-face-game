@@ -1,5 +1,4 @@
-import { TILE_WIDTH, TILE_HEIGHT } from "../Config";
-import { Scene } from "phaser";
+import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
 
 interface CharacterSensors {
   readonly bottom: MatterJS.BodyType;
