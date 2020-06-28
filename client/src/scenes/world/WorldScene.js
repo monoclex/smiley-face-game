@@ -110,6 +110,7 @@ export class WorldScene extends Phaser.Scene {
       players.set(userId, player);
 
       this._groupPlayer.add(player.character.sprite);
+      this._groupInfront.add(player.character.gunController._heldGun);
     };
 
     this._networkClient.events.onPlayerLeave = (event) => {
@@ -162,6 +163,10 @@ export class WorldScene extends Phaser.Scene {
   update(time, delta) {
     const pointer = this.input.activePointer;
     this._editor.update(pointer);
+
+    if (this._mainPlayer.character.hasGun) {
+      this._mainPlayer.character.gunController.update(pointer, this.cameras.main);
+    }
   }
 
   /**

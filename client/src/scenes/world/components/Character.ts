@@ -1,4 +1,5 @@
 import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
+import { GunController } from "./GunController";
 
 interface CharacterSensors {
   readonly bottom: MatterJS.BodyType;
@@ -25,12 +26,31 @@ export class Character {
   private readonly _mainBody: MatterJS.BodyType;
 
   private _touching: CharacterTouching = { bottom: false };
+  private _gunController?: GunController;
+
+  get gunController(): GunController {
+    if (this._gunController === undefined) {
+      this._gunController = new GunController(this._scene, this);
+    }
+
+    return this._gunController;
+  }
+
+  get hasGun(): boolean {
+    return this._hasGun;
+  }
+
+  set hasGun(value: boolean) {
+    console.log('gun is visible', value);
+    this.gunController.heldGun.visible = value;
+    this._hasGun = value;
+  }
 
   constructor(
     private readonly _scene: Phaser.Scene,
     private readonly _controller: CharacterController,
     spawnPosition: Position,
-    public hasGun: boolean,
+    private _hasGun: boolean,
   ) {
     this.sprite = this._scene.matter.add.sprite(0, 0, 'player', null);
     
