@@ -18,7 +18,7 @@ export const config = {
   scene: [LoadingScene, WorldScene],
   backgroundColor: "#000000",
   
-  physics: { default: "matter", matter: { debug: false } },
+  physics: { default: "matter", matter: { debug: true } },
   plugins: {
     scene: [
       {

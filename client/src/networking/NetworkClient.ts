@@ -2,9 +2,11 @@ import { TileId } from '../libcore/core/models/TileId';
 import { TileLayer } from '../libcore/core/models/TileLayer';
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../libcore/core/networking/game/BlockSingle';
 import { MovementPacket, MOVEMENT_ID } from '../libcore/core/networking/game/Movement';
+import { PickupGunPacket, PICKUP_GUN_ID } from '../libcore/core/networking/game/PickupGun';
 import { SERVER_BLOCK_SINGLE_ID, validateServerBlockSingle } from '../libcore/core/networking/game/ServerBlockSingle';
 import { SERVER_INIT_ID, validateServerInit } from '../libcore/core/networking/game/ServerInit';
 import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/networking/game/ServerMovement';
+import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from '../libcore/core/networking/game/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from '../libcore/core/networking/game/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from '../libcore/core/networking/game/ServerPlayerLeave';
 import { ControllerState } from '../scenes/world/components/KeyboardControlledPlayer';
@@ -51,6 +53,7 @@ export class NetworkClient {
       [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, 'onPlayerJoin'],
       [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, 'onPlayerLeave'],
       [SERVER_INIT_ID]: [validateServerInit, 'onInit'],
+      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, 'onPickupGun'],
     };
 
     this._webSocket.onmessage = async (event) => {
@@ -118,6 +121,15 @@ export class NetworkClient {
       packetId: MOVEMENT_ID,
       position,
       inputs,
+    };
+
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  gotGun(position: Position) {
+    const packet: PickupGunPacket = {
+      packetId: PICKUP_GUN_ID,
+      position
     };
 
     this._webSocket.send(JSON.stringify(packet));

@@ -3,9 +3,11 @@ import { TileLayer } from '../libcore/core/models/TileLayer.ts';
 import { UserId } from "../libcore/core/models/UserId.ts";
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from "../libcore/core/networking/game/BlockSingle.ts";
 import { MovementPacket, MOVEMENT_ID } from "../libcore/core/networking/game/Movement.ts";
+import { PickupGunPacket, PICKUP_GUN_ID } from '../libcore/core/networking/game/PickupGun.ts';
 import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from "../libcore/core/networking/game/ServerBlockSingle.ts";
 import { SERVER_INIT_ID } from "../libcore/core/networking/game/ServerInit.ts";
 import { ServerMovementPacket, SERVER_MOVEMENT_ID } from "../libcore/core/networking/game/ServerMovement.ts";
+import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID } from '../libcore/core/networking/game/ServerPickupGun.ts';
 import { SERVER_PLAYER_JOIN_ID } from "../libcore/core/networking/game/ServerPlayerJoin.ts";
 import { SERVER_PLAYER_LEAVE_ID } from "../libcore/core/networking/game/ServerPlayerLeave.ts";
 import { invokeWorldPacketLookup, WorldPacket, WorldPacketLookup } from "../libcore/core/networking/game/WorldPacket.ts";
@@ -29,17 +31,20 @@ export class World {
       [BLOCK_SINGLE_ID]: this.onBlockSingle.bind(this),
       //@ts-ignore
       [MOVEMENT_ID]: this.onMovement.bind(this),
+      //@ts-ignore
+      [PICKUP_GUN_ID]: this.onPickupGun.bind(this),
       [SERVER_INIT_ID]: this.badPacket.bind(this),
       [SERVER_MOVEMENT_ID]: this.badPacket.bind(this),
       [SERVER_PLAYER_JOIN_ID]: this.badPacket.bind(this),
       [SERVER_PLAYER_LEAVE_ID]: this.badPacket.bind(this),
       [SERVER_BLOCK_SINGLE_ID]: this.badPacket.bind(this),
+      [SERVER_PICKUP_GUN_ID]: this.badPacket.bind(this),
     };
 
     this.users = new Map<UserId, User>();
 
     this._map = [];
-    for (let layer = 0; layer <= 1; layer++) {
+    for (let layer = 0; layer <= TileLayer.Background; layer++) {
       let layerMap: TileId[][] = [];
       this._map[layer] = layerMap;
 
@@ -48,21 +53,22 @@ export class World {
         layerMap[y] = yMap;
 
         for (let x = 0; x < _width; x++) {
-          if (layer === TileLayer.Background) {
-            yMap[x] = TileId.Empty;
-            continue;
+
+          if (layer === TileLayer.Foreground) {
+            // TODO: cleanup border initialization stuff
+            let xMap: TileId = (y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? 1 : 0;
+            yMap[x] = xMap;
           }
-          
-          // TODO: cleanup border initialization stuff
-          let xMap: TileId = (y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? 1 : 0;
-          yMap[x] = xMap; 
+          else {
+            yMap[x] = TileId.Empty;
+          }
         }
       }
     }
 
     // put a gun in the middle of the floor
     let widthMiddle = (_width / 2) | 0; // |0 basically casts to int, see asmjs
-    this._map[TileLayer.Background][_height - 2][widthMiddle] = TileId.Gun;
+    this._map[TileLayer.Action][_height - 2][widthMiddle] = TileId.Gun;
   }
 
   // as this is the lobby, we don't need to worry about 
@@ -73,10 +79,8 @@ export class World {
     await this.broadcast({
       packetId: SERVER_PLAYER_JOIN_ID,
       userId: user.userId,
-      joinLocation: {
-        x: 32 + 16,
-        y: 32 + 16
-      }
+      joinLocation: user.lastPosition,
+      hasGun: user.hasGun,
     });
     
     // tell the new user about the world
@@ -92,6 +96,7 @@ export class World {
         packetId: SERVER_PLAYER_JOIN_ID,
         userId: otherUser.userId,
         joinLocation: otherUser.lastPosition,
+        hasGun: otherUser.hasGun,
       });
     }
 
@@ -150,6 +155,31 @@ export class World {
     const response: ServerMovementPacket = {
       ...packet,
       packetId: SERVER_MOVEMENT_ID,
+      sender: sender.userId,
+    };
+
+    await this.broadcast(response);
+
+    return ValidMessage.IsValidMessage;
+  }
+
+  private async onPickupGun(packet: PickupGunPacket, sender: User): Promise<ValidMessage> {
+
+    // TODO: make incoming schemas check for y and x out of bounds
+    if (packet.position.y >= this._height || packet.position.x >= this._width) {
+      sender.kill();
+      return ValidMessage.IsNotValidMessage;
+    }
+
+    if (this._map[TileLayer.Action][packet.position.y][packet.position.x] !== TileId.Gun) {
+      // we don't want to say this was invalid, because someone could've broke the gun block while someone was trying to collect it.
+      return ValidMessage.IsValidMessage;
+    }
+
+    sender.hasGun = true;
+
+    const response: ServerPickupGunPacket = {
+      packetId: SERVER_PICKUP_GUN_ID,
       sender: sender.userId,
     };
 

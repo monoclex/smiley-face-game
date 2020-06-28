@@ -2,7 +2,8 @@ import { Schema } from "../../deps.ts";
 
 export enum TileLayer {
   Foreground = 0,
-  Background = 1,
+  Action = 1,
+  Background = 2,
 }
 export const TileLayerSchema = Schema.enum(TileLayer);
 

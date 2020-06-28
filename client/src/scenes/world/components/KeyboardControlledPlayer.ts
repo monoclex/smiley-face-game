@@ -51,7 +51,7 @@ export class KeyboardControlledPlayer {
   constructor(
     scene: Phaser.Scene,
     spawnPosition: Position,
-    private readonly _networkClient: NetworkClient
+    private readonly _networkClient: NetworkClient,
   ) {
     // TODO: allow people to specify input
     // i'm lazy and i know this will only be used for main player, so i'm hardcoding keyboard here
@@ -63,7 +63,7 @@ export class KeyboardControlledPlayer {
       new MultiKey(scene, [RIGHT, D]),
     );
 
-    this.character = new Character(scene, this._controller, spawnPosition);
+    this.character = new Character(scene, this._controller, spawnPosition, false);
     
     this._last = { left: false, right: false, up: false };
     scene.events.on('update', this._update, this);
@@ -85,5 +85,9 @@ export class KeyboardControlledPlayer {
     }
 
     this._last = state;
+  }
+
+  onTouchGun() {
+    alert('i got a gun');
   }
 }

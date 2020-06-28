@@ -9,9 +9,11 @@ export class User {
   ) {
     // TODO: decouple from client impl
     this.lastPosition = { x: 32 + 16, y: 32 + 16 };
+    this.hasGun = false;
   }
 
   lastPosition: { x: number, y: number };
+  hasGun: boolean;
 
   send(packet: WorldPacket): Promise<void> | void {
     return this._webSocket.send(JSON.stringify(packet));

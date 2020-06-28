@@ -46,6 +46,7 @@ export class Editor {
     }
 
     this._isDown = true;
+    // TODO: need something a bit fancier to be able to deal with action blocks in the future, when we have a block bar
     this._selectedLayer = TileLayer.Foreground;
     this._lastX = x;
     this._lastY = y;

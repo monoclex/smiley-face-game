@@ -64,8 +64,24 @@ export class WorldScene extends Phaser.Scene {
     const shiftKey = new MultiKey(this, [Phaser.Input.Keyboard.KeyCodes.SHIFT]);
     this._editor = new Editor(this._worldBlocks, this.input, this.cameras.main, shiftKey, this._networkClient);
 
+    // BIG TODO: for some reason have to append 16 for positions in world
+
     // add in the player
-    this._mainPlayer = new KeyboardControlledPlayer(this, { x: 32 + 16, y: 32 + 16 }, this._networkClient);
+    this._mainPlayer = new KeyboardControlledPlayer(
+      this,
+      { x: 32 + 16, y: 32 + 16 },
+      this._networkClient,
+      this._worldBlocks._gunSensors
+    );
+
+    // TODO: this should be moved elsewhwere this is uglyyyyyyyyyyyy
+    // handle events when the player touches a gun (to pick one up)
+    this._worldBlocks.onGunCollide = ((tileId, position, bodyB) => {
+      if (bodyB === this._mainPlayer.character._mainBody) {
+        this._mainPlayer.character.hasGun = true;
+        this._networkClient.gotGun(position);
+      }
+    }).bind(this);
 
     // make camera follow player
     const camera = this.cameras.main;
@@ -76,6 +92,7 @@ export class WorldScene extends Phaser.Scene {
     // assign to hierarchy of groups here
     this._groupBehind.add(this._worldBlocks._layers.void);
     this._groupBehind.add(this._worldBlocks._layers.background);
+    this._groupBehind.add(this._worldBlocks._layers.action);
     this._groupPlayer.add(this._mainPlayer.character.sprite);
     this._groupInfront.add(this._worldBlocks._layers.foreground);
     this.updateRenderOrder();
@@ -88,8 +105,8 @@ export class WorldScene extends Phaser.Scene {
     let players = new Map();
 
     this._networkClient.events.onPlayerJoin = (event) => {
-      const { userId, joinLocation } = event;
-      const player = new NetworkControlledPlayer(this, joinLocation);
+      const { userId, joinLocation, hasGun } = event;
+      const player = new NetworkControlledPlayer(this, joinLocation, hasGun);
       players.set(userId, player);
 
       this._groupPlayer.add(player.character.sprite);
@@ -113,6 +130,23 @@ export class WorldScene extends Phaser.Scene {
 
       if (player !== undefined) {
         player.onMove(position, inputs);
+      }
+    };
+
+    this._networkClient.events.onPickupGun = (event) => {
+      const { sender } = event;
+
+      /** @type {NetworkControlledPlayer} */
+      const player = players.get(sender);
+
+      if (player === undefined) {
+        // only the main player isn't stored in the player list
+        // TODO: this might cause bugs relying on that behavior ^
+
+        this._mainPlayer.character.hasGun = true;
+      }
+      else {
+        player.character.hasGun = true;
       }
     };
 

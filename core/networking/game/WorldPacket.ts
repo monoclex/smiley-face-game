@@ -1,16 +1,25 @@
 import { Schema, Type } from "./../../../deps.ts";
 import { BlockSingleSchema } from "./BlockSingle.ts";
 import { MovementSchema } from "./Movement.ts";
+import { PickupGunSchema } from './PickupGun.ts';
 import { ServerBlockSingleSchema } from "./ServerBlockSingle.ts";
 import { ServerInitSchema } from "./ServerInit.ts";
 import { ServerMovementSchema } from "./ServerMovement.ts";
+import { ServerPickupGunSchema } from "./ServerPickupGun.ts";
 import { ServerPlayerJoinSchema } from "./ServerPlayerJoin.ts";
 import { ServerPlayerLeaveSchema } from "./ServerPlayerLeave.ts";
 
 export const WorldPacketSchema = Schema.either(
-  BlockSingleSchema, ServerBlockSingleSchema,
-  MovementSchema, ServerMovementSchema,
-  ServerPlayerJoinSchema, ServerPlayerLeaveSchema, ServerInitSchema,
+  Schema.either(
+    BlockSingleSchema, ServerBlockSingleSchema,
+    MovementSchema, ServerMovementSchema,
+    ServerPlayerJoinSchema, ServerPlayerLeaveSchema, ServerInitSchema,
+  ),
+
+  // for the sake of type arguments, we have to split up packets into groups of 8 since Schema.either only accepts max 8 generic params
+  Schema.either(
+    PickupGunSchema, ServerPickupGunSchema,
+  )
 );
 export type WorldPacket = Type<typeof WorldPacketSchema>;
 export const validateWorldPacket = WorldPacketSchema.destruct();

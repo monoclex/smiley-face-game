@@ -22,13 +22,15 @@ export interface CharacterController {
 export class Character {
   readonly sprite: Phaser.Physics.Matter.Sprite;
   private readonly _sensors: CharacterSensors;
+  private readonly _mainBody: MatterJS.BodyType;
 
   private _touching: CharacterTouching = { bottom: false };
 
   constructor(
     private readonly _scene: Phaser.Scene,
     private readonly _controller: CharacterController,
-    spawnPosition: Position
+    spawnPosition: Position,
+    public hasGun: boolean,
   ) {
     this.sprite = this._scene.matter.add.sprite(0, 0, 'player', null);
     
@@ -42,7 +44,7 @@ export class Character {
     const heightOffset = TILE_HEIGHT / 2;
 
     // player hitbox
-    const mainBody = Bodies.circle(widthOffset, heightOffset, 16, { restitution: 0 });
+    this._mainBody = Bodies.circle(widthOffset, heightOffset, 16, { restitution: 0 });
 
     // sensors - so we can check if they're running into walls or able to jump
     this._sensors = {
@@ -50,7 +52,7 @@ export class Character {
     };
 
     const characterBody = Body.create({
-      parts: [mainBody, this._sensors.bottom],
+      parts: [this._mainBody, this._sensors.bottom],
       frictionStatic: 0,
       frictionAir: 0.015,
       friction: 0

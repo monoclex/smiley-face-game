@@ -1,21 +1,20 @@
-import { WorldConfig, TILE_WIDTH, TILE_HEIGHT } from '../Config';
-import { NetworkClient } from '../../../networking/NetworkClient';
-import { TileLayer } from "../../../libcore/core/models/TileLayer";
 import { toClientTileId } from '../../../client/toClientTileId';
 import { TileId } from "../../../libcore/core/models/TileId";
-import { Tilemaps } from "phaser";
-import { initArray } from '../../../misc';
-import { World } from 'matter';
+import { TileLayer } from "../../../libcore/core/models/TileLayer";
+import { TILE_HEIGHT, TILE_WIDTH, WorldConfig } from '../Config';
 
 interface TileLayers {
   readonly void: Phaser.Tilemaps.DynamicTilemapLayer;
   readonly background: Phaser.Tilemaps.DynamicTilemapLayer;
+  readonly action: Phaser.Tilemaps.DynamicTilemapLayer;
   readonly foreground: Phaser.Tilemaps.DynamicTilemapLayer;
 }
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
+
+type ActionCollisionEvent = (tileId: TileId, position: Position, bodyB: MatterJS.BodyType) => void;
 
 /**
  * Class for maintaining only the block state of a world.
@@ -36,6 +35,7 @@ export class WorldBlocks {
     const layers = {
       void: createDynamicTilemap('void'),
       background: createDynamicTilemap('background'),
+      action: createDynamicTilemap('action'),
       foreground: createDynamicTilemap('foreground'),
     };
     
@@ -53,6 +53,7 @@ export class WorldBlocks {
   }
 
   private readonly _map: WorldConfig;
+  onGunCollide?: ActionCollisionEvent;
 
   constructor(
     private readonly _layers: TileLayers,
@@ -62,7 +63,7 @@ export class WorldBlocks {
     this._map = _worldState;
     
     // we'll shove all the blocks into the world, and then recalculate everything once we're done
-    for (let layer = 0; layer < 2; layer++) {
+    for (let layer = 0; layer <= TileLayer.Background; layer++) {
       for (let y = 0; y < this._map.height; y++) {
         for (let x = 0; x < this._map.width; x++) {
           const blockId = this._map.blocks[layer][y][x];
@@ -72,9 +73,13 @@ export class WorldBlocks {
           
           tileLayer.putTilesAt([clientTileId], x, y, true);
 
+          const tileIndex = y * this._map.width + x;
+
           if (layer === TileLayer.Foreground) {
-            tileLayer.setCollision(y * this._map.width + x, true, true, true);
+            tileLayer.setCollision(tileIndex, true, true, true);
           }
+
+          this._addTileCollisionEvents(blockId, tileLayer, [{ x, y }]);
         }
       }
     }
@@ -112,6 +117,7 @@ export class WorldBlocks {
   private getTilemapLayer(layer: TileLayer): Phaser.Tilemaps.DynamicTilemapLayer {
     const map = {
       [TileLayer.Foreground]: this._layers.foreground,
+      [TileLayer.Action]: this._layers.action,
       [TileLayer.Background]: this._layers.background,
     };
 
@@ -163,6 +169,8 @@ export class WorldBlocks {
 
     tileLayer.setCollision(tileIds, shouldCollide, false, false);
 
+    this._addTileCollisionEvents(tileId, tileLayer, changed);
+
     // when we get the tile data, we want to get the tiles a little bit outside of it so that the tiles we care about get their collision
     // polygons correct so the player doesn't trip over ghost collisions or anything
     const tileData = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
@@ -171,6 +179,29 @@ export class WorldBlocks {
     this._world.processEdges(tileLayer, tileData);
 
     return changed;
+  }
+
+  private _addTileCollisionEvents(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, positions: Position[]) {
+    if (tileId !== TileId.Gun) return;
+    
+    for (const position of positions) {
+      const gunSensor = this._world.scene.matter.add.rectangle(
+        position.x * TILE_WIDTH + (TILE_WIDTH / 2), position.y * TILE_HEIGHT + (TILE_HEIGHT / 2),
+        TILE_WIDTH, TILE_HEIGHT,
+        { isSensor: true, isStatic: true },
+      );
+
+      //@ts-ignore
+      this._world.scene.matterCollision.addOnCollideStart({
+        objectA: gunSensor,
+        callback: ({ bodyB }: { bodyB: MatterJS.BodyType }) => {
+          if (this.onGunCollide) {
+            this.onGunCollide(tileId, position, bodyB);
+          }
+        },
+        context: this,
+      })
+    }
   }
 }
 
