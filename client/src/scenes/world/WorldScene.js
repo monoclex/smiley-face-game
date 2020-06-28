@@ -29,6 +29,7 @@ export class WorldScene extends Phaser.Scene {
       blocks: data.init.blocks,
     };
 
+    console.log(data.init);
     this._init = { init: data.init, networkClient: undefined };
   }
 

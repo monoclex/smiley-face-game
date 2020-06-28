@@ -59,6 +59,10 @@ export class World {
         }
       }
     }
+
+    // put a gun in the middle of the floor
+    let widthMiddle = (_width / 2) | 0; // |0 basically casts to int, see asmjs
+    this._map[TileLayer.Background][_height - 2][widthMiddle] = TileId.Gun;
   }
 
   // as this is the lobby, we don't need to worry about 

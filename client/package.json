@@ -33,6 +33,7 @@
     "@types/react-redux": "^7.1.9",
     "deno_ls_plugin": "^0.1.0",
     "parcel-bundler": "^1.12.4",
+    "parcel-plugin-json-url-loader": "^0.1.2",
     "typescript": "^3.9.5"
   },
   "browserslist": [
