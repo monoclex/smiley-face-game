@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["DOM", "ESNext"],
+
+    "allowJs": true,
+    "noImplicitAny": false,
+    "plugins": [{ "name": "deno_ls_plugin" }]
+  },
+  "include": ["src/**/*", "node_modules/phaser/types/*"],
+  "exclude": []
+}
