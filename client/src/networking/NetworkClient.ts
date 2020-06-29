@@ -59,7 +59,7 @@ export class NetworkClient {
       [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, 'onFireBullet'],
     };
 
-    this._webSocket.onerror = () => {
+    this._webSocket.onclose = this._webSocket.onerror = () => {
       alert('connection to server died, pls refresh');
     };
 

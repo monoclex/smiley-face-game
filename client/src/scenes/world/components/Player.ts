@@ -87,7 +87,11 @@ export class Player {
 
     this._matterCollisionPhysicsHandler = {
       objectA: [this.groundSensor],
-      callback: () => this.touchingGround = true,
+      callback: ({ gameObjectB }) => {
+        // don't collide with things that don't have a game object (like gun sensor)
+        if (gameObjectB === null) return;
+        this.touchingGround = true
+      },
       context: this
     };
 
