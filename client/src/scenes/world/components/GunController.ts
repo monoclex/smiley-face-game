@@ -15,7 +15,7 @@ export class GunController {
   ) {
     this.heldGun = this._scene.add.sprite(0, 0, 'held_gun');
     this.heldGun.visible = false;
-    this._keyE = new MultiKey(_scene, [Phaser.Input.Keyboard.KeyCodes.E]);
+    this._keyE = new MultiKey(_scene, [Phaser.Input.Keyboard.KeyCodes.E, Phaser.Input.Keyboard.KeyCodes.CTRL]);
   }
 
   update(gunAngle: number) {

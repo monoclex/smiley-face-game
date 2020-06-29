@@ -71,9 +71,14 @@ export class World {
       }
     }
 
-    // put a gun in the middle of the floor
-    let widthMiddle = (_width / 2) | 0; // |0 basically casts to int, see asmjs
-    this._map[TileLayer.Action][_height - 2][widthMiddle] = TileId.Gun;
+    // put a gun somewhere in the world
+    // we don't want it on the border, so we'll place it somewhere random within width - 2 and height - 2
+
+    // |0 basically casts to int, see asmjs
+    let gunX = (Math.random() * (_width - 2))|0;
+    let gunY = (Math.random() * (_height - 2))|0;
+
+    this._map[TileLayer.Action][gunY + 1][gunX + 1] = TileId.Gun;
   }
 
   // as this is the lobby, we don't need to worry about 
