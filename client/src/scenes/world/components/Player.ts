@@ -29,7 +29,6 @@ export class Player {
 
   constructor(readonly worldScene: WorldScene, onPlayerJoinEvent: ServerPlayerJoinPacket) {
     const { joinLocation, hasGun } = onPlayerJoinEvent;
-    if (hasGun) this.attachGun();
 
     const { sprite, mainBody, groundSensor, playerBody } = this.createPlayerBody(joinLocation);
     this.sprite = sprite;
@@ -38,6 +37,10 @@ export class Player {
     this.playerBody = playerBody;
 
     this.registerCollision();
+    
+    // register the gun AFTER the player so the gun will appear infront of the player
+    // technically the groups should be controlling the rendering, but i don't want to have to constantly order them
+    if (hasGun) this.attachGun();
   }
 
   private createPlayerBody(joinLocation: Position) {
