@@ -147,6 +147,11 @@ export class World {
       return ValidMessage.IsNotValidMessage;
     }
 
+    if (sender.hasGun) {
+      // don't kick the player, but just don't handle this
+      return ValidMessage.IsValidMessage;
+    }
+
     this._map[packet.layer][packet.position.y][packet.position.x] = packet.id;
 
     const response: ServerBlockSinglePacket = {
