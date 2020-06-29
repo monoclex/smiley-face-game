@@ -71,7 +71,7 @@ export class WorldScene extends Phaser.Scene {
       this,
       { x: 32 + 16, y: 32 + 16 },
       this._networkClient,
-      this._worldBlocks._gunSensors
+      this._groupPlayer,
     );
 
     // TODO: this should be moved elsewhwere this is uglyyyyyyyyyyyy
@@ -104,9 +104,11 @@ export class WorldScene extends Phaser.Scene {
 
     let players = new Map();
 
+    console.log(this._groupPlayer);
+    const g = this._groupPlayer;
     this._networkClient.events.onPlayerJoin = (event) => {
       const { userId, joinLocation, hasGun } = event;
-      const player = new NetworkControlledPlayer(this, joinLocation, hasGun);
+      const player = new NetworkControlledPlayer(this, joinLocation, hasGun, this._groupPlayer);
       players.set(userId, player);
 
       this._groupPlayer.add(player.character.sprite);

@@ -28,9 +28,9 @@ export class NetworkControlledPlayer {
   readonly _controller: ReferenceController;
   readonly character: Character;
 
-  constructor(scene: Phaser.Scene, spawnPosition: Position, hasGun: boolean) {
+  constructor(scene: Phaser.Scene, spawnPosition: Position, hasGun: boolean, bulletGroup: Phaser.GameObjects.Group) {
     this._controller = new ReferenceController();
-    this.character = new Character(scene, this._controller, spawnPosition, hasGun);
+    this.character = new Character(scene, this._controller, spawnPosition, hasGun, bulletGroup);
   }
 
   onMove(position: Position, inputs: ControllerState) {

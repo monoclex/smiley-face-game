@@ -30,7 +30,7 @@ export class Character {
 
   get gunController(): GunController {
     if (this._gunController === undefined) {
-      this._gunController = new GunController(this._scene, this);
+      this._gunController = new GunController(this._scene, this, this._bulletGroup);
     }
 
     return this._gunController;
@@ -41,7 +41,6 @@ export class Character {
   }
 
   set hasGun(value: boolean) {
-    console.log('gun is visible', value);
     this.gunController.heldGun.visible = value;
     this._hasGun = value;
   }
@@ -51,6 +50,7 @@ export class Character {
     private readonly _controller: CharacterController,
     spawnPosition: Position,
     private _hasGun: boolean,
+    private readonly _bulletGroup: Phaser.GameObjects.Group,
   ) {
     this.sprite = this._scene.matter.add.sprite(0, 0, 'player', null);
     
