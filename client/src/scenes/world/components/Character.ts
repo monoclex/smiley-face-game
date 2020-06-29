@@ -18,6 +18,7 @@ export interface CharacterController {
   isLeft(): boolean;
   isRight(): boolean;
   isUp(): boolean;
+  gunAngle(): number | null;
 }
 
 export class Character {

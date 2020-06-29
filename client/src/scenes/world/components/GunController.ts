@@ -15,15 +15,9 @@ export class GunController {
     this._keyE = new MultiKey(_scene, [Phaser.Input.Keyboard.KeyCodes.E]);
   }
 
-  update(pointer: Phaser.Input.Pointer, camera: Phaser.Cameras.Scene2D.Camera) {
-    const worldPosition = pointer.positionToCamera(camera) as Phaser.Math.Vector2;
-    
-    // get the angle from the player to the pointer
-    let angle = Phaser.Math.Angle.BetweenPoints(this._character.sprite, worldPosition);
-    const gunAngle = angle;
-    
+  update(gunAngle: number) {
     // set the position to be 20 pixels away from the center of the charcter, based on the angle
-    const heldGunPosition = this.distanceFrom(this._character.sprite, 20, angle);
+    const heldGunPosition = this.distanceFrom(this._character.sprite, 20, gunAngle);
     this.heldGun.setPosition(heldGunPosition.x, heldGunPosition.y);
 
     // MATH TIME:
@@ -40,6 +34,8 @@ export class GunController {
     // so when the angle is above Math.PI, we will subtract it by Math.PI and flip the X so that it looks the same but reversed
 
     this.heldGun.setFlipX(false);
+
+    let angle = gunAngle;
     if (Math.abs(angle) > Math.PI / 2) {
       if (angle < 0) angle += Math.PI;
       else angle -= Math.PI;

@@ -14,6 +14,10 @@ class ReferenceController implements CharacterController {
     return this.up;
   }
 
+  gunAngle(): number | null {
+    return null;
+  }
+
   left: boolean = false;
   right: boolean = false;
   up: boolean = false;

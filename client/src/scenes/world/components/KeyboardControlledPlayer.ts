@@ -7,6 +7,9 @@ class KeyboardController implements CharacterController {
     private readonly _up: MultiKey,
     private readonly _left: MultiKey,
     private readonly _right: MultiKey,
+    private readonly _pointer: Phaser.Input.Pointer,
+    private readonly _camera: Phaser.Cameras.Scene2D.Camera,
+    private readonly _position: { x: number, y: number },
   ) {}
 
   isLeft(): boolean {
@@ -19,6 +22,13 @@ class KeyboardController implements CharacterController {
 
   isUp(): boolean {
     return this._up.isDown();
+  }
+
+  gunAngle(): number | null {
+    const worldPosition = this._pointer.positionToCamera(this._camera) as Phaser.Math.Vector2;
+    
+    // get the angle from the player to the pointer
+    return Phaser.Math.Angle.BetweenPoints(this._position, worldPosition);
   }
 }
 
@@ -62,9 +72,13 @@ export class KeyboardControlledPlayer {
       new MultiKey(scene, [SPACE, UP, W]),
       new MultiKey(scene, [LEFT, A]),
       new MultiKey(scene, [RIGHT, D]),
+      scene.input.activePointer,
+      scene.cameras.main,
+      null!,
     );
 
     this.character = new Character(scene, this._controller, spawnPosition, false, bulletGroup);
+    (<any>this._controller)._position = this.character.sprite;
     
     this._last = { left: false, right: false, up: false };
     scene.events.on('update', this._update, this);

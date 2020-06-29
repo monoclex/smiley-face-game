@@ -103,6 +103,7 @@ export class WorldScene extends Phaser.Scene {
     };
 
     let players = new Map();
+    this.players = players;
 
     console.log(this._groupPlayer);
     const g = this._groupPlayer;
@@ -112,7 +113,7 @@ export class WorldScene extends Phaser.Scene {
       players.set(userId, player);
 
       this._groupPlayer.add(player.character.sprite);
-      this._groupInfront.add(player.character.gunController._heldGun);
+      this._groupInfront.add(player.character.gunController.heldGun);
     };
 
     this._networkClient.events.onPlayerLeave = (event) => {
@@ -137,6 +138,7 @@ export class WorldScene extends Phaser.Scene {
     };
 
     this._networkClient.events.onPickupGun = (event) => {
+      console.log('onPickupGun', event);
       const { sender } = event;
 
       /** @type {NetworkControlledPlayer} */
@@ -166,9 +168,13 @@ export class WorldScene extends Phaser.Scene {
     const pointer = this.input.activePointer;
     this._editor.update(pointer);
 
-    if (this._mainPlayer.character.hasGun) {
-      this._mainPlayer.character.gunController.update(pointer, this.cameras.main);
+    for (const player of this.players.values()) {
+      /** @type {NetworkControlledPlayer} */
+      const networkPlayer = /** @type {NetworkControlledPlayer} */ player;
+      networkPlayer.character.gunController.update(networkPlayer.character._controller.gunAngle());
     }
+
+    this._mainPlayer.character.gunController.update(this._mainPlayer._controller.gunAngle());
   }
 
   /**
