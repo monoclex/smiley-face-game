@@ -66,6 +66,12 @@ export class Editor {
   }
 
   update(pointer: Phaser.Input.Pointer) {
+    // anti gun check here too
+    if (this.worldScene.mainPlayer.hasGun) {
+      this.resetPlacingState();
+      return;
+    }
+
     if (!this._isDown) return;
 
     const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
