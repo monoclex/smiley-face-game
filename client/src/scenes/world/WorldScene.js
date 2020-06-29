@@ -9,6 +9,7 @@ import { NetworkEvents } from "../../networking/NetworkEvents";
 import { KeyboardControlledPlayer, PrimaryPlayer } from "./components/PrimaryPlayer";
 import { TileId } from "../../libcore/core/models/TileId";
 import { Player } from "./components/Player";
+import { Block } from "./components/Block";
 
 function NetworkControlledPlayer() {
   console.warn('new NetworkControlledPlayer');
@@ -41,7 +42,7 @@ export class WorldScene extends Phaser.Scene {
 
     this._init = data;
 
-    /** @type {TileId[][][]} */
+    /** @type {Block[][][]} */
     this.mapData = this.initMessage.blocks;
   }
 

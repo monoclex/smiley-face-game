@@ -1,3 +1,4 @@
+import { Block } from '../libcore/core/models/Block.ts';
 import { TileId } from '../libcore/core/models/TileId.ts';
 import { TileLayer } from '../libcore/core/models/TileLayer.ts';
 import { UserId } from "../libcore/core/models/UserId.ts";
@@ -17,10 +18,14 @@ import { AllowJoin } from "./AllowJoin.ts";
 import { User } from "./User.ts";
 import { ValidMessage } from "./ValidMessage.ts";
 
+function newBlock(id: TileId): Block {
+  return { id };
+}
+
 export class World {
   private readonly _lookup: WorldPacketLookup<User, Promise<ValidMessage>>;
   readonly users: Map<UserId, User>;
-  private readonly _map: TileId[][][];
+  private readonly _map: Block[][][];
 
   constructor(
     private readonly _width: number,
@@ -50,22 +55,22 @@ export class World {
 
     this._map = [];
     for (let layer = 0; layer <= TileLayer.Background; layer++) {
-      let layerMap: TileId[][] = [];
+      let layerMap: Block[][] = [];
       this._map[layer] = layerMap;
 
       for (let y = 0; y < _height; y++) {
-        let yMap: TileId[] = [];
+        let yMap: Block[] = [];
         layerMap[y] = yMap;
 
         for (let x = 0; x < _width; x++) {
 
           if (layer === TileLayer.Foreground) {
             // TODO: cleanup border initialization stuff
-            let xMap: TileId = (y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? 1 : 0;
+            let xMap: Block = newBlock((y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? TileId.Full : TileId.Empty);
             yMap[x] = xMap;
           }
           else {
-            yMap[x] = TileId.Empty;
+            yMap[x] = newBlock(TileId.Empty);
           }
         }
       }
@@ -78,7 +83,7 @@ export class World {
     let gunX = (Math.random() * (_width - 2))|0;
     let gunY = (Math.random() * (_height - 2))|0;
 
-    this._map[TileLayer.Action][gunY + 1][gunX + 1] = TileId.Gun;
+    this._map[TileLayer.Action][gunY + 1][gunX + 1].id = TileId.Gun;
   }
 
   // as this is the lobby, we don't need to worry about 
@@ -152,7 +157,7 @@ export class World {
       return ValidMessage.IsValidMessage;
     }
 
-    this._map[packet.layer][packet.position.y][packet.position.x] = packet.id;
+    this._map[packet.layer][packet.position.y][packet.position.x].id = packet.id;
 
     const response: ServerBlockSinglePacket = {
       ...packet,
@@ -187,7 +192,7 @@ export class World {
       return ValidMessage.IsNotValidMessage;
     }
 
-    if (this._map[TileLayer.Action][packet.position.y][packet.position.x] !== TileId.Gun) {
+    if (this._map[TileLayer.Action][packet.position.y][packet.position.x].id !== TileId.Gun) {
       // we don't want to say this was invalid, because someone could've broke the gun block while someone was trying to collect it.
       return ValidMessage.IsValidMessage;
     }

@@ -66,7 +66,7 @@ export class WorldBlocks {
     for (let layer = 0; layer <= TileLayer.Background; layer++) {
       for (let y = 0; y < this.height; y++) {
         for (let x = 0; x < this.width; x++) {
-          const blockId = this.mapData[layer][y][x];
+          const blockId = this.mapData[layer][y][x].id;
 
           const clientTileId = toClientTileId(blockId);
           const tileLayer = this.getTilemapLayer(layer);
@@ -111,7 +111,7 @@ export class WorldBlocks {
   }
 
   blockAt(layer: TileLayer, position: Position): TileId {
-    return this.mapData[layer][position.y][position.x];
+    return this.mapData[layer][position.y][position.x].id;
   }
 
   private getTilemapLayer(layer: TileLayer): Phaser.Tilemaps.DynamicTilemapLayer {
@@ -157,12 +157,19 @@ export class WorldBlocks {
     for (let posY = y; posY < endY; posY++) {
       for (let posX = x; posX < endX; posX++) {
         // only trigger changes for blocks that need to be changed
-        if (this.mapData[layer][posY][posX] !== tileId) {
+        if (this.mapData[layer][posY][posX].id !== tileId) {
           tileLayer.putTileAt(clientTileId, posX, posY, false);
           tileIds.push(posY * height + posX);
 
           changed.push({ x: posX, y: posY });
-          this.mapData[layer][posY][posX] = tileId;
+
+          // TODO: place chaning logic in its own place?
+          const block = this.mapData[layer][posY][posX];
+          if (block.sensor) {
+            this.world.remove(block.sensor);
+          }
+
+          block.id = tileId;
         }
       }
     }
@@ -201,6 +208,9 @@ export class WorldBlocks {
         },
         context: this,
       })
+
+      //@ts-ignore
+      this.worldScene.mapData[TileLayer.Action][position.y][position.x].sensor = gunSensor;
     }
   }
 }
