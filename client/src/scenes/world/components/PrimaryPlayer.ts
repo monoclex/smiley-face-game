@@ -9,9 +9,9 @@ export class PrimaryPlayer extends Player {
   keyUp: MultiKey;
   keyLeft: MultiKey;
   keyRight: MultiKey;
-  keyShoot: MultiKey;
 
   private get networkClient() { return this.worldScene.networkClient; }
+  private get pointer() { return this.worldScene.input.activePointer; }
 
   private _lastInputs: InputState;
 
@@ -25,7 +25,6 @@ export class PrimaryPlayer extends Player {
     this.keyUp = new MultiKey(worldScene, [W, UP, SPACE]);
     this.keyLeft = new MultiKey(worldScene, [A, LEFT]);
     this.keyRight = new MultiKey(worldScene, [D, RIGHT]);
-    this.keyShoot = new MultiKey(worldScene, [E, CTRL]);
 
     worldScene.events.on('update', this.primaryPlayerUpdate, this);
 
@@ -47,7 +46,7 @@ export class PrimaryPlayer extends Player {
     }
     
     if (this.hasGun) {
-      this.gun.firing = this.keyShoot.isDown();
+      this.gun.firing = this.pointer.isDown;
     }
   }
 

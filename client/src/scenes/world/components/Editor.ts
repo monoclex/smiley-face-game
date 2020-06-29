@@ -33,6 +33,12 @@ export class Editor {
   }
 
   onPointerDown(pointer: Phaser.Input.Pointer) {
+    // if the player has a gun, prevent editing
+    if (this.worldScene.mainPlayer.hasGun) {
+      this.resetPlacingState();
+      return;
+    }
+
     const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
 
     if (pointer.rightButtonDown()) {
