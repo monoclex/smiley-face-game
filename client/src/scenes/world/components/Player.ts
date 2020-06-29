@@ -151,6 +151,10 @@ export class Player {
     this.worldScene.matterCollision.removeOnCollideStart(this._matterCollisionPhysicsHandler);
     //@ts-ignore
     this.worldScene.matterCollision.removeOnCollideActive(this._matterCollisionPhysicsHandler);
+
+    if (this.hasGun) {
+      this.gun.destroy();
+    }
   }
 
   onMove(position: Position, inputs: InputState) {

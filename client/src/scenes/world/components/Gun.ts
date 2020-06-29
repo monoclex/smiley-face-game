@@ -94,6 +94,10 @@ export class Gun {
     this.heldGun.setRotation(displayAngle);
   }
 
+  destroy() {
+    this.heldGun.destroy();
+  }
+
   private toggleShootCooldown(ms: number) {
     this._canShoot = false;
     setTimeout(() => this._canShoot = true, ms);
