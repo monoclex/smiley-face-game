@@ -11,8 +11,8 @@ import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/netw
 import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from '../libcore/core/networking/game/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from '../libcore/core/networking/game/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from '../libcore/core/networking/game/ServerPlayerLeave';
-import { ControllerState } from '../scenes/world/components/PrimaryPlayer';
 import { NetworkEvents } from './NetworkEvents';
+import { InputState } from '../scenes/world/components/InputState';
 
 interface Position {
   readonly x: number;
@@ -119,7 +119,7 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  move(position: Position, inputs: ControllerState) {
+  move(position: Position, inputs: InputState) {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position,

@@ -54,6 +54,8 @@ export class Gun {
     setTimeout(() => {
       bullet.destroy();
     }, 1000);
+
+    if (this.onBulletFired) this.onBulletFired();
   }
 
   private displayGun() {

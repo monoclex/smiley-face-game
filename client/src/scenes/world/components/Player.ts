@@ -2,6 +2,7 @@ import { ServerPlayerJoinPacket } from '../../../libcore/core/networking/game/Se
 import { TILE_HEIGHT, TILE_WIDTH } from '../Config';
 import { WorldScene } from "../WorldScene";
 import { Gun } from './Gun';
+import { InputState } from './InputState';
 import { Position } from './Position';
 
 export class Player {
@@ -19,6 +20,8 @@ export class Player {
   readonly mainBody: MatterJS.BodyType;
   readonly groundSensor: MatterJS.BodyType;
   readonly playerBody: MatterJS.Body;
+
+  onGunAttached?: () => void;
 
   // these two exist so i can unregister the collision event things
   private _updateTouchingGround: any;
@@ -133,6 +136,7 @@ export class Player {
     }
 
     this.gun = new Gun(this.worldScene, this);
+    if (this.onGunAttached) this.onGunAttached();
   }
 
   destroy() {
@@ -144,5 +148,12 @@ export class Player {
     this.worldScene.matterCollision.removeOnCollideStart(this._matterCollisionPhysicsHandler);
     //@ts-ignore
     this.worldScene.matterCollision.removeOnCollideActive(this._matterCollisionPhysicsHandler);
+  }
+
+  onMove(position: Position, inputs: InputState) {
+    this.sprite.setPosition(position.x, position.y);
+    this.leftHeld = inputs.left;
+    this.rightHeld = inputs.right;
+    this.upHeld = inputs.up;
   }
 }
