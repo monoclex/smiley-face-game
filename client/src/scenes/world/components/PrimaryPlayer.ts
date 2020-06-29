@@ -14,6 +14,7 @@ export class PrimaryPlayer extends Player {
   private get pointer() { return this.worldScene.input.activePointer; }
 
   private _lastInputs: InputState;
+  private _tickCounter: number = 0;
 
   constructor(readonly worldScene: WorldScene, onPlayerJoinEvent: ServerPlayerJoinPacket) {
     super(worldScene, onPlayerJoinEvent);
@@ -39,7 +40,8 @@ export class PrimaryPlayer extends Player {
 
     const inputs = captureInputs(this);
 
-    if (inputsDiffer(this._lastInputs, inputs)) {
+    if (inputsDiffer(this._lastInputs, inputs) || this._tickCounter > 100) {
+      this._tickCounter = 0;
       this.networkClient.move(this.sprite, inputs);
       
       this._lastInputs = inputs;
@@ -48,6 +50,8 @@ export class PrimaryPlayer extends Player {
     if (this.hasGun) {
       this.gun.firing = this.pointer.isDown;
     }
+
+    this._tickCounter++;
   }
 
   onBulletShot() {
