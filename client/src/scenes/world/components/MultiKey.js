@@ -4,6 +4,11 @@
  * button.
  */
 export default class MultiKey {
+  /**
+   * 
+   * @param {Phaser.Scene} scene 
+   * @param {number | number[]} keys 
+   */
   constructor(scene, keys) {
     if (!Array.isArray(keys)) keys = [keys];
     this.keys = keys.map(key => scene.input.keyboard.addKey(key));

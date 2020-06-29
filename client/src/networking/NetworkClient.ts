@@ -11,7 +11,7 @@ import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/netw
 import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from '../libcore/core/networking/game/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from '../libcore/core/networking/game/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from '../libcore/core/networking/game/ServerPlayerLeave';
-import { ControllerState } from '../scenes/world/components/KeyboardControlledPlayer';
+import { ControllerState } from '../scenes/world/components/PrimaryPlayer';
 import { NetworkEvents } from './NetworkEvents';
 
 interface Position {

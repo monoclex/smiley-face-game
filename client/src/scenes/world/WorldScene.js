@@ -5,9 +5,14 @@ import MultiKey from "./components/MultiKey";
 import { TILE_WIDTH, TILE_HEIGHT } from "./Config";
 import { NetworkClient } from "../../networking/NetworkClient";
 import { NetworkEvents } from "../../networking/NetworkEvents";
-import { NetworkControlledPlayer } from "./components/NetworkControlledPlayer";
-import { KeyboardControlledPlayer } from "./components/KeyboardControlledPlayer";
+// import { NetworkControlledPlayer } from "./components/NetworkControlledPlayer";
+import { KeyboardControlledPlayer, PrimaryPlayer } from "./components/PrimaryPlayer";
 import { TileId } from "../../libcore/core/models/TileId";
+import { Player } from "./components/Player";
+
+function NetworkControlledPlayer() {
+  console.warn('new NetworkControlledPlayer');
+}
 
 export const WORLD_SCENE_KEY = "WorldScene";
 
@@ -76,121 +81,137 @@ export class WorldScene extends Phaser.Scene {
 
     // editor allows us to do block placement stuff
     this.shiftKey = new MultiKey(this, [Phaser.Input.Keyboard.KeyCodes.SHIFT]);
+    this.selectedBlock = TileId.Full;
     this._editor = new Editor(this);
 
     // BIG TODO: for some reason have to append 16 for positions in world
 
-    // add in the player
-    this._mainPlayer = new KeyboardControlledPlayer(this);
+    const initAsOnJoin = {
+      joinLocation: this.initMessage.spawnPosition,
+      hasGun: false
+    };
+    this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);
+
+    // add support to recognize other players
+    /** @type {Map<string, Player>} */
+    this.players = new Map();
 
     // TODO: this should be moved elsewhwere this is uglyyyyyyyyyyyy
     // handle events when the player touches a gun (to pick one up)
     this._worldBlocks.onGunCollide = ((tileId, position, bodyB) => {
-      if (bodyB === this._mainPlayer.character._mainBody) {
-        this._mainPlayer.character.hasGun = true;
+      if (bodyB === this.mainPlayer.mainBody && !this.mainPlayer.hasGun) {
+        this.mainPlayer.attachGun();
         this.networkClient.gotGun(position);
       }
     }).bind(this);
 
     // make camera follow player
     const camera = this.cameras.main;
-    camera.startFollow(this._mainPlayer.character.sprite, false, 0.05, 0.05, -16, -16);
+    camera.startFollow(this.mainPlayer.sprite, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
-    // camera.setBounds(0, 0, this._tilemap.widthInPixels, this._tilemap.heightInPixels);
 
     // assign to hierarchy of groups here
     this.groupBehind.add(this._worldBlocks._layers.void);
     this.groupBehind.add(this._worldBlocks._layers.background);
     this.groupAction.add(this._worldBlocks._layers.action);
-    this.groupPlayer.add(this._mainPlayer.character.sprite);
+    this.groupPlayer.add(this.mainPlayer.sprite);
     this.groupForeground.add(this._worldBlocks._layers.foreground);
 
     // network event stuff
-    this.networkClient.events.onBlockSingle = (event) => {
-      this._worldBlocks.placeBlock(event.layer, event.position, event.id);
-    };
-
-    let players = new Map();
-    this.players = players;
-
-    this.networkClient.events.onPlayerJoin = (event) => {
-      const { userId } = event;
-      const player = new NetworkControlledPlayer(this, event);
-      players.set(userId, player);
-
-      this.groupPlayer.add(player.character.sprite);
-      this.groupInfront.add(player.character.gunController.heldGun);
-    };
-
-    this.networkClient.events.onPlayerLeave = (event) => {
-      const { userId } = event;
-      
-      /** @type {NetworkControlledPlayer} */
-      const player = players.get(userId);
-
-      player.character.destroy();
-      players.delete(userId);
-    };
-
-    this.networkClient.events.onMovement = (event) => {
-      const { sender, position, inputs } = event;
-
-      /** @type {NetworkControlledPlayer} */
-      const player = players.get(sender);
-
-      if (player !== undefined) {
-        player.onMove(position, inputs);
-      }
-    };
-
-    this.networkClient.events.onPickupGun = (event) => {
-      const { sender } = event;
-
-      /** @type {NetworkControlledPlayer} */
-      const player = players.get(sender);
-
-      if (player === undefined) {
-        // only the main player isn't stored in the player list
-        // TODO: this might cause bugs relying on that behavior ^
-
-        this._mainPlayer.character.hasGun = true;
-      }
-      else {
-        player.character.hasGun = true;
-      }
-    };
-
-    this.networkClient.events.onFireBullet = (event) => {
-      const { sender, angle } = event;
-
-      /** @type {NetworkControlledPlayer} */
-      const player = players.get(sender);
-
-      if (player !== undefined) {
-        player._controller.setAngle(angle);
-        player.character.gunController.fireBullet(angle);
-      }
-    };
+    this.networkClient.events.onBlockSingle = this.onBlockSingle.bind(this);
+    this.networkClient.events.onPlayerJoin = this.onPlayerJoin.bind(this);
+    this.networkClient.events.onPlayerLeave = this.onPlayerLeave.bind(this);
+    this.networkClient.events.onMovement = this.onMovement.bind(this);
+    this.networkClient.events.onPickupGun = this.onPickupGun.bind(this);
+    this.networkClient.events.onFireBullet = this.onFireBullet.bind(this);
 
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
     this.networkClient.continue();
   }
 
-  /**
-   * @param {number} time
-   * @param {number} delta
-   */
-  update(time, delta) {
+  update() {
     const pointer = this.input.activePointer;
     this._editor.update(pointer);
 
     for (const player of this.players.values()) {
-      /** @type {NetworkControlledPlayer} */
-      const networkPlayer = /** @type {NetworkControlledPlayer} */ player;
-      networkPlayer.character.gunController.update(networkPlayer.character._controller.gunAngle());
+      // player.character.gunController.update(player.character._controller.gunAngle());
     }
 
-    this._mainPlayer.character.gunController.update(this._mainPlayer._controller.gunAngle());
+    if (this.mainPlayer.hasGun) {
+
+      const worldPosition = pointer.positionToCamera(this.cameras.main);
+      
+      // get the angle from the player to the pointer
+      const angle = Phaser.Math.Angle.BetweenPoints(this.mainPlayer.sprite, worldPosition);
+
+      this.mainPlayer.gun.angle = angle;
+    }
+  }
+
+  onBlockSingle(event) {
+    this._worldBlocks.placeBlock(event.layer, event.position, event.id);
+  }
+
+  onPlayerJoin(event) {
+    const { userId } = event;
+    const player = new Player(this, event);
+    this.players.set(userId, player);
+  }
+
+  onPlayerLeave(event) {
+    const { userId } = event;
+    
+    const player = this.players.get(userId);
+
+    // TODO: these probably aren't needed, but i'm doing it for good measure since this game is in its early stages
+    if (player === undefined) {
+      console.warn('received onPlayerLeave from non existing player');
+      return;
+    }
+
+    this.players.delete(userId);
+
+    player.destroy();
+  }
+
+  onMovement(event) {
+    const { sender, position, inputs } = event;
+
+    const player = this.players.get(sender);
+
+    if (player === undefined) {
+      console.warn('received movement from non existing player');
+      return;
+    }
+
+    player.onMove(position, inputs);
+  }
+
+  onPickupGun(event) {
+    const { sender } = event;
+
+    const player = this.players.get(sender);
+
+    if (player === undefined) {
+      console.warn('received onPickupGun from non existing player');
+      return;
+    }
+
+    player.attachGun();
+  }
+
+  onFireBullet(event) {
+    const { sender, angle } = event;
+
+    const player = this.players.get(sender);
+
+    if (player === undefined) {
+      console.warn('received onFireBullet from non existing player');
+      return;
+    }
+
+    player.gun.angle = angle;
+    player.gun.fireBullet();
   }
 }

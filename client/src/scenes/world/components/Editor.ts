@@ -1,45 +1,46 @@
-import { swapLayer } from "../../../libcore/core/models/TileLayer";
-import { WorldBlocks } from "./WorldBlocks";
-import { bresenhamsLine } from "../../../misc";
-import { NetworkClient } from "../../../networking/NetworkClient";
 import { TileId } from "../../../libcore/core/models/TileId";
-import { TileLayer } from "../../../libcore/core/models/TileLayer";
+import { swapLayer, TileLayer } from "../../../libcore/core/models/TileLayer";
+import { bresenhamsLine } from "../../../misc";
 import { WorldScene } from "../WorldScene";
 
 /**
  * Maintains only the components required for editing
  */
 export class Editor {
-  /** @param {WorldScene} worldScene */
-  constructor(worldScene) {
-    this._tileState = worldScene._worldBlocks;
-    this.selectedBlock = TileId.Full;
-    this._shift = worldScene.shiftKey;
-    this._camera = worldScene.cameras.main;
-    this._networkClient = worldScene.networkClient;
-    this._networkClient.events.onBlockSingle = (packet) => {
+
+  private _activeBlock: TileId;
+  private _selectedLayer: TileLayer;
+  private _isDown: boolean;
+  private _lastX: number;
+  private _lastY: number;
+
+  private get tileState() { return this.worldScene._worldBlocks; }
+  private get selectedBlock() { return this.worldScene.selectedBlock; }
+  private get shiftKey() { return this.worldScene.shiftKey; }
+  private get camera() { return this.worldScene.cameras.main; }
+  private get networkClient() { return this.worldScene.networkClient; }
+
+  constructor(readonly worldScene: WorldScene) {
+    this._activeBlock = this.selectedBlock;
+
+    this.networkClient.events.onBlockSingle = (packet) => {
       console.log(packet);
-      this._tileState.placeBlock(packet.layer, packet.position, packet.id);
+      this.tileState.placeBlock(packet.layer, packet.position, packet.id);
     };
 
     worldScene.input.on('pointerdown', ((pointer) => this.onPointerDown(pointer)).bind(this));
     worldScene.input.on('pointerup', this.resetPlacingState.bind(this));
   }
 
-  /**
-   * @private
-   * @param {Phaser.Input.Pointer} pointer
-   */
-  onPointerDown(pointer) {
-    const { x, y } = this._tileState.screenToWorldPosition(pointer.positionToCamera(this._camera));
+  onPointerDown(pointer: Phaser.Input.Pointer) {
+    const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
 
     if (pointer.rightButtonDown()) {
       // we want to clear blocks if right is down
-      this.selectedBlock = TileId.Empty
+      this._activeBlock = TileId.Empty
     }
     else {
-      // TODO: have a way to reset selected block or something fancier, this is just a temporary hack
-      this.selectedBlock = TileId.Full;
+      this._activeBlock = this.selectedBlock;
     }
 
     this._isDown = true;
@@ -58,15 +59,12 @@ export class Editor {
     this._lastY = -1;
   }
 
-  /**
-   * @param {Phaser.Input.Pointer} pointer
-   */
-  update(pointer) {
+  update(pointer: Phaser.Input.Pointer) {
     if (!this._isDown) return;
 
-    const { x, y } = this._tileState.screenToWorldPosition(pointer.positionToCamera(this._camera));
+    const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
 
-    const tileLayer = this._shift.isDown() ? swapLayer(this._selectedLayer) : this._selectedLayer;
+    const tileLayer = this.shiftKey.isDown() ? swapLayer(this._selectedLayer) : this._selectedLayer;
 
     const absoluteXDiff = Math.abs(this._lastX - x);
     const absoluteYDiff = Math.abs(this._lastY - y);
@@ -75,13 +73,13 @@ export class Editor {
 
     // if the block position only changed by 1 block, we don't need to employ any fancy algorithms
     if (absoluteXDiff <= 1 && absoluteYDiff <= 1) {
-      blocksToSend = this._placeBlock(tileLayer, { x, y }, this.selectedBlock);
+      blocksToSend = this._placeBlock(tileLayer, { x, y }, this._activeBlock);
     }
     // check if we ended up placing a horizontal/vertical line - we can optimize this scenario
     else if (absoluteXDiff === 0 || absoluteYDiff === 0) { // line
       const start = { x: Math.min(this._lastX, x), y: Math.min(this._lastY, y) };
       const size = { width: absoluteXDiff + 1, height: absoluteYDiff + 1 };
-      blocksToSend = this._fillBlocks(tileLayer, start, size, this.selectedBlock);
+      blocksToSend = this._fillBlocks(tileLayer, start, size, this._activeBlock);
     }
     // otherwise, we need to use a fancy algorithm to properly handle the blocks inbetween the two frames
     else {
@@ -90,7 +88,7 @@ export class Editor {
     
       // some fancy line, use Bresenham's Line Algorithm to fill in these blocks
       bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
-        blocksToSend = blocksToSend.concat(this._placeBlock(tileLayer, { x, y }, this.selectedBlock));
+        blocksToSend = blocksToSend.concat(this._placeBlock(tileLayer, { x, y }, this._activeBlock));
       });
     }
 
@@ -98,17 +96,17 @@ export class Editor {
     this._lastY = y;
 
     for (const block of blocksToSend) {
-      this._networkClient.placeBlock(block.x, block.y, this._tileState.blockAt(tileLayer, block), tileLayer);
+      this.networkClient.placeBlock(block.x, block.y, this.tileState.blockAt(tileLayer, block), tileLayer);
     }
   }
 
   /** @private */
-  _placeBlock(layer, position, selectedBlock) {
-    return this._tileState.placeBlock(layer, position, selectedBlock);
+  _placeBlock(layer: TileLayer, position, selectedBlock: TileId) {
+    return this.tileState.placeBlock(layer, position, selectedBlock);
   }
 
   /** @private */
-  _fillBlocks(layer, start, size, selectedBlock) {
-    return this._tileState.fillBlocks(layer, start, size, selectedBlock);
+  _fillBlocks(layer: TileLayer, start, size, selectedBlock: TileId) {
+    return this.tileState.fillBlocks(layer, start, size, selectedBlock);
   }
 }
