@@ -11,8 +11,8 @@ import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/netw
 import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from '../libcore/core/networking/game/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from '../libcore/core/networking/game/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from '../libcore/core/networking/game/ServerPlayerLeave';
-import { NetworkEvents } from './NetworkEvents';
 import { InputState } from '../scenes/world/components/InputState';
+import { NetworkEvents } from './NetworkEvents';
 
 interface Position {
   readonly x: number;
@@ -57,6 +57,10 @@ export class NetworkClient {
       [SERVER_INIT_ID]: [validateServerInit, 'onInit'],
       [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, 'onPickupGun'],
       [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, 'onFireBullet'],
+    };
+
+    this._webSocket.onerror = () => {
+      alert('connection to server died, pls refresh');
     };
 
     this._webSocket.onmessage = async (event) => {

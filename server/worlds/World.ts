@@ -200,6 +200,12 @@ export class World {
   }
 
   private async onFireBullet(packet: FireBulletPacket, sender: User): Promise<ValidMessage> {
+    
+    // need to have a gun to shoot it
+    if (!sender.hasGun) {
+      return ValidMessage.IsNotValidMessage;
+    }
+
     const response: ServerFireBulletPacket = {
       packetId: SERVER_FIRE_BULLET_ID,
       sender: sender.userId,
