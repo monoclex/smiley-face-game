@@ -6,6 +6,7 @@ import { WorldScene } from "./scenes/world/WorldScene";
 import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./ui/App.tsx";
+import isProduction from "./isProduction";
 
 export const config = {
   type: Phaser.AUTO,
@@ -17,8 +18,15 @@ export const config = {
   parent: "game",
   scene: [LoadingScene, WorldScene],
   backgroundColor: "#000000",
-  
-  physics: { default: "matter", matter: { debug: true } },
+
+  physics: {
+    default: "matter",
+    matter: {
+      // toggles hitboxes around objects
+      // if we're not in production, we want to see them
+      debug: isProduction ? false : true
+    }
+  },
   plugins: {
     scene: [
       {
@@ -29,12 +37,5 @@ export const config = {
     ],
   },
 };
-
-// prevent right clicks from having the context menu show up
-// document.getElementById('game').oncontextmenu = () => false;
-
-// window.addEventListener("load", () => {
-//   const game = new Phaser.Game(config);
-// });
 
 ReactDOM.render(<App config={config} />, document.getElementById("root"));

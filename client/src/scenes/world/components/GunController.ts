@@ -1,3 +1,4 @@
+import { WorldScene } from '../WorldScene';
 import { Character } from './Character';
 import MultiKey from './MultiKey';
 export class GunController {
@@ -8,13 +9,15 @@ export class GunController {
   _canShoot: boolean = true;
 
   constructor(
-    private readonly _scene: Phaser.Scene,
+    private readonly _scene: WorldScene,
     private readonly _character: Character,
     private readonly _bulletGroup: Phaser.GameObjects.Group,
     private readonly _reactToE?: boolean,
   ) {
     this.heldGun = this._scene.add.sprite(0, 0, 'held_gun');
     this.heldGun.visible = false;
+    _scene.groupGuns.add(this.heldGun);
+    
     this._keyE = new MultiKey(_scene, [Phaser.Input.Keyboard.KeyCodes.E, Phaser.Input.Keyboard.KeyCodes.CTRL]);
   }
 
@@ -52,7 +55,6 @@ export class GunController {
 
     if (this._reactToE && this._keyE.isDown()) {
       if (this._character.networkClient) {
-        console.log('fireBullet called');
         this._character.networkClient.fireBullet(gunAngle);
       }
 

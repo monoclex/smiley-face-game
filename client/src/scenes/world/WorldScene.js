@@ -7,6 +7,7 @@ import { NetworkClient } from "../../networking/NetworkClient";
 import { NetworkEvents } from "../../networking/NetworkEvents";
 import { NetworkControlledPlayer } from "./components/NetworkControlledPlayer";
 import { KeyboardControlledPlayer } from "./components/KeyboardControlledPlayer";
+import { TileId } from "../../libcore/core/models/TileId";
 
 export const WORLD_SCENE_KEY = "WorldScene";
 
@@ -17,9 +18,13 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+  /** @param {import("../loading/LoadingSceneData").LoadingSceneData} data */
   init(data) {
-    /** @type {NetworkClient} */
-    this._networkClient = data.networkClient;
+    this.networkClient = data.networkClient;
+    this.initMessage = data.init;
+
+    /** @type {{ width: number, height: number }} */
+    this.worldSize = data.init.size;
 
     this._config = {
       // width and height of world
@@ -29,8 +34,10 @@ export class WorldScene extends Phaser.Scene {
       blocks: data.init.blocks,
     };
 
-    console.log(data.init);
-    this._init = { init: data.init, networkClient: undefined };
+    this._init = data;
+
+    /** @type {TileId[][][]} */
+    this.mapData = this.initMessage.blocks;
   }
 
   preload() {
@@ -42,44 +49,46 @@ export class WorldScene extends Phaser.Scene {
   
   create() {
 
-    // initialize hierarchy of groups now
-    this._groupBehind = this.sys.add.group();
-    this._groupPlayer = this.sys.add.group();
-    this._groupInfront = this.sys.add.group();
-    
-    // tilemap can create tilesets and tile layers which is what we need
-    this._tilemap = this.make.tilemap({
-      ...this._config,
-      width: this._config.width,
-      height: this._config.height,
+    // layer the world so certain things appear infront/behind things
+    this.groupBehind = this.sys.add.group();
+    this.groupAction = this.sys.add.group();
+    this.groupPlayer = this.sys.add.group();
+    this.groupBullets = this.sys.add.group();
+    this.groupForeground = this.sys.add.group();
+    this.groupGuns = this.sys.add.group();
+    this.groupInfront = this.sys.add.group(); // TODO: delete
+
+    // create a tilemap - we'll use this to make the multiple layers (background, action, foreground, etc.)
+    this.tilemap = this.make.tilemap({
+      // map size
+      ...this.worldSize,
+
+      // tile size
+      tileWidth: TILE_WIDTH,
+      tileHeight: TILE_HEIGHT,
     });
-    
-    // tileset for block id -> texture
-    const tileset = this._tilemap.addTilesetImage('atlas', 'atlas', TILE_WIDTH, TILE_HEIGHT, 0, 0);
+
+    // tilesets hold each block and their tile id
+    this.tileset = this.tilemap.addTilesetImage('atlas', 'atlas', TILE_WIDTH, TILE_HEIGHT, 0, 0);
 
     // holds world state - such as background, foreground, etc.
-    this._worldBlocks = WorldBlocks.create(this._tilemap, tileset, this.matter.world, this._config);
+    this._worldBlocks = WorldBlocks.create(this);
 
     // editor allows us to do block placement stuff
-    const shiftKey = new MultiKey(this, [Phaser.Input.Keyboard.KeyCodes.SHIFT]);
-    this._editor = new Editor(this._worldBlocks, this.input, this.cameras.main, shiftKey, this._networkClient);
+    this.shiftKey = new MultiKey(this, [Phaser.Input.Keyboard.KeyCodes.SHIFT]);
+    this._editor = new Editor(this);
 
     // BIG TODO: for some reason have to append 16 for positions in world
 
     // add in the player
-    this._mainPlayer = new KeyboardControlledPlayer(
-      this,
-      { x: 32 + 16, y: 32 + 16 },
-      this._networkClient,
-      this._groupPlayer,
-    );
+    this._mainPlayer = new KeyboardControlledPlayer(this);
 
     // TODO: this should be moved elsewhwere this is uglyyyyyyyyyyyy
     // handle events when the player touches a gun (to pick one up)
     this._worldBlocks.onGunCollide = ((tileId, position, bodyB) => {
       if (bodyB === this._mainPlayer.character._mainBody) {
         this._mainPlayer.character.hasGun = true;
-        this._networkClient.gotGun(position);
+        this.networkClient.gotGun(position);
       }
     }).bind(this);
 
@@ -90,31 +99,30 @@ export class WorldScene extends Phaser.Scene {
     // camera.setBounds(0, 0, this._tilemap.widthInPixels, this._tilemap.heightInPixels);
 
     // assign to hierarchy of groups here
-    this._groupBehind.add(this._worldBlocks._layers.void);
-    this._groupBehind.add(this._worldBlocks._layers.background);
-    this._groupBehind.add(this._worldBlocks._layers.action);
-    this._groupPlayer.add(this._mainPlayer.character.sprite);
-    this._groupInfront.add(this._worldBlocks._layers.foreground);
-    this.updateRenderOrder();
+    this.groupBehind.add(this._worldBlocks._layers.void);
+    this.groupBehind.add(this._worldBlocks._layers.background);
+    this.groupAction.add(this._worldBlocks._layers.action);
+    this.groupPlayer.add(this._mainPlayer.character.sprite);
+    this.groupForeground.add(this._worldBlocks._layers.foreground);
 
     // network event stuff
-    this._networkClient.events.onBlockSingle = (event) => {
+    this.networkClient.events.onBlockSingle = (event) => {
       this._worldBlocks.placeBlock(event.layer, event.position, event.id);
     };
 
     let players = new Map();
     this.players = players;
 
-    this._networkClient.events.onPlayerJoin = (event) => {
-      const { userId, joinLocation, hasGun } = event;
-      const player = new NetworkControlledPlayer(this, joinLocation, hasGun, this._groupPlayer);
+    this.networkClient.events.onPlayerJoin = (event) => {
+      const { userId } = event;
+      const player = new NetworkControlledPlayer(this, event);
       players.set(userId, player);
 
-      this._groupPlayer.add(player.character.sprite);
-      this._groupInfront.add(player.character.gunController.heldGun);
+      this.groupPlayer.add(player.character.sprite);
+      this.groupInfront.add(player.character.gunController.heldGun);
     };
 
-    this._networkClient.events.onPlayerLeave = (event) => {
+    this.networkClient.events.onPlayerLeave = (event) => {
       const { userId } = event;
       
       /** @type {NetworkControlledPlayer} */
@@ -124,7 +132,7 @@ export class WorldScene extends Phaser.Scene {
       players.delete(userId);
     };
 
-    this._networkClient.events.onMovement = (event) => {
+    this.networkClient.events.onMovement = (event) => {
       const { sender, position, inputs } = event;
 
       /** @type {NetworkControlledPlayer} */
@@ -135,7 +143,7 @@ export class WorldScene extends Phaser.Scene {
       }
     };
 
-    this._networkClient.events.onPickupGun = (event) => {
+    this.networkClient.events.onPickupGun = (event) => {
       const { sender } = event;
 
       /** @type {NetworkControlledPlayer} */
@@ -152,7 +160,7 @@ export class WorldScene extends Phaser.Scene {
       }
     };
 
-    this._networkClient.events.onFireBullet = (event) => {
+    this.networkClient.events.onFireBullet = (event) => {
       const { sender, angle } = event;
 
       /** @type {NetworkControlledPlayer} */
@@ -166,7 +174,7 @@ export class WorldScene extends Phaser.Scene {
 
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
-    this._networkClient.continue();
+    this.networkClient.continue();
   }
 
   /**
@@ -184,16 +192,5 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this._mainPlayer.character.gunController.update(this._mainPlayer._controller.gunAngle());
-  }
-
-  /**
-   * Reorganizes all the items in the scene (background, players, and foreground) to be correct.
-   * This is typically called after a player is added, or something similar.
-   */
-  updateRenderOrder() {
-    const { displayList } = this.sys;
-    this._groupBehind.children.iterate(displayList.bringToTop, displayList);
-    this._groupPlayer.children.iterate(displayList.bringToTop, displayList);
-    this._groupInfront.children.iterate(displayList.bringToTop, displayList);
   }
 }

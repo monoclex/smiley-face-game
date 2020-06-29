@@ -1,3 +1,5 @@
+import { ServerPlayerJoinPacket } from '../../../libcore/core/networking/game/ServerPlayerJoin';
+import { WorldScene } from '../WorldScene';
 import { Character, CharacterController } from './Character';
 import { ControllerState } from './KeyboardControlledPlayer';
 
@@ -37,9 +39,10 @@ export class NetworkControlledPlayer {
   readonly _controller: ReferenceController;
   readonly character: Character;
 
-  constructor(scene: Phaser.Scene, spawnPosition: Position, hasGun: boolean, bulletGroup: Phaser.GameObjects.Group) {
+  constructor(readonly worldScene: WorldScene, joinMessage: ServerPlayerJoinPacket) {
+    const { spawnPosition, hasGun } = joinMessage;
     this._controller = new ReferenceController();
-    this.character = new Character(scene, this._controller, spawnPosition, hasGun, bulletGroup, false);
+    this.character = new Character(worldScene, this._controller, spawnPosition, hasGun, worldScene.groupBullets, false);
   }
 
   onMove(position: Position, inputs: ControllerState) {

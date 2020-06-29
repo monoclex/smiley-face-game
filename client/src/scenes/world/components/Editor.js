@@ -4,29 +4,26 @@ import { bresenhamsLine } from "../../../misc";
 import { NetworkClient } from "../../../networking/NetworkClient";
 import { TileId } from "../../../libcore/core/models/TileId";
 import { TileLayer } from "../../../libcore/core/models/TileLayer";
+import { WorldScene } from "../WorldScene";
 
 /**
  * Maintains only the components required for editing
  */
 export class Editor {
-  /**
-   * @private
-   * @param {WorldBlocks} tileState
-   * @param {NetworkClient} networkClient
-   */
-  constructor(tileState, input, camera, shiftKey, networkClient) {
-    this._tileState = tileState;
+  /** @param {WorldScene} worldScene */
+  constructor(worldScene) {
+    this._tileState = worldScene._worldBlocks;
     this.selectedBlock = TileId.Full;
-    this._shift = shiftKey;
-    this._camera = camera;
-    this._networkClient = networkClient;
-    this._networkClient.events.onBlockSingle = (packet, sender) => {
+    this._shift = worldScene.shiftKey;
+    this._camera = worldScene.cameras.main;
+    this._networkClient = worldScene.networkClient;
+    this._networkClient.events.onBlockSingle = (packet) => {
       console.log(packet);
       this._tileState.placeBlock(packet.layer, packet.position, packet.id);
     };
 
-    input.on('pointerdown', ((pointer) => this.onPointerDown(pointer)).bind(this));
-    input.on('pointerup', this.resetPlacingState.bind(this));
+    worldScene.input.on('pointerdown', ((pointer) => this.onPointerDown(pointer)).bind(this));
+    worldScene.input.on('pointerup', this.resetPlacingState.bind(this));
   }
 
   /**

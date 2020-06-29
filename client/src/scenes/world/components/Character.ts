@@ -1,5 +1,6 @@
 import { NetworkClient } from '../../../networking/NetworkClient';
 import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
+import { WorldScene } from '../WorldScene';
 import { GunController } from "./GunController";
 
 interface CharacterSensors {
@@ -48,7 +49,7 @@ export class Character {
   }
 
   constructor(
-    private readonly _scene: Phaser.Scene,
+    private readonly _scene: WorldScene,
     private readonly _controller: CharacterController,
     spawnPosition: Position,
     private _hasGun: boolean,
