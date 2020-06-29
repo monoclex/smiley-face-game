@@ -5,10 +5,13 @@ export class GunController {
   private _keyE: MultiKey;
   bulletGroup: Phaser.GameObjects.Group;
 
+  _canShoot: boolean = true;
+
   constructor(
     private readonly _scene: Phaser.Scene,
     private readonly _character: Character,
-    private readonly _bulletGroup: Phaser.GameObjects.Group
+    private readonly _bulletGroup: Phaser.GameObjects.Group,
+    private readonly _reactToE?: boolean,
   ) {
     this.heldGun = this._scene.add.sprite(0, 0, 'held_gun');
     this.heldGun.visible = false;
@@ -16,6 +19,8 @@ export class GunController {
   }
 
   update(gunAngle: number) {
+    if (!this._character.hasGun) return;
+
     // set the position to be 20 pixels away from the center of the charcter, based on the angle
     const heldGunPosition = this.distanceFrom(this._character.sprite, 20, gunAngle);
     this.heldGun.setPosition(heldGunPosition.x, heldGunPosition.y);
@@ -45,35 +50,48 @@ export class GunController {
     // put the gun in that angle infront of the player
     this.heldGun.setRotation(angle);
 
-    if (this._keyE.isDown()) {
+    if (this._reactToE && this._keyE.isDown()) {
+      if (this._character.networkClient) {
+        console.log('fireBullet called');
+        this._character.networkClient.fireBullet(gunAngle);
+      }
 
-      // we want the bullet to be at the barrel of the gun
-      const WIDTH_OF_GUN = 32;
-      const bulletPosition = this.distanceFrom(this.heldGun, (WIDTH_OF_GUN / 2), gunAngle);
-
-      const thing = this._scene.matter.add
-        .image(bulletPosition.x, bulletPosition.y, 'bullet', null, {
-          restitution: 0,
-          friction: 0,
-          density: 1,
-          angle: gunAngle
-        })
-        .setScale(2, 2);
-      
-      thing.applyForce(this.distanceFrom({ x: 0, y: 0 }, 8, gunAngle) as Phaser.Math.Vector2);
-
-      this._bulletGroup.add(thing);
-
-      setTimeout(() => {
-        thing.destroy();
-      }, 1000);
+      this.fireBullet(gunAngle);
     }
   }
 
-  distanceFrom(point: { x: number, y: number }, units: number, angle: number): { x: number, y: number } {
+  private distanceFrom(point: { x: number, y: number }, units: number, angle: number): { x: number, y: number } {
     return {
       x: point.x + Math.cos(angle) * units,
       y: point.y + Math.sin(angle) * units,
     };
+  }
+
+  fireBullet(angle: number) {
+
+    if (!this._canShoot) return;
+    this._canShoot = false;
+    setTimeout(() => this._canShoot = true, 100);
+
+    // we want the bullet to be at the barrel of the gun
+    const WIDTH_OF_GUN = 32;
+    const bulletPosition = this.distanceFrom(this.heldGun, (WIDTH_OF_GUN / 2), angle);
+
+    const thing = this._scene.matter.add
+      .image(bulletPosition.x, bulletPosition.y, 'bullet', null, {
+        restitution: 0,
+        friction: 0,
+        density: 1,
+        angle: angle
+      })
+      .setScale(2, 2);
+    
+    thing.applyForce(this.distanceFrom({ x: 0, y: 0 }, 8, angle) as Phaser.Math.Vector2);
+
+    this._bulletGroup.add(thing);
+
+    setTimeout(() => {
+      thing.destroy();
+    }, 1000);
   }
 }

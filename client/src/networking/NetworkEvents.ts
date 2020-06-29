@@ -1,4 +1,5 @@
 import { ServerBlockSinglePacket } from '../libcore/core/networking/game/ServerBlockSingle';
+import { ServerFireBulletPacket } from '../libcore/core/networking/game/ServerFireBullet';
 import { ServerInitPacket } from '../libcore/core/networking/game/ServerInit';
 import { ServerMovementPacket } from '../libcore/core/networking/game/ServerMovement';
 import { ServerPickupGunPacket } from '../libcore/core/networking/game/ServerPickupGun';
@@ -15,4 +16,5 @@ export class NetworkEvents {
   onPlayerLeave?: NetworkEventHandler<ServerPlayerLeavePacket>;
   onInit?: NetworkEventHandler<ServerInitPacket>;
   onPickupGun?: NetworkEventHandler<ServerPickupGunPacket>;
+  onFireBullet?: NetworkEventHandler<ServerFireBulletPacket>;
 }

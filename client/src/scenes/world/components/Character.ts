@@ -1,3 +1,4 @@
+import { NetworkClient } from '../../../networking/NetworkClient';
 import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
 import { GunController } from "./GunController";
 
@@ -31,7 +32,7 @@ export class Character {
 
   get gunController(): GunController {
     if (this._gunController === undefined) {
-      this._gunController = new GunController(this._scene, this, this._bulletGroup);
+      this._gunController = new GunController(this._scene, this, this._bulletGroup, this.reactToE);
     }
 
     return this._gunController;
@@ -52,6 +53,8 @@ export class Character {
     spawnPosition: Position,
     private _hasGun: boolean,
     private readonly _bulletGroup: Phaser.GameObjects.Group,
+    private reactToE?: boolean,
+    public networkClient?: NetworkClient,
   ) {
     this.sprite = this._scene.matter.add.sprite(0, 0, 'player', null);
     
@@ -154,6 +157,10 @@ export class Character {
     this.sprite.destroy(false);
     this._scene.events.removeListener('beforeupdate', this._resetTouching, this);
     this._scene.events.removeListener('update', this._update, this);
+
+    if (this._gunController) {
+      this._gunController.heldGun.destroy();
+    }
 
     //@ts-ignore
     this._scene.matterCollision.removeOnCollideStart({

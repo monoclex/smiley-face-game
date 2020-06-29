@@ -77,7 +77,7 @@ export class KeyboardControlledPlayer {
       null!,
     );
 
-    this.character = new Character(scene, this._controller, spawnPosition, false, bulletGroup);
+    this.character = new Character(scene, this._controller, spawnPosition, false, bulletGroup, true, _networkClient);
     (<any>this._controller)._position = this.character.sprite;
     
     this._last = { left: false, right: false, up: false };

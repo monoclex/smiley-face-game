@@ -2,9 +2,11 @@ import { TileId } from '../libcore/core/models/TileId.ts';
 import { TileLayer } from '../libcore/core/models/TileLayer.ts';
 import { UserId } from "../libcore/core/models/UserId.ts";
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from "../libcore/core/networking/game/BlockSingle.ts";
+import { FireBulletPacket, FIRE_BULLET_ID } from '../libcore/core/networking/game/FireBullet.ts';
 import { MovementPacket, MOVEMENT_ID } from "../libcore/core/networking/game/Movement.ts";
 import { PickupGunPacket, PICKUP_GUN_ID } from '../libcore/core/networking/game/PickupGun.ts';
 import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from "../libcore/core/networking/game/ServerBlockSingle.ts";
+import { ServerFireBulletPacket, SERVER_FIRE_BULLET_ID } from '../libcore/core/networking/game/ServerFireBullet.ts';
 import { SERVER_INIT_ID } from "../libcore/core/networking/game/ServerInit.ts";
 import { ServerMovementPacket, SERVER_MOVEMENT_ID } from "../libcore/core/networking/game/ServerMovement.ts";
 import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID } from '../libcore/core/networking/game/ServerPickupGun.ts';
@@ -33,12 +35,15 @@ export class World {
       [MOVEMENT_ID]: this.onMovement.bind(this),
       //@ts-ignore
       [PICKUP_GUN_ID]: this.onPickupGun.bind(this),
+      //@ts-ignore
+      [FIRE_BULLET_ID]: this.onFireBullet.bind(this),
       [SERVER_INIT_ID]: this.badPacket.bind(this),
       [SERVER_MOVEMENT_ID]: this.badPacket.bind(this),
       [SERVER_PLAYER_JOIN_ID]: this.badPacket.bind(this),
       [SERVER_PLAYER_LEAVE_ID]: this.badPacket.bind(this),
       [SERVER_BLOCK_SINGLE_ID]: this.badPacket.bind(this),
       [SERVER_PICKUP_GUN_ID]: this.badPacket.bind(this),
+      [SERVER_FIRE_BULLET_ID]: this.badPacket.bind(this),
     };
 
     this.users = new Map<UserId, User>();
@@ -181,6 +186,18 @@ export class World {
     const response: ServerPickupGunPacket = {
       packetId: SERVER_PICKUP_GUN_ID,
       sender: sender.userId,
+    };
+
+    await this.broadcast(response);
+
+    return ValidMessage.IsValidMessage;
+  }
+
+  private async onFireBullet(packet: FireBulletPacket, sender: User): Promise<ValidMessage> {
+    const response: ServerFireBulletPacket = {
+      packetId: SERVER_FIRE_BULLET_ID,
+      sender: sender.userId,
+      angle: packet.angle
     };
 
     await this.broadcast(response);

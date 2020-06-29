@@ -14,8 +14,13 @@ class ReferenceController implements CharacterController {
     return this.up;
   }
 
+  private _angle: number | null = null;
   gunAngle(): number | null {
-    return null;
+    return this._angle;
+  }
+
+  setAngle(value: number) {
+    this._angle = value;
   }
 
   left: boolean = false;
@@ -34,7 +39,7 @@ export class NetworkControlledPlayer {
 
   constructor(scene: Phaser.Scene, spawnPosition: Position, hasGun: boolean, bulletGroup: Phaser.GameObjects.Group) {
     this._controller = new ReferenceController();
-    this.character = new Character(scene, this._controller, spawnPosition, hasGun, bulletGroup);
+    this.character = new Character(scene, this._controller, spawnPosition, hasGun, bulletGroup, false);
   }
 
   onMove(position: Position, inputs: ControllerState) {

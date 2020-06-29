@@ -105,8 +105,6 @@ export class WorldScene extends Phaser.Scene {
     let players = new Map();
     this.players = players;
 
-    console.log(this._groupPlayer);
-    const g = this._groupPlayer;
     this._networkClient.events.onPlayerJoin = (event) => {
       const { userId, joinLocation, hasGun } = event;
       const player = new NetworkControlledPlayer(this, joinLocation, hasGun, this._groupPlayer);
@@ -138,7 +136,6 @@ export class WorldScene extends Phaser.Scene {
     };
 
     this._networkClient.events.onPickupGun = (event) => {
-      console.log('onPickupGun', event);
       const { sender } = event;
 
       /** @type {NetworkControlledPlayer} */
@@ -152,6 +149,18 @@ export class WorldScene extends Phaser.Scene {
       }
       else {
         player.character.hasGun = true;
+      }
+    };
+
+    this._networkClient.events.onFireBullet = (event) => {
+      const { sender, angle } = event;
+
+      /** @type {NetworkControlledPlayer} */
+      const player = players.get(sender);
+
+      if (player !== undefined) {
+        player._controller.setAngle(angle);
+        player.character.gunController.fireBullet(angle);
       }
     };
 
