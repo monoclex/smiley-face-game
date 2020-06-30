@@ -137,11 +137,11 @@ export class WorldBlocks {
 
     // we're going to clamp the position to be inside of the world
     x = clamp(x, 0, this.width);
-    y = clamp(y, 0, this.height);
+    y = clamp(y, 3, this.height);
 
     // clamp the end positions to be inside the world too
     endX = clamp(endX, 0, this.width);
-    endY = clamp(endY, 0, this.height);
+    endY = clamp(endY, 3, this.height);
 
     // recalculate the size from clamped positions
     width = endX - x;

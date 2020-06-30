@@ -152,6 +152,12 @@ export class World {
       return ValidMessage.IsNotValidMessage;
     }
 
+    // currently you can't place blocks above y 3 because placing blocks at (0, 1) and (1, 0) cause some really weird crud
+    // it's a TODO to fix them, but for now this is a hot-fix.
+    if (packet.position.y < 3) {
+      return ValidMessage.IsNotValidMessage;
+    }
+
     if (sender.hasGun) {
       // don't kick the player, but just don't handle this
       return ValidMessage.IsValidMessage;
