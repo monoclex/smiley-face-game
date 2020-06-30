@@ -97,8 +97,7 @@ export class WorldBlocks {
   }
 
   fillBlocks(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full): Position[] {
-    const shouldCollide = layer === TileLayer.Foreground;
-    return this._fillBlocks(layer, position, size, tileId, shouldCollide);
+    return this._fillBlocks(layer, position, size, tileId);
   }
 
   placeBlock(layer: TileLayer, position: Position, tileId: TileId = TileId.Full): Position[] {
@@ -129,8 +128,8 @@ export class WorldBlocks {
     position: Position,
     size: Size,
     tileId: TileId,
-    shouldCollide: boolean
   ): Position[] {
+    const shouldCollide = false;
     let { x, y } = position;
     let { width, height } = size;
     let endX = x + width;
@@ -156,6 +155,7 @@ export class WorldBlocks {
     let tileIds = [];
     for (let posY = y; posY < endY; posY++) {
       for (let posX = x; posX < endX; posX++) {
+
         // only trigger changes for blocks that need to be changed
         if (this.mapData[layer][posY][posX].id !== tileId) {
           tileLayer.putTileAt(clientTileId, posX, posY, false);
@@ -178,12 +178,37 @@ export class WorldBlocks {
 
     this._addTileCollisionEvents(tileId, tileLayer, changed);
 
-    // when we get the tile data, we want to get the tiles a little bit outside of it so that the tiles we care about get their collision
-    // polygons correct so the player doesn't trip over ghost collisions or anything
-    const tileData = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
-    this.world.convertTiles(tileData);
-    // @ts-ignore
-    this.world.processEdges(tileLayer, tileData);
+    // TODO: clean this up, not entirely sure what i'm doing but it WORKS so i'm committing it so it can be cleaned later
+    if (tileId !== TileId.Empty) {
+      // when we get the tile data, we want to get the tiles a little bit outside of it so that the tiles we care about get their collision
+      // polygons correct so the player doesn't trip over ghost collisions or anything
+      const tileData = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
+      this.world.convertTiles(tileData);
+      // @ts-ignore
+      this.world.processEdges(tileLayer, tileData);
+    }
+    else {
+    
+      // destroy all the physics bodies of the tile being deleted and the tiles around it
+      const tilesAround = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2);
+      
+      for (const tile of tilesAround) {
+        //@ts-ignore
+        if (tile.physics.matterBody) tile.physics.matterBody.destroy();
+
+        // delete the tile and then put it back
+        const copy = { ...tile };
+        tile.destroy();
+
+        tileLayer.putTileAt(copy.index, copy.x, copy.y);
+      }
+      
+      // re-create the physics bodies of the collidable tiles around and smoothen them out
+      const collidableTiles = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
+      this.world.convertTiles(collidableTiles);
+      //@ts-ignore
+      this.world.processEdges(tileLayer, collidableTiles);
+    }
 
     return changed;
   }
