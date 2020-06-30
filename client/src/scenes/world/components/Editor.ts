@@ -1,7 +1,28 @@
+import { Block } from '../../../libcore/core/models/Block';
 import { TileId } from "../../../libcore/core/models/TileId";
 import { swapLayer, TileLayer } from "../../../libcore/core/models/TileLayer";
 import { bresenhamsLine } from "../../../misc";
 import { WorldScene } from "../WorldScene";
+
+export function sampleBlock(mapData: Block[][][], x: number, y: number, shiftHeld?: boolean): { id: TileId, layer: TileLayer } {
+  const foregroundSample = sampleAt(TileLayer.Foreground);
+  if (foregroundSample) return foregroundSample;
+
+  const actionSample = sampleAt(TileLayer.Action);
+  if (actionSample) return actionSample;
+
+  const backgroundSample = sampleAt(TileLayer.Background);
+  if (backgroundSample) return backgroundSample;
+
+  return { id: TileId.Empty, layer: shiftHeld ? TileLayer.Background : TileLayer.Foreground };
+
+  function sampleAt(layer: TileLayer) {
+    const id: TileId = mapData[layer][y][x].id;
+    return id !== TileId.Empty
+      ? { id, layer }
+      : undefined;
+  }
+}
 
 /**
  * Maintains only the components required for editing
@@ -9,26 +30,28 @@ import { WorldScene } from "../WorldScene";
 export class Editor {
 
   private _activeBlock: TileId;
+  private _activeLayer: TileLayer;
   private _selectedLayer: TileLayer;
   private _isDown: boolean;
   private _lastX: number;
   private _lastY: number;
 
   private get tileState() { return this.worldScene._worldBlocks; }
+  private get mapData() { return this.worldScene.mapData; }
   private get selectedBlock() { return this.worldScene.selectedBlock; }
+  private set selectedBlock(value: TileId) { this.worldScene.selectedBlock = value; }
   private get shiftKey() { return this.worldScene.shiftKey; }
   private get camera() { return this.worldScene.cameras.main; }
   private get networkClient() { return this.worldScene.networkClient; }
 
   constructor(readonly worldScene: WorldScene) {
-    this._activeBlock = this.selectedBlock;
+    this._selectedLayer = TileLayer.Foreground;
 
     this.networkClient.events.onBlockSingle = (packet) => {
-      console.log(packet);
       this.tileState.placeBlock(packet.layer, packet.position, packet.id);
     };
 
-    worldScene.input.on('pointerdown', ((pointer) => this.onPointerDown(pointer)).bind(this));
+    worldScene.input.on('pointerdown', this.onPointerDown.bind(this));
     worldScene.input.on('pointerup', this.resetPlacingState.bind(this));
   }
 
@@ -41,17 +64,26 @@ export class Editor {
 
     const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
 
+    if (pointer.middleButtonDown()) {
+      // pick the block to use for building
+      const { id, layer } = sampleBlock(this.mapData, x, y, this.shiftKey.isDown());
+      this.selectedBlock = id;
+      this._selectedLayer = layer;
+    }
+    
     if (pointer.rightButtonDown()) {
       // we want to clear blocks if right is down
-      this._activeBlock = TileId.Empty
+      const { layer } = sampleBlock(this.mapData, x, y, this.shiftKey.isDown());
+      
+      this._activeLayer = layer;
+      this._activeBlock = TileId.Empty;
     }
     else {
+      this._activeLayer = this._selectedLayer;
       this._activeBlock = this.selectedBlock;
     }
 
     this._isDown = true;
-    // TODO: need something a bit fancier to be able to deal with action blocks in the future, when we have a block bar
-    this._selectedLayer = TileLayer.Foreground;
     this._lastX = x;
     this._lastY = y;
   }
@@ -60,7 +92,6 @@ export class Editor {
   resetPlacingState() {
     // reset some values just so maybe bugs can be spotted easier if something goes wrong
     this._isDown = false;
-    this._selectedLayer = TileLayer.Background;
     this._lastX = -1;
     this._lastY = -1;
   }
@@ -72,11 +103,11 @@ export class Editor {
       return;
     }
 
-    if (!this._isDown) return;
+    if (!this._isDown || pointer.middleButtonDown()) return;
 
     const { x, y } = this.tileState.screenToWorldPosition(pointer.positionToCamera(this.camera) as Phaser.Math.Vector2);
 
-    const tileLayer = this.shiftKey.isDown() ? swapLayer(this._selectedLayer) : this._selectedLayer;
+    const tileLayer = this.shiftKey.isDown() ? swapLayer(this._activeLayer) : this._activeLayer;
 
     const absoluteXDiff = Math.abs(this._lastX - x);
     const absoluteYDiff = Math.abs(this._lastY - y);
