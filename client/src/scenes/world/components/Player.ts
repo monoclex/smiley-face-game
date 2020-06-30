@@ -87,9 +87,11 @@ export class Player {
 
     this._matterCollisionPhysicsHandler = {
       objectA: [this.groundSensor],
-      callback: ({ gameObjectB }) => {
-        // don't collide with things that don't have a game object (like gun sensor)
-        if (gameObjectB === null) return;
+      callback: ({ gameObjectB, bodyB }) => {
+        // don't allow jumping on things that don't have a game object (like gun sensor)
+        // but DO collide with them if it's the world border (id <= 5)
+        // TODO: better world border detection
+        if (gameObjectB === null && bodyB.id > 5) return;
         this.touchingGround = true
       },
       context: this
