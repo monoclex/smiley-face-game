@@ -161,7 +161,7 @@ export class WorldBlocks {
     return map[layer];
   }
 
-  private fillBlocks(
+  public fillBlocks(
     layer: TileLayer,
     position: Position,
     size: Size,
