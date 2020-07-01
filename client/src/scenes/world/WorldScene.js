@@ -135,10 +135,6 @@ export class WorldScene extends Phaser.Scene {
     const pointer = this.input.activePointer;
     this._editor.update(pointer);
 
-    for (const player of this.players.values()) {
-      // player.character.gunController.update(player.character._controller.gunAngle());
-    }
-
     if (this.mainPlayer.hasGun) {
 
       const worldPosition = pointer.positionToCamera(this.cameras.main);

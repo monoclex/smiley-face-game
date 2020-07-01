@@ -61,31 +61,73 @@ export class WorldBlocks {
     private readonly _layers: TileLayers,
     readonly worldScene: WorldScene, 
   ) {
+    const collisionTiles = [];
 
     // we'll shove all the blocks into the world, and then recalculate everything once we're done
-    for (let layer = 0; layer <= TileLayer.Background; layer++) {
+    {
+      const layer = TileLayer.Background;
+      const mapLayer = this.mapData[layer];
+      const tileLayer = this.getTilemapLayer(layer);
+
       for (let y = 0; y < this.height; y++) {
+        const mapY = mapLayer[y];
+
         for (let x = 0; x < this.width; x++) {
-          const blockId = this.mapData[layer][y][x].id;
-
-          const clientTileId = toClientTileId(blockId);
-          const tileLayer = this.getTilemapLayer(layer);
+          const blockId = mapY[x].id;
+          if (blockId === TileId.Empty) continue;
           
-          tileLayer.putTilesAt([clientTileId], x, y, true);
+          tileLayer.putTileAt(blockId, x, y, false);
+        }
+      }
+    }
+    
+    {
+      const layer = TileLayer.Action;
+      const mapLayer = this.mapData[layer];
+      const tileLayer = this.getTilemapLayer(layer);
 
-          const tileIndex = y * this.width + x;
+      for (let y = 0; y < this.height; y++) {
+        const mapY = mapLayer[y];
 
-          if (layer === TileLayer.Foreground) {
-            tileLayer.setCollision(tileIndex, true, true, true);
-          }
+        for (let x = 0; x < this.width; x++) {
+          const blockId = mapY[x].id;
+          if (blockId === TileId.Empty) continue;
+          
+          tileLayer.putTileAt(blockId, x, y, false);
 
-          this._addTileCollisionEvents(blockId, tileLayer, [{ x, y }]);
+          this._addTileCollisionEvent(blockId, tileLayer, x, y);
         }
       }
     }
 
+    {
+      let layer = TileLayer.Foreground;
+      const mapLayer = this.mapData[layer];
+      const tileLayer = this.getTilemapLayer(layer);
+
+      for (let y = 0; y < this.height; y++) {
+        const mapY = mapLayer[y];
+        const yTimesWidth = y * this.width;
+
+        for (let x = 0; x < this.width; x++) {
+          const blockId = mapY[x].id;
+          if (blockId === TileId.Empty) continue;
+
+          tileLayer.putTileAt(blockId, x, y, true);
+
+          const tileIndex = yTimesWidth + x;
+          collisionTiles.push(tileIndex);
+        }
+      }
+    }
+
+    const tilemapLayer = this.getTilemapLayer(TileLayer.Foreground);
+    tilemapLayer.setCollision(collisionTiles, true, true, true);
+
     // now that we've shoved all the data in, process it
     this.world.convertTilemapLayer(_layers.foreground);
+
+    console.timeEnd('init');
   }
 
   outlineRectangle(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full): Position[] {
@@ -94,10 +136,6 @@ export class WorldBlocks {
     positions = positions.concat(this.fillBlocks(layer, { ...position, x: size.width + position.x - 1 }, { ...size, width: 1 }, tileId));
     positions = positions.concat(this.fillBlocks(layer, { ...position, y: size.height + position.y - 1 }, { ...size, height: 1 }, tileId));
     return positions;
-  }
-
-  fillBlocks(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full): Position[] {
-    return this._fillBlocks(layer, position, size, tileId);
   }
 
   placeBlock(layer: TileLayer, position: Position, tileId: TileId = TileId.Full): Position[] {
@@ -123,7 +161,7 @@ export class WorldBlocks {
     return map[layer];
   }
 
-  private _fillBlocks(
+  private fillBlocks(
     layer: TileLayer,
     position: Position,
     size: Size,
@@ -214,29 +252,33 @@ export class WorldBlocks {
   }
 
   private _addTileCollisionEvents(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, positions: Position[]) {
+    for (const position of positions) {
+      this._addTileCollisionEvent(tileId, tileLayer, position.x, position.y);
+    }
+  }
+
+  private _addTileCollisionEvent(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, x: number, y: number) {
     if (tileId !== TileId.Gun) return;
     
-    for (const position of positions) {
-      const gunSensor = this.matter.add.rectangle(
-        position.x * TILE_WIDTH + (TILE_WIDTH / 2), position.y * TILE_HEIGHT + (TILE_HEIGHT / 2),
-        TILE_WIDTH, TILE_HEIGHT,
-        { isSensor: true, isStatic: true },
-      );
+    const gunSensor = this.matter.add.rectangle(
+      x * TILE_WIDTH + (TILE_WIDTH / 2), y * TILE_HEIGHT + (TILE_HEIGHT / 2),
+      TILE_WIDTH, TILE_HEIGHT,
+      { isSensor: true, isStatic: true },
+    );
 
-      //@ts-ignore
-      this.matterCollision.addOnCollideStart({
-        objectA: gunSensor,
-        callback: ({ bodyB }: { bodyB: MatterJS.BodyType }) => {
-          if (this.onGunCollide) {
-            this.onGunCollide(tileId, position, bodyB);
-          }
-        },
-        context: this,
-      })
+    //@ts-ignore
+    this.matterCollision.addOnCollideStart({
+      objectA: gunSensor,
+      callback: ({ bodyB }: { bodyB: MatterJS.BodyType }) => {
+        if (this.onGunCollide) {
+          this.onGunCollide(tileId, { x, y }, bodyB);
+        }
+      },
+      context: this,
+    })
 
-      //@ts-ignore
-      this.worldScene.mapData[TileLayer.Action][position.y][position.x].sensor = gunSensor;
-    }
+    //@ts-ignore
+    this.worldScene.mapData[TileLayer.Action][y][x].sensor = gunSensor;
   }
 }
 

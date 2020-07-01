@@ -51,6 +51,7 @@ export class LoadingScene extends Phaser.Scene {
           networkClient: sender
         };
 
+        console.time('init');
         this.scene.start(WORLD_SCENE_KEY, sceneData);
       };
     });
