@@ -8,6 +8,8 @@ import { config } from "../..";
 import AddIcon from '@material-ui/icons/Add';
 import history from "../history";
 import { Redirect, Link } from "react-router-dom";
+import isProduction from "../../isProduction";
+import { api } from '../../isProduction';
 
 const useStyles = makeStyles({
   input: {
@@ -35,8 +37,7 @@ export const Lobby: React.FC<LobbyProps> = (props) => {
   const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
-    // TODO: don't hardcode address
-    fetch("https://api.sirjosh3917.com/smiley-face-game/lobby")
+    fetch(api.lobby())
       .then((response) => response.json())
       .then(setRooms);
   }, []);

@@ -1,5 +1,5 @@
 import { loadAll } from "../../../assets/assets";
-import isProduction from "../../isProduction";
+import { api } from '../../isProduction';
 import { NetworkClient } from "../../networking/NetworkClient";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
 import { LoadingSceneData } from './LoadingSceneData';
@@ -39,8 +39,7 @@ export class LoadingScene extends Phaser.Scene {
   }
 
   create() {
-    const url = isProduction ? "ws://ws-api.sirjosh3917.com/smiley-face-game/ws/game/" : "ws://localhost:8080/ws/game/"
-    NetworkClient.connect(url + globalVariableParkour.worldId, (events) => {
+    NetworkClient.connect(api.connection(globalVariableParkour.worldId), (events) => {
 
       events.onInit = (packet, sender) => {
         // prevent receiving any packets until the game scene changes
