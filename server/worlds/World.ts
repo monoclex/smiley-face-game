@@ -203,6 +203,7 @@ export class World {
       return ValidMessage.IsNotValidMessage;
     }
 
+    // only allow collection of gun if it exists at specified location
     if (this._map[TileLayer.Action][packet.position.y][packet.position.x].id !== TileId.Gun) {
       // we don't want to say this was invalid, because someone could've broke the gun block while someone was trying to collect it.
       return ValidMessage.IsValidMessage;
@@ -223,7 +224,7 @@ export class World {
   private async onFireBullet(packet: FireBulletPacket, sender: User): Promise<ValidMessage> {
     
     // need to have a gun to shoot it
-    if (!sender.hasGun) {
+    if (!sender.hasGun || !sender.gunEquipped) {
       return ValidMessage.IsNotValidMessage;
     }
 
@@ -246,6 +247,8 @@ export class World {
 
     // only send a new packet if the gun's equip state changed
     if (sender.gunEquipped == packet.equipped) {
+      // don't disconnect the user if they send redundant packets
+      console.warn('redundant equip packet sent by', sender.userId);
       return ValidMessage.IsValidMessage;
     }
 
