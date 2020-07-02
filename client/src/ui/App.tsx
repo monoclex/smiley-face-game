@@ -3,10 +3,11 @@ import React, { Suspense } from "react";
 import { createMuiTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { lazy } from "react";
+import Lobby from "./lobby/Lobby";
 
 interface AppProps {}
 
-const LobbyPageLazy = lazy(() => import("./lobby/Lobby"));
+const LobbyPageLazy = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
 const GamePageLazy = lazy(() => import("./Game"));
 
 export const App: React.FC<AppProps> = () => {
