@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { Suspense } from "react";
 // import store from "./redux/store";
 import { createMuiTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -29,12 +29,14 @@ export const App: React.FC<AppProps> = () => {
         {/* <Provider store={store}> */}
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Route exact path="/" component={LobbyPageLazy} />
-          <Route
-            exact
-            path="/games/:gameId"
-            render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
-          />
+          <Suspense fallback={<h1>Loading</h1>}>
+            <Route exact path="/" component={LobbyPageLazy} />
+            <Route
+              exact
+              path="/games/:gameId"
+              render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
+            />
+          </Suspense>
         </ThemeProvider>
         {/* </Provider> */}
       </Router>

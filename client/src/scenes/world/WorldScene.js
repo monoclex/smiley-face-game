@@ -1,3 +1,4 @@
+import "phaser";
 import Slopes from "phaser-slopes";
 import { WorldBlocks } from "./components/WorldBlocks";
 import { Editor } from "./components/Editor";
