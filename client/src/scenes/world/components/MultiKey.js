@@ -23,4 +23,8 @@ export default class MultiKey {
   isUp() {
     return this.keys.every(key => key.isUp);
   }
+
+  justDown() {
+    return this.keys.some(Phaser.Input.Keyboard.JustDown);
+  }
 }

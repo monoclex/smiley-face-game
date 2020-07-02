@@ -4,27 +4,41 @@ import { Position } from "./Position";
 
 export class Gun {
 
+  equipped: boolean = false;
   firing: boolean = false;
   angle: number = 0;
 
   onBulletFired?: () => void;
 
-  readonly heldGun: Phaser.GameObjects.Sprite;
+  readonly sprite: Phaser.GameObjects.Sprite;
 
   /** When the gun is fired, this is set to false and a timeout is set to turn this back to true at a later point. */
   private _canShoot: boolean = true;
 
   constructor(readonly worldScene: WorldScene, readonly player: Player) {
-    this.heldGun = worldScene.add.sprite(0, 0, 'held_gun');
+    this.sprite = worldScene.add.sprite(0, 0, 'held_gun');
+    
+    // worldScene.groupGuns.add(this.heldGun);
+    worldScene.groupUnheldGuns.add(this.sprite);
+  }
 
-    worldScene.groupGuns.add(this.heldGun);
+  equip() {
+    this.equipped = true;
+    this.worldScene.groupUnheldGuns.remove(this.sprite);
+    this.worldScene.groupGuns.add(this.sprite);
+  }
+
+  unequip() {
+    this.equipped = false;
+    this.worldScene.groupGuns.remove(this.sprite);
+    this.worldScene.groupUnheldGuns.add(this.sprite);
   }
 
   update() {
     this.displayGun();
 
     // handle shooting the gun
-    if (this.firing && this._canShoot) {
+    if (this.firing && this.equipped && this._canShoot) {
 
       this.toggleShootCooldown(100);
       this.fireBullet();
@@ -34,7 +48,7 @@ export class Gun {
   fireBullet() {
     // place the bullet at the barrel of the gun
     const WIDTH_OF_GUN = 32;
-    const bulletPosition = this.distanceFrom(this.heldGun, WIDTH_OF_GUN / 2, this.angle);
+    const bulletPosition = this.distanceFrom(this.sprite, WIDTH_OF_GUN / 2, this.angle);
 
     const bullet = this.worldScene.matter.add
       .image(bulletPosition.x, bulletPosition.y, 'bullet', null, {
@@ -59,9 +73,17 @@ export class Gun {
   }
 
   private displayGun() {
+    if (!this.equipped) {
+      // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
+      this.sprite.setPosition(this.player.sprite.x - 10, this.player.sprite.y - 10);
+      this.sprite.setRotation(Math.PI / 3.5);
+      this.sprite.setFlipX(false);
+      return;
+    }
+
     // given the angle the user is holding it at, place the gun 20 units away from the player
     const heldGunPosition = this.distanceFrom(this.player.sprite, 20, this.angle);
-    this.heldGun.setPosition(heldGunPosition.x, heldGunPosition.y);
+    this.sprite.setPosition(heldGunPosition.x, heldGunPosition.y);
 
     // MATH TIME:
     // 'angle' will be approximately the following:
@@ -86,16 +108,16 @@ export class Gun {
         displayAngle -= Math.PI;
       }
 
-      this.heldGun.flipX = true;
+      this.sprite.flipX = true;
     } else {
-      this.heldGun.flipX = false;
+      this.sprite.flipX = false;
     }
 
-    this.heldGun.setRotation(displayAngle);
+    this.sprite.setRotation(displayAngle);
   }
 
   destroy() {
-    this.heldGun.destroy();
+    this.sprite.destroy();
   }
 
   private toggleShootCooldown(ms: number) {

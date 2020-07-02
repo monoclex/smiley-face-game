@@ -9,6 +9,7 @@ export class PrimaryPlayer extends Player {
   keyUp: MultiKey;
   keyLeft: MultiKey;
   keyRight: MultiKey;
+  keyEquip: MultiKey;
 
   private get networkClient() { return this.worldScene.networkClient; }
   private get pointer() { return this.worldScene.input.activePointer; }
@@ -22,10 +23,11 @@ export class PrimaryPlayer extends Player {
 
     // TODO: allow people to specify input
     // i'm lazy and i know this will only be used for main player, so i'm hardcoding keyboard here
-    const { UP, LEFT, RIGHT, W, A, D, SPACE, E, CTRL } = Phaser.Input.Keyboard.KeyCodes;
+    const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
     this.keyUp = new MultiKey(worldScene, [W, UP, SPACE]);
     this.keyLeft = new MultiKey(worldScene, [A, LEFT]);
     this.keyRight = new MultiKey(worldScene, [D, RIGHT]);
+    this.keyEquip = new MultiKey(worldScene, E);
 
     worldScene.events.on('update', this.primaryPlayerUpdate, this);
 
@@ -49,6 +51,15 @@ export class PrimaryPlayer extends Player {
     
     if (this.hasGun) {
       this.gun.firing = this.pointer.isDown;
+
+      if (this.keyEquip.justDown()) {
+        if (this.gun.equipped) {
+          this.gun.unequip();
+        }
+        else {
+          this.gun.equip();
+        }
+      }
     }
 
     this._tickCounter++;

@@ -50,13 +50,13 @@ export class WorldScene extends Phaser.Scene {
   create() {
 
     // layer the world so certain things appear infront/behind things
-    this.groupBehind = this.sys.add.group();
-    this.groupAction = this.sys.add.group();
-    this.groupPlayer = this.sys.add.group();
-    this.groupBullets = this.sys.add.group();
-    this.groupForeground = this.sys.add.group();
-    this.groupGuns = this.sys.add.group();
-    this.groupInfront = this.sys.add.group(); // TODO: delete
+    this.groupBehind = this.sys.add.container();
+    this.groupAction = this.sys.add.container();
+    this.groupUnheldGuns = this.sys.add.container();
+    this.groupPlayer = this.sys.add.container();
+    this.groupBullets = this.sys.add.container();
+    this.groupForeground = this.sys.add.container();
+    this.groupGuns = this.sys.add.container();
 
     // create a tilemap - we'll use this to make the multiple layers (background, action, foreground, etc.)
     this.tilemap = this.make.tilemap({
