@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 // import store from "./redux/store";
-import { createMuiTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { lazy } from "react";
 import Lobby from "./lobby/Lobby";
