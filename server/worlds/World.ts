@@ -108,6 +108,7 @@ export class World {
     // tell the new user about the world
     await user.send({
       packetId: SERVER_INIT_ID,
+      sender: user.userId,
       spawnPosition: user.lastPosition,
       size: { width: this._width, height: this._height },
       blocks: this._map

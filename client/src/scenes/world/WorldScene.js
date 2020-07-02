@@ -84,6 +84,7 @@ export class WorldScene extends Phaser.Scene {
       joinLocation: this.initMessage.spawnPosition,
       hasGun: false
     };
+    this.mainPlayerId = this.initMessage.sender;
     this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);
 
     // add support to recognize other players
@@ -168,6 +169,7 @@ export class WorldScene extends Phaser.Scene {
 
   onMovement(event) {
     const { sender, position, inputs } = event;
+    if (sender === this.mainPlayerId) return;
 
     const player = this.players.get(sender);
 
@@ -181,6 +183,7 @@ export class WorldScene extends Phaser.Scene {
 
   onPickupGun(event) {
     const { sender } = event;
+    if (sender === this.mainPlayerId) return;
 
     const player = this.players.get(sender);
 
@@ -194,6 +197,7 @@ export class WorldScene extends Phaser.Scene {
 
   onFireBullet(event) {
     const { sender, angle } = event;
+    if (sender === this.mainPlayerId) return;
 
     const player = this.players.get(sender);
 
@@ -208,6 +212,7 @@ export class WorldScene extends Phaser.Scene {
 
   onEquipGun(event) {
     const { sender, equipped } = event;
+    if (sender === this.mainPlayerId) return;
 
     const player = this.players.get(sender);
 
