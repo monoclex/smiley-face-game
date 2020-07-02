@@ -19,19 +19,19 @@ export class Gun {
     this.sprite = worldScene.add.sprite(0, 0, 'held_gun');
     
     // worldScene.groupGuns.add(this.heldGun);
-    worldScene.groupUnheldGuns.add(this.sprite);
+    worldScene.containerUnheldGuns.add(this.sprite);
   }
 
   equip() {
     this.equipped = true;
-    this.worldScene.groupUnheldGuns.remove(this.sprite);
-    this.worldScene.groupGuns.add(this.sprite);
+    this.worldScene.containerUnheldGuns.remove(this.sprite);
+    this.worldScene.containerHeldGuns.add(this.sprite);
   }
 
   unequip() {
     this.equipped = false;
-    this.worldScene.groupGuns.remove(this.sprite);
-    this.worldScene.groupUnheldGuns.add(this.sprite);
+    this.worldScene.containerHeldGuns.remove(this.sprite);
+    this.worldScene.containerUnheldGuns.add(this.sprite);
   }
 
   update() {
@@ -62,7 +62,7 @@ export class Gun {
     
     // apply "8" units of force in the direction, makes it go fast
     bullet.applyForce(this.distanceFrom({ x: 0, y: 0 }, 8, this.angle) as Phaser.Math.Vector2);
-    this.worldScene.groupBullets.add(bullet);
+    this.worldScene.containerBullets.add(bullet);
 
     // kill the bullet later
     setTimeout(() => {

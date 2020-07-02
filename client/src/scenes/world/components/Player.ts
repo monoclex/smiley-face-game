@@ -73,7 +73,7 @@ export class Player {
       .setFixedRotation()
       .setPosition(joinLocation.x, joinLocation.y);
     
-    this.worldScene.groupPlayer.add(sprite);
+    this.worldScene.containerPlayers.add(sprite);
     
     return ({
       sprite, mainBody, groundSensor, playerBody

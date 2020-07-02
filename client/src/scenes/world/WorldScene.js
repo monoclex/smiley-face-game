@@ -50,13 +50,12 @@ export class WorldScene extends Phaser.Scene {
   create() {
 
     // layer the world so certain things appear infront/behind things
-    this.groupBehind = this.sys.add.container();
-    this.groupAction = this.sys.add.container();
-    this.groupUnheldGuns = this.sys.add.container();
-    this.groupPlayer = this.sys.add.container();
-    this.groupBullets = this.sys.add.container();
-    this.groupForeground = this.sys.add.container();
-    this.groupGuns = this.sys.add.container();
+    this.containerBehindLayers = this.sys.add.container();
+    this.containerUnheldGuns = this.sys.add.container();
+    this.containerPlayers = this.sys.add.container();
+    this.containerBullets = this.sys.add.container();
+    this.containerForegroundLayer = this.sys.add.container();
+    this.containerHeldGuns = this.sys.add.container();
 
     // create a tilemap - we'll use this to make the multiple layers (background, action, foreground, etc.)
     this.tilemap = this.make.tilemap({
@@ -106,11 +105,11 @@ export class WorldScene extends Phaser.Scene {
     camera.setZoom(1);
 
     // assign to hierarchy of groups here
-    this.groupBehind.add(this._worldBlocks._layers.void);
-    this.groupBehind.add(this._worldBlocks._layers.background);
-    this.groupAction.add(this._worldBlocks._layers.action);
-    this.groupPlayer.add(this.mainPlayer.sprite);
-    this.groupForeground.add(this._worldBlocks._layers.foreground);
+    this.containerBehindLayers.add(this._worldBlocks._layers.void);
+    this.containerBehindLayers.add(this._worldBlocks._layers.background);
+    this.containerBehindLayers.add(this._worldBlocks._layers.action);
+    this.containerPlayers.add(this.mainPlayer.sprite);
+    this.containerForegroundLayer.add(this._worldBlocks._layers.foreground);
 
     // network event stuff
     this.networkClient.events.onBlockSingle = this.onBlockSingle.bind(this);
