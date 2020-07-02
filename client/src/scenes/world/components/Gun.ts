@@ -61,8 +61,7 @@ export class Gun {
         // really dense so it makes a big impact on players
         density: 1,
         angle: this.angle,
-      })
-      .setScale(2, 2);
+      });
     
     // apply "8" units of force in the direction, makes it go fast
     bullet.applyForce(this.distanceFrom({ x: 0, y: 0 }, 8, this.angle) as Phaser.Math.Vector2);
