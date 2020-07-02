@@ -53,12 +53,9 @@ export class PrimaryPlayer extends Player {
       this.gun.firing = this.pointer.isDown;
 
       if (this.keyEquip.justDown()) {
-        if (this.gun.equipped) {
-          this.gun.unequip();
-        }
-        else {
-          this.gun.equip();
-        }
+        const equipState = !this.gun.equipped;
+        this.gun.doEquip(equipState);
+        this.networkClient.equipGun(equipState);
       }
     }
 

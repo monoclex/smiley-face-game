@@ -4,7 +4,7 @@ import { Position } from "./Position";
 
 export class Gun {
 
-  equipped: boolean = false;
+  equipped: boolean;
   firing: boolean = false;
   angle: number = 0;
 
@@ -17,9 +17,12 @@ export class Gun {
 
   constructor(readonly worldScene: WorldScene, readonly player: Player) {
     this.sprite = worldScene.add.sprite(0, 0, 'held_gun');
-    
-    // worldScene.groupGuns.add(this.heldGun);
-    worldScene.containerUnheldGuns.add(this.sprite);
+    this.equip();
+  }
+
+  doEquip(state: boolean) {
+    if (state) this.equip();
+    else this.unequip();
   }
 
   equip() {

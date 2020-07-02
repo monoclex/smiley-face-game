@@ -118,6 +118,7 @@ export class WorldScene extends Phaser.Scene {
     this.networkClient.events.onMovement = this.onMovement.bind(this);
     this.networkClient.events.onPickupGun = this.onPickupGun.bind(this);
     this.networkClient.events.onFireBullet = this.onFireBullet.bind(this);
+    this.networkClient.events.onEquipGun = this.onEquipGun.bind(this);
 
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
@@ -203,5 +204,18 @@ export class WorldScene extends Phaser.Scene {
 
     player.gun.angle = angle;
     player.gun.fireBullet();
+  }
+
+  onEquipGun(event) {
+    const { sender, equipped } = event;
+
+    const player = this.players.get(sender);
+
+    if (player === undefined) {
+      console.warn('received onEquipGun from non existing player');
+      return;
+    }
+
+    player.gun.doEquip(equipped);
   }
 }

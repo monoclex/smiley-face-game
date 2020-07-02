@@ -9,11 +9,11 @@ export class User {
   ) {
     // TODO: decouple from client impl
     this.lastPosition = { x: 32 + 16, y: 32 + 16 };
-    this.hasGun = false;
   }
 
   lastPosition: { x: number, y: number };
-  hasGun: boolean;
+  hasGun: boolean = false; // by default, they don't have a gun
+  gunEquipped: boolean = true; // as soon as they have a gun it's immediately equipped
 
   send(packet: WorldPacket): Promise<void> | void {
     return this._webSocket.send(JSON.stringify(packet));

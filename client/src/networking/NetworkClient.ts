@@ -1,10 +1,12 @@
 import { TileId } from '../libcore/core/models/TileId';
 import { TileLayer } from '../libcore/core/models/TileLayer';
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../libcore/core/networking/game/BlockSingle';
+import { EquipGunPacket, EQUIP_GUN_ID } from '../libcore/core/networking/game/EquipGun';
 import { FireBulletPacket, FIRE_BULLET_ID } from '../libcore/core/networking/game/FireBullet';
 import { MovementPacket, MOVEMENT_ID } from '../libcore/core/networking/game/Movement';
 import { PickupGunPacket, PICKUP_GUN_ID } from '../libcore/core/networking/game/PickupGun';
 import { SERVER_BLOCK_SINGLE_ID, validateServerBlockSingle } from '../libcore/core/networking/game/ServerBlockSingle';
+import { SERVER_EQUIP_GUN_ID, validateServerEquipGun } from '../libcore/core/networking/game/ServerEquipGun';
 import { SERVER_FIRE_BULLET_ID, validateServerFireBullet } from '../libcore/core/networking/game/ServerFireBullet';
 import { SERVER_INIT_ID, validateServerInit } from '../libcore/core/networking/game/ServerInit';
 import { SERVER_MOVEMENT_ID, validateServerMovement } from '../libcore/core/networking/game/ServerMovement';
@@ -57,6 +59,7 @@ export class NetworkClient {
       [SERVER_INIT_ID]: [validateServerInit, 'onInit'],
       [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, 'onPickupGun'],
       [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, 'onFireBullet'],
+      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, 'onEquipGun'],
     };
 
     this._webSocket.onclose = this._webSocket.onerror = () => {
@@ -148,6 +151,15 @@ export class NetworkClient {
       angle
     };
 
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  equipGun(equipped: boolean) {
+    const packet: EquipGunPacket = {
+      packetId: EQUIP_GUN_ID,
+      equipped
+    };
+    
     this._webSocket.send(JSON.stringify(packet));
   }
 }

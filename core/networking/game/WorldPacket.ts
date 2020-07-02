@@ -1,9 +1,11 @@
 import { Schema, Type } from "./../../../deps.ts";
 import { BlockSingleSchema } from "./BlockSingle.ts";
+import { EquipGunSchema } from "./EquipGun.ts";
 import { FireBulletSchema } from "./FireBullet.ts";
 import { MovementSchema } from "./Movement.ts";
 import { PickupGunSchema } from './PickupGun.ts';
 import { ServerBlockSingleSchema } from "./ServerBlockSingle.ts";
+import { ServerEquipGunSchema } from "./ServerEquipGun.ts";
 import { ServerFireBulletSchema } from "./ServerFireBullet.ts";
 import { ServerInitSchema } from "./ServerInit.ts";
 import { ServerMovementSchema } from "./ServerMovement.ts";
@@ -22,6 +24,7 @@ export const WorldPacketSchema = Schema.either(
   Schema.either(
     PickupGunSchema, ServerPickupGunSchema,
     FireBulletSchema, ServerFireBulletSchema,
+    EquipGunSchema, ServerEquipGunSchema,
   )
 );
 export type WorldPacket = Type<typeof WorldPacketSchema>;
