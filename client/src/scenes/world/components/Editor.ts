@@ -57,7 +57,7 @@ export class Editor {
 
   onPointerDown(pointer: Phaser.Input.Pointer) {
     // if the player has a gun, prevent editing
-    if (this.worldScene.mainPlayer.hasGun) {
+    if (this.worldScene.mainPlayer.hasGun && this.worldScene.mainPlayer.gun.equipped) {
       this.resetPlacingState();
       return;
     }
@@ -98,7 +98,7 @@ export class Editor {
 
   update(pointer: Phaser.Input.Pointer) {
     // anti gun check here too
-    if (this.worldScene.mainPlayer.hasGun) {
+    if (this.worldScene.mainPlayer.hasGun && this.worldScene.mainPlayer.gun.equipped) {
       this.resetPlacingState();
       return;
     }
