@@ -5,7 +5,7 @@ import { TILE_HEIGHT, TILE_WIDTH } from '../Config';
 import { WorldScene } from '../WorldScene';
 
 interface TileLayers {
-  readonly void: Phaser.Tilemaps.DynamicTilemapLayer;
+  readonly void: Phaser.GameObjects.TileSprite;
   readonly background: Phaser.Tilemaps.DynamicTilemapLayer;
   readonly action: Phaser.Tilemaps.DynamicTilemapLayer;
   readonly foreground: Phaser.Tilemaps.DynamicTilemapLayer;
@@ -29,17 +29,17 @@ export class WorldBlocks {
 
     const createDynamicTilemap = (name: string) => tilemap.createBlankDynamicLayer(name, tileset, 0, 0, width, height, TILE_WIDTH, TILE_HEIGHT);
 
+    // void is just the empty tile repeating
+    // TODO: figure out how to make 'atlas' not default to tile `0`, as the implicit requirement may be bad
+    const tilingVoidSprite = worldScene.add.tileSprite(0, 0, tilemap.widthInPixels, tilemap.heightInPixels, 'atlas');
+    tilingVoidSprite.setPosition(tilemap.widthInPixels / 2, tilemap.heightInPixels / 2);
+
     const layers = {
-      void: createDynamicTilemap('void'),
+      void: tilingVoidSprite,
       background: createDynamicTilemap('background'),
       action: createDynamicTilemap('action'),
       foreground: createDynamicTilemap('foreground'),
     };
-    
-    // fill the void with void tiles
-    const row = new Array<number>(width).fill(/* TileId.Void */ 0)
-    const data = new Array<number[]>(height).fill(row); // fill number[] with *references* to an array of void blocks
-    layers.void.putTilesAt(data, 0, 0);
 
     // prevent people from falling out of the world
     world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
@@ -144,7 +144,7 @@ export class WorldBlocks {
 
   screenToWorldPosition(position: Phaser.Math.Vector2): Phaser.Math.Vector2 {
     const { x, y } = position;
-    return this._layers.void.worldToTileXY(x, y);
+    return this._layers.foreground.worldToTileXY(x, y);
   }
 
   blockAt(layer: TileLayer, position: Position): TileId {
