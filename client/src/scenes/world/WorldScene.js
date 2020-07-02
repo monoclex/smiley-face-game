@@ -3,17 +3,10 @@ import { WorldBlocks } from "./components/WorldBlocks";
 import { Editor } from "./components/Editor";
 import MultiKey from "./components/MultiKey";
 import { TILE_WIDTH, TILE_HEIGHT } from "./Config";
-import { NetworkClient } from "../../networking/NetworkClient";
-import { NetworkEvents } from "../../networking/NetworkEvents";
-// import { NetworkControlledPlayer } from "./components/NetworkControlledPlayer";
-import { KeyboardControlledPlayer, PrimaryPlayer } from "./components/PrimaryPlayer";
+import { PrimaryPlayer } from "./components/PrimaryPlayer";
 import { TileId } from "../../libcore/core/models/TileId";
 import { Player } from "./components/Player";
 import { Block } from "./components/Block";
-
-function NetworkControlledPlayer() {
-  console.warn('new NetworkControlledPlayer');
-}
 
 export const WORLD_SCENE_KEY = "WorldScene";
 

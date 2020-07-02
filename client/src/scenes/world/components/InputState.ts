@@ -1,4 +1,5 @@
 import { Player } from './Player';
+
 export interface InputState {
   readonly left: boolean;
   readonly right: boolean;

@@ -8,7 +8,9 @@
 
     "allowJs": true,
     "noImplicitAny": false,
-    "plugins": [{ "name": "deno_ls_plugin" }]
+    "plugins": [{ "name": "deno_ls_plugin" }],
+
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*", "node_modules/phaser/types/*"],
   "exclude": []

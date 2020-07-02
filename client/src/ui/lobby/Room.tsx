@@ -1,6 +1,4 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { useState, useEffect } from "react";
 import { Card, CardContent, Typography, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles({

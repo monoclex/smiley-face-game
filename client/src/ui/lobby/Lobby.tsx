@@ -1,14 +1,9 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import { useState, useEffect } from "react";
 import { Room } from "./Room";
-import { Button, GridList, GridListTile, Grid, Paper, makeStyles, InputBase, IconButton } from "@material-ui/core";
-import { Game } from "../Game";
-import { config } from "../..";
+import { Grid,  makeStyles, InputBase, IconButton } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
-import history from "../history";
 import { Redirect, Link } from "react-router-dom";
-import isProduction from "../../isProduction";
 import { api } from '../../isProduction';
 
 const useStyles = makeStyles({
@@ -29,7 +24,7 @@ interface GamePreview {
   playerCount: number;
 }
 
-export const Lobby: React.FC<LobbyProps> = (props) => {
+const Lobby: React.FC<LobbyProps> = (props) => {
   const styles = useStyles();
 
   const [rooms, setRooms] = useState<GamePreview[] | null>(null);
@@ -85,3 +80,5 @@ export const Lobby: React.FC<LobbyProps> = (props) => {
     </>
   );
 };
+
+export default Lobby;

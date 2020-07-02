@@ -1,17 +1,15 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { Game } from "./Game";
-import { Provider } from "react-redux";
 // import store from "./redux/store";
 import { createMuiTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
-import { Lobby } from "./lobby/Lobby";
 import { BrowserRouter as Router, Route } from "react-router-dom";
+import { lazy } from "react";
 
-interface AppProps {
-  config: Phaser.Types.Core.GameConfig;
-}
+interface AppProps {}
 
-export const App: React.FC<AppProps> = (props) => {
+const LobbyPageLazy = lazy(() => import("./lobby/Lobby"));
+const GamePageLazy = lazy(() => import("./Game"));
+
+export const App: React.FC<AppProps> = () => {
   const prefersDarkMode = true;
 
   const theme = React.useMemo(
@@ -31,11 +29,11 @@ export const App: React.FC<AppProps> = (props) => {
         {/* <Provider store={store}> */}
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Route exact path="/" component={Lobby} />
+          <Route exact path="/" component={LobbyPageLazy} />
           <Route
             exact
             path="/games/:gameId"
-            render={({ match }) => <Game config={props.config} gameId={match.params.gameId} />}
+            render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
           />
         </ThemeProvider>
         {/* </Provider> */}
