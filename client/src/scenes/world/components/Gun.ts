@@ -2,6 +2,8 @@ import { WorldScene } from "../WorldScene";
 import { Player } from './Player';
 import { Position } from "./Position";
 
+const WIDTH_OF_GUN = 40;
+
 export class Gun {
 
   equipped: boolean;
@@ -50,7 +52,6 @@ export class Gun {
 
   fireBullet() {
     // place the bullet at the barrel of the gun
-    const WIDTH_OF_GUN = 32;
     const bulletPosition = this.distanceFrom(this.sprite, WIDTH_OF_GUN / 2, this.angle);
 
     const bullet = this.worldScene.matter.add
@@ -78,7 +79,7 @@ export class Gun {
   private displayGun() {
     if (!this.equipped) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
-      this.sprite.setPosition(this.player.sprite.x - 10, this.player.sprite.y - 10);
+      this.sprite.setPosition(this.player.sprite.x - 6, this.player.sprite.y - 6);
       this.sprite.setRotation(Math.PI / 3.5);
       this.sprite.setFlipX(false);
       return;
