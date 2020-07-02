@@ -8,6 +8,7 @@ export const ServerPlayerJoinSchema = Schema({
   userId: UserIdSchema,
   joinLocation: PlayerPositionSchema,
   hasGun: boolean,
+  gunEquipped: boolean,
 });
 export type ServerPlayerJoinPacket = Type<typeof ServerPlayerJoinSchema>;
 export const validateServerPlayerJoin = ServerPlayerJoinSchema.destruct();

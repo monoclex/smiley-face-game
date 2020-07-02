@@ -96,11 +96,13 @@ export class World {
     if (this.users.size >= 40) return AllowJoin.PreventJoin;
 
     // tell everyone else about the new player joining
+    // (user not added to list yet so we can use broadcast to tell to all players except user)
     await this.broadcast({
       packetId: SERVER_PLAYER_JOIN_ID,
       userId: user.userId,
       joinLocation: user.lastPosition,
       hasGun: user.hasGun,
+      gunEquipped: user.gunEquipped,
     });
     
     // tell the new user about the world
@@ -118,6 +120,7 @@ export class World {
         userId: otherUser.userId,
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
+        gunEquipped: otherUser.gunEquipped,
       });
     }
 
@@ -163,9 +166,9 @@ export class World {
       return ValidMessage.IsNotValidMessage;
     }
 
-    if (sender.hasGun) {
-      // don't kick the player, but just don't handle this
-      return ValidMessage.IsValidMessage;
+    if (sender.hasGun && sender.gunEquipped) {
+      // can only place gun if the gun isn't equipped
+      return ValidMessage.IsNotValidMessage;
     }
 
     this._map[packet.layer][packet.position.y][packet.position.x].id = packet.id;
