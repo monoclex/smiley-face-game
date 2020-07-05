@@ -9,7 +9,7 @@ import { TileId } from "../../libcore/core/models/TileId";
 import { Player } from "./components/Player";
 import { Block } from "./components/Block";
 import store from "../../ui/redux/store";
-import { updatePrimary } from "../../ui/redux/actionCreators/blockBar";
+import { updatePrimary, supplyTextureLoader } from "../../ui/redux/actionCreators/blockBar";
 import { TileLayer } from "../../libcore/core/models/TileLayer";
 
 export const WORLD_SCENE_KEY = "WorldScene";
@@ -88,6 +88,63 @@ export class WorldScene extends Phaser.Scene {
 
     // tilesets hold each block and their tile id
     this.tileset = this.tilemap.addTilesetImage('atlas', 'atlas', TILE_WIDTH, TILE_HEIGHT, 0, 0);
+    console.log(this.tileset.image);
+    
+    // TODO: move this to new file
+    supplyTextureLoader((async (tileId) => {
+      // TODO: put this in its own function?
+      let start = this.tileset.image.firstFrame;
+      let findId = -1;
+      let foundKey = null;
+      for (let key in this.tileset.image.frames) {
+        if (findId !== -1) {
+          findId++;
+        }
+
+        if (findId === -1 && start === key) {
+          findId = 0;
+        }
+
+        if (findId === tileId) {
+          foundKey = key;
+          break;
+        }
+      }
+
+      const frame = this.tileset.image.frames[!foundKey ? start : foundKey];
+
+        /** @type {HTMLImageElement} */
+        const imageSource = frame.source.source;
+
+        // so we have the original image source for the texture atlas, we'll use an offscreen canvas to render specifically just the
+        // texture from the atlas that we want into a canvas, dump it into some base64, and provide that as an image
+        const dimensions = {
+          x: frame.customData.frame.x,
+          y: frame.customData.frame.y,
+          width: frame.customData.frame.w,
+          height: frame.customData.frame.h,
+        };
+
+        const renderImageCanvas = document.createElement('canvas');
+        renderImageCanvas.width = 32;
+        renderImageCanvas.height = 32;
+        renderImageCanvas.convertToBlob = () => new Promise(resolve => renderImageCanvas.toBlob(resolve));
+
+        const context = renderImageCanvas.getContext('2d');
+        context.drawImage(imageSource,
+          dimensions.x, dimensions.y,
+          dimensions.width, dimensions.height,
+          0, 0,
+          TILE_WIDTH, TILE_HEIGHT
+        );
+
+        const blob = await renderImageCanvas.convertToBlob('image/png');
+        const url = URL.createObjectURL(blob);
+        
+        const tileTexture = new Image();
+        tileTexture.src = url;
+        return tileTexture;
+    }).bind(this))(store.dispatch)
 
     // holds world state - such as background, foreground, etc.
     this._worldBlocks = WorldBlocks.create(this);

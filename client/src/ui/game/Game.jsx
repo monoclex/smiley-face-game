@@ -88,7 +88,7 @@ const Game = (props) => {
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <div className={styles.blockbar}>
-          <BlockBar onBlockSelected={props.updatePrimary} selected={props.selectedSlot} />
+          <BlockBar onBlockSelected={props.updatePrimary} selected={props.selectedSlot} loader={props.loader} />
         </div>
       </Grid>
     </>
@@ -97,6 +97,7 @@ const Game = (props) => {
 
 const mapState = (state) => ({
   selectedSlot: state.blockBar.selected,
+  loader: state.blockBar.loader
 });
 
 const mapDispatch = {

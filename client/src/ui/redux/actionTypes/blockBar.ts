@@ -1,4 +1,5 @@
 import { SlotId } from '../../../client/Slot';
+import { TileId } from '../../../libcore/core/models/TileId';
 
 export const UPDATE_SELECTED_SLOT = 'UPDATE_SELECTED_SLOT';
 interface UpdateSelectedSlot {
@@ -6,6 +7,13 @@ interface UpdateSelectedSlot {
   slot: SlotId;
 }
 
+export const SUPPLY_TEXTURE_LOADER = 'SUPPLY_TEXTURE_LOADER';
+interface SupplyTextureLoader {
+  type: typeof SUPPLY_TEXTURE_LOADER;
+  loader: (tile: TileId) => Promise<HTMLImageElement>;
+}
+
 export type BlockBarActions =
   | UpdateSelectedSlot
+  | SupplyTextureLoader
   ;

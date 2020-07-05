@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
@@ -19,6 +20,7 @@ const useStyles = makeStyles({
     width: 32,
     height: 32,
     pointerEvents: "all",
+    imageRendering: 'pixelated',
     "&:hover": {
       width: 64,
       height: 64,
@@ -35,7 +37,20 @@ const useStyles = makeStyles({
 
 const Block = (props) => {
   const styles = useStyles(props);
-  console.log("props ", props);
+  const [imageSource, setImageSource] = useState(null);
+
+  useEffect(() => {
+    if (!props.loader) return;
+
+    props.loader(props.slotId)
+      .then(image => {
+        setImageSource(image.src);
+      });
+  }, [props.loader]);
+
+  if (!props.loader || !imageSource) {
+    return null;
+  }
 
   return (
     <Grid className={clsx({
@@ -46,7 +61,7 @@ const Block = (props) => {
         <span>{props.slot}</span>
       </Grid>
       <Grid item className={styles.removeLineHeight}>
-        <img className={styles.image} onClick={props.onClick} src="https://www.w3schools.com/howto/img_snow_wide.jpg" />
+        <img className={styles.image} onClick={props.onClick} src={imageSource} />
       </Grid>
     </Grid>
   );

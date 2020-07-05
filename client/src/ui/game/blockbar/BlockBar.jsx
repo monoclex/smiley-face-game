@@ -11,7 +11,7 @@ const BlockBar = (props) => {
   return (
     <Grid item container justify="center" alignItems="flex-end">
       {keys.map((key, i) => (
-        <Block key={key} slot={key} onClick={() => props.onBlockSelected(i)} selected={props.selected === i} />
+        <Block key={key} slot={key} slotId={i} onClick={() => props.onBlockSelected(i)} selected={props.selected === i} loader={props.loader} />
       ))}
     </Grid>
   );
