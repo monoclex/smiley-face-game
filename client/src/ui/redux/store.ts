@@ -8,6 +8,7 @@ export interface StoreState {
   blockBar: BlockBarState;
 }
 
+//@ts-ignore
 const store: Store<StoreState, AnyAction> = createStore(
   rootReducer,
   applyMiddleware<{}, BlockBarActions>(thunk)

@@ -3,7 +3,7 @@ import { makeStyles, Theme } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
 
-const useStyles = makeStyles<Theme, BlockProps>({
+const useStyles = makeStyles({
   selected: {
     backgroundColor: "green",
   },
@@ -33,13 +33,7 @@ const useStyles = makeStyles<Theme, BlockProps>({
   },
 });
 
-export interface BlockProps {
-  slot: string;
-  onClick?: () => void;
-  selected: boolean;
-}
-
-const Block: React.FC<BlockProps> = (props) => {
+const Block = (props) => {
   const styles = useStyles(props);
   console.log("props ", props);
 
