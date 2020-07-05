@@ -1,10 +1,11 @@
 import React, { Suspense } from "react";
-// import store from "./redux/store";
+import store from "./redux/store";
 import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { lazy } from "react";
 import Lobby from "./lobby/Lobby";
+import { Provider } from "react-redux";
 
 interface AppProps {}
 
@@ -28,19 +29,19 @@ export const App: React.FC<AppProps> = () => {
     <>
       <Router>
         {/* TODO: use redux for state stuff if necessary */}
-        {/* <Provider store={store}> */}
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Suspense fallback={<h1>Loading</h1>}>
-            <Route exact path="/" component={LobbyPageLazy} />
-            <Route
-              exact
-              path="/games/:gameId"
-              render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
-            />
-          </Suspense>
-        </ThemeProvider>
-        {/* </Provider> */}
+        <Provider store={store}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Suspense fallback={<h1>Loading</h1>}>
+              <Route exact path="/" component={LobbyPageLazy} />
+              <Route
+                exact
+                path="/games/:gameId"
+                render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
+              />
+            </Suspense>
+          </ThemeProvider>
+        </Provider>
       </Router>
     </>
   );

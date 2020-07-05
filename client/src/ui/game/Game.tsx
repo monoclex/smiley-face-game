@@ -8,6 +8,11 @@ import { WorldScene } from "../../scenes/world/WorldScene";
 import isProduction from "../../isProduction";
 import { makeStyles } from "@material-ui/core/styles";
 import BlockBar from "./blockbar/BlockBar";
+import { StoreState } from '../redux/store';
+import { updatePrimary } from '../redux/actionCreators/blockBar';
+import { TileId } from '../../libcore/core/models/TileId';
+import { connect } from "react-redux";
+import { SlotId } from '../../client/Slot';
 
 export const config = {
   type: Phaser.AUTO,
@@ -55,7 +60,6 @@ const useStyles = makeStyles({
     position: 'absolute',
     left: '25%',
     width: '50%',
-    // height: 64,
     bottom: 0,
     margin: 0,
     padding: 0,
@@ -63,6 +67,8 @@ const useStyles = makeStyles({
 });
 
 interface IGameProps {
+  selectedSlot: SlotId;
+  updatePrimary: typeof updatePrimary;
   gameId: string;
 }
 
@@ -90,7 +96,7 @@ const Game: React.FC<IGameProps> = (props) => {
       <Grid className={styles.uiOverlay} container item justify="center">
         <div className={styles.uiGameOverlay}>
           <div className={styles.blockbar}>
-            <BlockBar />
+            <BlockBar onBlockSelected={props.updatePrimary} selected={props.selectedSlot} />
           </div>
         </div>
       </Grid>
@@ -98,4 +104,12 @@ const Game: React.FC<IGameProps> = (props) => {
   );
 };
 
-export default Game;
+const mapState = (state: StoreState) => ({
+  selectedSlot: state.blockBar.selected
+});
+
+const mapDispatch = {
+  updatePrimary
+};
+
+export default connect(mapState, mapDispatch)(Game);
