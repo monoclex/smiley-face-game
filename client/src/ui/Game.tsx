@@ -1,11 +1,12 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { globalVariableParkour, LoadingScene } from "../scenes/loading/LoadingScene";
 import { Grid } from "@material-ui/core";
 import Phaser from "phaser";
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import { WorldScene } from "../scenes/world/WorldScene";
 import isProduction from "../isProduction";
+import { makeStyles } from "@material-ui/core/styles";
 
 export const config = {
   type: Phaser.AUTO,
@@ -21,8 +22,8 @@ export const config = {
     matter: {
       // toggles hitboxes around objects
       // if we're not in production, we want to see them
-      debug: isProduction ? false : true
-    }
+      debug: isProduction ? false : true,
+    },
   },
   plugins: {
     scene: [
@@ -35,12 +36,28 @@ export const config = {
   },
 };
 
+const useStyles = makeStyles({
+  uiOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none',
+  },
+  uiGameOverlay: {
+    width: "1280px",
+    height: "720px",
+  },
+});
+
 interface IGameProps {
   gameId: string;
 }
 
 const Game: React.FC<IGameProps> = (props) => {
-  const gameRef = React.createRef<HTMLDivElement>();
+  const gameRef = useRef<HTMLDivElement>();
+  const styles = useStyles();
 
   useEffect(() => {
     // disable right click for context menu
@@ -54,10 +71,17 @@ const Game: React.FC<IGameProps> = (props) => {
   }, []);
 
   return (
-    <Grid container item justify="center">
-      <div ref={gameRef} />
-    </Grid>
+    <>
+      <Grid container item justify="center">
+        <div ref={gameRef} />
+      </Grid>
+      <Grid className={styles.uiOverlay} container item justify="center">
+        <div className={styles.uiGameOverlay}>
+          <h1>howdy</h1>
+        </div>
+      </Grid>
+    </>
   );
-}
+};
 
 export default Game;
