@@ -48,7 +48,23 @@ const useStyles = makeStyles({
   uiGameOverlay: {
     width: "1280px",
     height: "720px",
+    position: "relative",
   },
+  blockbar: {
+    position: 'absolute',
+    left: '25%',
+    width: '50%',
+    height: 48,
+    backgroundColor: '#8A8A8A',
+    bottom: 0,
+  },
+  block: {
+    pointerEvents: 'all',
+    backgroundColor: 'green',
+    '&:hover': {
+      backgroundColor: 'red'
+    }
+  }
 });
 
 interface IGameProps {
@@ -77,7 +93,46 @@ const Game: React.FC<IGameProps> = (props) => {
       </Grid>
       <Grid className={styles.uiOverlay} container item justify="center">
         <div className={styles.uiGameOverlay}>
-          <h1>howdy</h1>
+          <div className={styles.blockbar}>
+            <Grid container justify="space-evenly">
+              <Grid className={styles.block} item xs={1}>
+                <span>`</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>1</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>2</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>3</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>4</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>5</span>
+              </Grid>
+              <Grid className={styles.block} item xs={1}>
+                <span>6</span>
+              </Grid>
+              <Grid item xs={1}>
+                <span>7</span>
+              </Grid>
+              <Grid item xs={1}>
+                <span>8</span>
+              </Grid>
+              <Grid item xs={1}>
+                <span>9</span>
+              </Grid>
+              <Grid item xs={1}>
+                <span>0</span>
+              </Grid>
+              <Grid item xs={1}>
+                <span>-</span>
+              </Grid>
+            </Grid>
+          </div>
         </div>
       </Grid>
     </>
