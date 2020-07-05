@@ -71,7 +71,7 @@ export class Editor {
       this._selectedLayer = layer;
     }
     
-    if (pointer.rightButtonDown()) {
+    if (pointer.rightButtonDown() || this.selectedBlock === TileId.Empty) {
       // we want to clear blocks if right is down
       const { layer } = sampleBlock(this.mapData, x, y, this.shiftKey.isDown());
       

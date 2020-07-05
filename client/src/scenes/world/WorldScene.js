@@ -9,6 +9,8 @@ import { TileId } from "../../libcore/core/models/TileId";
 import { Player } from "./components/Player";
 import { Block } from "./components/Block";
 import store from "../../ui/redux/store";
+import { updatePrimary } from "../../ui/redux/actionCreators/blockBar";
+import { TileLayer } from "../../libcore/core/models/TileLayer";
 
 export const WORLD_SCENE_KEY = "WorldScene";
 
@@ -17,6 +19,22 @@ export class WorldScene extends Phaser.Scene {
     super({
       key: WORLD_SCENE_KEY
     });
+  }
+
+  get selectedLayer() {
+    return {
+      [TileId.Empty]: TileLayer.Foreground,
+      [TileId.Full]: TileLayer.Foreground,
+      [TileId.Gun]: TileLayer.Action,
+    }[this.selectedBlock];
+  }
+
+  get selectedBlock() {
+    return store.getState().blockBar.selected;
+  }
+
+  set selectedBlock(value) {
+    updatePrimary(value)(store.dispatch);
   }
 
   /** @param {import("../loading/LoadingSceneData").LoadingSceneData} data */
@@ -125,13 +143,6 @@ export class WorldScene extends Phaser.Scene {
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
     this.networkClient.continue();
-
-    // connect with redux for UI <-> Game connection
-    store.subscribe(() => {
-      const { blockBar } = store.getState();
-
-      
-    });
   }
 
   update() {
