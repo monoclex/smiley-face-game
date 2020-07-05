@@ -9,7 +9,7 @@ import Lobby from "./lobby/Lobby";
 interface AppProps {}
 
 const LobbyPageLazy = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
-const GamePageLazy = lazy(() => import("./Game"));
+const GamePageLazy = lazy(() => import("./game/Game"));
 
 export const App: React.FC<AppProps> = () => {
   const prefersDarkMode = true;
