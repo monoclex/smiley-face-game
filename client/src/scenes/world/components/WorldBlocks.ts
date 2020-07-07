@@ -1,4 +1,5 @@
 import { toClientTileId } from '../../../client/toClientTileId';
+import { bresenhamsLine } from '../../../libcore/core/misc';
 import { TileId } from "../../../libcore/core/models/TileId";
 import { TileLayer } from "../../../libcore/core/models/TileLayer";
 import { TILE_HEIGHT, TILE_WIDTH } from '../Config';
@@ -130,16 +131,38 @@ export class WorldBlocks {
     console.timeEnd('init');
   }
 
-  outlineRectangle(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full): Position[] {
-    let positions = this.fillBlocks(layer, position, { ...size, height: 1 }, tileId);
-    positions = positions.concat(this.fillBlocks(layer, position, { ...size, width: 1 }, tileId));
-    positions = positions.concat(this.fillBlocks(layer, { ...position, x: size.width + position.x - 1 }, { ...size, width: 1 }, tileId));
-    positions = positions.concat(this.fillBlocks(layer, { ...position, y: size.height + position.y - 1 }, { ...size, height: 1 }, tileId));
-    return positions;
+  outlineRectangle(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full) {
+    this.fillBlocks(layer, position, { ...size, height: 1 }, tileId);
+    this.fillBlocks(layer, position, { ...size, width: 1 }, tileId);
+    this.fillBlocks(layer, { ...position, x: size.width + position.x - 1 }, { ...size, width: 1 }, tileId);
+    this.fillBlocks(layer, { ...position, y: size.height + position.y - 1 }, { ...size, height: 1 }, tileId);
   }
 
-  placeBlock(layer: TileLayer, position: Position, tileId: TileId = TileId.Full): Position[] {
-    return this.fillBlocks(layer, position, { width: 1, height: 1 }, tileId);
+  placeBlock(layer: TileLayer, position: Position, tileId: TileId = TileId.Full) {
+    this.fillBlocks(layer, position, { width: 1, height: 1 }, tileId);
+  }
+
+  placeLine(layer: TileLayer, start: Position, end: Position, tileId: TileId = TileId.Full) {
+    const absoluteXDiff = Math.abs(end.x - start.x);
+    const absoluteYDiff = Math.abs(end.y - start.y);
+
+    // check if we ended up placing a horizontal/vertical line - we can optimize this scenario
+    if (absoluteXDiff === 0 || absoluteYDiff === 0) { // line
+      const trueStart = { x: Math.min(start.x, end.x), y: Math.min(start.y, end.y) };
+      const size = { width: absoluteXDiff + 1, height: absoluteYDiff + 1 };
+      return this.fillBlocks(layer, trueStart, size, tileId);
+    }
+    // otherwise, we need to use a fancy algorithm to properly handle the blocks inbetween the two frames
+    else {
+      let blocksToSend = [];
+    
+      // some fancy line, use Bresenham's Line Algorithm to fill in these blocks
+      bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
+        blocksToSend = blocksToSend.concat(this.placeBlock(layer, { x, y }, tileId));
+      });
+
+      return blocksToSend;
+    }
   }
 
   screenToWorldPosition(position: Phaser.Math.Vector2): Phaser.Math.Vector2 {
@@ -166,7 +189,7 @@ export class WorldBlocks {
     position: Position,
     size: Size,
     tileId: TileId,
-  ): Position[] {
+  ) {
     const shouldCollide = false;
     let { x, y } = position;
     let { width, height } = size;
@@ -247,8 +270,6 @@ export class WorldBlocks {
       //@ts-ignore
       this.world.processEdges(tileLayer, collidableTiles);
     }
-
-    return changed;
   }
 
   private _addTileCollisionEvents(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, positions: Position[]) {

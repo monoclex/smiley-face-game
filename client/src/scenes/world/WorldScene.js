@@ -11,6 +11,8 @@ import { Block } from "./components/Block";
 import store from "../../ui/redux/store";
 import { updatePrimary, supplyTextureLoader } from "../../ui/redux/actionCreators/blockBar";
 import { TileLayer } from "../../libcore/core/models/TileLayer";
+import { SERVER_BLOCK_LINE_ID } from "../../libcore/core/networking/game/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "../../libcore/core/networking/game/ServerBlockSingle";
 
 export const WORLD_SCENE_KEY = "WorldScene";
 
@@ -215,6 +217,8 @@ export class WorldScene extends Phaser.Scene {
     this.networkClient.events.onPickupGun = this.onPickupGun.bind(this);
     this.networkClient.events.onFireBullet = this.onFireBullet.bind(this);
     this.networkClient.events.onEquipGun = this.onEquipGun.bind(this);
+    this.networkClient.events.onBlockLine = this.onBlockLine.bind(this);
+    this.networkClient.events.onBlockBuffer = this.onBlockBuffer.bind(this);
 
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
@@ -327,5 +331,25 @@ export class WorldScene extends Phaser.Scene {
     }
 
     player.gun.doEquip(equipped);
+  }
+
+  onBlockLine(event) {
+    this._worldBlocks.placeLine(event.layer, event.start, event.end, event.id);
+  }
+
+  onBlockBuffer(event) {
+    const { blocks } = event;
+
+    for (const blockPacket of blocks) {
+      if (blockPacket.packetId === SERVER_BLOCK_LINE_ID) {
+        this.onBlockLine(blockPacket);
+      }
+      else if (blockPacket.packetId === SERVER_BLOCK_SINGLE_ID) {
+        this.onBlockSingle(blockPacket);
+      }
+      else {
+        throw new Error('unexpected kind of block data in buffer');
+      }
+    }
   }
 }

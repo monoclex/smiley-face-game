@@ -23,6 +23,20 @@ export class BlockHandler {
   receiveQueue: ServerBufferPackets[] = [];
   readonly map: Block[][][];
 
+  /**
+   * Prevents the block queue handler from running on the next available tick. This is useful to prevent packet loss for new players. The
+   * reason why packet loss occurs is that the init handler in the world is running, and every `await` will cause execution to pause and
+   * yield to some other process. In the event that it yields to the block handler, the block handler will run and will broadcast the most
+   * recently placed blocks to everyone except the incoming player, so it causes them to miss some blocks if blocks are being fervently
+   * placed.
+   * 
+   * This fixes this by allowing the queue handler to be prevented from being ran. This is turned on during an initialization message, and
+   * turned off once it's done. That way it the queue will only run when important work is being performed.
+   * 
+   * Note: I haven't seen this bug happen, but there's a chance it may.
+   */
+  canRun: boolean = true;
+
   constructor(
     private readonly _width: number,
     private readonly _height: number,
@@ -61,12 +75,15 @@ export class BlockHandler {
 
     this.map[TileLayer.Action][gunY + 1][gunX + 1].id = TileId.Gun;
 
-    // handle the block queue every 83ms - aka about once every 5 frames per second
-    // should be good enough to allow for multiple packets to stick all together
-    setInterval(this.queueHandler.bind(this), 83);
+    // handle the block queue about every 2 frames (2 * (1000 / 60))
+    // should be good enough to allow for spam packets to stick together and get sent as one to prevent users getting spammed
+    setInterval(this.queueHandler.bind(this), (2 * 1000 / 60));
   }
 
   private async queueHandler(): Promise<void> {
+    if (this.receiveQueue.length > 0) console.log('queueHandler', this.canRun);
+    if (!this.canRun) return;
+
     // if this was multithreaded, this will be thread safe
     // but grab all the blocks we need to handle here
     const receiveQueue = this.receiveQueue;
@@ -76,7 +93,6 @@ export class BlockHandler {
 
     // no need to buffer anything if there's just one packet
     if (receiveQueue.length === 1) {
-      console.log('broadcasting single', receiveQueue[0]);
       await this.broadcast(receiveQueue[0]);
       return;
     }
@@ -124,17 +140,9 @@ export class BlockHandler {
 
   handleLine(packet: BlockLinePacket, sender: User): ValidMessage {
 
-    // TODO: make incoming schemas check for y and x out of bounds
-    // lower bounds handled by schema itself
-    if (packet.start.y >= this._height || packet.start.x >= this._width
-      || packet.end.y >= this._height || packet.end.x >= this._width) {
-      sender.kill();
-      return ValidMessage.IsNotValidMessage;
-    }
-    
-    // currently you can't place blocks above y 3 because placing blocks at (0, 1) and (1, 0) cause some really weird crud
-    // it's a TODO to fix them, but for now this is a hot-fix.
-    if (packet.start.y < 3 || packet.end.y < 3) return ValidMessage.IsNotValidMessage;
+    // for block lines, we *permit* out of bounds values because you can draw a line through them and the blocks that get placed
+    // may not be exactly equal if you cap the bounds. so this opts to not do any bounds checking and does individual bounds checking
+    // for each block that is placed
 
     // can only place blocks if the gun isn't equipped
     if (sender.hasGun && sender.gunEquipped) {
@@ -145,6 +153,13 @@ export class BlockHandler {
 
     // packet is known good, update world
     bresenhamsLine(packet.start.x, packet.start.y, packet.end.x, packet.end.y, (x: number, y: number) => {
+      
+      // bounds checking for individual blocks
+      // currently you can't place blocks above y 3 because placing blocks at (0, 1) and (1, 0) cause some really weird crud
+      // it's a TODO to fix them, but for now this is a hot-fix.
+      if (y < 3 || y >= this._height
+        || x < 0 || x >= this._width) return;
+
       if (didUpdate || this.map[packet.layer][y][x].id !== packet.id) {
         didUpdate = true;
         this.map[packet.layer][y][x].id = packet.id;

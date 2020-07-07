@@ -1,7 +1,6 @@
 import { Block } from '../../../libcore/core/models/Block';
 import { TileId } from "../../../libcore/core/models/TileId";
 import { swapLayer, TileLayer } from "../../../libcore/core/models/TileLayer";
-import { bresenhamsLine } from "../../../misc";
 import { WorldScene } from "../WorldScene";
 
 export function sampleBlock(mapData: Block[][][], x: number, y: number, shiftHeld?: boolean): { id: TileId, layer: TileLayer } {
@@ -115,40 +114,30 @@ export class Editor {
 
     // if the block position only changed by 1 block, we don't need to employ any fancy algorithms
     if (absoluteXDiff <= 1 && absoluteYDiff <= 1) {
-      blocksToSend = this._placeBlock(tileLayer, { x, y }, this._activeBlock);
+      if (x < 0 || y < 3 || x >= this.worldScene.worldSize.width || y >= this.worldScene.worldSize.height) return;
+
+      this._placeBlock(tileLayer, { x, y }, this._activeBlock);
+      this.networkClient.placeBlock(x, y, this._activeBlock, tileLayer);
     }
-    // check if we ended up placing a horizontal/vertical line - we can optimize this scenario
-    else if (absoluteXDiff === 0 || absoluteYDiff === 0) { // line
-      const start = { x: Math.min(this._lastX, x), y: Math.min(this._lastY, y) };
-      const size = { width: absoluteXDiff + 1, height: absoluteYDiff + 1 };
-      blocksToSend = this._fillBlocks(tileLayer, start, size, this._activeBlock);
-    }
-    // otherwise, we need to use a fancy algorithm to properly handle the blocks inbetween the two frames
+    // otherwise, it's a line
     else {
       const start = { x: this._lastX, y: this._lastY };
       const end = { x, y };
-    
-      // some fancy line, use Bresenham's Line Algorithm to fill in these blocks
-      bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
-        blocksToSend = blocksToSend.concat(this._placeBlock(tileLayer, { x, y }, this._activeBlock));
-      });
+      this.tileState.placeLine(tileLayer, start, end, this._activeBlock);
+      this.networkClient.placeLine(tileLayer, start, end, this._activeBlock);
     }
 
     this._lastX = x;
     this._lastY = y;
-
-    for (const block of blocksToSend) {
-      this.networkClient.placeBlock(block.x, block.y, this.tileState.blockAt(tileLayer, block), tileLayer);
-    }
   }
 
   /** @private */
   _placeBlock(layer: TileLayer, position, selectedBlock: TileId) {
-    return this.tileState.placeBlock(layer, position, selectedBlock);
+    this.tileState.placeBlock(layer, position, selectedBlock);
   }
 
   /** @private */
   _fillBlocks(layer: TileLayer, start, size, selectedBlock: TileId) {
-    return this.tileState.fillBlocks(layer, start, size, selectedBlock);
+    this.tileState.fillBlocks(layer, start, size, selectedBlock);
   }
 }

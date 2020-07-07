@@ -1,10 +1,13 @@
 import { TileId } from '../libcore/core/models/TileId';
 import { TileLayer } from '../libcore/core/models/TileLayer';
+import { BlockLinePacket, BLOCK_LINE_ID } from '../libcore/core/networking/game/BlockLine';
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../libcore/core/networking/game/BlockSingle';
 import { EquipGunPacket, EQUIP_GUN_ID } from '../libcore/core/networking/game/EquipGun';
 import { FireBulletPacket, FIRE_BULLET_ID } from '../libcore/core/networking/game/FireBullet';
 import { MovementPacket, MOVEMENT_ID } from '../libcore/core/networking/game/Movement';
 import { PickupGunPacket, PICKUP_GUN_ID } from '../libcore/core/networking/game/PickupGun';
+import { SERVER_BLOCK_BUFFER_ID, validateServerBlockBuffer } from '../libcore/core/networking/game/ServerBlockBuffer';
+import { SERVER_BLOCK_LINE_ID, validateServerBlockLine } from '../libcore/core/networking/game/ServerBlockLine';
 import { SERVER_BLOCK_SINGLE_ID, validateServerBlockSingle } from '../libcore/core/networking/game/ServerBlockSingle';
 import { SERVER_EQUIP_GUN_ID, validateServerEquipGun } from '../libcore/core/networking/game/ServerEquipGun';
 import { SERVER_FIRE_BULLET_ID, validateServerFireBullet } from '../libcore/core/networking/game/ServerFireBullet';
@@ -60,6 +63,8 @@ export class NetworkClient {
       [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, 'onPickupGun'],
       [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, 'onFireBullet'],
       [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, 'onEquipGun'],
+      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, 'onBlockLine'],
+      [SERVER_BLOCK_BUFFER_ID]: [validateServerBlockBuffer, 'onBlockBuffer'],
     };
 
     this._webSocket.onclose = this._webSocket.onerror = () => {
@@ -95,8 +100,15 @@ export class NetworkClient {
         console.warn('[websocket] packet invalidated', error, rawPacket);
       }
 
+      const eventCallback = this.events[callbackName];
+
+      if (eventCallback === undefined) {
+        console.warn('unregistered callback', callbackName);
+        return;
+      }
+
       // execute any hooks
-      await this.events[callbackName](packet, this);
+      await eventCallback(packet, this);
     };
   }
 
@@ -160,6 +172,18 @@ export class NetworkClient {
       equipped
     };
     
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileId) {
+    const packet: BlockLinePacket = {
+      packetId: BLOCK_LINE_ID,
+      layer: tileLayer,
+      start,
+      end,
+      id: _activeBlock,
+    };
+
     this._webSocket.send(JSON.stringify(packet));
   }
 }

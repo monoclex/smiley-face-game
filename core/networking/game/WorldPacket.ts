@@ -19,8 +19,9 @@ import { ServerPlayerLeaveSchema } from "./ServerPlayerLeave.ts";
 
 export const WorldPacketSchema = Schema.either(
   Schema.either(
+    ServerInitSchema,
     MovementSchema, ServerMovementSchema,
-    ServerPlayerJoinSchema, ServerPlayerLeaveSchema, ServerInitSchema,
+    ServerPlayerJoinSchema, ServerPlayerLeaveSchema,
   ),
 
   // for the sake of type arguments, we have to split up packets into groups of 8 since Schema.either only accepts max 8 generic params

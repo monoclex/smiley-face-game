@@ -7,3 +7,10 @@ export const BlockPositionSchema = Schema({
 });
 export type BlockPosition = Type<typeof BlockPositionSchema>;
 export const validateBlockPosition = BlockPositionSchema.destruct();
+
+export const BoundlessBlockPositionSchema = Schema({
+  x: number.integer(),
+  y: number.integer(),
+})
+export type BoundlessBlockPosition = Type<typeof BoundlessBlockPositionSchema>;
+export const validateBoundlessBlockPosition = BoundlessBlockPositionSchema.destruct();

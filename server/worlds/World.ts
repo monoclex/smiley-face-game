@@ -76,38 +76,50 @@ export class World {
   async handleJoin(user: User): Promise<AllowJoin> {
     if (this.users.size >= 40) return AllowJoin.PreventJoin;
 
-    // tell everyone else about the new player joining
-    // (user not added to list yet so we can use broadcast to tell to all players except user)
-    await this.broadcast({
-      packetId: SERVER_PLAYER_JOIN_ID,
-      userId: user.userId,
-      joinLocation: user.lastPosition,
-      hasGun: user.hasGun,
-      gunEquipped: user.gunEquipped,
-    });
-    
-    // tell the new user about the world
-    await user.send({
-      packetId: SERVER_INIT_ID,
-      sender: user.userId,
-      spawnPosition: user.lastPosition,
-      size: { width: this._width, height: this._height },
-      blocks: this._map.map
-    });
+    try {
+      console.log('handleJoin try');
+      this._map.canRun = false;
 
-    for (const otherUser of this.users.values()) {
-      // tell the new user about everyone here
-      await user.send({
+      // tell everyone else about the new player joining
+      // (user not added to list yet so we can use broadcast to tell to all players except user)
+      await this.broadcast({
         packetId: SERVER_PLAYER_JOIN_ID,
-        userId: otherUser.userId,
-        joinLocation: otherUser.lastPosition,
-        hasGun: otherUser.hasGun,
-        gunEquipped: otherUser.gunEquipped,
+        userId: user.userId,
+        joinLocation: user.lastPosition,
+        hasGun: user.hasGun,
+        gunEquipped: user.gunEquipped,
       });
-    }
+    
+      // tell the new user about the world
+      await user.send({
+        packetId: SERVER_INIT_ID,
+        sender: user.userId,
+        spawnPosition: user.lastPosition,
+        size: { width: this._width, height: this._height },
+        blocks: this._map.map
+      });
 
-    // add them to the list of people
-    this.users.set(user.userId, user);
+      for (const otherUser of this.users.values()) {
+        // tell the new user about everyone here
+        await user.send({
+          packetId: SERVER_PLAYER_JOIN_ID,
+          userId: otherUser.userId,
+          joinLocation: otherUser.lastPosition,
+          hasGun: otherUser.hasGun,
+          gunEquipped: otherUser.gunEquipped,
+        });
+      }
+
+      // add them to the list of people
+      this.users.set(user.userId, user);
+      console.log('handleJoin end of try');
+    }
+    finally {
+      console.log('handleJoin finally');
+      this._map.canRun = true;
+      console.log('handleJoin end of finally');
+    }
+    
     return AllowJoin.PermitJoin;
   }
 
