@@ -40,6 +40,7 @@ export class Editor {
   private get selectedBlock() { return this.worldScene.selectedBlock; }
   private set selectedBlock(value: TileId) { this.worldScene.selectedBlock = value; }
   private get selectedLayer() { return this.worldScene.selectedLayer; }
+  private set selectedLayer(value: TileLayer) { this.worldScene.selectedLayer = value; }
   private get shiftKey() { return this.worldScene.shiftKey; }
   private get camera() { return this.worldScene.cameras.main; }
   private get networkClient() { return this.worldScene.networkClient; }
