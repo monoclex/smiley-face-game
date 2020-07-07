@@ -81,7 +81,6 @@ export class BlockHandler {
   }
 
   private async queueHandler(): Promise<void> {
-    if (this.receiveQueue.length > 0) console.log('queueHandler', this.canRun);
     if (!this.canRun) return;
 
     // if this was multithreaded, this will be thread safe

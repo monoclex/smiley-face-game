@@ -77,7 +77,6 @@ export class World {
     if (this.users.size >= 40) return AllowJoin.PreventJoin;
 
     try {
-      console.log('handleJoin try');
       this._map.canRun = false;
 
       // tell everyone else about the new player joining
@@ -112,12 +111,9 @@ export class World {
 
       // add them to the list of people
       this.users.set(user.userId, user);
-      console.log('handleJoin end of try');
     }
     finally {
-      console.log('handleJoin finally');
       this._map.canRun = true;
-      console.log('handleJoin end of finally');
     }
     
     return AllowJoin.PermitJoin;
