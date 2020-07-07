@@ -27,7 +27,7 @@ export class WorldManager {
     }
 
     // world doesn't exist, create it
-    let createdWorld = new World(300, 300, (() => {
+    let createdWorld = new World(25, 25, (() => {
       this._worlds.delete(id);
     }).bind(this));
 
