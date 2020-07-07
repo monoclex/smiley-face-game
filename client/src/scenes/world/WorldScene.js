@@ -30,6 +30,12 @@ export class WorldScene extends Phaser.Scene {
       [TileId.Full]: TileLayer.Foreground,
       [TileId.Gun]: TileLayer.Action,
     }[this.selectedBlock];
+
+    // assume the slot to be out of range of an actual tile id
+    if (this._selectedLayer === undefined) {
+      this._selectedLayer = TileLayer.Foreground;
+    }
+
     return this._selectedLayer;
   }
 
@@ -38,7 +44,11 @@ export class WorldScene extends Phaser.Scene {
   }
 
   get selectedBlock() {
-    return store.getState().blockBar.selected;
+    const selected = store.getState().blockBar.selected;
+
+    // we're passing the slot id but we just assume it to be the tile id in the meantime
+    if (selected >= 3) return 0;
+    return selected;
   }
 
   set selectedBlock(value) {
@@ -213,7 +223,7 @@ export class WorldScene extends Phaser.Scene {
     let __tmp;
     store.subscribe(() => {
       const { blockBar } = store.getState();
-      
+
       if (blockBar.selected !== __tmp) {
         __tmp = blockBar.selected;
         this._selectedLayer = -1;
