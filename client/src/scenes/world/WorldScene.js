@@ -19,14 +19,22 @@ export class WorldScene extends Phaser.Scene {
     super({
       key: WORLD_SCENE_KEY
     });
+    this._selectedLayer = TileLayer.Foreground;
   }
 
   get selectedLayer() {
-    return {
+    if (this._selectedLayer !== -1) return this._selectedLayer;
+
+    this._selectedLayer = {
       [TileId.Empty]: TileLayer.Foreground,
       [TileId.Full]: TileLayer.Foreground,
       [TileId.Gun]: TileLayer.Action,
     }[this.selectedBlock];
+    return this._selectedLayer;
+  }
+
+  set selectedLayer(layer) {
+    this._selectedLayer = layer;
   }
 
   get selectedBlock() {
@@ -34,6 +42,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   set selectedBlock(value) {
+    this._selectedLayer = -1;
     updatePrimary(value)(store.dispatch);
   }
 
@@ -200,6 +209,16 @@ export class WorldScene extends Phaser.Scene {
     // now that we've registered event handlers, let's unpause the network client
     // it was paused in LoadingScene.js
     this.networkClient.continue();
+
+    let __tmp;
+    store.subscribe(() => {
+      const { blockBar } = store.getState();
+      
+      if (blockBar.selected !== __tmp) {
+        __tmp = blockBar.selected;
+        this._selectedLayer = -1;
+      }
+    })
   }
 
   update() {

@@ -31,7 +31,6 @@ export class Editor {
 
   private _activeBlock: TileId;
   private _activeLayer: TileLayer;
-  private _selectedLayer: TileLayer;
   private _isDown: boolean;
   private _lastX: number;
   private _lastY: number;
@@ -40,13 +39,12 @@ export class Editor {
   private get mapData() { return this.worldScene.mapData; }
   private get selectedBlock() { return this.worldScene.selectedBlock; }
   private set selectedBlock(value: TileId) { this.worldScene.selectedBlock = value; }
+  private get selectedLayer() { return this.worldScene.selectedLayer; }
   private get shiftKey() { return this.worldScene.shiftKey; }
   private get camera() { return this.worldScene.cameras.main; }
   private get networkClient() { return this.worldScene.networkClient; }
 
   constructor(readonly worldScene: WorldScene) {
-    this._selectedLayer = TileLayer.Foreground;
-
     this.networkClient.events.onBlockSingle = (packet) => {
       this.tileState.placeBlock(packet.layer, packet.position, packet.id);
     };
@@ -68,7 +66,7 @@ export class Editor {
       // pick the block to use for building
       const { id, layer } = sampleBlock(this.mapData, x, y, this.shiftKey.isDown());
       this.selectedBlock = id;
-      this._selectedLayer = layer;
+      this.selectedLayer = layer;
     }
     
     if (pointer.rightButtonDown() || this.selectedBlock === TileId.Empty) {
@@ -79,7 +77,7 @@ export class Editor {
       this._activeBlock = TileId.Empty;
     }
     else {
-      this._activeLayer = this._selectedLayer;
+      this._activeLayer = this.selectedLayer;
       this._activeBlock = this.selectedBlock;
     }
 
