@@ -22,8 +22,7 @@ const useStyles = makeStyles({
     pointerEvents: "all",
     imageRendering: 'pixelated',
     "&:hover": {
-      width: 64,
-      height: 64,
+      marginBottom: 8,
     },
   },
 
