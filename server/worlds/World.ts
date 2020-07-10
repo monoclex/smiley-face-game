@@ -1,4 +1,3 @@
-import { Block } from '../../common/models/Block';
 import { TileId } from '../../common/models/TileId';
 import { TileLayer } from '../../common/models/TileLayer';
 import { UserId } from "../../common/models/UserId";
@@ -24,10 +23,6 @@ import { AllowJoin } from "./AllowJoin";
 import { BlockHandler } from './blockhandling/BlockHandler';
 import { User } from "./User";
 import { ValidMessage } from "./ValidMessage";
-
-function newBlock(id: TileId): Block {
-  return { id };
-}
 
 export class World {
   private readonly _lookup: WorldPacketLookup<User, Promise<ValidMessage>>;
@@ -88,7 +83,7 @@ export class World {
         hasGun: user.hasGun,
         gunEquipped: user.gunEquipped,
       });
-    
+
       // tell the new user about the world
       await user.send({
         packetId: SERVER_INIT_ID,
@@ -115,7 +110,7 @@ export class World {
     finally {
       this._map.canRun = true;
     }
-    
+
     return AllowJoin.PermitJoin;
   }
 
@@ -138,7 +133,7 @@ export class World {
     return invokeWorldPacketLookup(this._lookup, message, sender);
   }
 
-  private badPacket(packet: WorldPacket, sender: User): Promise<ValidMessage> {
+  private badPacket(): Promise<ValidMessage> {
     return Promise.resolve(ValidMessage.IsNotValidMessage);
   }
 
@@ -196,7 +191,7 @@ export class World {
   }
 
   private async onFireBullet(packet: FireBulletPacket, sender: User): Promise<ValidMessage> {
-    
+
     // need to have a gun to shoot it
     if (!sender.hasGun || !sender.gunEquipped) {
       return ValidMessage.IsNotValidMessage;
