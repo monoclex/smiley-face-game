@@ -1,9 +1,9 @@
-import { acceptable, acceptWebSocket, Application, isWebSocketPingEvent, oakCors, Router } from "./deps.ts";
-import { validateWorldPacket } from "./libcore/core/networking/game/WorldPacket.ts";
-import { isWebSocketCloseEvent } from "./libcore/deps.ts";
-import { User } from './worlds/User.ts';
-import { ValidMessage } from "./worlds/ValidMessage.ts";
-import { WorldManager } from "./worlds/WorldManager.ts";
+import { validateWorldPacket } from "./../common/networking/game/WorldPacket";
+import { acceptable, acceptWebSocket, Application, isWebSocketPingEvent, oakCors, Router } from "./deps";
+import { isWebSocketCloseEvent } from "./libcore/deps";
+import { User } from './worlds/User';
+import { ValidMessage } from "./worlds/ValidMessage";
+import { WorldManager } from "./worlds/WorldManager";
 
 let uniqueInternalId = 0;
 const newId = () => ++uniqueInternalId;

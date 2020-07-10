@@ -1,12 +1,12 @@
-import { RoomId } from '../libcore/core/models/RoomId.ts';
-import { WorldPreview } from "../libcore/core/models/WorldPreview.ts";
-import { World } from "./World.ts";
+import { RoomId } from '../../common/models/RoomId';
+import { WorldPreview } from "../../common/models/WorldPreview";
+import { World } from "./World";
 
 export class WorldManager {
   private readonly _worlds: Map<RoomId, World> = new Map<RoomId, World>();
 
   listGames(): WorldPreview[] {
-    let worlds: WorldPreview[] = [];
+    const worlds: WorldPreview[] = [];
 
     for (const [id, world] of this._worlds.entries()) {
       worlds.push({
@@ -27,7 +27,7 @@ export class WorldManager {
     }
 
     // world doesn't exist, create it
-    let createdWorld = new World(25, 25, (() => {
+    const createdWorld = new World(25, 25, (() => {
       this._worlds.delete(id);
     }).bind(this));
 
