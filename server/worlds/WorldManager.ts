@@ -18,7 +18,7 @@ export class WorldManager {
     return worlds;
   }
 
-  openOrCreateGame(id: RoomId): World {
+  openOrCreateGame(id: RoomId, width: number, height: number): World {
     const world = this._worlds.get(id);
 
     // world exists
@@ -27,7 +27,7 @@ export class WorldManager {
     }
 
     // world doesn't exist, create it
-    const createdWorld = new World(25, 25, (() => {
+    const createdWorld = new World(width, height, (() => {
       this._worlds.delete(id);
     }).bind(this));
 

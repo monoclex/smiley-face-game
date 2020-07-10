@@ -4,8 +4,10 @@
   "scripts": {
     "client:dev": "parcel client/index.html --out-dir client/dist",
     "client:build": "parcel build client/index.html --out-dir client/dist --no-source-maps",
+    "client:lint": "eslint client --fix",
     "server:dev": "nodemon",
     "server:build": "parcel build server/index.ts --target node --out-dir server/dist",
+    "server:lint": "eslint server --fix",
     "npm install": "npm install",
     "yarn": "yarn"
   },
@@ -14,7 +16,9 @@
     "@babel/core": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@k-foss/ts-esnode": "^1.6.0",
+    "@types/cors": "^2.8.6",
     "@types/express": "^4.17.7",
+    "@types/express-ws": "^3.0.0",
     "@types/history": "^4.7.6",
     "@types/node": "^14.0.20",
     "@types/react": "^16.9.41",
@@ -39,7 +43,9 @@
     "babel-polyfill": "^6.26.0",
     "clsx": "^1.1.1",
     "computed-types": "^1.1.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-ws": "^4.0.0",
     "phaser": "^3.23.0",
     "phaser-matter-collision-plugin": "^0.10.2",
     "phaser-slopes": "^0.1.1",
@@ -50,9 +56,13 @@
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "regenerator-runtime": "^0.13.5"
+    "regenerator-runtime": "^0.13.5",
+    "ws": "^7.3.1"
   },
   "browserlist": [
     "last 1 Firefox version"
-  ]
+  ],
+  "optionalDependencies": {
+    "bufferutil": "^4.0.1"
+  }
 }

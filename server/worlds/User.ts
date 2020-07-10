@@ -1,3 +1,4 @@
+import * as WebSocket from 'ws';
 import { UserId } from "../../common/models/UserId";
 import { WorldPacket } from "../../common/networking/game/WorldPacket";
 
@@ -15,7 +16,9 @@ export class User {
   gunEquipped = true; // as soon as they have a gun it's immediately equipped
 
   send(packet: WorldPacket): Promise<void> | void {
-    return this._webSocket.send(JSON.stringify(packet));
+    if (this._webSocket.readyState === WebSocket.OPEN) {
+      return this._webSocket.send(JSON.stringify(packet));
+    }
   }
 
   kill(): Promise<void> | void {

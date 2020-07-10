@@ -8,11 +8,26 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "env": {
     "es6": true,
     "browser": true,
     "node": true
   },
+  "overrides": [
+    {
+      "files": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.ts",
+        "**/*.tsx"
+      ]
+    }
+  ],
   "rules": {
     "semi": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
