@@ -10,6 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { updatePrimary } from "../redux/actionCreators/blockBar";
 import { connect } from "react-redux";
 import BlockBar from "./blockbar/BlockBar";
+import ChatBar from "./chatbar/ChatBar";
 
 export const config = {
   pixelArt: true,
@@ -71,7 +72,9 @@ const Game = (props) => {
     gameRef.current.oncontextmenu = () => false;
 
     // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
-    globalVariableParkour.worldId = props.gameId;
+    globalVariableParkour.roomId = props.roomId;
+    globalVariableParkour.roomWidth = props.roomWidth;
+    globalVariableParkour.roomHeight = props.roomHeight;
 
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
@@ -90,6 +93,8 @@ const Game = (props) => {
         <div className={styles.blockbar}>
           <BlockBar onBlockSelected={props.updatePrimary} selected={props.selectedSlot} loader={props.loader} />
         </div>
+
+        <ChatBar />
       </Grid>
     </>
   );
@@ -97,7 +102,7 @@ const Game = (props) => {
 
 const mapState = (state) => ({
   selectedSlot: state.blockBar.selected,
-  loader: state.blockBar.loader
+  loader: state.blockBar.loader,
 });
 
 const mapDispatch = {

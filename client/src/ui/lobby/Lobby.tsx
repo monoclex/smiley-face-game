@@ -1,85 +1,81 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { Room } from "./Room";
-import { Grid,  InputBase, IconButton } from "@material-ui/core";
+import { Grid, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import AddIcon from '@material-ui/icons/Add';
-import { Redirect, Link } from "react-router-dom";
-import { api } from '../../isProduction';
+import { Plus as PlusIcon, Refresh as RefreshIcon } from "mdi-material-ui";
+import { withRouter } from "react-router-dom";
+import { api } from "../../isProduction";
+import CreateRoomDialog from "../components/CreateRoomDialog";
+import { motion } from "framer-motion";
 
 const useStyles = makeStyles({
   input: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   paddingStyle: {
     // https://material-ui.com/components/grid/#negative-margin
     padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
   },
 });
-
-interface LobbyProps {}
-
 // TODO: import from libcore
 interface GamePreview {
   id: string;
   playerCount: number;
 }
 
-const Lobby: React.FC<LobbyProps> = (props) => {
-  const styles = useStyles();
+const Lobby = ({ history }) => {
+  const classes = useStyles();
 
   const [rooms, setRooms] = useState<GamePreview[] | null>(null);
-  const [input, setInput] = useState<string>('smiley-face-game');
-  const [redirect, setRedirect] = useState(false);
+  const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchLobby = () => {
     fetch(api.lobby())
       .then((response) => response.json())
       .then(setRooms);
+  };
+
+  useEffect(() => {
+    fetchLobby();
   }, []);
 
-  // https://stackoverflow.com/a/35354844/3780113
-  if (redirect) {
-    return <Redirect to={`/games/${input}`} />;
-  }
-
   if (rooms === null) {
-    return <h1>Loading rooms</h1>;
+    return <h1>Loading rooms...</h1>;
   }
-
-  const onInputChange = (input: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setInput(input.target.value);
-  };
-
-  const openGame = () => {
-    setRedirect(true);
-  };
 
   return (
     <>
       <Grid container item justify="center" alignItems="center">
-          <InputBase
-            className={styles.input}
-            placeholder="Enter World Name"
-            onChange={onInputChange}
-          />
-          <IconButton onClick={openGame}>
-            <AddIcon />
+        <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
+          <IconButton onClick={() => fetchLobby()}>
+            <RefreshIcon />
           </IconButton>
+        </motion.div>
+        <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
+          <PlusIcon />
+        </IconButton>
       </Grid>
-      <div className={styles.paddingStyle}>
+      <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
           {rooms.map((room) => (
-              <Grid item xs={3}>
-                <Link to={`/games/${room.id}`}>
-                  <Room room={room} />
-                </Link>
-              </Grid>
-            ))}
+            <Grid item key={room.id}>
+              <Room room={room} />
+            </Grid>
+          ))}
         </Grid>
       </div>
+
+      <CreateRoomDialog
+        open={createRoomDialogOpen}
+        onClose={() => setCreateRoomDialogOpen(false)}
+        onCreateRoom={({ width, height, name }) => {
+          history.push(`/games/${name.replace(/ /g, "-")}/${width}/${height}`);
+          setCreateRoomDialogOpen(false);
+        }}
+      />
     </>
   );
 };
 
-export default Lobby;
+export default withRouter(Lobby);

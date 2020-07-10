@@ -1,4 +1,4 @@
-import { RoomId } from '../libcore/core/models/RoomId.ts';
+import { RoomId } from "../libcore/core/models/RoomId.ts";
 import { WorldPreview } from "../libcore/core/models/WorldPreview.ts";
 import { World } from "./World.ts";
 
@@ -11,14 +11,14 @@ export class WorldManager {
     for (const [id, world] of this._worlds.entries()) {
       worlds.push({
         id,
-        playerCount: world.users.size
+        playerCount: world.users.size,
       });
     }
 
     return worlds;
   }
 
-  openOrCreateGame(id: RoomId): World {
+  openOrCreateGame(id: RoomId, width: number, height: number): World {
     const world = this._worlds.get(id);
 
     // world exists
@@ -27,9 +27,13 @@ export class WorldManager {
     }
 
     // world doesn't exist, create it
-    let createdWorld = new World(25, 25, (() => {
-      this._worlds.delete(id);
-    }).bind(this));
+    let createdWorld = new World(
+      width,
+      height,
+      (() => {
+        this._worlds.delete(id);
+      }).bind(this)
+    );
 
     this._worlds.set(id, createdWorld);
 

@@ -1,9 +1,9 @@
-import { toClientTileId } from '../../../client/toClientTileId';
-import { bresenhamsLine } from '../../../libcore/core/misc';
+import { toClientTileId } from "../../../client/toClientTileId";
+import { bresenhamsLine } from "../../../libcore/core/misc";
 import { TileId } from "../../../libcore/core/models/TileId";
 import { TileLayer } from "../../../libcore/core/models/TileLayer";
-import { TILE_HEIGHT, TILE_WIDTH } from '../Config';
-import { WorldScene } from '../WorldScene';
+import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
+import { WorldScene } from "../WorldScene";
 
 interface TileLayers {
   readonly void: Phaser.GameObjects.TileSprite;
@@ -23,23 +23,23 @@ type ActionCollisionEvent = (tileId: TileId, position: Position, bodyB: MatterJS
  */
 export class WorldBlocks {
   static create(worldScene: WorldScene): WorldBlocks {
-
     const { worldSize, tilemap, tileset } = worldScene;
     const { world } = worldScene.matter;
     const { width, height } = worldSize;
 
-    const createDynamicTilemap = (name: string) => tilemap.createBlankDynamicLayer(name, tileset, 0, 0, width, height, TILE_WIDTH, TILE_HEIGHT);
+    const createDynamicTilemap = (name: string) =>
+      tilemap.createBlankDynamicLayer(name, tileset, 0, 0, width, height, TILE_WIDTH, TILE_HEIGHT);
 
     // void is just the empty tile repeating
     // TODO: figure out how to make 'atlas' not default to tile `0`, as the implicit requirement may be bad
-    const tilingVoidSprite = worldScene.add.tileSprite(0, 0, tilemap.widthInPixels, tilemap.heightInPixels, 'atlas');
+    const tilingVoidSprite = worldScene.add.tileSprite(0, 0, tilemap.widthInPixels, tilemap.heightInPixels, "atlas");
     tilingVoidSprite.setPosition(tilemap.widthInPixels / 2, tilemap.heightInPixels / 2);
 
     const layers = {
       void: tilingVoidSprite,
-      background: createDynamicTilemap('background'),
-      action: createDynamicTilemap('action'),
-      foreground: createDynamicTilemap('foreground'),
+      background: createDynamicTilemap("background"),
+      action: createDynamicTilemap("action"),
+      foreground: createDynamicTilemap("foreground"),
     };
 
     // prevent people from falling out of the world
@@ -50,18 +50,27 @@ export class WorldBlocks {
 
   onGunCollide?: ActionCollisionEvent;
 
-  private get width() { return this.worldScene.worldSize.width; }
-  private get height() { return this.worldScene.worldSize.height; }
-  private get mapData() { return this.worldScene.mapData; }
-  private get matter() { return this.worldScene.matter; }
-  private get world() { return this.matter.world; }
+  private get width() {
+    return this.worldScene.worldSize.width;
+  }
+  private get height() {
+    return this.worldScene.worldSize.height;
+  }
+  private get mapData() {
+    return this.worldScene.mapData;
+  }
+  private get matter() {
+    return this.worldScene.matter;
+  }
+  private get world() {
+    return this.matter.world;
+  }
   // @ts-ignore
-  private get matterCollision(): any { return this.worldScene.matterCollision; }
+  private get matterCollision(): any {
+    return this.worldScene.matterCollision;
+  }
 
-  constructor(
-    private readonly _layers: TileLayers,
-    readonly worldScene: WorldScene, 
-  ) {
+  constructor(private readonly _layers: TileLayers, readonly worldScene: WorldScene) {
     const collisionTiles = [];
 
     // we'll shove all the blocks into the world, and then recalculate everything once we're done
@@ -76,12 +85,12 @@ export class WorldBlocks {
         for (let x = 0; x < this.width; x++) {
           const blockId = mapY[x].id;
           if (blockId === TileId.Empty) continue;
-          
+
           tileLayer.putTileAt(blockId, x, y, false);
         }
       }
     }
-    
+
     {
       const layer = TileLayer.Action;
       const mapLayer = this.mapData[layer];
@@ -93,7 +102,7 @@ export class WorldBlocks {
         for (let x = 0; x < this.width; x++) {
           const blockId = mapY[x].id;
           if (blockId === TileId.Empty) continue;
-          
+
           tileLayer.putTileAt(blockId, x, y, false);
 
           this._addTileCollisionEvent(blockId, tileLayer, x, y);
@@ -128,7 +137,7 @@ export class WorldBlocks {
     // now that we've shoved all the data in, process it
     this.world.convertTilemapLayer(_layers.foreground);
 
-    console.timeEnd('init');
+    console.timeEnd("init");
   }
 
   outlineRectangle(layer: TileLayer, position: Position, size: Size, tileId: TileId = TileId.Full) {
@@ -147,7 +156,8 @@ export class WorldBlocks {
     const absoluteYDiff = Math.abs(end.y - start.y);
 
     // check if we ended up placing a horizontal/vertical line - we can optimize this scenario
-    if (absoluteXDiff === 0 || absoluteYDiff === 0) { // line
+    if (absoluteXDiff === 0 || absoluteYDiff === 0) {
+      // line
       const trueStart = { x: Math.min(start.x, end.x), y: Math.min(start.y, end.y) };
       const size = { width: absoluteXDiff + 1, height: absoluteYDiff + 1 };
       return this.fillBlocks(layer, trueStart, size, tileId);
@@ -155,7 +165,7 @@ export class WorldBlocks {
     // otherwise, we need to use a fancy algorithm to properly handle the blocks inbetween the two frames
     else {
       let blocksToSend = [];
-    
+
       // some fancy line, use Bresenham's Line Algorithm to fill in these blocks
       bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
         blocksToSend = blocksToSend.concat(this.placeBlock(layer, { x, y }, tileId));
@@ -184,12 +194,7 @@ export class WorldBlocks {
     return map[layer];
   }
 
-  public fillBlocks(
-    layer: TileLayer,
-    position: Position,
-    size: Size,
-    tileId: TileId,
-  ) {
+  public fillBlocks(layer: TileLayer, position: Position, size: Size, tileId: TileId) {
     const shouldCollide = false;
     let { x, y } = position;
     let { width, height } = size;
@@ -216,7 +221,6 @@ export class WorldBlocks {
     let tileIds = [];
     for (let posY = y; posY < endY; posY++) {
       for (let posX = x; posX < endX; posX++) {
-
         // only trigger changes for blocks that need to be changed
         if (this.mapData[layer][posY][posX].id !== tileId) {
           tileLayer.putTileAt(clientTileId, posX, posY, false);
@@ -247,12 +251,10 @@ export class WorldBlocks {
       this.world.convertTiles(tileData);
       // @ts-ignore
       this.world.processEdges(tileLayer, tileData);
-    }
-    else {
-    
+    } else {
       // destroy all the physics bodies of the tile being deleted and the tiles around it
       const tilesAround = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2);
-      
+
       for (const tile of tilesAround) {
         //@ts-ignore
         if (tile.physics.matterBody) tile.physics.matterBody.destroy();
@@ -263,7 +265,7 @@ export class WorldBlocks {
 
         tileLayer.putTileAt(copy.index, copy.x, copy.y);
       }
-      
+
       // re-create the physics bodies of the collidable tiles around and smoothen them out
       const collidableTiles = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
       this.world.convertTiles(collidableTiles);
@@ -272,7 +274,11 @@ export class WorldBlocks {
     }
   }
 
-  private _addTileCollisionEvents(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, positions: Position[]) {
+  private _addTileCollisionEvents(
+    tileId: TileId,
+    tileLayer: Phaser.Tilemaps.DynamicTilemapLayer,
+    positions: Position[]
+  ) {
     for (const position of positions) {
       this._addTileCollisionEvent(tileId, tileLayer, position.x, position.y);
     }
@@ -280,12 +286,18 @@ export class WorldBlocks {
 
   private _addTileCollisionEvent(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, x: number, y: number) {
     if (tileId !== TileId.Gun) return;
-    
+
     const gunSensor = this.matter.add.rectangle(
-      x * TILE_WIDTH + (TILE_WIDTH / 2), y * TILE_HEIGHT + (TILE_HEIGHT / 2),
-      TILE_WIDTH, TILE_HEIGHT,
-      { isSensor: true, isStatic: true },
+      x * TILE_WIDTH + TILE_WIDTH / 2,
+      y * TILE_HEIGHT + TILE_HEIGHT / 2,
+      TILE_WIDTH,
+      TILE_HEIGHT,
+      { isSensor: true, isStatic: true }
     );
+
+    if (!this.matterCollision) {
+      return;
+    }
 
     //@ts-ignore
     this.matterCollision.addOnCollideStart({
@@ -296,7 +308,7 @@ export class WorldBlocks {
         }
       },
       context: this,
-    })
+    });
 
     //@ts-ignore
     this.worldScene.mapData[TileLayer.Action][y][x].sensor = gunSensor;

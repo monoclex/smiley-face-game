@@ -6,21 +6,17 @@ import clsx from "clsx";
 
 const useStyles = makeStyles({
   selected: {
-    backgroundColor: "green",
-  },
-
-  // TODO: name
-  blockBlue: {
-    "&:hover": {
-     backgroundColor: "blue"
-    }
+    marginBottom: 8,
   },
 
   image: {
     width: 32,
     height: 32,
     pointerEvents: "all",
-    imageRendering: 'pixelated',
+    imageRendering: "pixelated",
+  },
+
+  hover: {
     "&:hover": {
       marginBottom: 8,
     },
@@ -35,16 +31,15 @@ const useStyles = makeStyles({
 });
 
 const Block = (props) => {
-  const styles = useStyles(props);
+  const classes = useStyles(props);
   const [imageSource, setImageSource] = useState(null);
 
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.slotId)
-      .then(image => {
-        setImageSource(image.src);
-      });
+    props.loader(props.slotId).then((image) => {
+      setImageSource(image.src);
+    });
   }, [props.loader]);
 
   if (!props.loader || !imageSource) {
@@ -52,15 +47,22 @@ const Block = (props) => {
   }
 
   return (
-    <Grid className={clsx({
-      [styles.selected]: props.selected,
-      [styles.blockBlue]: !props.selected
-    })}>
+    <Grid
+      className={clsx({
+        [classes.selected]: props.selected,
+      })}
+    >
       <Grid item container justify="center">
         <span>{props.slot}</span>
       </Grid>
-      <Grid item className={styles.removeLineHeight}>
-        <img className={styles.image} onClick={props.onClick} src={imageSource} />
+      <Grid item className={classes.removeLineHeight}>
+        <img
+          className={clsx(classes.image, {
+            [classes.hover]: !props.selected,
+          })}
+          onClick={props.onClick}
+          src={imageSource}
+        />
       </Grid>
     </Grid>
   );

@@ -1,31 +1,55 @@
-import { acceptable, acceptWebSocket, Application, isWebSocketPingEvent, oakCors, Router } from "./deps.ts";
+import {
+  acceptable,
+  acceptWebSocket,
+  Application,
+  isWebSocketPingEvent,
+  oakCors,
+  Router,
+} from "./deps.ts";
 import { validateWorldPacket } from "./libcore/core/networking/game/WorldPacket.ts";
 import { isWebSocketCloseEvent } from "./libcore/deps.ts";
-import { User } from './worlds/User.ts';
+import { User } from "./worlds/User.ts";
 import { ValidMessage } from "./worlds/ValidMessage.ts";
 import { WorldManager } from "./worlds/WorldManager.ts";
 
 let uniqueInternalId = 0;
 const newId = () => ++uniqueInternalId;
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const gameManager = new WorldManager();
 
 const router = new Router();
-router.get("/ws/game/:id", async (context) => {
+router
+  .get("/ws/game/:id/:width/:height", async (context) => {
     if (!(context.params && context.params.id)) {
       return;
     }
 
     if (!acceptable(context.request.serverRequest)) {
-      context.response.redirect('/');
+      context.response.redirect("/");
       return;
     }
-    
-    const id = context.params.id;
-    const game = await gameManager.openOrCreateGame(id);
 
-    const { conn, r: bufReader, w: bufWriter, headers } = context.request.serverRequest;
-    const webSocket = await acceptWebSocket({ conn, bufReader, bufWriter, headers });
+    const id = context.params.id;
+    const width = clamp(parseInt(context.params.width || "25"), 5, 50);
+    const height = clamp(parseInt(context.params.height || "25"), 5, 50);
+
+    const game = await gameManager.openOrCreateGame(id, width, height);
+
+    const {
+      conn,
+      r: bufReader,
+      w: bufWriter,
+      headers,
+    } = context.request.serverRequest;
+
+    const webSocket = await acceptWebSocket({
+      conn,
+      bufReader,
+      bufWriter,
+      headers,
+    });
 
     const user = new User(webSocket, newId());
 
@@ -36,20 +60,20 @@ router.get("/ws/game/:id", async (context) => {
         if (isWebSocketPingEvent(event)) continue;
         if (isWebSocketCloseEvent(event)) continue;
 
-        if (!(typeof event === 'string')) {
-          console.warn('error event isn\'t string', event);
+        if (!(typeof event === "string")) {
+          console.warn("error event isn't string", event);
           break;
         }
 
         const [error, packet] = validateWorldPacket(JSON.parse(event));
         if (error !== null) {
-          console.warn('error validating packet: ', error, event);
+          console.warn("error validating packet: ", error, event);
           break;
         }
 
         const isValid = await game.handleMessage(user, packet!);
         if (isValid !== ValidMessage.IsValidMessage) {
-          console.warn('packet deemed invalid: ', packet);
+          console.warn("packet deemed invalid: ", packet);
           break;
         }
       }
@@ -59,10 +83,9 @@ router.get("/ws/game/:id", async (context) => {
         await webSocket.close();
       }
     } catch (error) {
-      console.warn('error handling websocket connection: ', error);
+      console.warn("error handling websocket connection: ", error);
       await webSocket.close();
-    }
-    finally {
+    } finally {
       // TODO: should handleLeave be called before the connection is destroyed?
       await game.handleLeave(user);
     }
@@ -72,14 +95,13 @@ router.get("/ws/game/:id", async (context) => {
   })
   .get("/lobby", (context) => {
     context.response.body = gameManager.listGames();
-  })
-;
+  });
 
 const app = new Application();
 app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-console.log('listening');
+console.log("listening");
 await app.listen({ port: 8080 });
-console.log('done');
+console.log("done");

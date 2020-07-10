@@ -9,8 +9,8 @@ import { Provider } from "react-redux";
 
 interface AppProps {}
 
-const LobbyPageLazy = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
-const GamePageLazy = lazy(() => import("./game/Game"));
+const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
+const GamePage = lazy(() => import("./game/Game"));
 
 export const App: React.FC<AppProps> = () => {
   const prefersDarkMode = true;
@@ -32,12 +32,24 @@ export const App: React.FC<AppProps> = () => {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Suspense fallback={<h1>Loading</h1>}>
-              <Route exact path="/" component={LobbyPageLazy} />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <Route exact path="/" component={LobbyPage} />
+
+              {/* 
+                  Temporary hack to allow people to join without width/height
+                  (will deal with this later)
+              */}
+              <Route exact path="/games/:roomId" render={({ match }) => <GamePage roomId={match.params.roomId} />} />
               <Route
                 exact
-                path="/games/:gameId"
-                render={({ match }) => <GamePageLazy gameId={match.params.gameId} />}
+                path="/games/:roomId/:width/:height"
+                render={({ match }) => (
+                  <GamePage
+                    roomId={match.params.roomId}
+                    roomWidth={match.params.width}
+                    roomHeight={match.params.height}
+                  />
+                )}
               />
             </Suspense>
           </ThemeProvider>

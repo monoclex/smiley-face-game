@@ -9,6 +9,7 @@ Please join our [discord server](https://discord.gg/c68KMCs) for updates!
 2. [Install deno](https://deno.land/#installation)
 3. [Install vscode](https://code.visualstudio.com/Download)
 4. [Install deno extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno) for vscode
+5. [Install prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for vscode
 
 ## Client
 
