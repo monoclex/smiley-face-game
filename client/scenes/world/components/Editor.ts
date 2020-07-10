@@ -68,11 +68,11 @@ export class Editor {
       this.selectedBlock = id;
       this.selectedLayer = layer;
     }
-    
+
     if (pointer.rightButtonDown() || this.selectedBlock === TileId.Empty) {
       // we want to clear blocks if right is down
       const { layer } = sampleBlock(this.mapData, x, y, this.shiftKey.isDown());
-      
+
       this._activeLayer = layer;
       this._activeBlock = TileId.Empty;
     }
@@ -109,8 +109,6 @@ export class Editor {
 
     const absoluteXDiff = Math.abs(this._lastX - x);
     const absoluteYDiff = Math.abs(this._lastY - y);
-
-    const blocksToSend = [];
 
     // if the block position only changed by 1 block, we don't need to employ any fancy algorithms
     if (absoluteXDiff <= 1 && absoluteYDiff <= 1) {

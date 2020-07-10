@@ -1,4 +1,4 @@
-import "phaser";
+import Phaser from "phaser";
 import Slopes from "phaser-slopes";
 import { WorldBlocks } from "./components/WorldBlocks";
 import { Editor } from "./components/Editor";
@@ -7,12 +7,12 @@ import { TILE_WIDTH, TILE_HEIGHT } from "./Config";
 import { PrimaryPlayer } from "./components/PrimaryPlayer";
 import { TileId } from "../../../common/models/TileId";
 import { Player } from "./components/Player";
-import { Block } from "./components/Block";
 import store from "../../ui/redux/store";
 import { updatePrimary, supplyTextureLoader } from "../../ui/redux/actionCreators/blockBar";
 import { TileLayer } from "../../../common/models/TileLayer";
 import { SERVER_BLOCK_LINE_ID } from "../../../common/networking/game/ServerBlockLine";
 import { SERVER_BLOCK_SINGLE_ID } from "../../../common/networking/game/ServerBlockSingle";
+import { SERVER_PLAYER_JOIN_ID } from "../../../common/networking/game/ServerPlayerJoin";
 
 export const WORLD_SCENE_KEY = "WorldScene";
 
@@ -55,7 +55,7 @@ export class WorldScene extends Phaser.Scene {
 
   set selectedBlock(value) {
     this._selectedLayer = -1;
-    updatePrimary(value)(store.dispatch);
+    updatePrimary(value)(store.dispatch, () => store.getState().blockBar, undefined);
   }
 
   /** @param {import("../loading/LoadingSceneData").LoadingSceneData} data */
@@ -76,7 +76,7 @@ export class WorldScene extends Phaser.Scene {
 
     this._init = data;
 
-    /** @type {Block[][][]} */
+    /** @type {import('./components/Block').Block[][][]} */
     this.mapData = this.initMessage.blocks;
   }
 
@@ -90,12 +90,12 @@ export class WorldScene extends Phaser.Scene {
   create() {
 
     // layer the world so certain things appear infront/behind things
-    this.containerBehindLayers = this.sys.add.container();
-    this.containerUnheldGuns = this.sys.add.container();
-    this.containerPlayers = this.sys.add.container();
-    this.containerBullets = this.sys.add.container();
-    this.containerForegroundLayer = this.sys.add.container();
-    this.containerHeldGuns = this.sys.add.container();
+    this.containerBehindLayers = this.sys.add.container(0, 0);
+    this.containerUnheldGuns = this.sys.add.container(0, 0);
+    this.containerPlayers = this.sys.add.container(0, 0);
+    this.containerBullets = this.sys.add.container(0, 0);
+    this.containerForegroundLayer = this.sys.add.container(0, 0);
+    this.containerHeldGuns = this.sys.add.container(0, 0);
 
     // create a tilemap - we'll use this to make the multiple layers (background, action, foreground, etc.)
     this.tilemap = this.make.tilemap({
@@ -149,7 +149,6 @@ export class WorldScene extends Phaser.Scene {
         const renderImageCanvas = document.createElement('canvas');
         renderImageCanvas.width = 32;
         renderImageCanvas.height = 32;
-        renderImageCanvas.convertToBlob = () => new Promise(resolve => renderImageCanvas.toBlob(resolve));
 
         const context = renderImageCanvas.getContext('2d');
         context.drawImage(imageSource,
@@ -159,13 +158,13 @@ export class WorldScene extends Phaser.Scene {
           TILE_WIDTH, TILE_HEIGHT
         );
 
-        const blob = await renderImageCanvas.convertToBlob('image/png');
+        const blob = new Promise(resolve => renderImageCanvas.toBlob(resolve));
         const url = URL.createObjectURL(blob);
         
         const tileTexture = new Image();
         tileTexture.src = url;
         return tileTexture;
-    }).bind(this))(store.dispatch)
+    }).bind(this))(store.dispatch, () => store.getState().blockBar, undefined);
 
     // holds world state - such as background, foreground, etc.
     this._worldBlocks = WorldBlocks.create(this);
@@ -178,8 +177,11 @@ export class WorldScene extends Phaser.Scene {
     // BIG TODO: for some reason have to append 16 for positions in world
 
     const initAsOnJoin = {
+      packetId: SERVER_PLAYER_JOIN_ID,
+      userId: 0,
       joinLocation: this.initMessage.spawnPosition,
-      hasGun: false
+      hasGun: false,
+      gunEquipped: false,
     };
     this.mainPlayerId = this.initMessage.sender;
     this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);
@@ -203,11 +205,11 @@ export class WorldScene extends Phaser.Scene {
     camera.setZoom(1);
 
     // assign to hierarchy of groups here
-    this.containerBehindLayers.add(this._worldBlocks._layers.void);
-    this.containerBehindLayers.add(this._worldBlocks._layers.background);
-    this.containerBehindLayers.add(this._worldBlocks._layers.action);
+    this.containerBehindLayers.add(this._worldBlocks.layers.void);
+    this.containerBehindLayers.add(this._worldBlocks.layers.background);
+    this.containerBehindLayers.add(this._worldBlocks.layers.action);
     this.containerPlayers.add(this.mainPlayer.sprite);
-    this.containerForegroundLayer.add(this._worldBlocks._layers.foreground);
+    this.containerForegroundLayer.add(this._worldBlocks.layers.foreground);
 
     // network event stuff
     this.networkClient.events.onBlockSingle = this.onBlockSingle.bind(this);
@@ -232,7 +234,7 @@ export class WorldScene extends Phaser.Scene {
         __tmp = blockBar.selected;
         this._selectedLayer = -1;
       }
-    })
+    });
   }
 
   update() {

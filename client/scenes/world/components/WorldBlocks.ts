@@ -59,8 +59,8 @@ export class WorldBlocks {
   private get matterCollision(): any { return this.worldScene.matterCollision; }
 
   constructor(
-    private readonly _layers: TileLayers,
-    readonly worldScene: WorldScene, 
+    readonly layers: TileLayers,
+    readonly worldScene: WorldScene,
   ) {
     const collisionTiles = [];
 
@@ -76,12 +76,12 @@ export class WorldBlocks {
         for (let x = 0; x < this.width; x++) {
           const blockId = mapY[x].id;
           if (blockId === TileId.Empty) continue;
-          
+
           tileLayer.putTileAt(blockId, x, y, false);
         }
       }
     }
-    
+
     {
       const layer = TileLayer.Action;
       const mapLayer = this.mapData[layer];
@@ -93,7 +93,7 @@ export class WorldBlocks {
         for (let x = 0; x < this.width; x++) {
           const blockId = mapY[x].id;
           if (blockId === TileId.Empty) continue;
-          
+
           tileLayer.putTileAt(blockId, x, y, false);
 
           this._addTileCollisionEvent(blockId, tileLayer, x, y);
@@ -126,7 +126,7 @@ export class WorldBlocks {
     tilemapLayer.setCollision(collisionTiles, true, true, true);
 
     // now that we've shoved all the data in, process it
-    this.world.convertTilemapLayer(_layers.foreground);
+    this.world.convertTilemapLayer(layers.foreground);
 
     console.timeEnd('init');
   }
@@ -155,7 +155,7 @@ export class WorldBlocks {
     // otherwise, we need to use a fancy algorithm to properly handle the blocks inbetween the two frames
     else {
       let blocksToSend = [];
-    
+
       // some fancy line, use Bresenham's Line Algorithm to fill in these blocks
       bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
         blocksToSend = blocksToSend.concat(this.placeBlock(layer, { x, y }, tileId));
@@ -167,7 +167,7 @@ export class WorldBlocks {
 
   screenToWorldPosition(position: Phaser.Math.Vector2): Phaser.Math.Vector2 {
     const { x, y } = position;
-    return this._layers.foreground.worldToTileXY(x, y);
+    return this.layers.foreground.worldToTileXY(x, y);
   }
 
   blockAt(layer: TileLayer, position: Position): TileId {
@@ -176,9 +176,9 @@ export class WorldBlocks {
 
   private getTilemapLayer(layer: TileLayer): Phaser.Tilemaps.DynamicTilemapLayer {
     const map = {
-      [TileLayer.Foreground]: this._layers.foreground,
-      [TileLayer.Action]: this._layers.action,
-      [TileLayer.Background]: this._layers.background,
+      [TileLayer.Foreground]: this.layers.foreground,
+      [TileLayer.Action]: this.layers.action,
+      [TileLayer.Background]: this.layers.background,
     };
 
     return map[layer];
@@ -249,10 +249,10 @@ export class WorldBlocks {
       this.world.processEdges(tileLayer, tileData);
     }
     else {
-    
+
       // destroy all the physics bodies of the tile being deleted and the tiles around it
       const tilesAround = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2);
-      
+
       for (const tile of tilesAround) {
         //@ts-ignore
         if (tile.physics.matterBody) tile.physics.matterBody.destroy();
@@ -263,7 +263,7 @@ export class WorldBlocks {
 
         tileLayer.putTileAt(copy.index, copy.x, copy.y);
       }
-      
+
       // re-create the physics bodies of the collidable tiles around and smoothen them out
       const collidableTiles = tileLayer.getTilesWithin(x - 1, y - 1, width + 2, height + 2, { isColliding: true });
       this.world.convertTiles(collidableTiles);
@@ -280,7 +280,7 @@ export class WorldBlocks {
 
   private _addTileCollisionEvent(tileId: TileId, tileLayer: Phaser.Tilemaps.DynamicTilemapLayer, x: number, y: number) {
     if (tileId !== TileId.Gun) return;
-    
+
     const gunSensor = this.matter.add.rectangle(
       x * TILE_WIDTH + (TILE_WIDTH / 2), y * TILE_HEIGHT + (TILE_HEIGHT / 2),
       TILE_WIDTH, TILE_HEIGHT,

@@ -37,7 +37,7 @@ export class Player {
     this.playerBody = playerBody;
 
     this.registerCollision();
-    
+
     // register the gun AFTER the player so the gun will appear infront of the player
     // technically the groups should be controlling the rendering, but i don't want to have to constantly order them
     if (hasGun) {
@@ -75,9 +75,9 @@ export class Player {
     sprite.setExistingBody(playerBody).setScale(1)
       .setFixedRotation()
       .setPosition(joinLocation.x, joinLocation.y);
-    
+
     this.worldScene.containerPlayers.add(sprite);
-    
+
     return ({
       sprite, mainBody, groundSensor, playerBody
     });

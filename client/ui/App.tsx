@@ -7,12 +7,10 @@ import { lazy } from "react";
 import Lobby from "./lobby/Lobby";
 import { Provider } from "react-redux";
 
-interface AppProps {}
-
 const LobbyPageLazy = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
 const GamePageLazy = lazy(() => import("./game/Game"));
 
-export const App: React.FC<AppProps> = () => {
+export const App: React.FC<Record<string, unknown>> = () => {
   const prefersDarkMode = true;
 
   const theme = React.useMemo(

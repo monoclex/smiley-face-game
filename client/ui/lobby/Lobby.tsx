@@ -17,15 +17,13 @@ const useStyles = makeStyles({
   },
 });
 
-interface LobbyProps {}
-
 // TODO: import from libcore
 interface GamePreview {
   id: string;
   playerCount: number;
 }
 
-const Lobby: React.FC<LobbyProps> = (props) => {
+const Lobby: React.FC<Record<string, unknown>> = () => {
   const styles = useStyles();
 
   const [rooms, setRooms] = useState<GamePreview[] | null>(null);
@@ -70,7 +68,7 @@ const Lobby: React.FC<LobbyProps> = (props) => {
       <div className={styles.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
           {rooms.map((room) => (
-              <Grid item xs={3}>
+              <Grid key={room.id} item xs={3}>
                 <Link to={`/games/${room.id}`}>
                   <Room room={room} />
                 </Link>

@@ -113,12 +113,12 @@ export class NetworkClient {
   }
 
   /** Prevents any event handlers from being triggered. Pushes all incmoing messages into a buffer. */
-  pause() {
+  pause(): void {
     this._pause = true;
   }
 
   /** Unpauses the network client, and triggers all event handlers for any buffered actions. */
-  async continue() {
+  async continue(): Promise<void> {
     this._pause = false;
 
     for (const message of this._buffer) {
@@ -128,7 +128,7 @@ export class NetworkClient {
     this._buffer = [];
   }
 
-  placeBlock(x: number, y: number, id: TileId, layer: TileLayer) {
+  placeBlock(x: number, y: number, id: TileId, layer: TileLayer): void {
     const packet: BlockSinglePacket = {
       packetId: BLOCK_SINGLE_ID,
       position: { x, y },
@@ -138,7 +138,7 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  move(position: Position, inputs: InputState) {
+  move(position: Position, inputs: InputState): void {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position,
@@ -148,7 +148,7 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  gotGun(position: Position) {
+  gotGun(position: Position): void {
     const packet: PickupGunPacket = {
       packetId: PICKUP_GUN_ID,
       position
@@ -157,7 +157,7 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  fireBullet(angle: number) {
+  fireBullet(angle: number): void {
     const packet: FireBulletPacket = {
       packetId: FIRE_BULLET_ID,
       angle
@@ -166,16 +166,16 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  equipGun(equipped: boolean) {
+  equipGun(equipped: boolean): void {
     const packet: EquipGunPacket = {
       packetId: EQUIP_GUN_ID,
       equipped
     };
-    
+
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileId) {
+  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileId): void {
     const packet: BlockLinePacket = {
       packetId: BLOCK_LINE_ID,
       layer: tileLayer,
