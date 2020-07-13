@@ -1,11 +1,13 @@
 import { loadAll } from "../../assets/assets";
-import { api } from '../../isProduction';
+import { api } from "../../isProduction";
 import { NetworkClient } from "../../networking/NetworkClient";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
-import { LoadingSceneData } from './LoadingSceneData';
+import { LoadingSceneData } from "./LoadingSceneData";
 
 export const globalVariableParkour = {
-  worldId: 'smiley-face-game'
+  roomId: "smiley-face-game",
+  roomWidth: 25,
+  roomHeight: 25,
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -22,37 +24,43 @@ export class LoadingScene extends Phaser.Scene {
 
   preload() {
     this.cameras.main.setBackgroundColor(0x000000);
-    
+
     this._progressBar = this.add.graphics();
-    this.load.on('progress', (value: number) => {
-      this._progressBar.clear();
-      this._progressBar.fillStyle(0x8A8A8A, 1);
-      this._progressBar.fillRect(
-        this.cameras.main.width / 4,
-        this.cameras.main.height / 2 - 16,
-        (this.cameras.main.width / 2) * value,
-        16
-      );
-    }, this);
+    this.load.on(
+      "progress",
+      (value: number) => {
+        this._progressBar.clear();
+        this._progressBar.fillStyle(0x8a8a8a, 1);
+        this._progressBar.fillRect(
+          this.cameras.main.width / 4,
+          this.cameras.main.height / 2 - 16,
+          (this.cameras.main.width / 2) * value,
+          16
+        );
+      },
+      this
+    );
 
     loadAll(this.load);
   }
 
   create() {
-    NetworkClient.connect(api.connection(globalVariableParkour.worldId), (events) => {
+    NetworkClient.connect(
+      api.connection(globalVariableParkour.roomId, globalVariableParkour.roomWidth, globalVariableParkour.roomHeight),
+      (events) => {
+        events.onInit = (packet, sender) => {
+          // prevent receiving any packets until the game scene changes
+          sender.pause();
 
-      events.onInit = (packet, sender) => {
-        // prevent receiving any packets until the game scene changes
-        sender.pause();
+          const sceneData: LoadingSceneData = {
+            init: packet,
+            networkClient: sender,
+          };
 
-        const sceneData: LoadingSceneData = {
-          init: packet,
-          networkClient: sender
+          console.time("init");
+          this.scene.start(WORLD_SCENE_KEY, sceneData);
         };
-
-        console.time('init');
-        this.scene.start(WORLD_SCENE_KEY, sceneData);
-      };
-    });
+      }
+    );
   }
 }

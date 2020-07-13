@@ -1,12 +1,11 @@
-import { ServerPlayerJoinPacket } from '../../../../common/networking/game/ServerPlayerJoin';
-import { TILE_HEIGHT, TILE_WIDTH } from '../Config';
+import { ServerPlayerJoinPacket } from "../../../libcore/core/networking/game/ServerPlayerJoin";
+import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
 import { WorldScene } from "../WorldScene";
-import { Gun } from './Gun';
-import { InputState } from './InputState';
-import { Position } from './Position';
+import { Gun } from "./Gun";
+import { InputState } from "./InputState";
+import { Position } from "./Position";
 
 export class Player {
-
   get hasGun(): boolean { return this.gun !== undefined; }
 
   gun?: Gun = undefined;
@@ -47,7 +46,7 @@ export class Player {
   }
 
   private createPlayerBody(joinLocation: Position) {
-    const sprite = this.worldScene.matter.add.sprite(0, 0, 'player');
+    const sprite = this.worldScene.matter.add.sprite(0, 0, "player");
 
     //@ts-ignore
     const Matter: typeof MatterJS = Phaser.Physics.Matter.Matter;
@@ -62,7 +61,9 @@ export class Player {
     const mainBody = Matter.Bodies.circle(widthOffset, heightOffset, 32 / 2, { restitution: 0 });
 
     // ground sensor: if it collides with something, the player is permitted to jump
-    const groundSensor = Matter.Bodies.rectangle(widthOffset, heightOffset + height / 2, width / 4, 2, { isSensor: true });
+    const groundSensor = Matter.Bodies.rectangle(widthOffset, heightOffset + height / 2, width / 4, 2, {
+      isSensor: true,
+    });
 
     const playerBody = Matter.Body.create({
       parts: [mainBody, groundSensor],
@@ -84,9 +85,9 @@ export class Player {
   }
 
   private registerCollision() {
-    this._updateTouchingGround = () => this.touchingGround = false;
-    this.worldScene.matter.world.on('beforeupdate', this._updateTouchingGround, this);
-    this.worldScene.events.on('update', this.update, this);
+    this._updateTouchingGround = () => (this.touchingGround = false);
+    this.worldScene.matter.world.on("beforeupdate", this._updateTouchingGround, this);
+    this.worldScene.events.on("update", this.update, this);
 
     this._matterCollisionPhysicsHandler = {
       objectA: [this.groundSensor],
@@ -97,8 +98,13 @@ export class Player {
         if (gameObjectB === null && bodyB.id > 5) return;
         this.touchingGround = true;
       },
-      context: this
+      context: this,
     };
+
+    //@ts-ignore
+    if (!this.worldScene.matterCollision) {
+      return;
+    }
 
     //@ts-ignore
     this.worldScene.matterCollision.addOnCollideStart(this._matterCollisionPhysicsHandler);
@@ -143,7 +149,7 @@ export class Player {
 
   attachGun() {
     if (this.hasGun) {
-      console.warn('attempted to attach a gun to a player that already has a gun');
+      console.warn("attempted to attach a gun to a player that already has a gun");
       return;
     }
 
@@ -153,8 +159,8 @@ export class Player {
 
   destroy() {
     this.sprite.destroy();
-    this.worldScene.events.removeListener('beforeupdate', this._updateTouchingGround, this);
-    this.worldScene.events.removeListener('update', this.update, this);
+    this.worldScene.events.removeListener("beforeupdate", this._updateTouchingGround, this);
+    this.worldScene.events.removeListener("update", this.update, this);
 
     //@ts-ignore
     this.worldScene.matterCollision.removeOnCollideStart(this._matterCollisionPhysicsHandler);

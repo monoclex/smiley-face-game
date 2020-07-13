@@ -80,7 +80,7 @@ app.get('/', (req, res) => {
 
 app.get('/lobby', (req, res) => {
   console.log('lobby');
-  res.send([]);
+  res.send(gameManager.listGames());
 });
 
 app.listen(8080, () => console.log('listening'));

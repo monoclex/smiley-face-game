@@ -1,4 +1,4 @@
-import { RoomId } from '../../common/models/RoomId';
+import { RoomId } from "../../common/models/RoomId";
 import { WorldPreview } from "../../common/models/WorldPreview";
 import { World } from "./World";
 
@@ -11,7 +11,7 @@ export class WorldManager {
     for (const [id, world] of this._worlds.entries()) {
       worlds.push({
         id,
-        playerCount: world.users.size
+        playerCount: world.users.size,
       });
     }
 

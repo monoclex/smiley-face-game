@@ -158,7 +158,7 @@ export class WorldScene extends Phaser.Scene {
           TILE_WIDTH, TILE_HEIGHT
         );
 
-        const blob = new Promise(resolve => renderImageCanvas.toBlob(resolve));
+        const blob = await new Promise(resolve => renderImageCanvas.toBlob(resolve));
         const url = URL.createObjectURL(blob);
         
         const tileTexture = new Image();
