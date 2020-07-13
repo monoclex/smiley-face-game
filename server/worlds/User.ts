@@ -1,6 +1,6 @@
-import { WebSocket } from "../deps.ts";
-import { UserId } from "../libcore/core/models/UserId.ts";
-import { WorldPacket } from "../libcore/core/networking/game/WorldPacket.ts";
+import * as WebSocket from 'ws';
+import { UserId } from "../../common/models/UserId";
+import { WorldPacket } from "../../common/networking/game/WorldPacket";
 
 export class User {
   constructor(
@@ -12,11 +12,13 @@ export class User {
   }
 
   lastPosition: { x: number, y: number };
-  hasGun: boolean = false; // by default, they don't have a gun
-  gunEquipped: boolean = true; // as soon as they have a gun it's immediately equipped
+  hasGun = false; // by default, they don't have a gun
+  gunEquipped = true; // as soon as they have a gun it's immediately equipped
 
   send(packet: WorldPacket): Promise<void> | void {
-    return this._webSocket.send(JSON.stringify(packet));
+    if (this._webSocket.readyState === WebSocket.OPEN) {
+      return this._webSocket.send(JSON.stringify(packet));
+    }
   }
 
   kill(): Promise<void> | void {

@@ -1,16 +1,16 @@
-import { bresenhamsLine } from '../../libcore/core/misc.ts';
-import { Block } from '../../libcore/core/models/Block.ts';
-import { TileId } from '../../libcore/core/models/TileId.ts';
-import { TileLayer } from '../../libcore/core/models/TileLayer.ts';
-import { BlockBufferPacket } from '../../libcore/core/networking/game/BlockBuffer.ts';
-import { BlockLinePacket, BLOCK_LINE_ID } from '../../libcore/core/networking/game/BlockLine.ts';
-import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../../libcore/core/networking/game/BlockSingle.ts';
-import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID } from '../../libcore/core/networking/game/ServerBlockBuffer.ts';
-import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID } from '../../libcore/core/networking/game/ServerBlockLine.ts';
-import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from '../../libcore/core/networking/game/ServerBlockSingle.ts';
-import { WorldPacket } from '../../libcore/core/networking/game/WorldPacket.ts';
-import { User } from '../User.ts';
-import { ValidMessage } from '../ValidMessage.ts';
+import { bresenhamsLine } from '../../../common/misc';
+import { Block } from '../../../common/models/Block';
+import { TileId } from '../../../common/models/TileId';
+import { TileLayer } from '../../../common/models/TileLayer';
+import { BlockBufferPacket } from '../../../common/networking/game/BlockBuffer';
+import { BlockLinePacket, BLOCK_LINE_ID } from '../../../common/networking/game/BlockLine';
+import { BlockSinglePacket, BLOCK_SINGLE_ID } from '../../../common/networking/game/BlockSingle';
+import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID } from '../../../common/networking/game/ServerBlockBuffer';
+import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID } from '../../../common/networking/game/ServerBlockLine';
+import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from '../../../common/networking/game/ServerBlockSingle';
+import { WorldPacket } from '../../../common/networking/game/WorldPacket';
+import { User } from '../User';
+import { ValidMessage } from '../ValidMessage';
 
 function newBlock(id: TileId): Block {
   return { id };
@@ -35,7 +35,7 @@ export class BlockHandler {
    * 
    * Note: I haven't seen this bug happen, but there's a chance it may.
    */
-  canRun: boolean = true;
+  canRun = true;
 
   constructor(
     private readonly _width: number,
@@ -45,18 +45,18 @@ export class BlockHandler {
 
     this.map = [];
     for (let layer = 0; layer <= TileLayer.Background; layer++) {
-      let layerMap: Block[][] = [];
+      const layerMap: Block[][] = [];
       this.map[layer] = layerMap;
 
       for (let y = 0; y < _height; y++) {
-        let yMap: Block[] = [];
+        const yMap: Block[] = [];
         layerMap[y] = yMap;
 
         for (let x = 0; x < _width; x++) {
 
           if (layer === TileLayer.Foreground) {
             // TODO: cleanup border initialization stuff
-            let xMap: Block = newBlock((y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? TileId.Full : TileId.Empty);
+            const xMap: Block = newBlock((y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? TileId.Full : TileId.Empty);
             yMap[x] = xMap;
           }
           else {
@@ -70,8 +70,8 @@ export class BlockHandler {
     // we don't want it on the border, so we'll place it somewhere random within width - 2 and height - 2
 
     // |0 basically casts to int, see asmjs
-    let gunX = (Math.random() * (_width - 2))|0;
-    let gunY = (Math.random() * (_height - 2))|0;
+    const gunX = (Math.random() * (_width - 2))|0;
+    const gunY = (Math.random() * (_height - 2))|0;
 
     this.map[TileLayer.Action][gunY + 1][gunX + 1].id = TileId.Gun;
 
