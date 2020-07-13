@@ -6,9 +6,10 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import { lazy } from "react";
 import Lobby from "./lobby/Lobby";
 import { Provider } from "react-redux";
+import history from "./history";
 
-const LobbyPageLazy = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
-const GamePageLazy = lazy(() => import("./game/Game"));
+const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
+const GamePage = lazy(() => import("./game/Game"));
 
 export const App: React.FC<Record<string, unknown>> = () => {
   const prefersDarkMode = true;
@@ -30,7 +31,7 @@ export const App: React.FC<Record<string, unknown>> = () => {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<h1>Loading</h1>}>
               <Route exact path="/" component={LobbyPage} />
 
               {/* 

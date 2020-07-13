@@ -4,10 +4,11 @@ import { Room } from "./Room";
 import { Grid, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Plus as PlusIcon, Refresh as RefreshIcon } from "mdi-material-ui";
-import { withRouter } from "react-router-dom";
+import { withRouter, Redirect } from "react-router-dom";
 import { api } from "../../isProduction";
 import CreateRoomDialog from "../components/CreateRoomDialog";
 import { motion } from "framer-motion";
+import history from "../history";
 
 const useStyles = makeStyles({
   input: {
@@ -30,6 +31,7 @@ const Lobby: React.FC<Record<string, unknown>> = () => {
 
   const [rooms, setRooms] = useState<GamePreview[] | null>(null);
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
+  const [redirect, setRedirect] = useState<string | null>(null);
 
   const fetchLobby = () => {
     fetch(api.lobby())
@@ -40,6 +42,11 @@ const Lobby: React.FC<Record<string, unknown>> = () => {
   useEffect(() => {
     fetchLobby();
   }, []);
+
+  // this is omega wtf but it doesn't work unless i do this... ?????????
+  if (redirect !== null) {
+    return <Redirect to={redirect} />;
+  }
 
   if (rooms === null) {
     return <h1>Loading rooms...</h1>;
@@ -60,11 +67,9 @@ const Lobby: React.FC<Record<string, unknown>> = () => {
       <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
           {rooms.map((room) => (
-              <Grid key={room.id} item xs={3}>
-                <Link to={`/games/${room.id}`}>
-                  <Room room={room} />
-                </Link>
-              </Grid>
+            <Grid item key={room.id}>
+              <Room room={room} />
+            </Grid>
             ))}
         </Grid>
       </div>
@@ -73,7 +78,7 @@ const Lobby: React.FC<Record<string, unknown>> = () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.push(`/games/${name.replace(/ /g, "-")}/${width}/${height}`);
+          setRedirect(`/games/${name.replace(/ /g, "-")}/${width}/${height}`);
           setCreateRoomDialogOpen(false);
         }}
       />

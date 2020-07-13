@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 
-export default ({ open, onClose, onCreateRoom }) => {
+const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
   const { register, handleSubmit, errors } = useForm();
 
   return (
@@ -86,3 +86,5 @@ export default ({ open, onClose, onCreateRoom }) => {
     </Dialog>
   );
 };
+
+export default CreateRoomDialog;

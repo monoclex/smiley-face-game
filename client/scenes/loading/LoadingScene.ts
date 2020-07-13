@@ -1,4 +1,4 @@
-import { loadAll } from "../../../assets/assets";
+import { loadAll } from "../../assets/assets";
 import { api } from "../../isProduction";
 import { NetworkClient } from "../../networking/NetworkClient";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
