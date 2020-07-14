@@ -9,7 +9,7 @@ import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID } from '@smiley-face-ga
 import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID } from '@smiley-face-game/api/src/networking/game/ServerBlockLine';
 import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from '@smiley-face-game/api/src/networking/game/ServerBlockSingle';
 import { WorldPacket } from '@smiley-face-game/api/src/networking/game/WorldPacket';
-import { User } from '../User';
+import { WorldUser } from '../User';
 import { ValidMessage } from '../ValidMessage';
 
 function newBlock(id: TileId): Block {
@@ -104,7 +104,7 @@ export class BlockHandler {
     await this.broadcast(buffer);
   }
 
-  handleSingle(packet: BlockSinglePacket, sender: User): ValidMessage {
+  handleSingle(packet: BlockSinglePacket, sender: WorldUser): ValidMessage {
 
     // TODO: make incoming schemas check for y and x out of bounds
     // lower bounds handled by schema itself
@@ -137,7 +137,7 @@ export class BlockHandler {
     return ValidMessage.IsValidMessage;
   }
 
-  handleLine(packet: BlockLinePacket, sender: User): ValidMessage {
+  handleLine(packet: BlockLinePacket, sender: WorldUser): ValidMessage {
 
     // for block lines, we *permit* out of bounds values because you can draw a line through them and the blocks that get placed
     // may not be exactly equal if you cap the bounds. so this opts to not do any bounds checking and does individual bounds checking
@@ -178,7 +178,7 @@ export class BlockHandler {
     return ValidMessage.IsValidMessage;
   }
 
-  handleBuffer(packet: BlockBufferPacket, sender: User): ValidMessage {
+  handleBuffer(packet: BlockBufferPacket, sender: WorldUser): ValidMessage {
     for (const blockPacket of packet.blocks) {
       if (blockPacket.packetId === BLOCK_SINGLE_ID) {
         // TODO: figure out how to get this to typecheck maybe?

@@ -36,3 +36,6 @@ export class WorldManager {
     return createdWorld;
   }
 }
+
+const roomManager = new WorldManager();
+export default roomManager;

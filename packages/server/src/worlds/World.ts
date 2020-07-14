@@ -21,13 +21,15 @@ import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/src/networking/gam
 import { invokeWorldPacketLookup, WorldPacket, WorldPacketLookup } from "@smiley-face-game/api/src/networking/game/WorldPacket";
 import { AllowJoin } from "./AllowJoin";
 import { BlockHandler } from './blockhandling/BlockHandler';
-import { User } from "./User";
+import { WorldUser } from "./User";
 import { ValidMessage } from "./ValidMessage";
 
 export class World {
-  private readonly _lookup: WorldPacketLookup<User, Promise<ValidMessage>>;
-  readonly users: Map<UserId, User>;
+  private readonly _lookup: WorldPacketLookup<WorldUser, Promise<ValidMessage>>;
+  readonly users: Map<UserId, WorldUser>;
   private readonly _map: BlockHandler;
+
+  newId = 0;
 
   constructor(
     private readonly _width: number,
@@ -63,12 +65,12 @@ export class World {
       [SERVER_BLOCK_BUFFER_ID]: this.badPacket.bind(this),
     };
 
-    this.users = new Map<UserId, User>();
+    this.users = new Map<UserId, WorldUser>();
     this._map = new BlockHandler(_width, _height, this.broadcast.bind(this));
   }
 
   // as this is the lobby, we don't need to worry about 
-  async handleJoin(user: User): Promise<AllowJoin> {
+  async handleJoin(user: WorldUser): Promise<AllowJoin> {
     if (this.users.size >= 40) return AllowJoin.PreventJoin;
 
     try {
@@ -114,7 +116,7 @@ export class World {
     return AllowJoin.PermitJoin;
   }
 
-  async handleLeave(user: User): Promise<void> {
+  async handleLeave(user: WorldUser): Promise<void> {
     this.users.delete(user.userId);
 
     if (this.users.size === 0) {
@@ -129,7 +131,7 @@ export class World {
     });
   }
 
-  handleMessage(sender: User, message: WorldPacket): Promise<ValidMessage> {
+  handleMessage(sender: WorldUser, message: WorldPacket): Promise<ValidMessage> {
     return invokeWorldPacketLookup(this._lookup, message, sender);
   }
 
@@ -137,19 +139,19 @@ export class World {
     return Promise.resolve(ValidMessage.IsNotValidMessage);
   }
 
-  private onBlockSingle(packet: BlockSinglePacket, sender: User): ValidMessage {
+  private onBlockSingle(packet: BlockSinglePacket, sender: WorldUser): ValidMessage {
     return this._map.handleSingle(packet, sender);
   }
 
-  private onBlockLine(packet: BlockLinePacket, sender: User): ValidMessage {
+  private onBlockLine(packet: BlockLinePacket, sender: WorldUser): ValidMessage {
     return this._map.handleLine(packet, sender);
   }
 
-  private onBlockBuffer(packet: BlockBufferPacket, sender: User): ValidMessage {
+  private onBlockBuffer(packet: BlockBufferPacket, sender: WorldUser): ValidMessage {
     return this._map.handleBuffer(packet, sender);
   }
 
-  private async onMovement(packet: MovementPacket, sender: User): Promise<ValidMessage> {
+  private async onMovement(packet: MovementPacket, sender: WorldUser): Promise<ValidMessage> {
     // TODO: does destructuring include non-required data? if so, this could be a mild vulnerability
     sender.lastPosition = { ...packet.position };
 
@@ -164,7 +166,7 @@ export class World {
     return ValidMessage.IsValidMessage;
   }
 
-  private async onPickupGun(packet: PickupGunPacket, sender: User): Promise<ValidMessage> {
+  private async onPickupGun(packet: PickupGunPacket, sender: WorldUser): Promise<ValidMessage> {
 
     // TODO: make incoming schemas check for y and x out of bounds
     if (packet.position.y >= this._height || packet.position.x >= this._width) {
@@ -190,7 +192,7 @@ export class World {
     return ValidMessage.IsValidMessage;
   }
 
-  private async onFireBullet(packet: FireBulletPacket, sender: User): Promise<ValidMessage> {
+  private async onFireBullet(packet: FireBulletPacket, sender: WorldUser): Promise<ValidMessage> {
 
     // need to have a gun to shoot it
     if (!sender.hasGun || !sender.gunEquipped) {
@@ -208,7 +210,7 @@ export class World {
     return ValidMessage.IsValidMessage;
   }
 
-  private async onEquipGun(packet: EquipGunPacket, sender: User): Promise<ValidMessage> {
+  private async onEquipGun(packet: EquipGunPacket, sender: WorldUser): Promise<ValidMessage> {
     // need to have a gun to equip/unequip it
     if (!sender.hasGun) {
       return ValidMessage.IsNotValidMessage;

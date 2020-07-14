@@ -2,7 +2,7 @@ import { UserId } from "@smiley-face-game/api/src/models/UserId";
 import { WorldPacket } from "@smiley-face-game/api/src/networking/game/WorldPacket";
 import * as WebSocket from 'ws';
 
-export class User {
+export class WorldUser {
   constructor(
     private readonly _webSocket: WebSocket,
     readonly userId: UserId,

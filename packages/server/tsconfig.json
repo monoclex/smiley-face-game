@@ -13,6 +13,9 @@
     "paths": {
       "@smiley-face-game/api/src/*": [
         "../../api/src/*"
+      ],
+      "@server/*": [
+        "./src/*"
       ]
     }
   }
