@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "CommonJS",
     "lib": [
       "ESNext"
     ],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@smiley-face-game/api/src/*": [
+        "../../api/src/*"
+      ]
+    }
   }
 }

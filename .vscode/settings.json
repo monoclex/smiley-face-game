@@ -8,5 +8,16 @@
     "typescript",
     "typescriptreact"
   ],
-  "eslint.enable": true
+  "eslint.enable": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "packages/server/src/**/*.js": true,
+    "packages/api/src/**/*.js": true,
+    "**/.cache": true
+  }
 }

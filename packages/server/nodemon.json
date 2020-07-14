@@ -1,6 +1,8 @@
 {
   "signal": "SIGHUP",
-  "watch": "src/",
+  "watch": [
+    "src/"
+  ],
   "ext": "ts",
-  "exec": "esbuild --bundle ./src/index.ts --outdir=dist --platform=node && node dist/index.js"
+  "exec": "tsc && node src/index.js"
 }

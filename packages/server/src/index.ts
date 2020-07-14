@@ -2,10 +2,28 @@ import { validateWorldPacket } from "@smiley-face-game/api/src/networking/game/W
 import cors from "cors";
 import express from 'express';
 import expressWs from 'express-ws';
+import "reflect-metadata";
+import { createConnection, getConnectionOptions } from "typeorm";
 import * as WebSocket from 'ws';
+import { TestModel } from './models/TestModel';
 import { User } from "./worlds/User";
 import { ValidMessage } from "./worlds/ValidMessage";
 import { WorldManager } from './worlds/WorldManager';
+
+async function tryTypeOrm() {
+  const connection = await createConnection(await getConnectionOptions());
+  const models = connection.getRepository(TestModel);
+
+  const newModel = new TestModel();
+  newModel.data = "hello world!";
+  await models.save(newModel);
+
+  for (const model of await models.find()) {
+    console.log('model: ', model);
+  }
+}
+
+tryTypeOrm().catch(console.error);
 
 const { app } = expressWs(express());
 
