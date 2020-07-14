@@ -15,10 +15,15 @@ export class Player {
   rightHeld = false;
   upHeld = false;
 
+  readonly grouping: Phaser.GameObjects.Container; // TODO: group username and player together as one entity
   readonly sprite: Phaser.Physics.Matter.Sprite;
   readonly mainBody: MatterJS.BodyType;
+  readonly usernameDisplay: Phaser.GameObjects.Text;
+
   readonly groundSensor: MatterJS.BodyType;
   readonly playerBody: MatterJS.Body;
+  readonly username: string;
+  readonly isGuest: boolean;
 
   onGunAttached?: () => void;
 
@@ -27,13 +32,17 @@ export class Player {
   private _matterCollisionPhysicsHandler: any;
 
   constructor(readonly worldScene: WorldScene, onPlayerJoinEvent: ServerPlayerJoinPacket) {
-    const { joinLocation, hasGun, gunEquipped } = onPlayerJoinEvent;
+    const { joinLocation, hasGun, gunEquipped, username, isGuest } = onPlayerJoinEvent;
+    this.username = username;
+    this.isGuest = isGuest;
 
-    const { sprite, mainBody, groundSensor, playerBody } = this.createPlayerBody(joinLocation);
+    const { sprite, mainBody, groundSensor, playerBody, grouping, usernameDisplay } = this.createPlayerBody(joinLocation);
     this.sprite = sprite;
     this.mainBody = mainBody;
     this.groundSensor = groundSensor;
     this.playerBody = playerBody;
+    this.grouping = grouping;
+    this.usernameDisplay = usernameDisplay;
 
     this.registerCollision();
 
@@ -46,7 +55,15 @@ export class Player {
   }
 
   private createPlayerBody(joinLocation: Position) {
+    const grouping = this.worldScene.add.container(0, 0);
     const sprite = this.worldScene.matter.add.sprite(0, 0, "player");
+    const usernameDisplay = this.worldScene.add.text(0, 0, this.username);
+    usernameDisplay.setFont('Consolas');
+    usernameDisplay.setOrigin(0.4, 2.2);
+
+    grouping.add(sprite);
+    grouping.add(usernameDisplay);
+    grouping.setSize(64, 64);
 
     //@ts-ignore
     const Matter: typeof MatterJS = Phaser.Physics.Matter.Matter;
@@ -77,10 +94,10 @@ export class Player {
       .setFixedRotation()
       .setPosition(joinLocation.x, joinLocation.y);
 
-    this.worldScene.containerPlayers.add(sprite);
+    this.worldScene.containerPlayers.add(grouping);
 
     return ({
-      sprite, mainBody, groundSensor, playerBody
+      sprite, grouping, usernameDisplay, mainBody, groundSensor, playerBody
     });
   }
 
@@ -119,6 +136,8 @@ export class Player {
     if (this.hasGun) {
       this.gun.update();
     }
+
+    this.grouping.setPosition(this.sprite.x, this.sprite.y);
   }
 
   private handleInput() {
@@ -158,7 +177,7 @@ export class Player {
   }
 
   destroy() {
-    this.sprite.destroy();
+    this.grouping.destroy();
     this.worldScene.events.removeListener("beforeupdate", this._updateTouchingGround, this);
     this.worldScene.events.removeListener("update", this.update, this);
 
@@ -173,7 +192,7 @@ export class Player {
   }
 
   onMove(position: Position, inputs: InputState) {
-    this.sprite.setPosition(position.x, position.y);
+    this.grouping.setPosition(position.x, position.y);
     this.leftHeld = inputs.left;
     this.rightHeld = inputs.right;
     this.upHeld = inputs.up;

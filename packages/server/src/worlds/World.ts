@@ -91,10 +91,15 @@ export class World {
       // tell the new user about the world
       await user.send({
         packetId: SERVER_INIT_ID,
-        sender: user.userId,
+        sender: user.userId, // TODO: deduplicate
         spawnPosition: user.lastPosition,
         size: { width: this._width, height: this._height },
-        blocks: this._map.map
+        blocks: this._map.map,
+        self: {
+          userId: user.userId,
+          username: user.username,
+          isGuest: user.isGuest,
+        }
       });
 
       for (const otherUser of this.users.values()) {

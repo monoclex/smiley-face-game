@@ -13,8 +13,8 @@ class Urls {
 
   connection(roomId: string, width = 25, height = 25): string {
     return isProduction
-      ? ws + `://ws-api.sirjosh3917.com/smiley-face-game/ws/game/${roomId}/${width}/${height}`
-      : ws + `://localhost:8080/ws/game/${roomId}/${width}/${height}`;
+      ? ws + `://ws-api.sirjosh3917.com/smiley-face-game/ws/game/${roomId}?width=${width}&height=${height}`
+      : ws + `://localhost:8080/ws/game/${roomId}?width=${width}&height=${height}`;
   }
 }
 

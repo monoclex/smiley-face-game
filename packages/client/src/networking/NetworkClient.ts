@@ -67,8 +67,9 @@ export class NetworkClient {
       [SERVER_BLOCK_BUFFER_ID]: [validateServerBlockBuffer, 'onBlockBuffer'],
     };
 
-    this._webSocket.onclose = this._webSocket.onerror = () => {
-      alert('connection to server died, pls refresh');
+    this._webSocket.onclose = this._webSocket.onerror = (event) => {
+      console.log(event);
+      alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
     };
 
     this._webSocket.onmessage = async (event) => {
@@ -141,8 +142,8 @@ export class NetworkClient {
   move(position: Position, inputs: InputState): void {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
-      position,
-      inputs,
+      position: { x: position.x, y: position.y },
+      inputs: { left: inputs.left, right: inputs.right, up: inputs.up },
     };
 
     this._webSocket.send(JSON.stringify(packet));

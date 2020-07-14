@@ -7,7 +7,7 @@ import wsGameRouter from "./ws/game";
 export default function (connection: Connection): Router {
   const router = Router();
 
-  router.use('/ws/game', wsGameRouter);
+  router.use('/ws/game', wsGameRouter(connection));
   router.use('/lobby', lobbyRouter);
   router.use('/auth', authRouterFactory(connection));
 
