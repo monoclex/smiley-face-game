@@ -81,6 +81,8 @@ export class World {
       await this.broadcast({
         packetId: SERVER_PLAYER_JOIN_ID,
         userId: user.userId,
+        username: user.username,
+        isGuest: user.isGuest,
         joinLocation: user.lastPosition,
         hasGun: user.hasGun,
         gunEquipped: user.gunEquipped,
@@ -100,6 +102,8 @@ export class World {
         await user.send({
           packetId: SERVER_PLAYER_JOIN_ID,
           userId: otherUser.userId,
+          username: otherUser.username,
+          isGuest: otherUser.isGuest,
           joinLocation: otherUser.lastPosition,
           hasGun: otherUser.hasGun,
           gunEquipped: otherUser.gunEquipped,

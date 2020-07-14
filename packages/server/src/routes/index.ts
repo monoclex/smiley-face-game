@@ -1,10 +1,15 @@
 import { Router } from "express";
+import { Connection } from 'typeorm';
+import authRouterFactory from "./auth";
 import lobbyRouter from "./lobby";
 import wsGameRouter from "./ws/game";
 
-const router = Router();
+export default function (connection: Connection): Router {
+  const router = Router();
 
-router.use('/ws/game', wsGameRouter);
-router.use('/lobby', lobbyRouter);
+  router.use('/ws/game', wsGameRouter);
+  router.use('/lobby', lobbyRouter);
+  router.use('/auth', authRouterFactory(connection));
 
-export default router;
+  return router;
+}

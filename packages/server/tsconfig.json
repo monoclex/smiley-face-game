@@ -5,6 +5,9 @@
     "lib": [
       "ESNext"
     ],
+    "strict": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",

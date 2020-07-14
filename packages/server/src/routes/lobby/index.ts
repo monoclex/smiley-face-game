@@ -4,7 +4,7 @@ import roomManager from "../../worlds/WorldManager";
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.send(roomManager.listGames());
+  res.json(roomManager.listGames());
 });
 
 export default router;
