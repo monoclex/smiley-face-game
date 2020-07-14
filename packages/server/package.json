@@ -1,0 +1,32 @@
+{
+  "name": "@smiley-face-game/server",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "parcel build src/index.ts --target node",
+    "lint": "eslint --fix"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "ws": "^7.3.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.1"
+  },
+  "devDependencies": {
+    "@k-foss/ts-esnode": "^1.6.0",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.7",
+    "@types/express-ws": "^3.0.0",
+    "@types/node": "^14.0.23",
+    "esbuild": "^0.6.2",
+    "nodemon": "^2.0.4",
+    "parcel-bundler": "^1.12.4"
+  },
+  "peerDependencies": {
+    "@smiley-face-game/api": "^0.0.0"
+  }
+}

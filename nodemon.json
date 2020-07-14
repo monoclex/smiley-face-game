@@ -1,6 +1,0 @@
-{
-  "signal": "SIGHUP",
-  "watch": "server/",
-  "ext": "ts",
-  "exec": "node --loader @k-foss/ts-esnode --experimental-specifier-resolution=node ./server/index.ts"
-}

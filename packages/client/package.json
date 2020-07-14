@@ -1,0 +1,46 @@
+{
+  "name": "@smiley-face-game/client",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html --no-source-maps",
+    "lint": "eslint --fix"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "babel-polyfill": "^6.26.0",
+    "clsx": "^1.1.1",
+    "framer-motion": "^1.11.1",
+    "mdi-material-ui": "^6.16.0",
+    "phaser": "^3.24.0",
+    "phaser-matter-collision-plugin": "^0.10.2",
+    "phaser-slopes": "^0.1.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-hook-form": "^6.0.4",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.2.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/react": "^16.9.43",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.9",
+    "@types/react-router-dom": "^5.1.5",
+    "babel-plugin-transform-imports": "^2.0.0",
+    "parcel-bundler": "^1.12.4",
+    "parcel-plugin-bundle-visualiser": "^1.2.0",
+    "parcel-plugin-json-url-loader": "^0.1.2",
+    "typescript": "^3.9.6"
+  },
+  "peerDependencies": {
+    "@smiley-face-game/api": "^0.0.0"
+  }
+}
