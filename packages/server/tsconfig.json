@@ -12,7 +12,6 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "baseUrl": "./src",
     "paths": {
       "@smiley-face-game/api/src/*": [
         "../../api/src/*"

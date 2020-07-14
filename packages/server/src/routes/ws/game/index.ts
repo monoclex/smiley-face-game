@@ -95,7 +95,7 @@ export default function (connection: Connection): Router {
         }
 
         const [error, packet] = validateWorldPacket(JSON.parse(data));
-        if (error !== null) {
+        if (error !== null || packet === undefined) {
           console.warn('error validating packet: ', error);
           return;
         }

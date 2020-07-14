@@ -12,8 +12,8 @@ export class User {
     unique: true,
     length: 32,
   })
-  username: string;
+  username!: string;
 
   @OneToMany(type => World, world => world.owner)
-  worlds: World[];
+  worlds!: World[];
 }

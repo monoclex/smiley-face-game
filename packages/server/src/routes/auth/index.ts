@@ -23,9 +23,9 @@ export default function (connection: Connection): Router {
   // TODO: it may be best to not send stack traces of errors to users in the future
   // TODO: too much domain logic here, controllers should *only* verify input and ask something else to handle proper input
 
-  router.get('/login', async (req, res) => {
+  router.post('/login', async (req, res) => {
     const [errors, body] = validateLogin(req.body);
-    if (errors !== undefined) {
+    if (errors !== null || body === undefined) {
       res.status(422).send(errors);
       return;
     }
@@ -35,7 +35,7 @@ export default function (connection: Connection): Router {
 
       const token = jwt.sign({
         id: user.id
-      }, process.env.ACCESS_TOKEN_SECRET);
+      }, process.env.ACCESS_TOKEN_SECRET!);
 
       res.status(200).json({ token });
       return;
@@ -47,7 +47,7 @@ export default function (connection: Connection): Router {
 
   router.post('/register', async (req, res) => {
     const [errors, body] = validateRegister(req.body);
-    if (errors !== undefined) {
+    if (errors !== null || body === undefined) {
       res.status(422).send(errors);
       return;
     }
@@ -62,7 +62,7 @@ export default function (connection: Connection): Router {
       return;
     }
 
-    res.status(200);
+    res.status(200).send({});
     return;
   });
 

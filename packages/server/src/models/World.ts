@@ -14,7 +14,7 @@ export class World {
   @Column({
     type: "text"
   })
-  private data: string;
+  private data!: string;
 
   get worldData(): Block[][][] {
     return JSON.parse(this.data);

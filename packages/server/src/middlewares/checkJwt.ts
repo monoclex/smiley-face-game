@@ -3,7 +3,7 @@ import * as jwt from "jsonwebtoken";
 
 export function verifyJwt<TJWTPayload extends Record<string, unknown>>(token: string): Promise<TJWTPayload> {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, decoded) => {
       if (err) {
         reject(err);
       }
