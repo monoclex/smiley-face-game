@@ -1,4 +1,4 @@
-import { UsernameSchema } from '@smiley-face-game/api/src/models/Username';
+import { UsernameSchema } from '@smiley-face-game/api/schemas/Username';
 import Schema from 'computed-types';
 import { Router } from "express";
 import * as jwt from 'jsonwebtoken';

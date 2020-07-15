@@ -1,7 +1,7 @@
 import Schema, { Type } from "computed-types";
-import { BoundlessBlockPositionSchema } from "../../models/BlockPosition";
-import { TileIdSchema } from "../../models/TileId";
-import { TileLayerSchema } from "../../models/TileLayer";
+import { BoundlessBlockPositionSchema } from "../../schemas/BlockPosition";
+import { TileIdSchema } from "../../schemas/TileId";
+import { TileLayerSchema } from "../../schemas/TileLayer";
 
 export const BLOCK_LINE_ID = 'BLOCK_LINE';
 export const BlockLineSchema = Schema({

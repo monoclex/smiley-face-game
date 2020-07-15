@@ -1,4 +1,4 @@
-import { TileId } from '@smiley-face-game/api/src/models/TileId';
+import { TileId } from '@smiley-face-game/api/src/schemas/TileId';
 import { SlotId } from '../../../client/Slot';
 import { BlockBarActions, SUPPLY_TEXTURE_LOADER, UPDATE_SELECTED_SLOT } from '../actionTypes/blockBar';
 

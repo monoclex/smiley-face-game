@@ -1,6 +1,6 @@
 import Schema, { Type } from "computed-types";
-import { InputsSchema } from "../../models/Inputs";
-import { PlayerPositionSchema } from "../../models/PlayerPosition";
+import { InputsSchema } from "../../schemas/Inputs";
+import { PlayerPositionSchema } from "../../schemas/PlayerPosition";
 
 export const MOVEMENT_ID = 'MOVEMENT';
 export const MovementSchema = Schema({

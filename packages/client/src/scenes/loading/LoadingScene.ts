@@ -1,6 +1,6 @@
+import { NetworkClient } from "@smiley-face-game/api/src/networking/NetworkClient";
 import { loadAll } from "../../assets/assets";
 import { api } from "../../isProduction";
-import { NetworkClient } from "../../networking/NetworkClient";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
 import { LoadingSceneData } from "./LoadingSceneData";
 
@@ -14,7 +14,7 @@ export const globalVariableParkour = {
 // original code: https://github.com/digitsensitive/phaser3-typescript/blob/master/src/games/candy-crush/scenes/boot-scene.ts
 
 export class LoadingScene extends Phaser.Scene {
-  private _progressBar: Phaser.GameObjects.Graphics;
+  private _progressBar!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super({

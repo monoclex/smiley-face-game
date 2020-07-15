@@ -1,4 +1,4 @@
-import { Block } from '@smiley-face-game/api/src/models/Block';
+import { Block } from '@smiley-face-game/api/schemas/Block';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from './User';
 

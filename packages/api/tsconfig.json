@@ -5,6 +5,13 @@
     "lib": [
       "ESNext"
     ],
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "outDir": "."
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

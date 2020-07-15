@@ -1,1 +1,4 @@
 src/**/*.js
+networking/
+schemas/
+misc.js

@@ -1,5 +1,5 @@
 import Schema, { Type } from "computed-types";
-import { UserIdSchema } from "../../models/UserId";
+import { UserIdSchema } from "../../schemas/UserId";
 
 export const SERVER_PLAYER_LEAVE_ID = 'SERVER_PLAYER_LEAVE';
 export const ServerPlayerLeaveSchema = Schema({

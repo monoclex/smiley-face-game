@@ -1,5 +1,5 @@
-import { UserId } from "@smiley-face-game/api/src/models/UserId";
-import { WorldPacket } from "@smiley-face-game/api/src/networking/game/WorldPacket";
+import { WorldPacket } from "@smiley-face-game/api/networking/packets/WorldPacket";
+import { UserId } from "@smiley-face-game/api/schemas/UserId";
 import * as WebSocket from 'ws';
 import { User } from '../models/User';
 

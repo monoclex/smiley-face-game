@@ -1,6 +1,6 @@
 import Schema, { Type } from "computed-types";
-import { InputsSchema } from "../../models/Inputs";
-import { PlayerPositionSchema } from "../../models/PlayerPosition";
+import { InputsSchema } from "../../schemas/Inputs";
+import { PlayerPositionSchema } from "../../schemas/PlayerPosition";
 import { ServerSchema } from "./Server";
 
 export const SERVER_MOVEMENT_ID = 'SERVER_MOVEMENT';

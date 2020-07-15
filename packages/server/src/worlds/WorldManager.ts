@@ -1,5 +1,5 @@
-import { RoomId } from "@smiley-face-game/api/src/models/RoomId";
-import { WorldPreview } from "@smiley-face-game/api/src/models/WorldPreview";
+import { RoomId } from "@smiley-face-game/api/schemas/RoomId";
+import { WorldPreview } from "@smiley-face-game/api/schemas/WorldPreview";
 import { World } from "./World";
 
 export class WorldManager {

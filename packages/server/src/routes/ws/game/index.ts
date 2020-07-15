@@ -1,4 +1,4 @@
-import { validateWorldPacket } from '@smiley-face-game/api/src/networking/game/WorldPacket';
+import { validateWorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacket';
 import { Router } from "express";
 import { Connection } from 'typeorm';
 import * as WebSocket from 'ws';

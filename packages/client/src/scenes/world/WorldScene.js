@@ -5,14 +5,14 @@ import { Editor } from "./components/Editor";
 import MultiKey from "./components/MultiKey";
 import { TILE_WIDTH, TILE_HEIGHT } from "./Config";
 import { PrimaryPlayer } from "./components/PrimaryPlayer";
-import { TileId } from "@smiley-face-game/api/src/models/TileId";
+import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
 import { Player } from "./components/Player";
 import store from "../../ui/redux/store";
 import { updatePrimary, supplyTextureLoader } from "../../ui/redux/actionCreators/blockBar";
-import { TileLayer } from "@smiley-face-game/api/src/models/TileLayer";
-import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/src/networking/game/ServerBlockLine";
-import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/src/networking/game/ServerBlockSingle";
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/src/networking/game/ServerPlayerJoin";
+import { TileLayer } from "@smiley-face-game/api/src/schemas/TileLayer";
+import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/src/networking/packets/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/src/networking/packets/ServerBlockSingle";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/src/networking/packets/ServerPlayerJoin";
 
 export const WORLD_SCENE_KEY = "WorldScene";
 

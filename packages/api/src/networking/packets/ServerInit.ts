@@ -1,9 +1,9 @@
 import Schema, { array, boolean, Type } from "computed-types";
-import { BlockSchema } from "../../models/Block";
-import { PlayerPositionSchema } from '../../models/PlayerPosition';
-import { SizeSchema } from "../../models/Size";
-import { UserIdSchema } from '../../models/UserId';
-import { UsernameSchema } from '../../models/Username';
+import { BlockSchema } from "../../schemas/Block";
+import { PlayerPositionSchema } from '../../schemas/PlayerPosition';
+import { SizeSchema } from "../../schemas/Size";
+import { UserIdSchema } from '../../schemas/UserId';
+import { UsernameSchema } from '../../schemas/Username';
 import { ServerSchema } from './Server';
 
 export const SERVER_INIT_ID = 'SERVER_INIT';

@@ -14,11 +14,8 @@
     "esModuleInterop": true,
     "baseUrl": "./",
     "paths": {
-      "@smiley-face-game/api/src/*": [
-        "../../api/src/*"
-      ],
-      "@server/*": [
-        "./src/*"
+      "@smiley-face-game/api/*": [
+        "../api/src/*"
       ]
     }
   }

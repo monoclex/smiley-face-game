@@ -1,4 +1,4 @@
-import { TileId } from '@smiley-face-game/api/src/models/TileId';
+import { TileId } from '@smiley-face-game/api/src/schemas/TileId';
 import { SlotId } from '../../../client/Slot';
 
 export const UPDATE_SELECTED_SLOT = 'UPDATE_SELECTED_SLOT';

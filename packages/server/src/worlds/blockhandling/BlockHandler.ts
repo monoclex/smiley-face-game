@@ -1,14 +1,14 @@
-import { bresenhamsLine } from '@smiley-face-game/api/src/misc';
-import { Block } from '@smiley-face-game/api/src/models/Block';
-import { TileId } from '@smiley-face-game/api/src/models/TileId';
-import { TileLayer } from '@smiley-face-game/api/src/models/TileLayer';
-import { BlockBufferPacket } from '@smiley-face-game/api/src/networking/game/BlockBuffer';
-import { BlockLinePacket, BLOCK_LINE_ID } from '@smiley-face-game/api/src/networking/game/BlockLine';
-import { BlockSinglePacket, BLOCK_SINGLE_ID } from '@smiley-face-game/api/src/networking/game/BlockSingle';
-import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID } from '@smiley-face-game/api/src/networking/game/ServerBlockBuffer';
-import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID } from '@smiley-face-game/api/src/networking/game/ServerBlockLine';
-import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from '@smiley-face-game/api/src/networking/game/ServerBlockSingle';
-import { WorldPacket } from '@smiley-face-game/api/src/networking/game/WorldPacket';
+import { bresenhamsLine } from '@smiley-face-game/api/misc';
+import { BlockBufferPacket } from '@smiley-face-game/api/networking/packets/BlockBuffer';
+import { BlockLinePacket, BLOCK_LINE_ID } from '@smiley-face-game/api/networking/packets/BlockLine';
+import { BlockSinglePacket, BLOCK_SINGLE_ID } from '@smiley-face-game/api/networking/packets/BlockSingle';
+import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID } from '@smiley-face-game/api/networking/packets/ServerBlockBuffer';
+import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID } from '@smiley-face-game/api/networking/packets/ServerBlockLine';
+import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID } from '@smiley-face-game/api/networking/packets/ServerBlockSingle';
+import { WorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacket';
+import { Block } from '@smiley-face-game/api/schemas/Block';
+import { TileId } from '@smiley-face-game/api/schemas/TileId';
+import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
 import { WorldUser } from '../User';
 import { ValidMessage } from '../ValidMessage';
 

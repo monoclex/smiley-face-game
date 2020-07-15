@@ -1,4 +1,4 @@
-import { ServerPlayerJoinPacket } from "@smiley-face-game/api/src/networking/game/ServerPlayerJoin";
+import { ServerPlayerJoinPacket } from "@smiley-face-game/api/src/networking/packets/ServerPlayerJoin";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
 import { WorldScene } from "../WorldScene";
 import { Gun } from "./Gun";
