@@ -14,7 +14,7 @@ export function verifyJwt<TJWTPayload extends Record<string, unknown>>(token: st
   });
 }
 
-export function verifyJwtMiddleware(request: Request, response: Response, next: NextFunction): void {
+export function verifyJwtMiddleware<TJWTPayload extends Record<string, unknown>>(request: Request, response: Response, next: NextFunction): void {
   const token: string | undefined = request.headers.authorization;
 
   if (typeof token === "undefined") {
@@ -22,8 +22,10 @@ export function verifyJwtMiddleware(request: Request, response: Response, next: 
     return;
   }
 
-  verifyJwt(token)
+  verifyJwt<TJWTPayload>(token)
     .then(data => {
+      //@ts-ignore
+      request.jwt = data;
       next();
     })
     .catch(err => {

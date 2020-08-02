@@ -33,9 +33,15 @@ export default function (connection: Connection): Router {
     try {
       const user = await users.findOneOrFail({ username: body.username });
 
-      const token = jwt.sign({
-        id: user.id
-      }, process.env.ACCESS_TOKEN_SECRET!);
+      const token = jwt.sign(
+        {
+          id: user.id,
+        },
+        process.env.ACCESS_TOKEN_SECRET!,
+        {
+          expiresIn: "1 day"
+        }
+      );
 
       res.status(200).json({ token });
       return;
