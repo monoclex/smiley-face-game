@@ -5,6 +5,7 @@ import * as WebSocket from 'ws';
 import { applyTo } from "../../../expressapp";
 import { verifyJwt } from '../../../middlewares/checkJwt';
 import { User } from '../../../models/User';
+import { World } from '../../../models/World';
 import { AllowJoin } from "../../../worlds/AllowJoin";
 import { WorldUser } from '../../../worlds/User';
 import { ValidMessage } from "../../../worlds/ValidMessage";
@@ -61,25 +62,23 @@ export default function (connection: Connection): Router {
   }
 
   async function handleWebsocketConnection(webSocket: WebSocket, options: WebsocketConnectionOptions) {
-    const room = await roomManager.openOrCreateGame(options.id, options.width, options.height);
-
     let databaseUser: User | undefined = undefined;
 
-    if (typeof options.token !== "undefined") {
+    if (options.token !== undefined) {
       try {
         const tokenBody = await verifyJwt(options.token);
 
         // TODO: use schemas to confirm that tokenBody's body is type checked
         const userId: string = tokenBody.id as string;
-        const user = await users.findOneOrFail({ id: userId });
-
-        databaseUser = user;
+        databaseUser = await users.findOneOrFail({ id: userId });
       } catch (error) {
         // TODO: remove catch if it is proven that an exception won't break the entire stack
         console.error('error at verifyJwt', error);
         throw error;
       }
     }
+
+    const room = await roomManager.openOrCreateGame(connection.getRepository(World), options.id, options.width, options.height);
 
     const user = new WorldUser(webSocket, room.newId++, databaseUser);
 

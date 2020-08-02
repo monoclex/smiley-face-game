@@ -27,7 +27,7 @@ import { ValidMessage } from "./ValidMessage";
 export class World {
   private readonly _lookup: WorldPacketLookup<WorldUser, Promise<ValidMessage>>;
   readonly users: Map<UserId, WorldUser>;
-  private readonly _map: BlockHandler;
+  readonly _map: BlockHandler;
 
   newId = 0;
 
