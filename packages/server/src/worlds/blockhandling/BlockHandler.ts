@@ -9,6 +9,7 @@ import { WorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacke
 import { Block } from '@smiley-face-game/api/schemas/Block';
 import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
+import { World as DbWorld } from '../../models/World';
 import { WorldUser } from '../User';
 import { ValidMessage } from '../ValidMessage';
 
@@ -38,29 +39,36 @@ export class BlockHandler {
   canRun = true;
 
   constructor(
+    dbWorld: DbWorld | undefined,
     private readonly _width: number,
     private readonly _height: number,
     private readonly broadcast: BroadcastFunction,
   ) {
+    // TODO: don't require temp variable
+    let tmp;
+    if (dbWorld && (tmp = dbWorld.worldData) !== []) {
+      this.map = tmp;
+    }
+    else {
+      this.map = [];
+      for (let layer = 0; layer <= TileLayer.Background; layer++) {
+        const layerMap: Block[][] = [];
+        this.map[layer] = layerMap;
 
-    this.map = [];
-    for (let layer = 0; layer <= TileLayer.Background; layer++) {
-      const layerMap: Block[][] = [];
-      this.map[layer] = layerMap;
+        for (let y = 0; y < _height; y++) {
+          const yMap: Block[] = [];
+          layerMap[y] = yMap;
 
-      for (let y = 0; y < _height; y++) {
-        const yMap: Block[] = [];
-        layerMap[y] = yMap;
+          for (let x = 0; x < _width; x++) {
 
-        for (let x = 0; x < _width; x++) {
-
-          if (layer === TileLayer.Foreground) {
-            // TODO: cleanup border initialization stuff
-            const xMap: Block = newBlock((y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? TileId.Full : TileId.Empty);
-            yMap[x] = xMap;
-          }
-          else {
-            yMap[x] = newBlock(TileId.Empty);
+            if (layer === TileLayer.Foreground) {
+              // TODO: cleanup border initialization stuff
+              const xMap: Block = newBlock((y === 0 || y === _height - 1 || x === 0 || x === _width - 1) ? TileId.Full : TileId.Empty);
+              yMap[x] = xMap;
+            }
+            else {
+              yMap[x] = newBlock(TileId.Empty);
+            }
           }
         }
       }

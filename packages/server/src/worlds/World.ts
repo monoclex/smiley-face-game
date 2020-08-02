@@ -19,6 +19,7 @@ import { invokeWorldPacketLookup, WorldPacket, WorldPacketLookup } from "@smiley
 import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
 import { UserId } from "@smiley-face-game/api/schemas/UserId";
+import { World as DbWorld } from "../models/World";
 import { AllowJoin } from "./AllowJoin";
 import { BlockHandler } from './blockhandling/BlockHandler';
 import { WorldUser } from "./User";
@@ -32,10 +33,15 @@ export class World {
   newId = 0;
 
   constructor(
+    dbWorld: DbWorld | undefined,
     private readonly _width: number,
     private readonly _height: number,
     readonly destroy: () => void,
   ) {
+    if (dbWorld) {
+      // TODO: assign width and height
+    }
+
     //@ts-ignore
     this._lookup = {
       //@ts-ignore
@@ -66,7 +72,7 @@ export class World {
     };
 
     this.users = new Map<UserId, WorldUser>();
-    this._map = new BlockHandler(_width, _height, this.broadcast.bind(this));
+    this._map = new BlockHandler(dbWorld, _width, _height, this.broadcast.bind(this));
   }
 
   // as this is the lobby, we don't need to worry about 

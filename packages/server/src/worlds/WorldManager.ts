@@ -49,8 +49,10 @@ export class WorldManager {
         return world;
       }
 
+      const dbWorld = await worldsRepository.findOne(id);
+
       // world doesn't exist, create it
-      const createdWorld = new World(width, height, (() => {
+      const createdWorld = new World(dbWorld, 25, 25, (() => {
         this._worlds.delete(id);
 
         // at this point, what would be preferred is to aquire "_savingLock" but if it's awaited, the suspension of a promise trying to
