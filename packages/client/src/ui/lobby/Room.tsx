@@ -1,21 +1,12 @@
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  CardHeader,
-  CardActionArea,
-  CardMedia,
-  CardActions,
-  Tooltip,
-  IconButton,
-} from "@material-ui/core";
-import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ThumbUp as ThumbUpIcon, HeartOutline as HeartOutlineIcon, Play as PlayIcon } from "mdi-material-ui";
-
+import { makeStyles } from "@material-ui/core/styles";
+import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton, } from "@material-ui/core";
+import ThumbUpIcon from "mdi-material-ui/ThumbUp";
+import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
+import PlayIcon from "mdi-material-ui/Play";
+import { motion } from "framer-motion";
+//@ts-ignore
 import minimapImage from "./minimap.png";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,17 +34,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface RoomProps {
-  room: GamePreview;
-}
-
 // TODO: import from libcore
 interface GamePreview {
   id: string;
   playerCount: number;
 }
 
-export const Room: React.FC<RoomProps> = (props) => {
+type RoomProps = {
+  room: GamePreview;
+};
+
+export const Room = (props: RoomProps) => {
+  const { room: { id } } = props;
+  const name = id; // TODO: when rooms get their own name, use it instead
+
   const classes = useStyles();
 
   return (
@@ -62,10 +56,10 @@ export const Room: React.FC<RoomProps> = (props) => {
         <div className={classes.details}>
           <CardContent className={classes.content}>
             <Typography component="h5" variant="h5">
-              {props.room.id}
+              {name}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              {props.room.id}
+              {id}
             </Typography>
           </CardContent>
 
@@ -83,7 +77,7 @@ export const Room: React.FC<RoomProps> = (props) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <Link to={`/games/${props.room.id}`}>
+              <Link to={`/games/${id}`}>
                 <IconButton aria-label="play">
                   <PlayIcon />
                 </IconButton>
@@ -92,15 +86,8 @@ export const Room: React.FC<RoomProps> = (props) => {
           </CardActions>
         </div>
 
-        <CardMedia className={classes.media} image={minimapImage} title={props.room.id} />
+        <CardMedia className={classes.media} image={minimapImage} title={id} />
       </Card>
     </motion.div>
   );
-};
-
-Room.propTypes = {
-  room: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    playerCount: PropTypes.number.isRequired
-  }).isRequired
 };

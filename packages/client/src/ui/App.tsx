@@ -1,20 +1,19 @@
-import React, { Suspense } from "react";
-import store from "./redux/store";
-import { CssBaseline } from "@material-ui/core";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import React, { Suspense, lazy, useMemo } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { lazy } from "react";
-import Lobby from "./lobby/Lobby";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import { CssBaseline } from "@material-ui/core";
 import { Provider } from "react-redux";
+import store from "./redux/store";
 import history from "./history";
+import Lobby from "./lobby/Lobby";
 
 const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
 const GamePage = lazy(() => import("./game/Game"));
 
-export const App: React.FC<Record<string, unknown>> = () => {
+export const App = () => {
   const prefersDarkMode = true;
 
-  const theme = React.useMemo(
+  const theme = useMemo(
     () =>
       createMuiTheme({
         palette: {

@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { Room } from "./Room";
 import { Grid, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Plus as PlusIcon, Refresh as RefreshIcon } from "mdi-material-ui";
+import PlusIcon from "mdi-material-ui/Plus";
+import RefreshIcon from "mdi-material-ui/Refresh";
 import { withRouter, Redirect } from "react-router-dom";
 import { api } from "../../isProduction";
 import CreateRoomDialog from "../components/CreateRoomDialog";
@@ -21,34 +22,33 @@ const useStyles = makeStyles({
 });
 
 // TODO: import from libcore
-interface GamePreview {
+interface RoomPreview {
   id: string;
   playerCount: number;
 }
 
-const Lobby: React.FC<Record<string, unknown>> = () => {
+const Lobby = () => {
   const classes = useStyles();
 
-  const [rooms, setRooms] = useState<GamePreview[] | null>(null);
+  const [redirect, setRedirect] = useState<string | undefined>();
+  const [roomPreviews, setRoomPreviews] = useState<RoomPreview[] | undefined>();
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
-  const [redirect, setRedirect] = useState<string | null>(null);
 
-  const fetchLobby = () => {
-    fetch(api.lobby())
+  const fetchLobby =
+    () => fetch(api.lobby())
       .then((response) => response.json())
-      .then(setRooms);
-  };
+      .then(setRoomPreviews);
 
   useEffect(() => {
     fetchLobby();
   }, []);
 
   // this is omega wtf but it doesn't work unless i do this... ?????????
-  if (redirect !== null) {
+  if (redirect) {
     return <Redirect to={redirect} />;
   }
 
-  if (rooms === null) {
+  if (!roomPreviews) {
     return <h1>Loading rooms...</h1>;
   }
 
@@ -66,7 +66,7 @@ const Lobby: React.FC<Record<string, unknown>> = () => {
       </Grid>
       <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
-          {rooms.map((room) => (
+          {roomPreviews.map((room) => (
             <Grid item key={room.id}>
               <Room room={room} />
             </Grid>
