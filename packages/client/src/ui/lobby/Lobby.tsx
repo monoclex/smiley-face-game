@@ -5,6 +5,7 @@ import { Grid, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import PlusIcon from "mdi-material-ui/Plus";
 import RefreshIcon from "mdi-material-ui/Refresh";
+import LoginIcon from "mdi-material-ui/Login";
 import { withRouter, Redirect } from "react-router-dom";
 import { api } from "../../isProduction";
 import CreateRoomDialog from "../components/CreateRoomDialog";
@@ -43,6 +44,8 @@ const Lobby = () => {
     fetchLobby();
   }, []);
 
+  const gotoLogin = () => setRedirect("/login");
+
   // this is omega wtf but it doesn't work unless i do this... ?????????
   if (redirect) {
     return <Redirect to={redirect} />;
@@ -62,6 +65,9 @@ const Lobby = () => {
         </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
           <PlusIcon />
+        </IconButton>
+        <IconButton onClick={() => gotoLogin()}>
+          <LoginIcon />
         </IconButton>
       </Grid>
       <div className={classes.paddingStyle}>

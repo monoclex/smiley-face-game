@@ -7,8 +7,14 @@ import store from "./redux/store";
 import history from "./history";
 import Lobby from "./lobby/Lobby";
 
-const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy
+const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy, and it has high chance of being hit anyways
+
+// HUGE - make lazy
 const GamePage = lazy(() => import("./game/Game"));
+
+// low chance of being hit, lazy it
+const LoginPage = lazy(() => import("./lobby/Login"));
+const RegisterPage = lazy(() => import("./lobby/Register"));
 
 export const App = () => {
   const prefersDarkMode = true;
@@ -32,6 +38,9 @@ export const App = () => {
             <CssBaseline />
             <Suspense fallback={<h1>Loading</h1>}>
               <Route exact path="/" component={LobbyPage} />
+
+              <Route exact path="/register" component={RegisterPage} />
+              <Route exact path="/login" component={LoginPage} />
 
               {/* 
                   Temporary hack to allow people to join without width/height
