@@ -7,14 +7,26 @@ export const http = isSecure ? "https" : "http";
 export const ws = isSecure ? "wss" : "ws";
 
 class Urls {
+  private baseUrl(): string {
+    return http + (isProduction ? "://api.sirjosh3917.com/smiley-face-game" : "://localhost:8080");
+  }
+
   lobby(): string {
-    return http + (isProduction ? "://api.sirjosh3917.com/smiley-face-game/lobby" : "://localhost:8080/lobby");
+    return this.baseUrl() + "/lobby";
   }
 
   connection(roomId: string, width = 25, height = 25): string {
     return isProduction
       ? ws + `://ws-api.sirjosh3917.com/smiley-face-game/ws/game/${roomId}?width=${width}&height=${height}`
       : ws + `://localhost:8080/ws/game/${roomId}?width=${width}&height=${height}`;
+  }
+
+  register(): string {
+    return this.baseUrl() + "/register";
+  }
+
+  login(): string {
+    return this.baseUrl() + "/login";
   }
 }
 
