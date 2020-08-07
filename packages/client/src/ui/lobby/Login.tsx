@@ -29,16 +29,20 @@ const Login = () => {
       <Typography component="h1" variant="h3">
         wow, login!
       </Typography>
+      <br />
       <Button onClick={() => setRedirectRegister(true)}>
         <Typography component="h1" variant="h3">
           go to register
         </Typography>
       </Button>
+      <br />
 
 
       {/* TODO: use react hook forms */}
       <TextField id="username" type="text" label="name" onChange={({ target: { value } }) => setUsername(value)} />
+      <br />
       <TextField id="password" type="password" label="password" onChange={({ target: { value } }) => setPassword(value)} />
+      <br />
       <Button onClick={() => submitLogin()}>
         log in
       </Button>

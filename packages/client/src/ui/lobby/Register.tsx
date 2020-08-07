@@ -31,6 +31,7 @@ const Register = () => {
       <Typography component="h1" variant="h3">
         wow register!
       </Typography>
+      <br />
       <Button onClick={() => setRedirectLogin(true)}>
         <Typography component="h1" variant="h3">
           go to login
@@ -39,8 +40,11 @@ const Register = () => {
 
       {/* TODO: use react hook forms */}
       <TextField id="username" type="text" label="name" onChange={({ target: { value } }) => setUsername(value)} />
+      <br />
       <TextField id="email" type="text" label="email" onChange={({ target: { value } }) => setEmail(value)} />
+      <br />
       <TextField id="password" type="password" label="password" onChange={({ target: { value } }) => setPassword(value)} />
+      <br />
       <Button onClick={() => submitRegister()}>
         sign up
       </Button>
