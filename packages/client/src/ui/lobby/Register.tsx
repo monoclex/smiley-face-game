@@ -12,17 +12,39 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState<true | Error | undefined>(undefined);
 
   const submitRegister = () =>
     // TODO: make it work
     fetch(api.register(), {
-      method: "POST"
-    });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+      })
+    })
+      .then(result => setSuccess(true))
+      .catch(error => setSuccess(error));
 
   if (redirectLogin) {
     // see Lobby.tsx
     return (
       <Redirect to="/login" />
+    );
+  }
+
+  if (success === true) {
+    return (
+      <h1>it,.,., you registered! wowzor.</h1>
+    );
+  }
+  else if (success) {
+    return (
+      <h1> oh not it . errorede: {success.toString()}</h1>
     );
   }
 

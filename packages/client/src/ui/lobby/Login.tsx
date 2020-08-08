@@ -10,17 +10,38 @@ const Login = () => {
   const [redirectRegister, setRedirectRegister] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState<true | Error | undefined>(undefined);
 
   const submitLogin = () =>
     // TODO: make it work
     fetch(api.login(), {
-      method: "POST"
-    });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      })
+    })
+      .then(result => setSuccess(true))
+      .catch(error => setSuccess(error));
 
   if (redirectRegister) {
     // see Lobby.tsx
     return (
       <Redirect to="/register" />
+    );
+  }
+
+  if (success === true) {
+    return (
+      <h1>logged in i guess</h1>
+    );
+  }
+  else if (success) {
+    return (
+      <h1>got an error: {success.toString()}</h1>
     );
   }
 
