@@ -10,6 +10,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "@svgr/parcel-plugin-svgr": "^5.4.0",
     "babel-polyfill": "^6.26.0",
     "clsx": "^1.1.1",
     "framer-motion": "^1.11.1",

@@ -1,7 +1,9 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { Room } from "./Room";
-import { Grid, IconButton } from "@material-ui/core";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import SvgIcon from "@material-ui/core/SvgIcon";
 import { makeStyles } from "@material-ui/core/styles";
 import PlusIcon from "mdi-material-ui/Plus";
 import RefreshIcon from "mdi-material-ui/Refresh";
@@ -11,6 +13,8 @@ import { api } from "../../isProduction";
 import CreateRoomDialog from "../components/CreateRoomDialog";
 import { motion } from "framer-motion";
 import history from "../history";
+//@ts-ignore
+import DiscordLogo from "../../assets/discord.svg";
 
 const useStyles = makeStyles({
   input: {
@@ -68,6 +72,9 @@ const Lobby = () => {
         </IconButton>
         <IconButton onClick={() => gotoLogin()}>
           <LoginIcon />
+        </IconButton>
+        <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
+          <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
         </IconButton>
       </Grid>
       <div className={classes.paddingStyle}>
