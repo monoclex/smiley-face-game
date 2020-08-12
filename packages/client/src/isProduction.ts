@@ -21,12 +21,16 @@ class Urls {
       : ws + `://localhost:8080/ws/game/${roomId}?width=${width}&height=${height}`;
   }
 
+  auth(): string {
+    return this.baseUrl() + "/auth";
+  }
+
   register(): string {
-    return this.baseUrl() + "/register";
+    return this.auth() + "/register";
   }
 
   login(): string {
-    return this.baseUrl() + "/login";
+    return this.auth() + "/login";
   }
 }
 

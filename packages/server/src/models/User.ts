@@ -14,6 +14,19 @@ export class User {
   })
   username!: string;
 
+  @Column({
+    nullable: false,
+    unique: true,
+  })
+  email!: string;
+
+  @Column({
+    nullable: false,
+    unique: false,
+    length: 64
+  })
+  password!: string;
+
   @OneToMany(type => World, world => world.owner)
   worlds!: World[];
 }

@@ -12,11 +12,12 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [success, setSuccess] = useState<true | Error | undefined>(undefined);
+  const [success, setSuccess] = useState<undefined | { status: true, token: string } | { status: false, error: Error } | { status: null }>(undefined);
 
-  const submitRegister = () =>
-    // TODO: make it work
-    fetch(api.register(), {
+  const submitRegister = () => {
+    setSuccess({ status: null });
+
+    return fetch(api.register(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -27,8 +28,26 @@ const Register = () => {
         password,
       })
     })
-      .then(result => setSuccess(true))
-      .catch(error => setSuccess(error));
+      .then(result => {
+        if (!result.ok) {
+          // TODO: figure out how to do this error nicely
+          alert(JSON.stringify({
+            email,
+            username,
+            password,
+          }));
+          return result.text().then(body => {
+            throw new Error("result json was NOT ok....... " + JSON.stringify(body));
+          });
+        }
+
+        return result.json();
+      })
+      .then(result => {
+        setSuccess({ status: true, token: result.token });
+      })
+      .catch(error => setSuccess({ status: false, error }));
+  };
 
   if (redirectLogin) {
     // see Lobby.tsx
@@ -37,15 +56,22 @@ const Register = () => {
     );
   }
 
-  if (success === true) {
-    return (
-      <h1>it,.,., you registered! wowzor.</h1>
-    );
-  }
-  else if (success) {
-    return (
-      <h1> oh not it . errorede: {success.toString()}</h1>
-    );
+  if (success) {
+    if (success.status === null) {
+      return (
+        <h1>logging you in..........</h1>
+      );
+    }
+    else if (success.status === true) {
+      return (
+        <h1>it,.,., you registered! wowzor. ur token is {success.token}</h1>
+      );
+    }
+    else if (success.status === false) {
+      return (
+        <h1> oh not it . errorede {success.error.toString()}</h1>
+      );
+    }
   }
 
   return (

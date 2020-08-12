@@ -1,17 +1,26 @@
 import { UsernameSchema } from '@smiley-face-game/api/schemas/Username';
 import Schema from 'computed-types';
+import cors from "cors";
 import { Router } from "express";
 import * as jwt from 'jsonwebtoken';
 import { Connection } from "typeorm";
+import { EmailSchema } from '../../../../api/src/schemas/Email';
+import { PasswordSchema } from '../../../../api/src/schemas/Password';
 import { User } from '../../models/User';
 
 const RegisterSchema = Schema({
-  username: UsernameSchema
+  username: UsernameSchema,
+  email: EmailSchema,
+  password: PasswordSchema,
 });
 const validateRegister = RegisterSchema.destruct();
 
-const LoginSchema = Schema({
-  username: UsernameSchema
+const LoginSchema = Schema.either({
+  username: UsernameSchema,
+  password: PasswordSchema,
+}, {
+  email: EmailSchema,
+  password: PasswordSchema,
 });
 const validateLogin = LoginSchema.destruct();
 
@@ -23,7 +32,7 @@ export default function (connection: Connection): Router {
   // TODO: it may be best to not send stack traces of errors to users in the future
   // TODO: too much domain logic here, controllers should *only* verify input and ask something else to handle proper input
 
-  router.post('/login', async (req, res) => {
+  router.post('/login', cors(), async (req, res) => {
     const [errors, body] = validateLogin(req.body);
     if (errors !== null || body === undefined) {
       res.status(422).send(errors);
@@ -31,7 +40,8 @@ export default function (connection: Connection): Router {
     }
 
     try {
-      const user = await users.findOneOrFail({ username: body.username });
+      // TODO: abstract this into its own thing
+      const user = "username" in body ? await users.findOneOrFail({ username: body.username }) : await users.findOneOrFail({ email: body.email });
 
       const token = jwt.sign(
         {
@@ -51,7 +61,8 @@ export default function (connection: Connection): Router {
     }
   });
 
-  router.post('/register', async (req, res) => {
+  router.post('/register', cors(), async (req, res) => {
+    console.log('body: ', req.body);
     const [errors, body] = validateRegister(req.body);
     if (errors !== null || body === undefined) {
       res.status(422).send(errors);
