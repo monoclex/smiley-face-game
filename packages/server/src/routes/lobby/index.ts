@@ -1,10 +1,16 @@
 import { Router } from "express";
-import roomManager from "../../worlds/WorldManager";
+import Dependencies from "@/dependencies";
 
-const router = Router();
+type UsedDependencies = Pick<Dependencies, "roomManager">;
 
-router.get('/', (req, res) => {
-  res.json(roomManager.listGames());
-});
+export default function (deps: UsedDependencies): Router {
+  const { roomManager } = deps;
 
-export default router;
+  const router = Router();
+
+  router.get('/', (req, res) => {
+    res.json(roomManager.listGames());
+  });
+
+  return router;
+}

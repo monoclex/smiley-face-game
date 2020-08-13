@@ -2,7 +2,9 @@ import { Router } from "express";
 import jwt from "@/middlewares/jwt";
 import Dependencies from "@/dependencies";
 
-export default function (deps: Dependencies): Router {
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "worldRepo" | "jwtVerifier">;
+
+export default function (deps: UsedDependencies): Router {
   const { accountRepo, worldRepo, jwtVerifier } = deps;
 
   const router = Router();

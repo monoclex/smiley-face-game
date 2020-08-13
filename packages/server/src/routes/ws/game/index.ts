@@ -13,8 +13,9 @@ import JwtVerifier from "@/jwt/JwtVerifier";
 import Dependencies from "@/dependencies";
 
 // TODO: too much logic in here as well
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "worldRepo" | "jwtVerifier">;
 
-export default function (deps: Dependencies): Router {
+export default function (deps: UsedDependencies): Router {
   const { accountRepo, worldRepo, jwtVerifier } = deps;
 
   const router = Router();

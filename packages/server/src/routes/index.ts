@@ -9,7 +9,7 @@ export default function (deps: Dependencies): Router {
   const router = Router();
 
   router.use('/ws/game', wsGameRouter(deps));
-  router.use('/lobby', lobbyRouter);
+  router.use('/lobby', lobbyRouter(deps));
   router.use('/auth', authRouterFactory(deps));
   router.use('/api/v1', apiRouterFactory(deps));
 

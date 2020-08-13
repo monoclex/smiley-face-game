@@ -23,7 +23,9 @@ const LoginSchema = Schema.either({
 });
 const validateLogin = LoginSchema.destruct();
 
-export default function (deps: Dependencies): Router {
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "jwtProvider">;
+
+export default function (deps: UsedDependencies): Router {
   const { accountRepo, jwtProvider } = deps;
 
   const router = Router();
