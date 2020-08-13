@@ -1,7 +1,7 @@
 import { WorldPacket } from "@smiley-face-game/api/networking/packets/WorldPacket";
 import { UserId } from "@smiley-face-game/api/schemas/UserId";
 import * as WebSocket from 'ws';
-import { User } from '../models/User';
+import User from '../database/models/Account';
 
 export class WorldUser {
   constructor(

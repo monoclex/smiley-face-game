@@ -3,7 +3,7 @@ import express from "express";
 import request from "supertest";
 import { Connection, Repository } from 'typeorm';
 import { verifyJwt } from '../src/middlewares/checkJwt';
-import { User } from '../src/models/User';
+import User from '../src/database/models/Account';
 import authRouterFactory from "../src/routes/auth";
 
 // lol this is a stupid bad idiot test

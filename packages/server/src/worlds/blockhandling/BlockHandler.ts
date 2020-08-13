@@ -9,7 +9,7 @@ import { WorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacke
 import { Block } from '@smiley-face-game/api/schemas/Block';
 import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
-import { World as DbWorld } from '../../models/World';
+import DbWorld from '../../database/models/World';
 import { WorldUser } from '../User';
 import { ValidMessage } from '../ValidMessage';
 

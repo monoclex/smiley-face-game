@@ -2,7 +2,7 @@ import { RoomId } from "@smiley-face-game/api/schemas/RoomId";
 import { WorldPreview } from "@smiley-face-game/api/schemas/WorldPreview";
 import { Repository } from "typeorm";
 import { AsyncLock, sleep } from '../misc';
-import { World as DbWorld } from "../models/World";
+import DbWorld from "../database/models/World";
 import { World } from "./World";
 
 export class WorldManager {

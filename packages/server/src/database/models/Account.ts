@@ -1,8 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { World } from './World';
+import World from './World';
 
 @Entity()
-export class User {
+export default class Account {
 
   @PrimaryGeneratedColumn("uuid")
   id!: string;
@@ -23,7 +23,7 @@ export class User {
   @Column({
     nullable: false,
     unique: false,
-    length: 64
+    length: 64,
   })
   password!: string;
 

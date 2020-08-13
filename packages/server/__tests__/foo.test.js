@@ -26,7 +26,7 @@ const bodyParser = __importStar(require("body-parser"));
 const express_1 = __importDefault(require("express"));
 const supertest_1 = __importDefault(require("supertest"));
 const checkJwt_1 = require("../src/middlewares/checkJwt");
-const User_1 = require("../src/models/User");
+const Account_1 = __importDefault(require("../src/database/models/Account"));
 const auth_1 = __importDefault(require("../src/routes/auth"));
 // lol this is a stupid bad idiot test
 test('registers user', async (done) => {
@@ -34,7 +34,7 @@ test('registers user', async (done) => {
     const router = auth_1.default({
         getRepository: (constructor) => {
             // TODO: eliminate this assertion
-            expect(constructor).toBe(User_1.User);
+            expect(constructor).toBe(Account_1.default);
             return {
                 save: async function (user) {
                     expect(user.username).toBe('John Doe');
@@ -57,12 +57,12 @@ test('logs user in', async (done) => {
     const router = auth_1.default({
         getRepository: (constructor) => {
             // TODO: eliminate this assertion
-            expect(constructor).toBe(User_1.User);
+            expect(constructor).toBe(Account_1.default);
             return {
                 findOneOrFail: async function (clause) {
                     expect(typeof clause).not.toBe(typeof undefined);
                     expect(clause.username).toBe('John Doe');
-                    const user = new User_1.User();
+                    const user = new Account_1.default();
                     user.id = 'ecks dee';
                     user.username = 'John Doe';
                     return user;

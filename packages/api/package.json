@@ -2,6 +2,9 @@
   "name": "@smiley-face-game/api",
   "version": "0.0.0",
   "license": "MIT",
+  "scripts": {
+    "build:server": "yarn tsc --project . --module commonjs"
+  },
   "dependencies": {
     "computed-types": "^1.1.0"
   }

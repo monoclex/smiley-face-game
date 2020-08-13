@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken';
 import { Connection } from "typeorm";
 import { EmailSchema } from '../../../../api/src/schemas/Email';
 import { PasswordSchema } from '../../../../api/src/schemas/Password';
-import { User } from '../../models/User';
+import User from '../../database/models/Account';
 
 const RegisterSchema = Schema({
   username: UsernameSchema,

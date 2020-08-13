@@ -19,7 +19,7 @@ import { invokeWorldPacketLookup, WorldPacket, WorldPacketLookup } from "@smiley
 import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
 import { UserId } from "@smiley-face-game/api/schemas/UserId";
-import { World as DbWorld } from "../models/World";
+import DbWorld from "../database/models/World";
 import { AllowJoin } from "./AllowJoin";
 import { BlockHandler } from './blockhandling/BlockHandler';
 import { WorldUser } from "./User";

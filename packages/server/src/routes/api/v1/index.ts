@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Connection } from "typeorm";
 import { verifyJwtMiddleware } from '../../../middlewares/checkJwt';
-import { User } from '../../../models/User';
-import { World } from '../../../models/World';
+import User from '../../../database/models/Account';
+import World from '../../../database/models/World';
 
 export default function (connection: Connection): Router {
   const users = connection.getRepository(User);
