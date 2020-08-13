@@ -16,4 +16,11 @@ export default interface JwtPayload {
    * possibly encountered.
    */
   readonly version: 1;
+
+  /**
+   * The JWT "aud" (Audience) Claim: https://tools.ietf.org/html/rfc7519#section-4.1.3
+   * 
+   * The audience will be the Account Id of an Account.
+   */
+  readonly aud: string;
 }

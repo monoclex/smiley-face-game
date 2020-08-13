@@ -3,17 +3,17 @@ import { Router } from "express";
 import { Connection } from 'typeorm';
 import * as WebSocket from 'ws';
 import { applyTo } from "../../../expressapp";
-import { verifyJwt } from '../../../middlewares/checkJwt';
 import User from '../../../database/models/Account';
 import World from '../../../database/models/World';
 import { AllowJoin } from "../../../worlds/AllowJoin";
 import { WorldUser } from '../../../worlds/User';
 import { ValidMessage } from "../../../worlds/ValidMessage";
 import roomManager from "../../../worlds/WorldManager";
+import JwtVerifier from "@/jwt/JwtVerifier";
 
 // TODO: too much logic in here as well
 
-export default function (connection: Connection): Router {
+export default function (connection: Connection, verifier: JwtVerifier): Router {
   const users = connection.getRepository(User);
 
   const router = Router();
@@ -66,10 +66,14 @@ export default function (connection: Connection): Router {
 
     if (options.token !== undefined) {
       try {
-        const tokenBody = await verifyJwt(options.token);
+        const verifyResult = verifier.isValid(options.token);
+
+        if (!verifyResult.success) {
+          throw new Error("didnt verify");
+        }
 
         // TODO: use schemas to confirm that tokenBody's body is type checked
-        const userId: string = tokenBody.id as string;
+        const userId: string = verifyResult.payload.aud;
         databaseUser = await users.findOneOrFail({ id: userId });
       } catch (error) {
         // TODO: remove catch if it is proven that an exception won't break the entire stack

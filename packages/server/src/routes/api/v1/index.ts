@@ -1,18 +1,18 @@
 import { Router } from "express";
 import { Connection } from "typeorm";
-import { verifyJwtMiddleware } from '../../../middlewares/checkJwt';
-import User from '../../../database/models/Account';
-import World from '../../../database/models/World';
+import Account from "@/database/models/Account";
+import World from "@/database/models/World";
+import JwtVerifier from "@/jwt/JwtVerifier";
+import jwt from "@/middlewares/jwt";
 
-export default function (connection: Connection): Router {
-  const users = connection.getRepository(User);
+export default function (connection: Connection, jwtVerifier: JwtVerifier): Router {
+  const users = connection.getRepository(Account);
   const worlds = connection.getRepository(World);
 
   const router = Router();
 
-  router.get('/worlds', verifyJwtMiddleware, async (req, res) => {
-    //@ts-expect-error
-    const userId: string = req.jwt.id;
+  router.get('/worlds', jwt(jwtVerifier, async (req, res) => {
+    const userId: string = req.jwt.aud;
     const user = await users.findOne(userId);
 
     const worldsPayload = [];
@@ -26,11 +26,10 @@ export default function (connection: Connection): Router {
     }
 
     res.json(worldsPayload);
-  });
+  }));
 
-  router.post('/worlds', verifyJwtMiddleware, async (req, res) => {
-    //@ts-expect-error
-    const userId: string = req.jwt.id;
+  router.post('/worlds', jwt(jwtVerifier, async (req, res) => {
+    const userId: string = req.jwt.aud;
     const user = await users.findOne(userId);
 
     if (user === undefined) {
@@ -44,7 +43,7 @@ export default function (connection: Connection): Router {
     world.worldData = [];
     await worlds.save(world);
     res.json({ id: world.id });
-  });
+  }));
 
   return router;
 }
