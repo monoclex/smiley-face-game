@@ -6,7 +6,7 @@ import AccountLike from "@/database/modelishs/AccountLike";
 import WorldLike from "@/database/modelishs/WorldLike";
 import Account from "@/database/models/Account";
 import World from "@/database/models/World";
-import ensureValidates from "./ensureValidates";
+import ensureValidates from "@/ensureValidates";
 
 type QueryOptions = { withOwner: boolean };
 

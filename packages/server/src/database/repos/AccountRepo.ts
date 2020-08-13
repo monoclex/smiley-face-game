@@ -7,7 +7,7 @@ import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
 import Account from "@/database/models/Account";
 import World from "@/database/models/World";
 import AccountLike from "@/database/modelishs/AccountLike";
-import ensureValidates from "./ensureValidates";
+import ensureValidates from "@/ensureValidates";
 
 // TODO: should this be made a Schema?
 interface AccountDetails {

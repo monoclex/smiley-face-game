@@ -1,3 +1,6 @@
+// whilst I would've loved to use full names like "version", "audience", "permissions", e.t.c rather than the abbreviated forms "ver", "aud",
+// and "can", it fits more the JWT style to shorten these claims into 3 letters.
+
 /**
  * The JwtPayload is an interface that describes what the payload of a JWT can possibly be. This enables code to be strongly typed when
  * dealing with the JWT, which will prevent errors and bugs.
@@ -15,7 +18,7 @@ export default interface JwtPayload {
    * By using a statically incrementing version counter, this provides a very good way to quickly short circuit if older, stale data is
    * possibly encountered.
    */
-  readonly version: 1;
+  readonly ver: 1;
 
   /**
    * The JWT "aud" (Audience) Claim: https://tools.ietf.org/html/rfc7519#section-4.1.3
@@ -23,4 +26,12 @@ export default interface JwtPayload {
    * The audience will be the Account Id of an Account.
    */
   readonly aud: string;
+
+  /**
+   * The permissions that this token is good for.
+   * 
+   * `authenticate` - this permission allows logging in to the game.
+   * `shop` - this permission allows purchasing items from the shop.
+   */
+  readonly can: ("authenticate" | "shop")[];
 }

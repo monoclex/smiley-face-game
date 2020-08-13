@@ -2,11 +2,8 @@ import { UsernameSchema } from '@smiley-face-game/api/schemas/Username';
 import Schema from 'computed-types';
 import cors from "cors";
 import { Router } from "express";
-import * as jwt from 'jsonwebtoken';
-import { Connection } from "typeorm";
 import { EmailSchema } from '../../../../api/src/schemas/Email';
 import { PasswordSchema } from '../../../../api/src/schemas/Password';
-import User from '../../database/models/Account';
 import Dependencies from "../../dependencies";
 
 const RegisterSchema = Schema({
@@ -26,7 +23,7 @@ const LoginSchema = Schema.either({
 const validateLogin = LoginSchema.destruct();
 
 export default function (deps: Dependencies): Router {
-  const { accountRepo } = deps;
+  const { accountRepo, jwtProvider } = deps;
 
   const router = Router();
 
@@ -42,17 +39,9 @@ export default function (deps: Dependencies): Router {
 
     try {
       // TODO: abstract this into its own thing
-      const user = "username" in body ? await accountRepo.findByUsername(body.username) : await accountRepo.findByEmail(body.email);
+      const account = "username" in body ? await accountRepo.findByUsername(body.username) : await accountRepo.findByEmail(body.email);
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-        },
-        process.env.ACCESS_TOKEN_SECRET!,
-        {
-          expiresIn: "1 day"
-        }
-      );
+      const token = jwtProvider.allowAuthentication(account.id);
 
       res.status(200).json({ token });
       return;
