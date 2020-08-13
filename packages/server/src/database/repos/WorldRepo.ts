@@ -2,18 +2,18 @@ import { Connection, Repository } from "typeorm";
 import { validateAccountId } from "@smiley-face-game/api/src/schemas/AccountId";
 import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
 import { Block } from "@smiley-face-game/api/schemas/Block";
+import AccountLike from "@/database/modelishs/AccountLike";
+import WorldLike from "@/database/modelishs/WorldLike";
 import Account from "@/database/models/Account";
 import World from "@/database/models/World";
 import ensureValidates from "./ensureValidates";
 
-type WorldWithoutOwner = Omit<World, "owner">;
 type QueryOptions = { withOwner: boolean };
-
-type AccountLike = Pick<Account, "id">;
 
 // TODO: should this be made a schema?
 interface WorldDetails {
   readonly owner: AccountLike;
+  readonly name?: string;
   readonly width: number;
   readonly height: number;
   readonly blocks?: Block[][][];
@@ -29,8 +29,8 @@ export default class WorldRepo {
   /* === queries === */
 
   findById(id: string, options: { withOwner: true }): Promise<World>;
-  findById(id: string, options?: { withOwner: false }): Promise<WorldWithoutOwner>;
-  findById(id: string, options?: QueryOptions): Promise<World | WorldWithoutOwner> {
+  findById(id: string, options?: { withOwner: false }): Promise<WorldLike>;
+  findById(id: string, options?: QueryOptions): Promise<World | WorldLike> {
     ensureValidates(validateWorldId, id);
 
     let findOptions = {};
@@ -52,11 +52,13 @@ export default class WorldRepo {
     // TODO: verify details given
     
     // all computed assignments are stated in plain sight before assignment
-    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld;
+    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details);
+    const name = !!details.name ? details.name : "Untitled World";
 
     let world = this.#repo.create();
     // @ts-expect-error
     world.owner = details.owner;
+    world.name = name;
     world.width = details.width;
     world.height = details.height;
     world.rawWorldData = blocks;
@@ -68,11 +70,14 @@ export default class WorldRepo {
 
   /**
    * @deprecated
-   * Not actually deprecated, just highly suggested not to use until an alternative is thought about.
+   * Not actually deprecated, just highly suggested not to use until an alternative is propely thought about.
    */
-  save(world: World | WorldWithoutOwner): Promise<World> {
+  save(world: World | WorldLike): Promise<World> {
     return this.#repo.save(world);
   }
 }
 
-const emptyWorld = JSON.stringify({});
+// TODO: calculate what blocks a world has
+function emptyWorld(details: WorldDetails): string {
+  return JSON.stringify({});
+}

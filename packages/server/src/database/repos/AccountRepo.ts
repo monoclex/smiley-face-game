@@ -6,9 +6,8 @@ import { validatePassword } from "@smiley-face-game/api/schemas/Password";
 import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
 import Account from "@/database/models/Account";
 import World from "@/database/models/World";
+import AccountLike from "@/database/modelishs/AccountLike";
 import ensureValidates from "./ensureValidates";
-
-type AccountWithoutWorlds = Omit<Account, "worlds">;
 
 // TODO: should this be made a Schema?
 interface AccountDetails {
@@ -27,17 +26,17 @@ export default class AccountRepo {
 
   /* === queries === */
 
-  findById(id: string): Promise<AccountWithoutWorlds> {
+  findById(id: string): Promise<AccountLike> {
     ensureValidates(validateAccountId, id);
     return this.#repo.findOneOrFail({ id }, {  });
   }
 
-  findByUsername(username: string): Promise<AccountWithoutWorlds> {
+  findByUsername(username: string): Promise<AccountLike> {
     ensureValidates(validateUsername, username);
     return this.#repo.findOneOrFail({ username });
   }
 
-  findByEmail(email: string): Promise<AccountWithoutWorlds> {
+  findByEmail(email: string): Promise<AccountLike> {
     ensureValidates(validateEmail, email);
     return this.#repo.findOneOrFail({ email });
   }
