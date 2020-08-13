@@ -8,7 +8,7 @@ export default function (deps: UsedDependencies): Router {
 
   const router = Router();
 
-  router.get('/', (req, res) => {
+  router.get('/', (_, res) => {
     res.json(roomManager.listGames());
   });
 

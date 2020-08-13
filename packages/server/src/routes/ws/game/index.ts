@@ -1,15 +1,12 @@
-import { validateWorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacket';
 import { Router } from "express";
-import { Connection } from 'typeorm';
 import * as WebSocket from 'ws';
-import { applyTo } from "../../../expressapp";
-import User from '../../../database/models/Account';
-import World from '../../../database/models/World';
-import { AllowJoin } from "../../../worlds/AllowJoin";
-import { WorldUser } from '../../../worlds/User';
-import { ValidMessage } from "../../../worlds/ValidMessage";
-import roomManager from "../../../worlds/WorldManager";
-import JwtVerifier from "@/jwt/JwtVerifier";
+import { validateWorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacket';
+import { AllowJoin } from "@/worlds/AllowJoin";
+import { WorldUser } from "@/worlds/User";
+import { ValidMessage } from "@/worlds/ValidMessage";
+import { applyTo } from "@/expressapp";
+import Account from "@/database/models/Account";
+import roomManager from "@/worlds/WorldManager";
 import Dependencies from "@/dependencies";
 
 // TODO: too much logic in here as well
@@ -64,7 +61,7 @@ export default function (deps: UsedDependencies): Router {
   }
 
   async function handleWebsocketConnection(webSocket: WebSocket, options: WebsocketConnectionOptions) {
-    let databaseUser: Omit<User, "worlds"> | undefined = undefined;
+    let databaseUser: Omit<Account, "worlds"> | undefined = undefined;
 
     if (options.token !== undefined) {
       try {
