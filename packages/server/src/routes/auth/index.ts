@@ -1,12 +1,12 @@
-import { UsernameSchema } from '@smiley-face-game/api/schemas/Username';
-import Schema from 'computed-types';
-import cors from "cors";
 import { Router } from "express";
-import { EmailSchema } from '../../../../api/src/schemas/Email';
-import { PasswordSchema } from '../../../../api/src/schemas/Password';
-import Dependencies from "../../dependencies";
-import schema from "@/middlewares/schema.js";
+import Schema from "computed-types";
+import { UsernameSchema } from '@smiley-face-game/api/schemas/Username';
+import { EmailSchema } from "@smiley-face-game/api/schemas/Email";
+import { PasswordSchema } from "@smiley-face-game/api/schemas/Password";
+import schema from "@/middlewares/schema";
+import Dependencies from "@/dependencies";
 
+// TODO: should put schemas in a schema place & import them
 const RegisterSchema = Schema({
   username: UsernameSchema,
   email: EmailSchema,
@@ -28,15 +28,18 @@ export default function (deps: Dependencies): Router {
 
   const router = Router();
 
-  // TODO: it may be best to not send stack traces of errors to users in the future
-  // TODO: too much domain logic here, controllers should *only* verify input and ask something else to handle proper input
+  // TODO: should clean up steps a little
 
-  router.post('/login', cors(), schema(validateLogin, async (req, res) => {
+  router.post('/login', schema(validateLogin, async (req, res) => {
     const body = req.body;
 
     try {
       // TODO: abstract this into its own thing
       const account = "username" in body ? await accountRepo.findByUsername(body.username) : await accountRepo.findByEmail(body.email);
+
+      if (!await accountRepo.verifyPassword(account, body.password)) {
+        throw new Error("Passwords don't match.");
+      }
 
       const token = jwtProvider.allowAuthentication(account.id);
 
@@ -48,7 +51,7 @@ export default function (deps: Dependencies): Router {
     }
   }));
 
-  router.post('/register', cors(), schema(validateRegister, async (req, res) => {
+  router.post('/register', schema(validateRegister, async (req, res) => {
     const body = req.body;
 
     try {

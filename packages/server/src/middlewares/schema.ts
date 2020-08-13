@@ -17,6 +17,7 @@ export default function schema<ReqBody, P extends core.Params = core.ParamsDicti
     const [errors, body] = validator(req.body);
 
     if (errors !== null || body === undefined) {
+      // TODO: it may be best to not send stack traces of errors to users in the future
       res.send(422).send(errors);
       return;
     }

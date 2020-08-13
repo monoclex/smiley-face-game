@@ -1,5 +1,5 @@
 import { Connection, Repository } from "typeorm";
-import { sha256 } from "js-sha256";
+import bcrypt from "bcrypt";
 import { validateUsername } from "@smiley-face-game/api/schemas/Username";
 import { validateEmail } from "@smiley-face-game/api/schemas/Email";
 import { validatePassword } from "@smiley-face-game/api/schemas/Password";
@@ -43,13 +43,13 @@ export default class AccountRepo {
 
   /* === creation === */
 
-  create(details: AccountDetails): Promise<Account> {
+  async create(details: AccountDetails): Promise<Account> {
     ensureValidates(validateUsername, details.username);
     ensureValidates(validateEmail, details.email);
     ensureValidates(validatePassword, details.password);
 
     // all computed assignments are stated in plain sight before assignment
-    const password = sha256.hex(details.password);
+    const password = await bcrypt.hash(details.password, 10);
     const worlds = details.worlds ?? [];
 
     let account = this.#repo.create();
@@ -58,6 +58,11 @@ export default class AccountRepo {
     account.password = password;
     account.worlds = worlds;
 
-    return this.#repo.save(account);
+    return await this.#repo.save(account);
+  }
+
+  verifyPassword(account: AccountLike, password: string): Promise<boolean> {
+    const accountPassword = account.password;
+    return bcrypt.compare(accountPassword, password);
   }
 }

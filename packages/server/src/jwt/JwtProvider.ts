@@ -11,7 +11,7 @@ export default class JwtProvider {
   }
 
   /**
-   * Generates a JWT that only authenticates the uswwwwwwwwwwwwwwwwwwwwwwwwer to play the game.
+   * Generates a JWT that only authenticates the Account to play the game.
    * @param accountId The Account's Id to generate an authentication token for.
    */
   allowAuthentication(accountId: string): string {
