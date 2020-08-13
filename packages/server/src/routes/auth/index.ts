@@ -5,6 +5,7 @@ import { Router } from "express";
 import { EmailSchema } from '../../../../api/src/schemas/Email';
 import { PasswordSchema } from '../../../../api/src/schemas/Password';
 import Dependencies from "../../dependencies";
+import schema from "@/middlewares/schema.js";
 
 const RegisterSchema = Schema({
   username: UsernameSchema,
@@ -30,12 +31,8 @@ export default function (deps: Dependencies): Router {
   // TODO: it may be best to not send stack traces of errors to users in the future
   // TODO: too much domain logic here, controllers should *only* verify input and ask something else to handle proper input
 
-  router.post('/login', cors(), async (req, res) => {
-    const [errors, body] = validateLogin(req.body);
-    if (errors !== null || body === undefined) {
-      res.status(422).send(errors);
-      return;
-    }
+  router.post('/login', cors(), schema(validateLogin, async (req, res) => {
+    const body = req.body;
 
     try {
       // TODO: abstract this into its own thing
@@ -49,15 +46,10 @@ export default function (deps: Dependencies): Router {
       res.status(401).send(error);
       return;
     }
-  });
+  }));
 
-  router.post('/register', cors(), async (req, res) => {
-    console.log('body: ', req.body);
-    const [errors, body] = validateRegister(req.body);
-    if (errors !== null || body === undefined) {
-      res.status(422).send(errors);
-      return;
-    }
+  router.post('/register', cors(), schema(validateRegister, async (req, res) => {
+    const body = req.body;
 
     try {
       await accountRepo.create({
@@ -72,7 +64,7 @@ export default function (deps: Dependencies): Router {
 
     res.status(200).send({});
     return;
-  });
+  }));
 
   return router;
 }
