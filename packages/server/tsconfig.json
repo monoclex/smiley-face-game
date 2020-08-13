@@ -20,6 +20,11 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "rootDirs": ["src"],
+    "plugins": [
+      { "transform": "@zerollup/ts-transform-paths" },
+      { "transform": "ts-type-checked/transformer" },
+    ]
   }
 }

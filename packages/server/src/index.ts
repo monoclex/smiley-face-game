@@ -4,26 +4,13 @@ import "reflect-metadata";
 import { createConnection, getConnectionOptions } from "typeorm";
 import { app } from "./expressapp";
 import routes from "./routes";
-import WorldRepo from "./database/repos/WorldRepo";
-import AccountRepo from "./database/repos/AccountRepo";
+import JwtVerifier from "./database/jwt/JwtVerifier";
 
 getConnectionOptions()
   .then(createConnection)
   .then(async connection => {
-    let a = new AccountRepo(connection);
-    let w = new WorldRepo(connection);
-
-    const owner = await a.create({
-      username: "John",
-      email: "exmaple@a.com",
-      password: "1234"
-    });
-
-    const world = await w.create({
-      owner: { id: owner.id },
-      width: 100,
-      height: 100,
-    });
+    let t = new JwtVerifier("secret");
+    let p = t.isValid("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o");
 
     app.use(cors());
     app.use(bodyParser.json());
