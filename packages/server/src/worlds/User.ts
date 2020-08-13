@@ -7,7 +7,7 @@ export class WorldUser {
   constructor(
     private readonly _webSocket: WebSocket,
     readonly userId: UserId,
-    readonly databaseUser?: User,
+    readonly databaseUser?: Omit<User, "worlds">,
   ) {
     // TODO: decouple from client impl
     this.lastPosition = { x: 32 + 16, y: 32 + 16 };

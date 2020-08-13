@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { AsyncLock, sleep } from '../misc';
 import DbWorld from "../database/models/World";
 import { World } from "./World";
+import WorldRepo from "@/database/repos/WorldRepo";
 
 export class WorldManager {
   private readonly _savingLock: AsyncLock = new AsyncLock();
@@ -24,7 +25,7 @@ export class WorldManager {
     return worlds;
   }
 
-  async openOrCreateGame(worldsRepository: Repository<DbWorld>, id: RoomId, width: number, height: number): Promise<World> {
+  async openOrCreateGame(worldsRepository: WorldRepo, id: RoomId, width: number, height: number): Promise<World> {
     // the point of the lock is to prevent worlds from being created while DB operations are being performed to save a world
     // obviously this can be done more efficiently
     await this._savingLock.acquire();
@@ -49,7 +50,7 @@ export class WorldManager {
         return world;
       }
 
-      const dbWorld = await worldsRepository.findOne(id);
+      const dbWorld = await worldsRepository.findById(id);
 
       // world doesn't exist, create it
       const createdWorld = new World(dbWorld, 25, 25, (() => {
@@ -66,7 +67,7 @@ export class WorldManager {
         // i'm not actually sure if we need to acquire _savingLock, but it is being acquired just in case
         this._savingLock.acquire()
           .then(async () => {
-            const dbWorld = await worldsRepository.findOne(id);
+            const dbWorld = await worldsRepository.findById(id);
 
             if (dbWorld === undefined) {
               console.warn('not saving dbworld', id, 'can"t grab it from db lol');

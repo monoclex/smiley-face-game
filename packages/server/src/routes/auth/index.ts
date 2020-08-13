@@ -7,6 +7,7 @@ import { Connection } from "typeorm";
 import { EmailSchema } from '../../../../api/src/schemas/Email';
 import { PasswordSchema } from '../../../../api/src/schemas/Password';
 import User from '../../database/models/Account';
+import Dependencies from "../../dependencies";
 
 const RegisterSchema = Schema({
   username: UsernameSchema,
@@ -24,8 +25,8 @@ const LoginSchema = Schema.either({
 });
 const validateLogin = LoginSchema.destruct();
 
-export default function (connection: Connection): Router {
-  const users = connection.getRepository(User);
+export default function (deps: Dependencies): Router {
+  const { accountRepo } = deps;
 
   const router = Router();
 
@@ -41,7 +42,7 @@ export default function (connection: Connection): Router {
 
     try {
       // TODO: abstract this into its own thing
-      const user = "username" in body ? await users.findOneOrFail({ username: body.username }) : await users.findOneOrFail({ email: body.email });
+      const user = "username" in body ? await accountRepo.findByUsername(body.username) : await accountRepo.findByEmail(body.email);
 
       const token = jwt.sign(
         {
@@ -69,11 +70,12 @@ export default function (connection: Connection): Router {
       return;
     }
 
-    const newUser = new User();
-    newUser.username = body.username;
-
     try {
-      await users.save(newUser);
+      await accountRepo.create({
+        username: body.username,
+        email: body.email,
+        password: body.password
+      });
     } catch (error) {
       res.status(409).send(error);
       return;

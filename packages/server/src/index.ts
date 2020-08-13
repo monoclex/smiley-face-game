@@ -4,16 +4,16 @@ import "reflect-metadata";
 import { createConnection, getConnectionOptions } from "typeorm";
 import { app } from "./expressapp";
 import routes from "./routes";
-import JwtVerifier from "./jwt/JwtVerifier";
+import Dependencies from "./dependencies";
 
 getConnectionOptions()
   .then(createConnection)
   .then(async connection => {
-    let t = new JwtVerifier("secret");
+    const dependencies = new Dependencies(connection, process.env.ACCESS_TOKEN_SECRET!);
 
     app.use(cors());
     app.use(bodyParser.json());
-    app.use('/', routes(connection, t));
+    app.use('/', routes(dependencies));
 
     app.listen(8080, () => console.log('listening'));
   })

@@ -1,18 +1,17 @@
 import { Router } from "express";
-import { Connection } from 'typeorm';
 import apiRouterFactory from "./api/v1";
 import authRouterFactory from "./auth";
 import lobbyRouter from "./lobby";
 import wsGameRouter from "./ws/game";
-import JwtVerifier from "@/jwt/JwtVerifier";
+import Dependencies from "../dependencies";
 
-export default function (connection: Connection, verifier: JwtVerifier): Router {
+export default function (deps: Dependencies): Router {
   const router = Router();
 
-  router.use('/ws/game', wsGameRouter(connection, verifier));
+  router.use('/ws/game', wsGameRouter(deps));
   router.use('/lobby', lobbyRouter);
-  router.use('/auth', authRouterFactory(connection));
-  router.use('/api/v1', apiRouterFactory(connection, verifier));
+  router.use('/auth', authRouterFactory(deps));
+  router.use('/api/v1', apiRouterFactory(deps));
 
   return router;
 }

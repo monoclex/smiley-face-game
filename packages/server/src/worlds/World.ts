@@ -33,7 +33,7 @@ export class World {
   newId = 0;
 
   constructor(
-    dbWorld: DbWorld | undefined,
+    dbWorld: Omit<DbWorld, "owner"> | undefined,
     private readonly _width: number,
     private readonly _height: number,
     readonly destroy: () => void,

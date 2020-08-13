@@ -39,7 +39,7 @@ export class BlockHandler {
   canRun = true;
 
   constructor(
-    dbWorld: DbWorld | undefined,
+    dbWorld: Omit<DbWorld, "owner"> | undefined,
     private readonly _width: number,
     private readonly _height: number,
     private readonly broadcast: BroadcastFunction,

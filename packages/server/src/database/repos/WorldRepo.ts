@@ -1,4 +1,5 @@
 import { Connection, Repository } from "typeorm";
+import { validateAccountId } from "@smiley-face-game/api/src/schemas/AccountId";
 import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
 import { Block } from "@smiley-face-game/api/schemas/Block";
 import Account from "@/database/models/Account";
@@ -38,6 +39,13 @@ export default class WorldRepo {
     return this.#repo.findOneOrFail({ id }, findOptions);
   }
 
+  /** Finds all the worlds owned by a given Account (based on the Account's Id). */
+  findOwnedBy(accountId: string): Promise<World[]> {
+    ensureValidates(validateAccountId, accountId);
+
+    return this.#repo.find({ where: { owner: { id: accountId } }});
+  }
+
   /* === creation === */
 
   create(details: WorldDetails): Promise<World> {
@@ -53,6 +61,16 @@ export default class WorldRepo {
     world.height = details.height;
     world.rawWorldData = blocks;
 
+    return this.#repo.save(world);
+  }
+
+  /* === modification === */
+
+  /**
+   * @deprecated
+   * Not actually deprecated, just highly suggested not to use until an alternative is thought about.
+   */
+  save(world: World | WorldWithoutOwner): Promise<World> {
     return this.#repo.save(world);
   }
 }

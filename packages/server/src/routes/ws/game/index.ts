@@ -10,11 +10,12 @@ import { WorldUser } from '../../../worlds/User';
 import { ValidMessage } from "../../../worlds/ValidMessage";
 import roomManager from "../../../worlds/WorldManager";
 import JwtVerifier from "@/jwt/JwtVerifier";
+import Dependencies from "@/dependencies";
 
 // TODO: too much logic in here as well
 
-export default function (connection: Connection, verifier: JwtVerifier): Router {
-  const users = connection.getRepository(User);
+export default function (deps: Dependencies): Router {
+  const { accountRepo, worldRepo, jwtVerifier } = deps;
 
   const router = Router();
   applyTo(router);
@@ -62,11 +63,11 @@ export default function (connection: Connection, verifier: JwtVerifier): Router 
   }
 
   async function handleWebsocketConnection(webSocket: WebSocket, options: WebsocketConnectionOptions) {
-    let databaseUser: User | undefined = undefined;
+    let databaseUser: Omit<User, "worlds"> | undefined = undefined;
 
     if (options.token !== undefined) {
       try {
-        const verifyResult = verifier.isValid(options.token);
+        const verifyResult = jwtVerifier.isValid(options.token);
 
         if (!verifyResult.success) {
           throw new Error("didnt verify");
@@ -74,7 +75,7 @@ export default function (connection: Connection, verifier: JwtVerifier): Router 
 
         // TODO: use schemas to confirm that tokenBody's body is type checked
         const userId: string = verifyResult.payload.aud;
-        databaseUser = await users.findOneOrFail({ id: userId });
+        databaseUser = await accountRepo.findById(userId);
       } catch (error) {
         // TODO: remove catch if it is proven that an exception won't break the entire stack
         console.error('error at verifyJwt', error);
@@ -82,7 +83,7 @@ export default function (connection: Connection, verifier: JwtVerifier): Router 
       }
     }
 
-    const room = await roomManager.openOrCreateGame(connection.getRepository(World), options.id, options.width, options.height);
+    const room = await roomManager.openOrCreateGame(worldRepo, options.id, options.width, options.height);
 
     const user = new WorldUser(webSocket, room.newId++, databaseUser);
 
