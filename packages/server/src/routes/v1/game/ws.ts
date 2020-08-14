@@ -9,7 +9,7 @@ import Dependencies from "@/dependencies";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "worldProvider" | "roomManager">;
 
-export default async function(router: expressWs.Router, deps: UsedDependencies) {
+export default function(router: expressWs.Router, deps: UsedDependencies) {
   const { authVerifier, worldProvider, roomManager } = deps;
 
   applyTo(router);
