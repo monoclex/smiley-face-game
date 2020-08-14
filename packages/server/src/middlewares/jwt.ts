@@ -1,5 +1,6 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import * as core from "express-serve-static-core";
+import extractJwt from "@/jwt/extractJwt";
 import JwtPayload from "@/jwt/JwtPayload";
 import JwtVerifier from "@/jwt/JwtVerifier";
 
@@ -21,18 +22,10 @@ export default function jwt<P extends core.Params = core.ParamsDictionary, ResBo
   return (req, res, next) => {
     const token = req.headers.authorization;
 
-    if (token === undefined) {
-      throw new TypeError("No JWT token was specified in the Authorization header.");
-    }
-
-    const validationResult = verifier.isValid(token);
-
-    if (!validationResult.success) {
-      throw new Error("The JWT token is invalid.")
-    }
+    const payload = extractJwt(verifier, token);
 
     //@ts-expect-error
-    req.jwt = validationResult.payload;
+    req.jwt = payload;
 
     //@ts-expect-error
     return jwtHandler(req, res, next);

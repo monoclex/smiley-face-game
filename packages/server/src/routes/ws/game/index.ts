@@ -4,7 +4,6 @@ import { validateWorldPacket } from '@smiley-face-game/api/networking/packets/Wo
 import { AllowJoin } from "@/worlds/AllowJoin";
 import { WorldUser } from "@/worlds/User";
 import { ValidMessage } from "@/worlds/ValidMessage";
-import { applyTo } from "@/expressapp";
 import AccountLike from "@/database/modelishs/AccountLike";
 import roomManager from "@/worlds/WorldManager";
 import Dependencies from "@/dependencies";

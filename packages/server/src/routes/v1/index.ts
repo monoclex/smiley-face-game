@@ -1,7 +1,18 @@
 import { Router } from "express";
-import jwt from "@/middlewares/jwt";
 import Dependencies from "@/dependencies";
+import authRouterFactory from "./auth";
+import gameRouterFactory from "./game";
 
+export default function (deps: Dependencies): Router {
+  const router = Router();
+
+  router.use('/auth', authRouterFactory(deps));
+  router.use('/game', gameRouterFactory(deps));
+
+  return router;
+}
+
+/*
 type UsedDependencies = Pick<Dependencies, "accountRepo" | "worldRepo" | "jwtVerifier">;
 
 export default function (deps: UsedDependencies): Router {
@@ -47,3 +58,4 @@ export default function (deps: UsedDependencies): Router {
 
   return router;
 }
+*/

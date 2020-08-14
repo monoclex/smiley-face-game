@@ -59,6 +59,14 @@ export default class RoomManager {
     }
   }
 
+  *listRooms(): Iterable<Room> {
+    for (const room of this.#rooms.values()) {
+      if (room.status === "starting" || room.status === "running") {
+        yield room;
+      }
+    }
+  }
+
   // TODO: use an actual connection class of some sort
   join(connection: undefined /* Connection */, roomId: string): Promise<Room> {
     const completion = new PromiseCompletionSource<Room>();
