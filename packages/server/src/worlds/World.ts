@@ -86,7 +86,7 @@ export class World {
       // (user not added to list yet so we can use broadcast to tell to all players except user)
       await this.broadcast({
         packetId: SERVER_PLAYER_JOIN_ID,
-        userId: user.userId,
+        playerId: user.playerId,
         username: user.username,
         isGuest: user.isGuest,
         joinLocation: user.lastPosition,
@@ -97,12 +97,12 @@ export class World {
       // tell the new user about the world
       await user.send({
         packetId: SERVER_INIT_ID,
-        sender: user.userId, // TODO: deduplicate
+        playerId: user.playerId, // TODO: deduplicate
         spawnPosition: user.lastPosition,
         size: { width: this._width, height: this._height },
         blocks: this._map.map,
         self: {
-          userId: user.userId,
+          playerId: user.playerId,
           username: user.username,
           isGuest: user.isGuest,
         }
@@ -112,7 +112,7 @@ export class World {
         // tell the new user about everyone here
         await user.send({
           packetId: SERVER_PLAYER_JOIN_ID,
-          userId: otherUser.userId,
+          playerId: otherUser.playerId,
           username: otherUser.username,
           isGuest: otherUser.isGuest,
           joinLocation: otherUser.lastPosition,
@@ -122,7 +122,7 @@ export class World {
       }
 
       // add them to the list of people
-      this.users.set(user.userId, user);
+      this.users.set(user.playerId, user);
     }
     finally {
       this._map.canRun = true;
@@ -132,7 +132,7 @@ export class World {
   }
 
   async handleLeave(user: WorldUser): Promise<void> {
-    this.users.delete(user.userId);
+    this.users.delete(user.playerId);
 
     if (this.users.size === 0) {
       this.destroy();
@@ -142,7 +142,7 @@ export class World {
     // notify everyone that the last user has left
     await this.broadcast({
       packetId: SERVER_PLAYER_LEAVE_ID,
-      userId: user.userId
+      playerId: user.playerId
     });
   }
 
@@ -173,7 +173,7 @@ export class World {
     const response: ServerMovementPacket = {
       ...packet,
       packetId: SERVER_MOVEMENT_ID,
-      sender: sender.userId,
+      playerId: sender.playerId,
     };
 
     await this.broadcast(response);
@@ -199,7 +199,7 @@ export class World {
 
     const response: ServerPickupGunPacket = {
       packetId: SERVER_PICKUP_GUN_ID,
-      sender: sender.userId,
+      playerId: sender.playerId,
     };
 
     await this.broadcast(response);
@@ -216,7 +216,7 @@ export class World {
 
     const response: ServerFireBulletPacket = {
       packetId: SERVER_FIRE_BULLET_ID,
-      sender: sender.userId,
+      playerId: sender.playerId,
       angle: packet.angle
     };
 
@@ -234,7 +234,7 @@ export class World {
     // only send a new packet if the gun's equip state changed
     if (sender.gunEquipped == packet.equipped) {
       // don't disconnect the user if they send redundant packets
-      console.warn('redundant equip packet sent by', sender.userId);
+      console.warn('redundant equip packet sent by', sender.playerId);
       return ValidMessage.IsValidMessage;
     }
 
@@ -242,7 +242,7 @@ export class World {
 
     const response: ServerEquipGunPacket = {
       packetId: SERVER_EQUIP_GUN_ID,
-      sender: sender.userId,
+      playerId: sender.playerId,
       equipped: sender.gunEquipped
     };
 

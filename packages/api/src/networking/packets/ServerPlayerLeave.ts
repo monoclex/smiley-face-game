@@ -1,10 +1,9 @@
 import Schema, { Type } from "computed-types";
-import { UserIdSchema } from "../../schemas/UserId";
+import { ServerSchema } from "./Server";
 
 export const SERVER_PLAYER_LEAVE_ID = 'SERVER_PLAYER_LEAVE';
-export const ServerPlayerLeaveSchema = Schema({
+export const ServerPlayerLeaveSchema = Schema.merge({
   packetId: SERVER_PLAYER_LEAVE_ID,
-  userId: UserIdSchema,
-});
+}, ServerSchema);
 export type ServerPlayerLeavePacket = Type<typeof ServerPlayerLeaveSchema>;
 export const validateServerPlayerLeave = ServerPlayerLeaveSchema.destruct();

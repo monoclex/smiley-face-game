@@ -138,7 +138,7 @@ export class BlockHandler {
       this.receiveQueue.push({
         ...packet,
         packetId: SERVER_BLOCK_SINGLE_ID,
-        sender: sender.userId
+        playerId: sender.playerId
       });
     }
 
@@ -179,7 +179,7 @@ export class BlockHandler {
       this.receiveQueue.push({
         ...packet,
         packetId: SERVER_BLOCK_LINE_ID,
-        sender: sender.userId
+        playerId: sender.playerId
       });
     }
 

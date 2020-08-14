@@ -178,14 +178,14 @@ export class WorldScene extends Phaser.Scene {
 
     const initAsOnJoin = {
       packetId: SERVER_PLAYER_JOIN_ID,
-      userId: this.initMessage.self.userId,
+      playerId: this.initMessage.self.playerId,
       joinLocation: this.initMessage.spawnPosition,
       hasGun: false,
       gunEquipped: false,
       username: this.initMessage.self.username,
       isGuest: this.initMessage.self.isGuest,
     };
-    this.mainPlayerId = this.initMessage.sender;
+    this.mainPlayerId = this.initMessage.playerId;
     this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);
 
     // add support to recognize other players
@@ -259,15 +259,15 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onPlayerJoin(event) {
-    const { userId } = event;
+    const { playerId } = event;
     const player = new Player(this, event);
-    this.players.set(userId, player);
+    this.players.set(playerId, player);
   }
 
   onPlayerLeave(event) {
-    const { userId } = event;
+    const { playerId } = event;
 
-    const player = this.players.get(userId);
+    const player = this.players.get(playerId);
 
     // TODO: these probably aren't needed, but i'm doing it for good measure since this game is in its early stages
     if (player === undefined) {
@@ -275,16 +275,16 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
-    this.players.delete(userId);
+    this.players.delete(playerId);
 
     player.destroy();
   }
 
   onMovement(event) {
-    const { sender, position, inputs } = event;
-    if (sender === this.mainPlayerId) return;
+    const { playerId, position, inputs } = event;
+    if (playerId === this.mainPlayerId) return;
 
-    const player = this.players.get(sender);
+    const player = this.players.get(playerId);
 
     if (player === undefined) {
       console.warn('received movement from non existing player');
@@ -295,10 +295,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onPickupGun(event) {
-    const { sender } = event;
-    if (sender === this.mainPlayerId) return;
+    const { playerId } = event;
+    if (playerId === this.mainPlayerId) return;
 
-    const player = this.players.get(sender);
+    const player = this.players.get(playerId);
 
     if (player === undefined) {
       console.warn('received onPickupGun from non existing player');
@@ -309,10 +309,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onFireBullet(event) {
-    const { sender, angle } = event;
-    if (sender === this.mainPlayerId) return;
+    const { playerId, angle } = event;
+    if (playerId === this.mainPlayerId) return;
 
-    const player = this.players.get(sender);
+    const player = this.players.get(playerId);
 
     if (player === undefined) {
       console.warn('received onFireBullet from non existing player');
@@ -324,10 +324,10 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onEquipGun(event) {
-    const { sender, equipped } = event;
-    if (sender === this.mainPlayerId) return;
+    const { playerId, equipped } = event;
+    if (playerId === this.mainPlayerId) return;
 
-    const player = this.players.get(sender);
+    const player = this.players.get(playerId);
 
     if (player === undefined) {
       console.warn('received onEquipGun from non existing player');

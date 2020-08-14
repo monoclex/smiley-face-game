@@ -15,7 +15,7 @@ export const ServerInitSchema = Schema.merge({
   self: Schema({
     username: UsernameSchema,
     isGuest: boolean,
-    userId: UserIdSchema
+    playerId: UserIdSchema
   })
 }, ServerSchema);
 export type ServerInitPacket = Type<typeof ServerInitSchema>;

@@ -6,7 +6,7 @@ import User from '../database/models/Account';
 export class WorldUser {
   constructor(
     private readonly _webSocket: WebSocket,
-    readonly userId: UserId,
+    readonly playerId: UserId,
     readonly databaseUser?: Omit<User, "worlds">,
   ) {
     // TODO: decouple from client impl
@@ -22,7 +22,7 @@ export class WorldUser {
       return this.databaseUser.username;
     }
     else {
-      return `Guest${this.userId}`;
+      return `Guest${this.playerId}`;
     }
   }
 
