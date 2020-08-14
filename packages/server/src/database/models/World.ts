@@ -11,19 +11,13 @@ export default class World {
   @ManyToOne(type => Account, author => author.worlds)
   owner: Account;
 
-  @Column({
-    nullable: false,
-  })
+  @Column({ nullable: false })
   width!: number;
 
-  @Column({
-    nullable: false,
-  })
+  @Column({ nullable: false })
   height!: number;
 
-  @Column({
-    type: "text",
-  })
+  @Column({ type: "text" })
   rawWorldData!: string;
 
   get worldData(): Block[][][] {

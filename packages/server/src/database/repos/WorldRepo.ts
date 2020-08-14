@@ -6,6 +6,7 @@ import AccountLike from "@/database/modelishs/AccountLike";
 import WorldLike from "@/database/modelishs/WorldLike";
 import Account from "@/database/models/Account";
 import World from "@/database/models/World";
+import generateWorld from "@/worlds/generateWorld";
 import ensureValidates from "@/ensureValidates";
 
 type QueryOptions = { withOwner: boolean };
@@ -77,7 +78,6 @@ export default class WorldRepo {
   }
 }
 
-// TODO: calculate what blocks a world has
 function emptyWorld(details: WorldDetails): string {
-  return JSON.stringify({});
+  return generateWorld(details.width, details.height);
 }

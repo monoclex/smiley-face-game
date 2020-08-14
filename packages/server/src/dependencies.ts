@@ -3,7 +3,7 @@ import AccountRepo from "@/database/repos/AccountRepo";
 import WorldRepo from "@/database/repos/WorldRepo";
 import JwtVerifier from "@/jwt/JwtVerifier";
 import JwtProvider from "@/jwt/JwtProvider";
-import roomManager, { WorldManager } from "@/worlds/WorldManager"; // TODO: fix this
+import RoomManager from "./worlds/RoomManager";
 
 export default class Dependencies {
   constructor(connection: Connection, jwtSecret: string) {
@@ -11,12 +11,12 @@ export default class Dependencies {
     this.worldRepo = new WorldRepo(connection);
     this.jwtVerifier = new JwtVerifier(jwtSecret);
     this.jwtProvider = new JwtProvider(jwtSecret);
-    this.roomManager = roomManager; // TODO: fix this
+    this.roomManager = new RoomManager(this);
   }
 
   readonly accountRepo: AccountRepo;
   readonly worldRepo: WorldRepo;
   readonly jwtVerifier: JwtVerifier;
   readonly jwtProvider: JwtProvider;
-  readonly roomManager: WorldManager;
+  readonly roomManager: RoomManager;
 }

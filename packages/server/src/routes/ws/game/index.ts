@@ -5,7 +5,7 @@ import { AllowJoin } from "@/worlds/AllowJoin";
 import { WorldUser } from "@/worlds/User";
 import { ValidMessage } from "@/worlds/ValidMessage";
 import { applyTo } from "@/expressapp";
-import Account from "@/database/models/Account";
+import AccountLike from "@/database/modelishs/AccountLike";
 import roomManager from "@/worlds/WorldManager";
 import Dependencies from "@/dependencies";
 
@@ -61,7 +61,7 @@ export default function (deps: UsedDependencies): Router {
   }
 
   async function handleWebsocketConnection(webSocket: WebSocket, options: WebsocketConnectionOptions) {
-    let databaseUser: Omit<Account, "worlds"> | undefined = undefined;
+    let databaseUser: AccountLike | undefined = undefined;
 
     if (options.token !== undefined) {
       try {
