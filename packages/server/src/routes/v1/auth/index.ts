@@ -1,15 +1,13 @@
 import { Router } from "express";
-import { Login, validateLogin } from "@smiley-face-game/api/schemas/web/auth/Login";
+import { validateLogin } from "@smiley-face-game/api/schemas/web/auth/Login";
 import { validateRegister } from "@smiley-face-game/api/schemas/web/auth/Register";
 import schema from "@/middlewares/schema";
-import AccountRepo from "@/database/repos/AccountRepo";
-import AccountLike from "@/database/modelishs/AccountLike";
 import Dependencies from "@/dependencies";
 
-type UsedDependencies = Pick<Dependencies, "accountRepo" | "jwtProvider">;
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider">;
 
 export default function (deps: UsedDependencies): Router {
-  const { accountRepo, jwtProvider } = deps;
+  const { accountRepo, authProvider } = deps;
 
   const router = Router();
 
@@ -24,7 +22,7 @@ export default function (deps: UsedDependencies): Router {
       }
 
       // TODO: move this outside the try catch?
-      const token = jwtProvider.allowAuthentication(account.id);
+      const token = authProvider.allowAuthentication(account.id);
   
       res.json({ token });
     } catch (error) {

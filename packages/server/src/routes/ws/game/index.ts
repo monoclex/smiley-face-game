@@ -1,3 +1,4 @@
+/*
 import { Router } from "express";
 import * as WebSocket from 'ws';
 import { validateWorldPacket } from '@smiley-face-game/api/networking/packets/WorldPacket';
@@ -7,12 +8,11 @@ import { ValidMessage } from "@/worlds/ValidMessage";
 import AccountLike from "@/database/modelishs/AccountLike";
 import roomManager from "@/worlds/WorldManager";
 import Dependencies from "@/dependencies";
-
 // TODO: too much logic in here as well
-type UsedDependencies = Pick<Dependencies, "accountRepo" | "worldRepo" | "jwtVerifier">;
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "worldRepo" | "authVerifier">;
 
 export default function (deps: UsedDependencies): Router {
-  const { accountRepo, worldRepo, jwtVerifier } = deps;
+  const { accountRepo, worldRepo, authVerifier } = deps;
 
   const router = Router();
   applyTo(router);
@@ -64,7 +64,7 @@ export default function (deps: UsedDependencies): Router {
 
     if (options.token !== undefined) {
       try {
-        const verifyResult = jwtVerifier.isValid(options.token);
+        const verifyResult = authVerifier.isValid(options.token);
 
         if (!verifyResult.success) {
           throw new Error("didnt verify");
@@ -118,4 +118,4 @@ export default function (deps: UsedDependencies): Router {
   }
 
   return router;
-}
+}*/

@@ -1,9 +1,9 @@
 import * as jwt from "jsonwebtoken";
 import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
 import ensureValidates from "@/ensureValidates";
-import JwtPayload from "./JwtPayload";
+import AuthPayload from "./AuthPayload";
 
-export default class JwtProvider {
+export default class AuthProvider {
   readonly #secret: string;
 
   constructor(secret: string) {
@@ -17,10 +17,10 @@ export default class JwtProvider {
   allowAuthentication(accountId: string): string {
     ensureValidates(validateAccountId, accountId);
 
-    const payload: JwtPayload = {
+    const payload: AuthPayload = {
       ver: 1,
       aud: accountId,
-      can: ["authenticate"]
+      can: ["play"]
     };
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 hour" });

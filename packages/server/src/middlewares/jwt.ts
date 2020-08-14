@@ -1,11 +1,10 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import * as core from "express-serve-static-core";
 import extractJwt from "@/jwt/extractJwt";
-import JwtPayload from "@/jwt/JwtPayload";
 import JwtVerifier from "@/jwt/JwtVerifier";
 
-type JwtHandler<P extends core.Params = core.ParamsDictionary, ResBody = any, ReqBody = any, ReqQuery = core.Query>
-  = (req: Request<P, ResBody, ReqBody, ReqQuery> & { jwt: JwtPayload }, res: Response<ResBody>, next: NextFunction) => any;
+type JwtHandler<TPayload, P extends core.Params = core.ParamsDictionary, ResBody = any, ReqBody = any, ReqQuery = core.Query>
+  = (req: Request<P, ResBody, ReqBody, ReqQuery> & { jwt: TPayload }, res: Response<ResBody>, next: NextFunction) => any;
 
 /**
  * Offers a strongly typed way to apply a "proxy" middleware to the request pipeline to make accessing JWT payload easier.
@@ -15,9 +14,9 @@ type JwtHandler<P extends core.Params = core.ParamsDictionary, ResBody = any, Re
  * @param verifier The JwtVerifier to use when verifying JWT tokens.
  * @param jwtHandler The handler to run when a valid JWT token is passed.
  */
-export default function jwt<P extends core.Params = core.ParamsDictionary, ResBody = any, ReqBody = any, ReqQuery = core.Query>(
-  verifier: JwtVerifier,
-  jwtHandler: JwtHandler<P, ResBody, ReqBody, ReqQuery>
+export default function jwt<TPayload, P extends core.Params = core.ParamsDictionary, ResBody = any, ReqBody = any, ReqQuery = core.Query>(
+  verifier: JwtVerifier<TPayload>,
+  jwtHandler: JwtHandler<TPayload, P, ResBody, ReqBody, ReqQuery>
 ): RequestHandler {
   return (req, res, next) => {
     const token = req.headers.authorization;

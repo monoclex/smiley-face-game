@@ -7,14 +7,14 @@ import schema from "@/middlewares/schema";
 import { applyTo } from "@/expressapp";
 import Dependencies from "@/dependencies";
 
-type UsedDependencies = Pick<Dependencies, "jwtVerifier" | "roomManager">;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "worldProvider" | "roomManager">;
 
 export default async function(router: expressWs.Router, deps: UsedDependencies) {
-  const { jwtVerifier, roomManager } = deps;
+  const { authVerifier, worldProvider, roomManager } = deps;
 
   applyTo(router);
 
-  router.post("/ws", jwt(jwtVerifier, schema(validateWorldDetails, async (req, res) => {
+  router.post("/ws", jwt(authVerifier, schema(validateWorldDetails, async (req, res) => {
     // TODO: somehow get the typing above to work nicely, for now this is an alright workaround
     //@ts-expect-error
     const jwt: JwtPayload = req.jwt;

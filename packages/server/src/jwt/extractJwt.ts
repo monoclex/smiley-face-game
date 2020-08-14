@@ -1,7 +1,6 @@
-import JwtPayload from "./JwtPayload";
 import JwtVerifier from "./JwtVerifier";
 
-export default function extractJwt(verifier: JwtVerifier, token: string | undefined): JwtPayload {
+export default function extractJwt<TPayload>(verifier: JwtVerifier<TPayload>, token: string | undefined): TPayload {
   if (token === undefined) {
     throw new TypeError("No JWT token was specified in the Authorization header.");
   }

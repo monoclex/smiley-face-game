@@ -1,22 +1,24 @@
 import * as jwt from "jsonwebtoken";
-import { isA } from "ts-type-checked";
-import JwtPayload from "./JwtPayload";
 
-interface PassedValidationResult {
+interface PassedValidationResult<TPayload> {
   readonly success: true;
-  readonly payload: JwtPayload;
+  readonly payload: TPayload;
 }
 
 interface FailedValidationResult {
   readonly success: false;
 }
 
-type ValidationResult = PassedValidationResult | FailedValidationResult;
+type ValidationResult<TPayload> = PassedValidationResult<TPayload> | FailedValidationResult;
 
-export default class JwtVerifier {
+type Validator<TPayload> = (input: unknown) => input is TPayload;
+
+export default class JwtVerifier<TPayload> {
+  readonly #validator: Validator<TPayload>;
   readonly #secret: string;
 
-  constructor(secret: string) {
+  constructor(validator: Validator<TPayload>, secret: string) {
+    this.#validator = validator;
     this.#secret = secret;
   }
 
@@ -24,11 +26,11 @@ export default class JwtVerifier {
    * Checks if a token is valid, and type checks the payload using ts-type-checked.
    * @param token The token to validate.
    */
-  isValid(token: string): ValidationResult {
+  isValid(token: string): ValidationResult<TPayload> {
     try {
       const payload = jwt.verify(token, this.#secret);
 
-      if (!isA<JwtPayload>(payload)) {
+      if (!this.#validator(payload)) {
         throw new TypeError("JWT Payload is of an invalid type.");
       }
 
