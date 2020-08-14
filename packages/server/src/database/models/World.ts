@@ -9,7 +9,10 @@ export default class World {
   id!: string;
 
   @ManyToOne(type => Account, author => author.worlds)
-  owner: Account;
+  owner!: Account;
+
+  @Column({ nullable: false, length: 64 })
+  name!: string;
 
   @Column({ nullable: false })
   width!: number;
@@ -26,13 +29,5 @@ export default class World {
 
   set worldData(value: Block[][][]) {
     this.rawWorldData = JSON.stringify(value);
-  }
-
-  constructor(
-    data: Block[][][],
-    owner: Account,
-  ) {
-    this.owner = owner;
-    this.worldData = data;
   }
 }

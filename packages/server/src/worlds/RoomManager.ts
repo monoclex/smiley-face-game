@@ -1,44 +1,22 @@
-import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
-import Dependencies from "@/dependencies";
-import ensureValidates from "@/ensureValidates";
-import MPSC from "@/concurrency/MPSC";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
+import MPSC from "@/concurrency/MPSC";
+import Dependencies from "@/dependencies";
 import Room from "./Room";
-import { exception } from "console";
 
-//! The RoomManager *must* be a thread-safe class, (or in JS's case, concurrently-safe?) and its job is to provide rooms to people who want
-//! to join a room, safely.
-//!
-//! The RoomManager achieves this by using message passing. When a room is requested, a message is sent to it to start up that room.
-//! Messages go from the "main event loop" of the RoomManager to individual RoomControllers. Each RoomController has it's own event loop,
-//! and will start or stop rooms as it sees fit, and send control signals back to the callers of each message.
-//!
-//! By architecting in this manner, it makes it immensely easy to move this process out of the main process and into its own process or some
-//! other parallel mechanism. It also greatly improves code quality, as there is less locks and the flow of dependenceis is easily visible.
-
-type RoomManagerMessage = JoinRoomMessage | LeaveRoomMessage;
-
-interface JoinRoomMessage {
-  action: "join";
+interface JoinRoomRequest {
   roomId: string;
   accountId: string;
   completion: PromiseCompletionSource<Room>;
 }
 
-interface LeaveRoomMessage {
-  action: "leave";
-  roomId: string;
-  playerId: number;
-}
-
 export default class RoomManager {
   readonly #deps: Dependencies;
-  readonly #queue: MPSC<RoomManagerMessage>;
+  readonly #queue: MPSC<JoinRoomRequest>;
   readonly #rooms: Map<string, Room>;
 
   constructor(deps: Dependencies) {
     this.#deps = deps;
-    this.#queue = new MPSC<RoomManagerMessage>();
+    this.#queue = new MPSC<JoinRoomRequest>();
     this.#rooms = new Map<string, Room>();
 
     this.lifetime();
@@ -49,23 +27,35 @@ export default class RoomManager {
       const message = await this.#queue.next();
       const room = this.roomFor(message.roomId);
 
-      if (message.action === "join") {
-        room.queue.send({
-          action: "join",
-          accountId: message.accountId,
-          completion: message.completion,
-          clientInbox: undefined as unknown as MPSC<void>, // TODO: proper queue working
-        })
+      if (room.status === "starting") {
+        // have to wait until room is running to allow players in
+        await room.onRunning.promise;
       }
-      else if (message.action === "leave") {
-        room.queue.send({
-          action: "leave",
-          playerId: message.playerId,
-        })
+
+      if (room.status === "running") {
+        // a running room can easily accept players
+        // TODO: give player to room
+        continue;
       }
-      else {
-        throw new Error("unhandled internal roommanager message");
+      
+      if (room.status === "stopping") {
+        // have to wait for the room to stop before we can instantiate a new room in the map
+        await room.onStopped.promise;
       }
+
+      if (room.status === "stopped") {
+        // generate a new room
+        this.#rooms.delete(message.roomId);
+        const room = this.roomFor(message.roomId);
+
+        // must wait for the room to start
+        await room.onRunning.promise;
+
+        // TODO: give player to room
+        continue;
+      }
+
+      console.warn('possibly unhandled message', message);
     }
   }
 
@@ -74,7 +64,6 @@ export default class RoomManager {
     const completion = new PromiseCompletionSource<Room>();
 
     this.#queue.send({
-      action: "join",
       roomId,
       accountId: "",
       completion,
@@ -88,7 +77,8 @@ export default class RoomManager {
 
     // if we don't have a room, we can make one
     if (room === undefined) {
-      const newRoom = new Room(id, this.#deps);
+      // TODO: determine if player is loading one of their rooms
+      const newRoom = new Room({ id, hintedWidth: 25, hintedHeight: 25, hasDatabaseEntry: false }, this.#deps);
       this.#rooms.set(id, newRoom);
       return newRoom;
     }
