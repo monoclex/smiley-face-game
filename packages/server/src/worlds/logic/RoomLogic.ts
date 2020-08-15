@@ -4,6 +4,7 @@ import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
 import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import Connection from "@/websockets/Connection";
+import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
 import Dependencies from "@/dependencies";
 import packetLookup from "./packetLookup";
 
@@ -24,6 +25,7 @@ type UsedDependencies = Pick<Dependencies, never>;
 
 export default class RoomLogic {
   readonly deps: UsedDependencies;
+  readonly blockHandler: BlockHandler;
 
   #onEmpty: PromiseCompletionSource<void>;
   #shouldBeDead: boolean = false;
@@ -32,6 +34,7 @@ export default class RoomLogic {
 
   constructor(onEmpty: PromiseCompletionSource<void>, blocks: any, deps: UsedDependencies) {
     this.deps = deps;
+    this.blockHandler = new BlockHandler(blocks, 50, 50);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
   }

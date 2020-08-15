@@ -17,6 +17,8 @@ export default class Connection {
   hasGun: boolean = false;
   gunEquipped: boolean = false;
 
+  get canPlaceBlocks(): boolean { return this.hasGun ? !this.gunEquipped : true; }
+
   constructor(
     readonly webSocket: WebSocket,
     readonly authTokenPayload: AuthPayload,
@@ -38,7 +40,7 @@ export default class Connection {
     this.connected = true;
     const validator = room.validateWorldPacket;
 
-    this.webSocket.on("message", (data) => {
+    this.webSocket.on("message", async (data) => {
       if (!this.connected) {
         console.warn("received message despite websocket being disconnected");
         return;
@@ -64,7 +66,10 @@ export default class Connection {
         return;
       }
 
-      room.onMessage(this, packet);
+      const result = await room.onMessage(this, packet);
+      if (result === false) {
+        this.kill("sent an invalid packet");
+      }
     });
 
     this.webSocket.on("error", (error) => {

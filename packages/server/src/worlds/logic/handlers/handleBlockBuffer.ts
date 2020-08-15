@@ -3,5 +3,10 @@ import Connection from "@/websockets/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 
 export default function handleBlockBuffer(packet: BlockBufferPacket, [sender, logic]: [Connection, RoomLogic]) {
-  throw new Error("not implemented");
+  if (!sender.canPlaceBlocks) return false;
+
+  const sendPacket = logic.blockHandler.handleBuffer(packet, sender);
+  if (sendPacket !== undefined) {
+    logic.broadcast(sendPacket);
+  }
 }
