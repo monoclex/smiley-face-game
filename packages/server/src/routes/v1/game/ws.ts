@@ -11,6 +11,7 @@ import Room from "@/worlds/Room";
 import RoomManager from "@/worlds/RoomManager";
 import { applyTo } from "@/expressapp";
 import Dependencies from "@/dependencies";
+import Connection from "@/websockets/Connection";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "worldProvider" | "worldVerifier" | "roomManager">;
 
@@ -47,13 +48,16 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
       throw new Error("`token`/`world` must be a string token.");
     }
 
-    const authToken = extractJwt(authVerifier, token);
-    const worldToken = extractJwt(worldVerifier, world);
+    const authTokenPayload = extractJwt(authVerifier, token);
+    const worldTokenPayload = extractJwt(worldVerifier, world);
 
-    if (!canJoinWorld(authToken)) {
+    if (!canJoinWorld(authTokenPayload)) {
       throw new Error("Missing permission to play.");
     }
 
-    return roomManager.join(undefined, worldToken.det);
+    const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
+    const room = await roomManager.join(connection, worldTokenPayload.det);
+
+    await connection.play(room);
   });
 }

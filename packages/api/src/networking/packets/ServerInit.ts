@@ -8,7 +8,7 @@ import { ServerSchema } from './Server';
 
 export const SERVER_INIT_ID = 'SERVER_INIT';
 export const ServerInitSchema = Schema.merge({
-  packetId: SERVER_INIT_ID,
+  packetId: SERVER_INIT_ID as typeof SERVER_INIT_ID,
   size: SizeSchema,
   spawnPosition: PlayerPositionSchema,
   blocks: array.of(array.of(array.of(BlockSchema))),

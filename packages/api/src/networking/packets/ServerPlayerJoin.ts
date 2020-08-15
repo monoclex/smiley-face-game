@@ -5,7 +5,7 @@ import { ServerSchema } from "./Server";
 
 export const SERVER_PLAYER_JOIN_ID = 'SERVER_PLAYER_JOIN';
 export const ServerPlayerJoinSchema = Schema.merge({
-  packetId: SERVER_PLAYER_JOIN_ID,
+  packetId: SERVER_PLAYER_JOIN_ID as typeof SERVER_PLAYER_JOIN_ID,
   username: UsernameSchema,
   isGuest: boolean,
   joinLocation: PlayerPositionSchema,

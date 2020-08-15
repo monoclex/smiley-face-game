@@ -6,7 +6,7 @@ import { ServerBlockSingleSchema } from './ServerBlockSingle';
 // the reason we don't have the sender in the block buffer packet is so we can glob up all total packets
 export const SERVER_BLOCK_BUFFER_ID = 'SERVER_BLOCK_BUFFER';
 export const ServerBlockBufferSchema = Schema({
-  packetId: SERVER_BLOCK_BUFFER_ID,
+  packetId: SERVER_BLOCK_BUFFER_ID as typeof SERVER_BLOCK_BUFFER_ID,
   blocks: array.of(Schema.either(ServerBlockSingleSchema, ServerBlockLineSchema))
 });
 export type ServerBlockBufferPacket = Type<typeof ServerBlockBufferSchema>;

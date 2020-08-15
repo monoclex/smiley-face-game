@@ -5,7 +5,7 @@ import { ServerSchema } from "./Server";
 
 export const SERVER_MOVEMENT_ID = 'SERVER_MOVEMENT';
 export const ServerMovementSchema = Schema.merge({
-  packetId: SERVER_MOVEMENT_ID,
+  packetId: SERVER_MOVEMENT_ID as typeof SERVER_MOVEMENT_ID,
   position: PlayerPositionSchema,
   inputs: InputsSchema,
 }, ServerSchema);

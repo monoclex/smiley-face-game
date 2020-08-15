@@ -5,7 +5,7 @@ import { TileLayerSchema } from "../../schemas/TileLayer";
 
 export const BLOCK_SINGLE_ID = 'BLOCK_SINGLE';
 export const BlockSingleSchema = Schema({
-  packetId: BLOCK_SINGLE_ID,
+  packetId: BLOCK_SINGLE_ID as typeof BLOCK_SINGLE_ID,
   position: BlockPositionSchema,
   layer: TileLayerSchema,
   id: TileIdSchema,

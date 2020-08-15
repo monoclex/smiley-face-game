@@ -6,7 +6,7 @@ import { ServerSchema } from './Server';
 
 export const SERVER_BLOCK_LINE_ID = 'SERVER_BLOCK_LINE';
 export const ServerBlockLineSchema = Schema.merge({
-  packetId: SERVER_BLOCK_LINE_ID,
+  packetId: SERVER_BLOCK_LINE_ID as typeof SERVER_BLOCK_LINE_ID,
   start: BoundlessBlockPositionSchema,
   end: BoundlessBlockPositionSchema,
   layer: TileLayerSchema,

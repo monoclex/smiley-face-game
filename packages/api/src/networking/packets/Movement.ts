@@ -4,7 +4,7 @@ import { PlayerPositionSchema } from "../../schemas/PlayerPosition";
 
 export const MOVEMENT_ID = 'MOVEMENT';
 export const MovementSchema = Schema({
-  packetId: MOVEMENT_ID,
+  packetId: MOVEMENT_ID as typeof MOVEMENT_ID,
   position: PlayerPositionSchema,
   inputs: InputsSchema,
 });

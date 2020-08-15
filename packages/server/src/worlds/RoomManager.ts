@@ -1,13 +1,14 @@
 import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import MPSC from "@/concurrency/MPSC";
+import Connection from "@/websockets/Connection";
 import Dependencies from "@/dependencies";
 import UuidGenerator from "@/UuidGenerator";
 import Room from "./Room";
 
 interface JoinRoomRequest {
-  accountId: string;
-  room: WorldDetails;
+  connection: Connection;
+  roomDetails: WorldDetails;
   completion: PromiseCompletionSource<Room>;
 }
 
@@ -34,16 +35,18 @@ export default class RoomManager {
         yield room;
       }
     }
+    
+    for (const room of this.#dynamicRooms.values()) {
+      if (room.status === "starting" || room.status === "running") {
+        yield room;
+      }
+    }
   }
 
-  join(connection: undefined /* Connection */, details: WorldDetails): Promise<Room> {
+  join(connection: Connection, roomDetails: WorldDetails): Promise<Room> {
     const completion = new PromiseCompletionSource<Room>();
 
-    this.#queue.send({
-      accountId: "",
-      room: details,
-      completion,
-    })
+    this.#queue.send({ connection, roomDetails, completion });
 
     return completion.promise;
   }
@@ -51,7 +54,7 @@ export default class RoomManager {
   private async lifetime() {
     while (true) {
       const message = await this.#queue.next();
-      const room = this.roomFor(message.room);
+      const room = this.roomFor(message.roomDetails);
 
       if (room.status === "starting") {
         // have to wait until room is running to allow players in
@@ -60,7 +63,7 @@ export default class RoomManager {
 
       if (room.status === "running") {
         // a running room can easily accept players
-        // TODO: give player to room
+        message.completion.resolve(room);
         continue;
       }
       
@@ -72,12 +75,13 @@ export default class RoomManager {
       if (room.status === "stopped") {
         // generate a new room
         this.#savedRooms.delete(room.id);
-        const newRoom = this.roomFor(message.room);
+        const newRoom = this.roomFor(message.roomDetails);
 
         // must wait for the room to start
         await newRoom.onRunning.promise;
 
-        // TODO: give player to room
+        // TODO: should we reuse the code in the "running" case?
+        message.completion.resolve(room);
         continue;
       }
 
@@ -108,7 +112,10 @@ export default class RoomManager {
         roomId = this.#generator.genIdForDynamicWorld();
 
         // if this ever happens, need to implement more stuff :v (uuid v5 namespace stuff maybe)
-        if (this.#dynamicRooms.has(roomId)) throw new Error("UUID collision, is something wrong?");
+        if (this.#dynamicRooms.has(roomId)) {
+          console.error("UUID collision - it's time to implement v5 :(");
+          throw new Error("UUID collision, is something wrong?");
+        }
       }
 
       details.id = roomId;

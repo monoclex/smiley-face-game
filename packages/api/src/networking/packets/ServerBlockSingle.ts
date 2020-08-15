@@ -7,7 +7,7 @@ import { ServerSchema } from "./Server";
 export const SERVER_BLOCK_SINGLE_ID = 'SERVER_BLOCK_SINGLE';
 export const ServerBlockSingleSchema = Schema.merge({
   // TODO: figure out how to change packetId without remaking entire schema
-  packetId: SERVER_BLOCK_SINGLE_ID,
+  packetId: SERVER_BLOCK_SINGLE_ID as typeof SERVER_BLOCK_SINGLE_ID,
   position: BlockPositionSchema,
   layer: TileLayerSchema,
   id: TileIdSchema,
