@@ -1,4 +1,4 @@
-import { ServerPlayerJoinPacket } from '@smiley-face-game/api/src/networking/packets/ServerPlayerJoin';
+import { ServerPlayerJoinPacket } from '@smiley-face-game/api/packets/ServerPlayerJoin';
 import { WorldScene } from "../WorldScene";
 import { captureInputs, inputsDiffer, InputState } from './InputState';
 import MultiKey from "./MultiKey";

@@ -1,6 +1,6 @@
-import { bresenhamsLine } from "@smiley-face-game/api/src/misc";
-import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/api/src/schemas/TileLayer";
+import { bresenhamsLine } from "@smiley-face-game/api/misc";
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 import { toClientTileId } from "../../../client/toClientTileId";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Config";
 import { WorldScene } from "../WorldScene";

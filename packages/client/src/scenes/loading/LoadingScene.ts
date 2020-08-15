@@ -1,5 +1,5 @@
-import { NetworkClient } from "@smiley-face-game/api/src/networking/NetworkClient";
 import { loadAll } from "../../assets/assets";
+import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import { api } from "../../isProduction";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
 import { LoadingSceneData } from "./LoadingSceneData";

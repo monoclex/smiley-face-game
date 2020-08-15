@@ -11,6 +11,13 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "baseUrl": "./",
+    "paths": {
+      "@smiley-face-game/api/*": ["../api/src/*"],
+      "@/*": ["./src/*"]
+    },
+    "rootDirs": ["src"],
   }
 }

@@ -1,6 +1,6 @@
-import { Block } from '@smiley-face-game/api/src/schemas/Block';
-import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
-import { swapLayer, TileLayer } from "@smiley-face-game/api/src/schemas/TileLayer";
+import { Block } from '@smiley-face-game/api/schemas/Block';
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import { swapLayer, TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 import { WorldScene } from "../WorldScene";
 
 export function sampleBlock(mapData: Block[][][], x: number, y: number, shiftHeld?: boolean): { id: TileId, layer: TileLayer } {

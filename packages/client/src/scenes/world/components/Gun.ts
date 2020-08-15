@@ -6,7 +6,7 @@ const WIDTH_OF_GUN = 40;
 
 export class Gun {
 
-  equipped: boolean;
+  equipped!: boolean;
   firing = false;
   angle = 0;
 

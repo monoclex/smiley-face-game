@@ -1,4 +1,4 @@
-import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
 
 /**
  * Converts a TileId as represented on the network to the appropriate value for the client.

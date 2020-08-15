@@ -1,4 +1,4 @@
-import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
 
 export const TILE_WIDTH = 32;
 export const TILE_HEIGHT = 32;

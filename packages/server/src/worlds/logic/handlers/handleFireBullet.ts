@@ -1,7 +1,7 @@
 import { FireBulletPacket } from "@smiley-face-game/api/packets/FireBullet";
 import Connection from "@/worlds/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/src/packets/ServerFireBullet";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
 
 export default function handleFireBullet(packet: FireBulletPacket, [sender, logic]: [Connection, RoomLogic]) {
   // need to have a gun to shoot

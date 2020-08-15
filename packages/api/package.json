@@ -6,7 +6,8 @@
     "lib": "./dist"
   },
   "scripts": {
-    "build:server": "yarn tsc --project . --module commonjs"
+    "build:server": "yarn tsc --project . --module commonjs",
+    "build:client": "yarn tsc --project ."
   },
   "dependencies": {
     "computed-types": "^1.1.0"

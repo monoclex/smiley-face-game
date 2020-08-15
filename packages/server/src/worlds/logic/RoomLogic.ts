@@ -1,5 +1,5 @@
 import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/src/packets/ServerPlayerLeave";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
 import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
 import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";

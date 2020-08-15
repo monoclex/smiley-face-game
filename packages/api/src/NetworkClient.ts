@@ -1,5 +1,5 @@
-import { TileId } from '@smiley-face-game/api/src/schemas/TileId';
-import { TileLayer } from '@smiley-face-game/api/src/schemas/TileLayer';
+import { TileId } from '@smiley-face-game/api/schemas/TileId';
+import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
 import { BlockLinePacket, BLOCK_LINE_ID } from './packets/BlockLine';
 import { BlockSinglePacket, BLOCK_SINGLE_ID } from './packets/BlockSingle';
 import { EquipGunPacket, EQUIP_GUN_ID } from './packets/EquipGun';
@@ -68,7 +68,7 @@ export class NetworkClient {
   }
 
   readonly events: NetworkEvents;
-  private _pause: boolean;
+  private _pause!: boolean;
   private _buffer: MessageEvent[];
 
   private constructor(

@@ -1,4 +1,4 @@
-import { TileId } from '@smiley-face-game/api/src/schemas/TileId';
+import { TileId } from '@smiley-face-game/api/schemas/TileId';
 
 // TODO: merge in with libcore?
 export class Block {

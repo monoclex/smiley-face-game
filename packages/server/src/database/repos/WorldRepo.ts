@@ -1,5 +1,5 @@
 import { Connection, Repository } from "typeorm";
-import { validateAccountId } from "@smiley-face-game/api/src/schemas/AccountId";
+import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
 import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
 import { Block } from "@smiley-face-game/api/schemas/Block";
 import AccountLike from "@/database/modelishs/AccountLike";
