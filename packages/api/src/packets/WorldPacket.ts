@@ -7,7 +7,7 @@ import { EquipGunSchema } from "./EquipGun";
 import { FireBulletSchema } from "./FireBullet";
 import { MovementSchema } from "./Movement";
 import { PickupGunSchema } from './PickupGun';
-import { ServerBlockBufferSchema } from "./ServerBlockBuffer";
+import { ServerBlockBufferSchema, serverBlockBuffer } from "./ServerBlockBuffer";
 import { ServerBlockLineSchema } from "./ServerBlockLine";
 import { serverBlockSingle } from "./ServerBlockSingle";
 import { ServerEquipGunSchema } from "./ServerEquipGun";
@@ -23,6 +23,10 @@ export type WorldPacketValidator = ReturnType<typeof worldPacket>["validateWorld
 export type WorldPacket = Type<WorldPacketSchema>;
 
 export function worldPacket(blockPositionSchema: BlockPositionSchema) {
+  const BlockSingleSchema = blockSingle(blockPositionSchema).BlockSingleSchema;
+  const ServerBlockSingleSchema = serverBlockSingle(blockPositionSchema).ServerBlockSingleSchema;
+  const ServerBlockBufferSchema = serverBlockBuffer(ServerBlockSingleSchema).ServerBlockBufferSchema;
+
   const WorldPacketSchema = Schema.either(
     Schema.either(
       ServerInitSchema,
@@ -38,7 +42,7 @@ export function worldPacket(blockPositionSchema: BlockPositionSchema) {
     ),
 
     Schema.either(
-      blockSingle(blockPositionSchema).BlockSingleSchema, serverBlockSingle(blockPositionSchema).ServerBlockSingleSchema,
+      BlockSingleSchema, ServerBlockSingleSchema,
       BlockLineSchema, ServerBlockLineSchema,
       BlockBufferSchema, ServerBlockBufferSchema,
     )
