@@ -6,6 +6,7 @@ import { validateWorldPacket } from "../../../api/src/networking/packets/WorldPa
 
 export default class Connection {
   playerId?: number;
+  connected: boolean = false;
 
   constructor(
     readonly webSocket: WebSocket,
@@ -16,25 +17,25 @@ export default class Connection {
   play(room: Room) {
     if (!room.join(this)) {
       // TODO: send websocket a "couldn't join room" packet here?
-      this.webSocket.close(undefined, "Couldn't join room.");
+      this.kill("Couldn't join room.");
       return;
     }
 
-    let connected = true;
+    this.connected = true;
 
     this.webSocket.on("message", (data) => {
-      if (!connected) {
+      if (!this.connected) {
         console.warn("received message despite websocket being disconnected");
         return;
       }
 
       if (typeof data !== "string") {
-        this.webSocket.close(undefined, "Sent a non-string.");
+        this.kill("Sent a non-string.");
         return;
       }
 
       if (data.length >= 8096) {
-        this.webSocket.close(undefined, "Sent a magnum payload."); // all hail danny devito
+        this.kill("Sent a magnum payload."); // all hail danny devito
         return;
       }
 
@@ -43,7 +44,7 @@ export default class Connection {
       // handle parsing 'data' here
       const [errors, packet] = validateWorldPacket(message);
       if (errors !== null || packet === undefined) {
-        this.webSocket.close(undefined, "Sent an invalid payload");
+        this.kill("Sent an invalid payload");
         return;
       }
 
@@ -52,13 +53,17 @@ export default class Connection {
 
     this.webSocket.on("error", (error) => {
       console.warn("sudden websocket close", error);
-      connected = false;
+      this.connected = false;
       room.leave(this);
     });
 
     this.webSocket.on("close", (code, reason) => {
-      connected = false;
+      this.connected = false;
       room.leave(this);
     });
+  }
+
+  kill(reason: string) {
+    this.webSocket.close(undefined, reason);
   }
 }

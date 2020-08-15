@@ -64,6 +64,6 @@ export default class RoomLogic {
     const handler = packetLookup[packet.packetId];
 
     //@ts-expect-error
-    return handler(packet, this);
+    return handler(packet, [sender, this]);
   }
 }
