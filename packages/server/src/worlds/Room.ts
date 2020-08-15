@@ -1,4 +1,4 @@
-import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
 import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
@@ -7,12 +7,18 @@ import Connection from "@/websockets/Connection";
 import Dependencies from "@/dependencies";
 import RoomLogic from "./logic/RoomLogic";
 import generateWorld from "./generateWorld";
+import { worldPacket } from "../../../api/src/packets/WorldPacket";
+import { blockPosition } from "../../../api/src/schemas/BlockPosition";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
 export default class Room {
   get id(): string { return this.#details.id!; }
   get status(): RoomStatus { return this.#status; }
+  // TODO: get these from an actual source
+  get width(): number { return 50; }
+  get height(): number { return 50; }
+  get validateWorldPacket(): WorldPacketValidator { return this.#worldPacketValidator; }
 
   readonly onRunning: PromiseCompletionSource<void>;
   readonly onStopped: PromiseCompletionSource<void>;
@@ -22,6 +28,7 @@ export default class Room {
   #status!: RoomStatus;
   #onEmpty: PromiseCompletionSource<void>;
   #logic!: RoomLogic;
+  #worldPacketValidator!: WorldPacketValidator
 
   constructor(details: WorldDetails, deps: Dependencies) {
     this.onRunning = new PromiseCompletionSource<void>();
@@ -37,6 +44,8 @@ export default class Room {
   private async run() {
     this.#status = "starting";
     const blocks = await this.getBlocks();
+
+    this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
 
     this.#status = "running";
     this.#logic = new RoomLogic(this.#onEmpty, blocks, this.#deps);

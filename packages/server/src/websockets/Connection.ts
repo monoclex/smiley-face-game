@@ -1,5 +1,5 @@
 import * as WebSocket from "ws";
-import { validateWorldPacket, WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import AccountRepo from "@/database/repos/AccountRepo";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import WorldPayload from "@/jwt/payloads/WorldPayload";
@@ -36,6 +36,7 @@ export default class Connection {
     }
 
     this.connected = true;
+    const validator = room.validateWorldPacket;
 
     this.webSocket.on("message", (data) => {
       if (!this.connected) {
@@ -56,8 +57,9 @@ export default class Connection {
       const message = JSON.parse(data);
 
       // handle parsing 'data' here
-      const [errors, packet] = validateWorldPacket(message);
+      const [errors, packet] = validator(message);
       if (errors !== null || packet === undefined) {
+        console.warn("invalid packet", errors);
         this.kill("Sent an invalid payload");
         return;
       }

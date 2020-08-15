@@ -68,7 +68,7 @@ export default class RoomLogic {
     for (const otherUser of this.#players.values()) {
       connection.send({
         packetId: SERVER_PLAYER_JOIN_ID,
-        playerId: otherUser.playerId,
+        playerId: otherUser.playerId!,
         username: otherUser.username,
         isGuest: otherUser.isGuest,
         joinLocation: otherUser.lastPosition,

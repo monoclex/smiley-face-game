@@ -1,6 +1,6 @@
 import Schema, { boolean, Type } from "computed-types";
-import { PlayerPositionSchema } from "../../schemas/PlayerPosition";
-import { UsernameSchema } from '../../schemas/Username';
+import { PlayerPositionSchema } from "../schemas/PlayerPosition";
+import { UsernameSchema } from '../schemas/Username';
 import { ServerSchema } from "./Server";
 
 export const SERVER_PLAYER_JOIN_ID = 'SERVER_PLAYER_JOIN';

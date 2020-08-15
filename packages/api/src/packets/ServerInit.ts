@@ -1,7 +1,7 @@
 import Schema, { array, Type } from "computed-types";
-import { BlockSchema } from "../../schemas/Block";
-import { PlayerPositionSchema } from '../../schemas/PlayerPosition';
-import { SizeSchema } from "../../schemas/Size";
+import { BlockSchema } from "../schemas/Block";
+import { PlayerPositionSchema } from '../schemas/PlayerPosition';
+import { SizeSchema } from "../schemas/Size";
 import { ServerSchema } from './Server';
 
 export const SERVER_INIT_ID = 'SERVER_INIT';
