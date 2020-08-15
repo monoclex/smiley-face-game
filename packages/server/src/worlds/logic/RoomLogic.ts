@@ -3,7 +3,7 @@ import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/src/packets/Server
 import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
 import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import Connection from "@/websockets/Connection";
+import Connection from "@/worlds/Connection";
 import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
 import Dependencies from "@/dependencies";
 import packetLookup from "./packetLookup";

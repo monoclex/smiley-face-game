@@ -1,7 +1,7 @@
 import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import MPSC from "@/concurrency/MPSC";
-import Connection from "@/websockets/Connection";
+import Connection from "@/worlds/Connection";
 import Dependencies from "@/dependencies";
 import UuidGenerator from "@/UuidGenerator";
 import Room from "./Room";

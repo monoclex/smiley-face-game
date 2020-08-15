@@ -1,14 +1,14 @@
-import { WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
+import { Block } from "@smiley-face-game/api/schemas/Block";
 import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
-import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
+import { WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
+import { worldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import WorldRepo from "@/database/repos/WorldRepo";
-import Connection from "@/websockets/Connection";
+import Connection from "@/worlds/Connection";
 import Dependencies from "@/dependencies";
 import RoomLogic from "./logic/RoomLogic";
 import generateWorld from "./generateWorld";
-import { worldPacket } from "../../../api/src/packets/WorldPacket";
-import { blockPosition } from "../../../api/src/schemas/BlockPosition";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
@@ -60,7 +60,7 @@ export default class Room {
     this.onStopped.resolve();
   }
 
-  private async getBlocks(): Promise<{ id: TileId }[][][]> {
+  private async getBlocks(): Promise<Block[][][]> {
     if (this.#details.type === "saved") {
       const world = await this.#repo.findById(this.id);
       return world.worldData;
@@ -70,7 +70,7 @@ export default class Room {
     }
   }
 
-  private async saveBlocks(blocks: { id: TileId }[][][]): Promise<void> {
+  private async saveBlocks(blocks: Block[][][]): Promise<void> {
     const world = await this.#repo.findById(this.id);
     world.worldData = blocks;
     await this.#repo.save(world);

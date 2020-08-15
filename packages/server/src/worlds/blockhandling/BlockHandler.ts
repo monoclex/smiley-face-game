@@ -1,3 +1,5 @@
+// TODO: clean this file up later
+
 import { bresenhamsLine } from '@smiley-face-game/api/misc';
 import { BlockBufferPacket } from '@smiley-face-game/api/packets/BlockBuffer';
 import { BlockLinePacket, BLOCK_LINE_ID } from '@smiley-face-game/api/packets/BlockLine';
@@ -9,8 +11,8 @@ import { WorldPacket } from '@smiley-face-game/api/packets/WorldPacket';
 import { Block } from '@smiley-face-game/api/schemas/Block';
 import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
-import DbWorld from '../../database/models/World';
-import Connection from "../../websockets/Connection";
+import Connection from "@/worlds/Connection";
+import World from "@/database/models/World";
 
 function newBlock(id: TileId): Block {
   return { id };

@@ -11,7 +11,7 @@ import Room from "@/worlds/Room";
 import RoomManager from "@/worlds/RoomManager";
 import { applyTo } from "@/expressapp";
 import Dependencies from "@/dependencies";
-import Connection from "@/websockets/Connection";
+import Connection from "@/worlds/Connection";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "worldProvider" | "worldVerifier" | "roomManager">;
 
