@@ -1,5 +1,6 @@
 import * as WebSocket from "ws";
-import { validateWorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { validateWorldPacket, WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import AccountRepo from "@/database/repos/AccountRepo";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import WorldPayload from "@/jwt/payloads/WorldPayload";
 import Room from "@/worlds/Room";
@@ -7,12 +8,25 @@ import Room from "@/worlds/Room";
 export default class Connection {
   playerId?: number;
   connected: boolean = false;
+  username!: string;
+  isGuest!: boolean;
+
+  // room things
+  // TODO: decouple 'lastPosition' default state
+  lastPosition: { x: number, y: number } = { x: 32 + 16, y: 32 + 16 };
+  hasGun: boolean = false;
+  gunEquipped: boolean = false;
 
   constructor(
     readonly webSocket: WebSocket,
     readonly authTokenPayload: AuthPayload,
     readonly worldTokenPayload: WorldPayload,
   ) {}
+
+  async load(accountRepo: AccountRepo) {
+    // TODO: load self from database or something
+    await Promise.resolve();
+  }
 
   play(room: Room) {
     if (!room.join(this)) {
@@ -61,6 +75,11 @@ export default class Connection {
       this.connected = false;
       room.leave(this);
     });
+  }
+
+  // TODO: introduce serialization stuff
+  send(packet: WorldPacket) {
+    this.webSocket.send(JSON.stringify(packet));
   }
 
   kill(reason: string) {
