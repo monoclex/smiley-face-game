@@ -1,4 +1,4 @@
-import { WorldPacket } from "@smiley-face-game/api/networking/packets/WorldPacket";
+import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import Connection from "@/websockets/Connection";
 import Dependencies from "@/dependencies";

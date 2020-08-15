@@ -1,8 +1,8 @@
 import * as WebSocket from "ws";
+import { validateWorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import WorldPayload from "@/jwt/payloads/WorldPayload";
 import Room from "@/worlds/Room";
-import { validateWorldPacket } from "../../../api/src/networking/packets/WorldPacket";
 
 export default class Connection {
   playerId?: number;

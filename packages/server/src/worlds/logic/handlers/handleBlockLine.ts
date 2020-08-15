@@ -1,4 +1,4 @@
-import { BlockLinePacket } from "@smiley-face-game/api/networking/packets/BlockLine";
+import { BlockLinePacket } from "@smiley-face-game/api/packets/BlockLine";
 import Connection from "@/websockets/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 

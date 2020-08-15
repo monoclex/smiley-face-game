@@ -1,4 +1,4 @@
-import { WorldPacket } from "@smiley-face-game/api/src/networking/packets/WorldPacket";
+import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";

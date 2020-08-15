@@ -1,4 +1,4 @@
-import { FireBulletPacket } from "@smiley-face-game/api/networking/packets/FireBullet";
+import { FireBulletPacket } from "@smiley-face-game/api/packets/FireBullet";
 import Connection from "@/websockets/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 

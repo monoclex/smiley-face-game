@@ -1,4 +1,4 @@
-import { BlockSinglePacket } from "@smiley-face-game/api/networking/packets/BlockSingle";
+import { BlockSinglePacket } from "@smiley-face-game/api/packets/BlockSingle";
 import Connection from "@/websockets/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 

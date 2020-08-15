@@ -1,4 +1,4 @@
-import { ServerPacket } from "@smiley-face-game/api/networking/packets/Server";
+import { ServerPacket } from "@smiley-face-game/api/packets/Server";
 import Connection from "@/websockets/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 

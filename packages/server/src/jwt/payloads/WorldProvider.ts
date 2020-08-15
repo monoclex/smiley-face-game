@@ -1,10 +1,10 @@
 import * as jwt from "jsonwebtoken";
+import { validateDynamicWorldName } from "@smiley-face-game/api/schemas/web/game/ws/DynamicWorldName";
 import { validateDynamicWidth } from "@smiley-face-game/api/schemas/web/game/ws/DynamicWidth";
 import { validateDynamicHeight } from "@smiley-face-game/api/schemas/web/game/ws/DynamicHeight";
 import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
 import ensureValidates from "@/ensureValidates";
 import WorldPayload from "./WorldPayload";
-import { validateDynamicWorldName } from "../../../../api/src/schemas/web/game/ws/DynamicWorldName";
 
 export default class WorldProvider {
   readonly #secret: string;
@@ -41,7 +41,7 @@ export default class WorldProvider {
 
     const payload: WorldPayload = {
       ver: 1,
-      det: { type: "dynamic", name, width, height }
+      det: { type: "dynamic", id: undefined, name, width, height }
     };
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 minute" });
