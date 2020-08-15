@@ -8,9 +8,12 @@ import WorldPayload from "@/jwt/payloads/WorldPayload";
 import WorldProvider from "@/jwt/payloads/WorldProvider";
 import JwtVerifier from "@/jwt/JwtVerifier";
 import RoomManager from "@/worlds/RoomManager";
+import UuidGenerator from "@/UuidGenerator";
 
 export default class Dependencies {
   constructor(connection: Connection, jwtSecret: string) {
+    this.uuidGenerator = new UuidGenerator();
+
     this.accountRepo = new AccountRepo(connection);
     this.worldRepo = new WorldRepo(connection);
 
@@ -22,6 +25,8 @@ export default class Dependencies {
 
     this.roomManager = new RoomManager(this);
   }
+
+  readonly uuidGenerator: UuidGenerator;
 
   readonly accountRepo: AccountRepo;
   readonly worldRepo: WorldRepo;

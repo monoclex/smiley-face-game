@@ -1,32 +1,26 @@
+import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import { TileId } from "@smiley-face-game/api/src/schemas/TileId";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import WorldRepo from "@/database/repos/WorldRepo";
 import Dependencies from "@/dependencies";
 import generateWorld from "./generateWorld";
 
-interface RoomDetails {
-  readonly id: string;
-  readonly hasDatabaseEntry: boolean;
-  readonly hintedWidth: number;
-  readonly hintedHeight: number;
-}
-
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
 type UsedDependencies = Pick<Dependencies, "worldRepo">;
 
 export default class Room {
-  get id(): string { return this.#details.id; }
+  get id(): string { return this.#details.id!; }
   get status(): RoomStatus { return this.#status; }
 
   readonly onRunning: PromiseCompletionSource<void>;
   readonly onStopped: PromiseCompletionSource<void>;
-  readonly #details: RoomDetails;
+  readonly #details: WorldDetails;
   readonly #repo: WorldRepo;
   #status!: RoomStatus;
   #onEmpty: PromiseCompletionSource<void>;
 
-  constructor(details: RoomDetails, deps: UsedDependencies) {
+  constructor(details: WorldDetails, deps: UsedDependencies) {
     this.onRunning = new PromiseCompletionSource<void>();
     this.onStopped = new PromiseCompletionSource<void>();
     this.#details = details;
@@ -53,12 +47,12 @@ export default class Room {
   }
 
   private async getBlocks(): Promise<{ id: TileId }[][][]> {
-    if (this.#details.hasDatabaseEntry) {
+    if (this.#details.type === "saved") {
       const world = await this.#repo.findById(this.id);
       return world.worldData;
     }
     else {
-      return JSON.parse(generateWorld(this.#details.hintedWidth, this.#details.hintedHeight));
+      return JSON.parse(generateWorld(this.#details.width, this.#details.height));
     }
   }
 

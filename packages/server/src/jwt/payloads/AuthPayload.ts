@@ -24,8 +24,15 @@ export default interface AuthPayload {
    * The JWT "aud" (Audience) Claim: https://tools.ietf.org/html/rfc7519#section-4.1.3
    * 
    * The audience will be the Account Id of an Account.
+   * If no Account Id is specified (""), then this user is a Guest.
    */
-  readonly aud: string;
+  readonly aud: string | "";
+
+  /**
+   * If the current user is a Guest, this field may have a name, hinting at their preferred name.
+   * If the user has an account, this field is to be ignored and treated as if it were undefined.
+   */
+  readonly name?: string;
 
   /**
    * The permissions that this token is good for.

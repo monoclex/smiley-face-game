@@ -1,31 +1,57 @@
+import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import MPSC from "@/concurrency/MPSC";
 import Dependencies from "@/dependencies";
+import UuidGenerator from "@/UuidGenerator";
 import Room from "./Room";
 
 interface JoinRoomRequest {
-  roomId: string;
   accountId: string;
+  room: WorldDetails;
   completion: PromiseCompletionSource<Room>;
 }
 
 export default class RoomManager {
   readonly #deps: Dependencies;
   readonly #queue: MPSC<JoinRoomRequest>;
-  readonly #rooms: Map<string, Room>;
+  readonly #savedRooms: Map<string, Room>;
+  readonly #dynamicRooms: Map<string, Room>;
+  readonly #generator: UuidGenerator;
 
   constructor(deps: Dependencies) {
     this.#deps = deps;
     this.#queue = new MPSC<JoinRoomRequest>();
-    this.#rooms = new Map<string, Room>();
+    this.#savedRooms = new Map<string, Room>();
+    this.#dynamicRooms = new Map<string, Room>();
+    this.#generator = this.#deps.uuidGenerator;
 
     this.lifetime();
+  }
+
+  *listRooms(): Iterable<Room> {
+    for (const room of this.#savedRooms.values()) {
+      if (room.status === "starting" || room.status === "running") {
+        yield room;
+      }
+    }
+  }
+
+  join(connection: undefined /* Connection */, details: WorldDetails): Promise<Room> {
+    const completion = new PromiseCompletionSource<Room>();
+
+    this.#queue.send({
+      accountId: "",
+      room: details,
+      completion,
+    })
+
+    return completion.promise;
   }
 
   private async lifetime() {
     while (true) {
       const message = await this.#queue.next();
-      const room = this.roomFor(message.roomId);
+      const room = this.roomFor(message.room);
 
       if (room.status === "starting") {
         // have to wait until room is running to allow players in
@@ -45,11 +71,11 @@ export default class RoomManager {
 
       if (room.status === "stopped") {
         // generate a new room
-        this.#rooms.delete(message.roomId);
-        const room = this.roomFor(message.roomId);
+        this.#savedRooms.delete(room.id);
+        const newRoom = this.roomFor(message.room);
 
         // must wait for the room to start
-        await room.onRunning.promise;
+        await newRoom.onRunning.promise;
 
         // TODO: give player to room
         continue;
@@ -59,39 +85,47 @@ export default class RoomManager {
     }
   }
 
-  *listRooms(): Iterable<Room> {
-    for (const room of this.#rooms.values()) {
-      if (room.status === "starting" || room.status === "running") {
-        yield room;
+  private roomFor(details: WorldDetails): Room {
+    // TODO: this is omega wtf, surely there's a better way
+    
+    if (details.type === "saved") {
+      const room = this.#savedRooms.get(details.id);
+
+      if (room === undefined) {
+        const newRoom = new Room(details, this.#deps);
+        this.#savedRooms.set(details.id, newRoom);
+        return newRoom;
+      }
+      else {
+        return room;
       }
     }
-  }
+    else if (details.type === "dynamic") {
+      let roomId = details.id;
 
-  // TODO: use an actual connection class of some sort
-  join(connection: undefined /* Connection */, roomId: string): Promise<Room> {
-    const completion = new PromiseCompletionSource<Room>();
+      if (roomId === undefined) {
+        // must be generating a new world
+        roomId = this.#generator.genIdForDynamicWorld();
 
-    this.#queue.send({
-      roomId,
-      accountId: "",
-      completion,
-    })
+        // if this ever happens, need to implement more stuff :v (uuid v5 namespace stuff maybe)
+        if (this.#dynamicRooms.has(roomId)) throw new Error("UUID collision, is something wrong?");
+      }
 
-    return completion.promise;
-  }
+      details.id = roomId;
 
-  private roomFor(id: string): Room {
-    const room = this.#rooms.get(id);
+      const room = this.#dynamicRooms.get(roomId);
 
-    // if we don't have a room, we can make one
-    if (room === undefined) {
-      // TODO: determine if player is loading one of their rooms
-      const newRoom = new Room({ id, hintedWidth: 25, hintedHeight: 25, hasDatabaseEntry: false }, this.#deps);
-      this.#rooms.set(id, newRoom);
-      return newRoom;
+      if (room === undefined) {
+        const newRoom = new Room(details, this.#deps);
+        this.#dynamicRooms.set(roomId, newRoom);
+        return newRoom;
+      }
+      else {
+        return room;
+      }
     }
     else {
-      return room;
+      throw new Error("unexpected path");
     }
   }
 }

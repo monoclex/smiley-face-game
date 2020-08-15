@@ -20,7 +20,7 @@ export default class AuthProvider {
     const payload: AuthPayload = {
       ver: 1,
       aud: accountId,
-      can: ["play"]
+      can: ["play"],
     };
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 hour" });
