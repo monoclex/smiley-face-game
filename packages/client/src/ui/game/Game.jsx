@@ -1,8 +1,10 @@
+//@ts-check
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { globalVariableParkour, LoadingScene } from "../../scenes/loading/LoadingScene";
 import { Grid, AppBar, Toolbar, Typography } from "@material-ui/core";
 import Phaser from "phaser";
+//@ts-ignore
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import { WorldScene } from "../../scenes/world/WorldScene";
 import isProduction from "../../isProduction";
@@ -63,7 +65,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Game = (props) => {
+const Game = ({ roomId, roomWidth, roomHeight, updatePrimary, selectedSlot, loader }) => {
   const gameRef = useRef();
   const styles = useStyles();
 
@@ -72,9 +74,9 @@ const Game = (props) => {
     gameRef.current.oncontextmenu = () => false;
 
     // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
-    globalVariableParkour.roomId = props.roomId;
-    globalVariableParkour.roomWidth = props.roomWidth;
-    globalVariableParkour.roomHeight = props.roomHeight;
+    globalVariableParkour.roomId = roomId;
+    globalVariableParkour.roomWidth = roomWidth;
+    globalVariableParkour.roomHeight = roomHeight;
 
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
@@ -91,7 +93,7 @@ const Game = (props) => {
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <div className={styles.blockbar}>
-          <BlockBar onBlockSelected={props.updatePrimary} selected={props.selectedSlot} loader={props.loader} />
+          <BlockBar onBlockSelected={updatePrimary} selected={selectedSlot} loader={loader} />
         </div>
 
         <ChatBar />
@@ -100,9 +102,9 @@ const Game = (props) => {
   );
 };
 
-const mapState = (state) => ({
-  selectedSlot: state.blockBar.selected,
-  loader: state.blockBar.loader,
+const mapState = ({ blockBar }) => ({
+  selectedSlot: blockBar.selected,
+  loader: blockBar.loader,
 });
 
 const mapDispatch = {

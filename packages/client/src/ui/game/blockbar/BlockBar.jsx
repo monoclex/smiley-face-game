@@ -1,4 +1,4 @@
-"use strict";
+//@ts-check
 import React from "react";
 import { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
@@ -6,7 +6,7 @@ import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { SelectedSlotId } from '../../../client/Slot';
 
-const BlockBar = (props) => {
+const BlockBar = ({ onBlockSelected, selected, loader }) => {
   const keys = "`1234567890-=".split("");
 
   useEffect(() => {
@@ -43,16 +43,16 @@ const BlockBar = (props) => {
       const slot = map[keyboardEvent.key];
 
       if (slot === undefined) return;
-      if (props.onBlockSelected === undefined) return;
+      if (onBlockSelected === undefined) return;
 
-      props.onBlockSelected(slot);
+      onBlockSelected(slot);
     });
   }, []);
 
   return (
     <Grid item container justify="center" alignItems="flex-end">
       {keys.map((key, i) => (
-        <Block key={key} slot={key} slotId={i} onClick={() => props.onBlockSelected(i)} selected={props.selected === i} loader={props.loader} />
+        <Block key={key} slot={key} slotId={i} onClick={() => onBlockSelected(i)} selected={selected === i} loader={loader} />
       ))}
     </Grid>
   );
