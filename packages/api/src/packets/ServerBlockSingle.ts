@@ -7,6 +7,7 @@ import { ServerSchema } from "./Server";
 export const SERVER_BLOCK_SINGLE_ID = 'SERVER_BLOCK_SINGLE';
 
 export type ServerBlockSingleSchema = ReturnType<typeof serverBlockSingle>["ServerBlockSingleSchema"];
+export type ServerBlockSingleValidator = ReturnType<typeof serverBlockSingle>["validateServerBlockSingle"];
 export type ServerBlockSinglePacket = Type<ServerBlockSingleSchema>;
 
 export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {

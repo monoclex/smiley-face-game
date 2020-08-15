@@ -8,6 +8,7 @@ import { ServerSchema } from "./Server";
 export const SERVER_BLOCK_BUFFER_ID = 'SERVER_BLOCK_BUFFER';
 
 export type ServerBlockBufferSchema = ReturnType<typeof serverBlockBuffer>["ServerBlockBufferSchema"];
+export type ServerBlockBufferValidator = ReturnType<typeof serverBlockBuffer>["validateServerBlockBuffer"];
 export type ServerBlockBufferPacket = Type<ServerBlockBufferSchema>;
 
 export function serverBlockBuffer(severBlockSingleSchema: ServerBlockSingleSchema) {

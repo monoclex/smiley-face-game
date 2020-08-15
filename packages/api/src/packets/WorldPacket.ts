@@ -1,6 +1,6 @@
 import Schema, { Type } from "computed-types";
 import { BlockPositionSchema } from "../schemas/BlockPosition";
-import { BlockBufferSchema } from "./BlockBuffer";
+import { BlockBufferSchema, blockBuffer } from "./BlockBuffer";
 import { BlockLineSchema } from "./BlockLine";
 import { blockSingle } from "./BlockSingle";
 import { EquipGunSchema } from "./EquipGun";
@@ -24,6 +24,7 @@ export type WorldPacket = Type<WorldPacketSchema>;
 
 export function worldPacket(blockPositionSchema: BlockPositionSchema) {
   const BlockSingleSchema = blockSingle(blockPositionSchema).BlockSingleSchema;
+  const BlockBufferSchema = blockBuffer(BlockSingleSchema).BlockBufferSchema;
   const ServerBlockSingleSchema = serverBlockSingle(blockPositionSchema).ServerBlockSingleSchema;
   const ServerBlockBufferSchema = serverBlockBuffer(ServerBlockSingleSchema).ServerBlockBufferSchema;
 

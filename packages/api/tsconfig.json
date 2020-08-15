@@ -6,7 +6,17 @@
       "ESNext"
     ],
     "moduleResolution": "node",
-    "outDir": "."
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@smiley-face-game/api/*": [
+        "./src/*"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "rootDirs": ["src"],
   },
   "include": [
     "src/**/*.ts"

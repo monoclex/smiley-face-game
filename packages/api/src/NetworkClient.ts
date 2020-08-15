@@ -6,9 +6,9 @@ import { EquipGunPacket, EQUIP_GUN_ID } from './packets/EquipGun';
 import { FireBulletPacket, FIRE_BULLET_ID } from './packets/FireBullet';
 import { MovementPacket, MOVEMENT_ID } from './packets/Movement';
 import { PickupGunPacket, PICKUP_GUN_ID } from './packets/PickupGun';
-import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID, validateServerBlockBuffer } from './packets/ServerBlockBuffer';
+import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID, ServerBlockBufferValidator } from './packets/ServerBlockBuffer';
 import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID, validateServerBlockLine } from './packets/ServerBlockLine';
-import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID, validateServerBlockSingle } from './packets/ServerBlockSingle';
+import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID, ServerBlockSingleValidator } from './packets/ServerBlockSingle';
 import { ServerEquipGunPacket, SERVER_EQUIP_GUN_ID, validateServerEquipGun } from './packets/ServerEquipGun';
 import { ServerFireBulletPacket, SERVER_FIRE_BULLET_ID, validateServerFireBullet } from './packets/ServerFireBullet';
 import { ServerInitPacket, SERVER_INIT_ID, validateServerInit } from './packets/ServerInit';
@@ -47,10 +47,15 @@ interface InputState {
  * Class to manage the network functionality of the client.
  */
 export class NetworkClient {
-  static async connect(target: string, registerCallbacks: (events: NetworkEvents) => void): Promise<NetworkClient> {
+  static connect(
+    targetWebSocketUrl: string,
+    registerCallbacks: (events: NetworkEvents) => void,
+    validateServerBlockBuffer: ServerBlockBufferValidator,
+    validateServerBlockSingle: ServerBlockSingleValidator,
+  ): Promise<NetworkClient> {
     return new Promise((resolve, reject) => {
-      const webSocket = new WebSocket(target);
-      const networkClient = new NetworkClient(webSocket);
+      const webSocket = new WebSocket(targetWebSocketUrl);
+      const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
       registerCallbacks(networkClient.events);
 
       webSocket.onopen = () => resolve(networkClient);
@@ -67,7 +72,9 @@ export class NetworkClient {
   private _buffer: MessageEvent[];
 
   private constructor(
-    private readonly _webSocket: WebSocket
+    private readonly _webSocket: WebSocket,
+    validateServerBlockBuffer: ServerBlockBufferValidator,
+    validateServerBlockSingle: ServerBlockSingleValidator,
   ) {
     this.events = new NetworkEvents();
     this._buffer = [];
