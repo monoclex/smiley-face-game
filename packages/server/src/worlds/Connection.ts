@@ -1,8 +1,8 @@
 import * as WebSocket from "ws";
 import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import AccountRepo from "@/database/repos/AccountRepo";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
-import WorldPayload from "@/jwt/payloads/WorldPayload";
 import Room from "@/worlds/Room";
 
 export default class Connection {
@@ -22,7 +22,7 @@ export default class Connection {
   constructor(
     readonly webSocket: WebSocket,
     readonly authTokenPayload: AuthPayload,
-    readonly worldTokenPayload: WorldPayload,
+    readonly worldTokenPayload: WorldJoinRequest,
   ) {}
 
   async load(accountRepo: AccountRepo) {

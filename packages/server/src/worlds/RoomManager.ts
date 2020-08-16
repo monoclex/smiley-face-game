@@ -1,14 +1,18 @@
-import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
+import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
+import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import MPSC from "@/concurrency/MPSC";
 import Connection from "@/worlds/Connection";
 import Dependencies from "@/dependencies";
 import UuidGenerator from "@/UuidGenerator";
 import Room from "./Room";
+import ensureValidates from "../ensureValidates";
+import SavedBehaviour from "./behaviour/SavedBehaviour";
+import DynamicBehaviour from "./behaviour/DynamicBehaviour";
 
 interface JoinRoomRequest {
   connection: Connection;
-  roomDetails: WorldDetails;
+  roomDetails: WorldJoinRequest;
   completion: PromiseCompletionSource<Room>;
 }
 
@@ -43,7 +47,7 @@ export default class RoomManager {
     }
   }
 
-  join(connection: Connection, roomDetails: WorldDetails): Promise<Room> {
+  join(connection: Connection, roomDetails: WorldJoinRequest): Promise<Room> {
     const completion = new PromiseCompletionSource<Room>();
 
     this.#queue.send({ connection, roomDetails, completion });
@@ -89,14 +93,16 @@ export default class RoomManager {
     }
   }
 
-  private roomFor(details: WorldDetails): Room {
+  private roomFor(details: WorldJoinRequest): Room {
+    ensureValidates(validateWorldJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
     
     if (details.type === "saved") {
       const room = this.#savedRooms.get(details.id);
 
       if (room === undefined) {
-        const newRoom = new Room(details, this.#deps);
+        // "what if the room doesn't exist?" that's handled by room's run() function
+        const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));
         this.#savedRooms.set(details.id, newRoom);
         return newRoom;
       }
@@ -105,30 +111,21 @@ export default class RoomManager {
       }
     }
     else if (details.type === "dynamic") {
-      let roomId = details.id;
 
-      if (roomId === undefined) {
-        // must be generating a new world
-        roomId = this.#generator.genIdForDynamicWorld();
-
-        // if this ever happens, need to implement more stuff :v (uuid v5 namespace stuff maybe)
-        if (this.#dynamicRooms.has(roomId)) {
-          console.error("UUID collision - it's time to implement v5 :(");
-          throw new Error("UUID collision, is something wrong?");
+      if ("id" in details) {
+        const room = this.#dynamicRooms.get(details.id);
+  
+        if (room === undefined) {
+          throw new Error("Could not join room.");
         }
-      }
-
-      details.id = roomId;
-
-      const room = this.#dynamicRooms.get(roomId);
-
-      if (room === undefined) {
-        const newRoom = new Room(details, this.#deps);
-        this.#dynamicRooms.set(roomId, newRoom);
-        return newRoom;
+  
+        return room;
       }
       else {
-        return room;
+        const id = this.#generator.genIdForDynamicWorld();
+        const newRoom = new Room(new DynamicBehaviour(details, id));
+        this.#dynamicRooms.set(id, newRoom);
+        return newRoom;
       }
     }
     else {

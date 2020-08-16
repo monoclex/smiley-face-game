@@ -1,7 +1,7 @@
 import expressWs from "express-ws";
 import * as WebSocket from 'ws';
-import { validateWorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
-import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
+import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
+import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import canJoinWorld from "@/jwt/permissions/canJoinWorld";
 import extractJwt from "@/jwt/extractJwt";
@@ -20,27 +20,6 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
 
   applyTo(router);
 
-  router.post("/ws", jwt(authVerifier, schema(validateWorldDetails, async (req, res) => {
-    // TODO: somehow get the typing above to work nicely, for now this is an alright workaround
-    //@ts-expect-error
-    const jwt: AuthPayload = req.jwt;
-
-    // TODO: this pattern will get annoying to write, need to have a smaller helper function
-    if (!canJoinWorld(jwt)) {
-      throw new Error("Missing permission to play.");
-    }
-
-    if (req.body.type === "saved") {
-      res.json({ token: worldProvider.joinSaved(req.body.id) });
-    }
-    else if (req.body.type === "dynamic") {
-      res.json({ token: worldProvider.joinDynamic(req.body.name, req.body.width, req.body.height) });
-    }
-    else {
-      throw new Error("unexpected type");
-    }
-  })));
-
   router.ws("/ws", async (ws, req) => {
     const { token, world } = req.query;
 
@@ -49,14 +28,18 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
     }
 
     const authTokenPayload = extractJwt(authVerifier, token);
-    const worldTokenPayload = extractJwt(worldVerifier, world);
-
+    
     if (!canJoinWorld(authTokenPayload)) {
       throw new Error("Missing permission to play.");
     }
 
+    const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
+    if (errors !== null || worldTokenPayload === undefined) {
+      throw new Error("Failed to validate WorldDetails payload.");
+    }
+
     const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
-    const room = await roomManager.join(connection, worldTokenPayload.det);
+    const room = await roomManager.join(connection, worldTokenPayload);
 
     await connection.play(room);
   });

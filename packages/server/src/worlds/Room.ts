@@ -1,41 +1,44 @@
-import { Block } from "@smiley-face-game/api/schemas/Block";
-import { WorldDetails } from "@smiley-face-game/api/schemas/web/game/ws/WorldDetails";
-import { WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
-import { worldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
+import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
+import { Block } from "@smiley-face-game/api/schemas/Block";
+import { worldPacket, WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import WorldRepo from "@/database/repos/WorldRepo";
 import Connection from "@/worlds/Connection";
 import Dependencies from "@/dependencies";
+import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
 import generateWorld from "./generateWorld";
+import ensureValidates from "../ensureValidates";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
 export default class Room {
-  get id(): string { return this.#details.id!; }
+  get id(): string { return this.#behaviour.id; }
   get status(): RoomStatus { return this.#status; }
+  get name(): string { return this.name; }
   // TODO: get these from an actual source
-  get width(): number { return 50; }
-  get height(): number { return 50; }
+  get width(): number { return this.width; }
+  get height(): number { return this.height; }
   get validateWorldPacket(): WorldPacketValidator { return this.#worldPacketValidator; }
+
+  #name!: string;
+  #width!: number;
+  #height!: number;
 
   readonly onRunning: PromiseCompletionSource<void>;
   readonly onStopped: PromiseCompletionSource<void>;
-  readonly #details: WorldDetails;
-  readonly #repo: WorldRepo;
-  readonly #deps: Dependencies;
+  readonly #behaviour: Behaviour;
   #status!: RoomStatus;
   #onEmpty: PromiseCompletionSource<void>;
   #logic!: RoomLogic;
-  #worldPacketValidator!: WorldPacketValidator
+  #worldPacketValidator!: WorldPacketValidator;
 
-  constructor(details: WorldDetails, deps: Dependencies) {
+  constructor(behaviour: Behaviour) {
+    this.#behaviour = behaviour;
     this.onRunning = new PromiseCompletionSource<void>();
     this.onStopped = new PromiseCompletionSource<void>();
-    this.#deps = deps;
-    this.#details = details;
-    this.#repo = deps.worldRepo;
     this.#onEmpty = new PromiseCompletionSource<void>();
 
     this.run();
@@ -43,12 +46,34 @@ export default class Room {
 
   private async run() {
     this.#status = "starting";
-    const blocks = await this.getBlocks();
+
+    let blocks;
+    let details;
+
+    try {
+      const blocksPromise = this.getBlocks();
+      const detailsPromise = this.#behaviour.loadDetails();
+      const [blocksResult, detailsResult] = await Promise.all([blocksPromise, detailsPromise]);  
+      blocks = blocksResult;
+      details = detailsResult;
+    }
+    catch (error) {
+      console.error("Couldn't load saved world '", this.id, "': ", error);
+      this.#status = "stopping";
+      this.onRunning.resolve();
+      this.#status = "stopped";
+      this.onStopped.resolve();
+      return;
+    }
+
+    this.#name = details.name;
+    this.#width = details.width;
+    this.#height = details.height;
 
     this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
 
     this.#status = "running";
-    this.#logic = new RoomLogic(this.#onEmpty, blocks, this.#deps);
+    this.#logic = new RoomLogic(this.#onEmpty, blocks);
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;
@@ -60,20 +85,12 @@ export default class Room {
     this.onStopped.resolve();
   }
 
-  private async getBlocks(): Promise<Block[][][]> {
-    if (this.#details.type === "saved") {
-      const world = await this.#repo.findById(this.id);
-      return world.worldData;
-    }
-    else {
-      return JSON.parse(generateWorld(this.#details.width, this.#details.height));
-    }
+  private getBlocks(): Promise<Block[][][]> {
+    return this.#behaviour.loadBlocks();
   }
 
-  private async saveBlocks(blocks: Block[][][]): Promise<void> {
-    const world = await this.#repo.findById(this.id);
-    world.worldData = blocks;
-    await this.#repo.save(world);
+  private saveBlocks(blocks: Block[][][]): Promise<void> {
+    return this.#behaviour.saveBlocks(blocks);
   }
 
   join(connection: Connection): boolean {

@@ -5,7 +5,7 @@ import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import Connection from "@/worlds/Connection";
 import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
-import Dependencies from "@/dependencies";
+import WorldBlocks from "@/worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
 
 function ensureHasId(connection: Connection) {
@@ -20,11 +20,7 @@ function ensureNotDead(shouldBeDead: boolean) {
   }
 }
 
-// TODO: figure out actual used deps
-type UsedDependencies = Pick<Dependencies, never>;
-
 export default class RoomLogic {
-  readonly deps: UsedDependencies;
   readonly blockHandler: BlockHandler;
 
   #onEmpty: PromiseCompletionSource<void>;
@@ -32,8 +28,7 @@ export default class RoomLogic {
   #players: Map<number, Connection>;
   #idCounter: number = 0;
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: any, deps: UsedDependencies) {
-    this.deps = deps;
+  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks) {
     this.blockHandler = new BlockHandler(blocks, 50, 50);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
