@@ -16,11 +16,6 @@ import history from "../history";
 //@ts-ignore
 import DiscordLogo from "../../assets/discord.svg";
 
-console.warn('lobby.tsx imports:');
-console.log(Grid);
-console.log(SvgIcon);
-console.log(IconButton);
-
 const useStyles = makeStyles({
   input: {
     textAlign: "center",
@@ -67,20 +62,20 @@ const Lobby = () => {
   return (
     <>
       <Grid container item justify="center" alignItems="center">
-        {/* <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
+        <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => fetchLobby()}>
             <RefreshIcon />
           </IconButton>
-        </motion.div> */}
+        </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
           <PlusIcon />
         </IconButton>
         <IconButton onClick={() => gotoLogin()}>
           <LoginIcon />
         </IconButton>
-        {/* <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
+        <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
-        </IconButton> */}
+        </IconButton>
       </Grid>
       <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">

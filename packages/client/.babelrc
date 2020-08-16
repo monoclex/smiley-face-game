@@ -13,7 +13,7 @@
       {
         "root": ["./src"],
         "alias": {
-          "@smiley-face-game/api": "./../api/dist",
+          "@smiley-face-game/api": "./../api/dist/es",
           "@": "./src"
         }
       }

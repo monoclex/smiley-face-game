@@ -1,3 +1,4 @@
+//@ts-check
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { makeStyles, Theme } from "@material-ui/core/styles";

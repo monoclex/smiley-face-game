@@ -5,7 +5,6 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { CssBaseline } from "@material-ui/core";
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import history from "./history";
 import Lobby from "./lobby/Lobby";
 
 const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy, and it has high chance of being hit anyways
