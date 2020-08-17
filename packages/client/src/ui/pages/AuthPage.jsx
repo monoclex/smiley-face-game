@@ -7,47 +7,45 @@ import history from "@/ui/history";
 import { api } from "@/isProduction";
 
 export default ({ location: { search } }) => {
-  const { register, username, password, name } = qs.parse(search);
+  const { email, username, password, name } = qs.parse(search);
 
   const [status, setStatus] = useState("Loading...");
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (typeof name === "string") {
-      // guest wanting to play, this is our name
-      fetch(api.authGuest(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username: name })
+    postRequest()
+      .then(result => {
+        if (!result.ok) {
+          console.warn('Failed to authenticate at guest endpoint', result);
+          setStatus("Failed.");
+          return;
+        }
+      
+        return result.json()
       })
-        .then(result => {
-          if (!result.ok) {
-            console.warn('Failed to authenticate at guest endpoint', result);
-            setStatus("Failed.");
-            return;
-          }
+      .then(json => {
+        history.push("/play?token=" + encodeURIComponent(json.token));
+      })
+      .catch(setError);
 
-          return result.json()
-        })
-        .then(json => {
-          history.push("/play?token=" + encodeURIComponent(json.token));
-        })
-        .catch(setError);
-    }
-    else if (typeof username === "string" && typeof password === "string") {
-      const doRegister = register === "yes";
-      setStatus(doRegister);
-
-      // user wanting to authenticate with a username and password
-      fetch(api.auth())
-        .then(() => setStatus("Done Auth!"))
-        .then(() => history.push("/play"))
-        .catch(setError);
-    }
-    else {
-      setError(new Error("Did not receive a correct query string."));
+    function postRequest() {
+      if (typeof name === "string") {
+        // guest wanting to play, this is our name
+        return api.postAuthGuest(name);
+      }
+      else if (typeof email === "string" && typeof password === "string") {
+        if (typeof username === "string") {
+          // we would only include the username when registering
+          return api.postRegister(username, email, password);
+        }
+        else {
+          // user wanting to authenticate with a username and password
+          return api.postLogin(email, password);
+        }
+      }
+      else {
+        throw new Error("unexpected query params");
+      }
     }
   }, []);
 

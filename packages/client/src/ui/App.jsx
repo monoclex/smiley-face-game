@@ -20,6 +20,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const PlayPage = lazy(() => import("./pages/PlayPage"));
 
 export const App = () => {
   const prefersDarkMode = true;
@@ -45,6 +46,7 @@ export const App = () => {
             <Route exact path="/register" component={RegisterPage} />
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/auth" component={AuthPage} />
+            <Route exact path="/play" component={PlayPage} />
 
             {/* 
                 Temporary hack to allow people to join without width/height

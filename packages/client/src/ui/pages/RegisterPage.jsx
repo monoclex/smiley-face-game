@@ -19,6 +19,7 @@ export default () => {
   const styles = useStyles();
 
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
@@ -29,10 +30,14 @@ export default () => {
       </Typography>
       <TextField onChange={({ target: { value } }) => setUsername(value)} />
       <Typography>
+        Enter your Email
+      </Typography>
+      <TextField onChange={({ target: { value } }) => setEmail(value)} />
+      <Typography>
         Enter your Password
       </Typography>
       <TextField onChange={({ target: { value } }) => setPassword(value)} />
-      <Button onClick={() => { history.push("auth?register=yes&username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password)); }}>
+      <Button onClick={() => { history.push("auth?username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password) + "&email=" + encodeURIComponent(email)); }}>
         Go!
       </Button>
     </>

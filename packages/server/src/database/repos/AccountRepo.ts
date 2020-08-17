@@ -56,6 +56,10 @@ export default class AccountRepo {
     account.username = details.username;
     account.email = details.email;
     account.password = password;
+    account.maxEnergy = 100;
+    account.lastEnergyAmount = 100;
+    account.timeEnergyWasAtAmount = Date.now();
+    account.energyRegenerationRateMs = 5 * 60; // 5 minutes
     account.worlds = worlds;
 
     return await this.#repo.save(account);
