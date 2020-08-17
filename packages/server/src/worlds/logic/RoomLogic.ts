@@ -29,14 +29,16 @@ export default class RoomLogic {
   #players: Map<number, Connection>;
   #idCounter: number = 0;
   #details: WorldDetails;
+  #setStoppingStatus: () => void;
 
   get playerCount(): number { return this.#players.size; };
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails) {
+  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails, setStopping: () => void) {
     this.blockHandler = new BlockHandler(blocks, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
+    this.#setStoppingStatus = setStopping;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -66,6 +68,8 @@ export default class RoomLogic {
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },
       blocks: this.blockHandler.map,
+      username: connection.username,
+      isGuest: connection.isGuest,
     });
 
     for (const otherUser of this.#players.values()) {
@@ -94,6 +98,8 @@ export default class RoomLogic {
 
     if (this.#players.size === 0) {
       this.#shouldBeDead = true;
+      this.#setStoppingStatus(); // TODO: figure out a better way to do this?
+      // the above is being done to deal with like async stuff i think
       this.#onEmpty.resolve();
       return;
     }

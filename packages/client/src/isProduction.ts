@@ -48,7 +48,6 @@ class Urls {
   }
 
   connection(options: GlobalVariableParkourType): string {
-    console.log('api.connection', options);
     let joinRequest: WorldJoinRequest;
 
     if (options.id) {

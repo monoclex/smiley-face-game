@@ -182,8 +182,8 @@ export class WorldScene extends Phaser.Scene {
       joinLocation: this.initMessage.spawnPosition,
       hasGun: false,
       gunEquipped: false,
-      username: "TODO",
-      isGuest: true,
+      username: this.initMessage.username,
+      isGuest: this.initMessage.isGuest,
     };
     this.mainPlayerId = this.initMessage.playerId;
     this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);

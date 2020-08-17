@@ -4,6 +4,7 @@ import { WorldScene } from "../WorldScene";
 import { Gun } from "./Gun";
 import { InputState } from "./InputState";
 import { Position } from "./Position";
+import { ServerInitPacket } from "../../../../../api/src/packets/ServerInit";
 
 export class Player {
   get hasGun(): boolean { return this.gun !== undefined; }
@@ -91,9 +92,10 @@ export class Player {
 
     //@ts-ignore
     sprite.setExistingBody(playerBody).setScale(1)
-      .setFixedRotation()
-      .setPosition(joinLocation.x, joinLocation.y);
+      .setFixedRotation();
 
+    usernameDisplay.setPosition(joinLocation.x, joinLocation.y);
+    mainBody.gameObject.setPosition(joinLocation.x, joinLocation.y);
     this.worldScene.containerPlayers.add(grouping);
 
     return ({
@@ -137,7 +139,8 @@ export class Player {
       this.gun.update();
     }
 
-    this.grouping.setPosition(this.sprite.x, this.sprite.y);
+    this.usernameDisplay.setPosition(this.sprite.x, this.sprite.y);
+    this.mainBody.gameObject.setPosition(this.sprite.x, this.sprite.y);
   }
 
   private handleInput() {
@@ -192,7 +195,8 @@ export class Player {
   }
 
   onMove(position: Position, inputs: InputState) {
-    this.grouping.setPosition(position.x, position.y);
+    this.usernameDisplay.setPosition(position.x, position.y);
+    this.mainBody.gameObject.setPosition(position.x, position.y);
     this.leftHeld = inputs.left;
     this.rightHeld = inputs.right;
     this.upHeld = inputs.up;

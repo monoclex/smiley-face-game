@@ -34,11 +34,7 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
     const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
 
     await connection.load(accountRepo);
-
-    console.log('client joining room');
     const room = await roomManager.join(connection, worldTokenPayload);
-    console.log('client joined room');
-
     connection.play(room);
   });
 }

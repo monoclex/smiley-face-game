@@ -94,7 +94,6 @@ export class NetworkClient {
     };
 
     this._webSocket.onclose = this._webSocket.onerror = (event) => {
-      console.log(event);
       //@ts-ignore
       alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
     };

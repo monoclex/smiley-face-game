@@ -26,10 +26,15 @@ export default class Connection {
   ) {}
 
   async load(accountRepo: AccountRepo) {
-    this.username = "Joe";
-    this.isGuest = true;
-    // TODO: load self from database or something
-    await Promise.resolve();
+    if (this.authTokenPayload.aud === "") {
+      this.isGuest = true;
+      this.username = this.authTokenPayload.name!;
+    }
+    else {
+      const account = await accountRepo.findById(this.authTokenPayload.aud);
+      this.isGuest = false;
+      this.username = account.username;
+    }
   }
 
   play(room: Room) {

@@ -79,14 +79,14 @@ export class WorldBlocks {
     // we'll shove all the blocks into the world, and then recalculate everything once we're done
     {
       const layer = TileLayer.Background;
-      const mapLayer = this.mapData[layer];
+      const mapLayer = this.mapData[layer] ?? [];
       const tileLayer = this.getTilemapLayer(layer);
 
       for (let y = 0; y < this.height; y++) {
-        const mapY = mapLayer[y];
+        const mapY = mapLayer[y] ?? [];
 
         for (let x = 0; x < this.width; x++) {
-          const blockId = mapY[x].id;
+          const blockId = mapY[x].id ?? TileId.Empty;
           if (blockId === TileId.Empty) continue;
 
           tileLayer.putTileAt(blockId, x, y, false);
@@ -96,14 +96,14 @@ export class WorldBlocks {
 
     {
       const layer = TileLayer.Action;
-      const mapLayer = this.mapData[layer];
+      const mapLayer = this.mapData[layer] ?? [];
       const tileLayer = this.getTilemapLayer(layer);
 
       for (let y = 0; y < this.height; y++) {
-        const mapY = mapLayer[y];
+        const mapY = mapLayer[y] ?? [];
 
         for (let x = 0; x < this.width; x++) {
-          const blockId = mapY[x].id;
+          const blockId = mapY[x].id ?? TileId.Empty;
           if (blockId === TileId.Empty) continue;
 
           tileLayer.putTileAt(blockId, x, y, false);
@@ -115,15 +115,15 @@ export class WorldBlocks {
 
     {
       const layer = TileLayer.Foreground;
-      const mapLayer = this.mapData[layer];
+      const mapLayer = this.mapData[layer] ?? [];
       const tileLayer = this.getTilemapLayer(layer);
 
       for (let y = 0; y < this.height; y++) {
-        const mapY = mapLayer[y];
+        const mapY = mapLayer[y] ?? [];
         const yTimesWidth = y * this.width;
 
         for (let x = 0; x < this.width; x++) {
-          const blockId = mapY[x].id;
+          const blockId = mapY[x].id ?? TileId.Empty;
           if (blockId === TileId.Empty) continue;
 
           tileLayer.putTileAt(blockId, x, y, true);
