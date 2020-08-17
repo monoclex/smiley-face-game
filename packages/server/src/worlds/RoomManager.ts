@@ -60,6 +60,11 @@ export default class RoomManager {
       const message = await this.#queue.next();
       const room = this.roomFor(message.roomDetails);
 
+      if (room === undefined) {
+        message.completion.reject();
+        continue;
+      }
+
       if (room.status === "starting") {
         // have to wait until room is running to allow players in
         await room.onRunning.promise;
@@ -81,6 +86,11 @@ export default class RoomManager {
         this.#savedRooms.delete(room.id);
         const newRoom = this.roomFor(message.roomDetails);
 
+        if (newRoom === undefined) {
+          message.completion.reject();
+          continue;
+        }
+
         // must wait for the room to start
         await newRoom.onRunning.promise;
 
@@ -93,7 +103,7 @@ export default class RoomManager {
     }
   }
 
-  private roomFor(details: WorldJoinRequest): Room {
+  private roomFor(details: WorldJoinRequest): Room | undefined {
     ensureValidates(validateWorldJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
     
@@ -116,7 +126,7 @@ export default class RoomManager {
         const room = this.#dynamicRooms.get(details.id);
   
         if (room === undefined) {
-          throw new Error("Could not join room.");
+          return undefined;
         }
   
         return room;
@@ -129,7 +139,8 @@ export default class RoomManager {
       }
     }
     else {
-      throw new Error("unexpected path");
+      // unexpected path
+      return undefined;
     }
   }
 }

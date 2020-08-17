@@ -88,8 +88,8 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
     globalVariableParkour.token = token;
     globalVariableParkour.type = type;
     globalVariableParkour.name = name;
-    globalVariableParkour.width = parseInt(width);
-    globalVariableParkour.height = parseInt(height);
+    globalVariableParkour.width = width;
+    globalVariableParkour.height = height;
     globalVariableParkour.id = id;
 
     // start game

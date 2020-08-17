@@ -110,13 +110,14 @@ export class NetworkClient {
       const rawPacket = JSON.parse(event.data);
 
       if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
-        console.warn('[websocket warn] server sent invalid packet', rawPacket);
+        console.error('[websocket warn] server sent invalid packet', rawPacket);
         return;
       }
 
       // make sure we can validate the packet id thte server sent us
       if (!lookupTable[rawPacket.packetId]) {
-        console.warn('[websocket] invalid packet id', rawPacket.packetId);
+        console.error('[websocket] invalid packet id', rawPacket.packetId);
+        return;
       }
 
       const [validate, callbackName] = lookupTable[rawPacket.packetId];
@@ -125,7 +126,8 @@ export class NetworkClient {
       const [error, packet] = validate(rawPacket);
 
       if (error !== null) {
-        console.warn('[websocket] packet invalidated', error, rawPacket);
+        console.error('[websocket] packet invalidated', error, rawPacket);
+        return;
       }
 
       const eventCallback = this.events[callbackName];

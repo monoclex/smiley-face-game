@@ -6,10 +6,10 @@ import { applyTo } from "@/expressapp";
 import Dependencies from "@/dependencies";
 import Connection from "@/worlds/Connection";
 
-type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager">;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager" | "accountRepo">;
 
 export default function(router: expressWs.Router, deps: UsedDependencies) {
-  const { authVerifier, roomManager } = deps;
+  const { authVerifier, roomManager, accountRepo } = deps;
 
   applyTo(router);
 
@@ -32,6 +32,9 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
     }
 
     const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
+
+    await connection.load(accountRepo);
+
     console.log('client joining room');
     const room = await roomManager.join(connection, worldTokenPayload);
     console.log('client joined room');

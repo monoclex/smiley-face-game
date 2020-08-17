@@ -6,7 +6,7 @@ import AuthPayload from "@/jwt/payloads/AuthPayload";
 import Room from "@/worlds/Room";
 
 export default class Connection {
-  playerId?: number;
+  playerId!: number;
   connected: boolean = false;
   username!: string;
   isGuest!: boolean;
@@ -26,6 +26,8 @@ export default class Connection {
   ) {}
 
   async load(accountRepo: AccountRepo) {
+    this.username = "Joe";
+    this.isGuest = true;
     // TODO: load self from database or something
     await Promise.resolve();
   }

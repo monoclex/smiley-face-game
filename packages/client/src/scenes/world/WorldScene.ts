@@ -259,6 +259,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   onPlayerJoin(event) {
+    console.log('on player join!', this, event);
     const { playerId } = event;
     const player = new Player(this, event);
     this.players.set(playerId, player);

@@ -66,8 +66,8 @@ export class LoadingScene extends Phaser.Scene {
           this.scene.start(WORLD_SCENE_KEY, sceneData);
         };
       },
-      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1))),
-      serverBlockSingle(blockPosition(50 - 1, 50 - 1))
+      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema).validateServerBlockBuffer,
+      serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
     );
   }
 }
