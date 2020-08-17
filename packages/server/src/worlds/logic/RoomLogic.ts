@@ -2,6 +2,7 @@ import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlaye
 import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
 import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
 import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
+import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import Connection from "@/worlds/Connection";
 import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
@@ -27,11 +28,15 @@ export default class RoomLogic {
   #shouldBeDead: boolean = false;
   #players: Map<number, Connection>;
   #idCounter: number = 0;
+  #details: WorldDetails;
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks) {
-    this.blockHandler = new BlockHandler(blocks, 50, 50);
+  get playerCount(): number { return this.#players.size; };
+
+  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails) {
+    this.blockHandler = new BlockHandler(blocks, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
+    this.#details = details;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -59,8 +64,8 @@ export default class RoomLogic {
       packetId: SERVER_INIT_ID,
       playerId: connection.playerId!,
       spawnPosition: connection.lastPosition,
-      size: { width: 0, height: 0 },
-      blocks: [],
+      size: { width: this.#details.width, height: this.#details.height },
+      blocks: this.blockHandler.map,
     });
 
     for (const otherUser of this.#players.values()) {

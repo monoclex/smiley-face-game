@@ -1,3 +1,4 @@
+import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import { Guest } from "@smiley-face-game/api/schemas/web/auth/Guest";
 import { Register } from "@smiley-face-game/api/schemas/web/auth/Register";
 import { Login } from "@smiley-face-game/api/schemas/web/auth/Login";
@@ -8,6 +9,15 @@ export default isProduction;
 export const isSecure = location.protocol === "https:";
 export const http = isSecure ? "https" : "http";
 export const ws = isSecure ? "wss" : "ws";
+
+interface GlobalVariableParkourType {
+  token: string;
+  type?: "saved" | "dynamic";
+  name?: string;
+  width?: number;
+  height?: number;
+  id?: string;
+}
 
 class Urls {
   private baseUrl(): string {
@@ -37,10 +47,23 @@ class Urls {
     }).then(result => result.ok && result.json());
   }
 
-  connection(roomId: string, width = 25, height = 25): string {
+  connection(options: GlobalVariableParkourType): string {
+    console.log('api.connection', options);
+    let joinRequest: WorldJoinRequest;
+
+    if (options.id) {
+      //@ts-ignore
+      joinRequest = { type: options.type!, id: options.id };
+    }
+    else {
+      joinRequest = { type: "dynamic", name: options.name!, width: options.width!, height: options.height! };
+    }
+
+    const query = `token=${encodeURIComponent(options.token)}&world=${encodeURIComponent(JSON.stringify(joinRequest))}`;
+
     return isProduction
-      ? ws + `://ws-api.sirjosh3917.com/smiley-face-game/ws/game/${roomId}?width=${width}&height=${height}`
-      : ws + `://localhost:8080/ws/game/${roomId}?width=${width}&height=${height}`;
+      ? ws + `://ws-api.sirjosh3917.com/smiley-face-game/v1/game/ws/?${query}`
+      : ws + `://localhost:8080/v1/game/ws/?${query}`;
   }
 
   auth(): string {

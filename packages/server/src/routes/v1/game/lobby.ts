@@ -11,13 +11,12 @@ export default async function(router: Router, deps: UsedDependencies) {
     let previews = [];
 
     // TODO: depending on the verification level of the JWT, display hidden/visible/e.t.c rooms
-    for (const room of roomManager.listRooms()) {
+    for (const { room, type } of roomManager.listRooms()) {
       previews.push({
+        type,
         id: room.id,
-        // TODO: add these properties to room
         name: room.name,
-        //@ts-expect-error
-        playerCount: room.players.length,
+        playerCount: room.playerCount,
       })
     }
 

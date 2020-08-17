@@ -13,6 +13,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const LobbyPage = lazy(() => import("./pages/LobbyPage"));
 const PlayPage = lazy(() => import("./pages/PlayPage"));
 
 export const App = () => {
@@ -33,13 +34,15 @@ export const App = () => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Suspense fallback={Loading}>
+          <Suspense fallback={<Loading />}>
             <Route exact path="/" component={HomePage} />
             <Route exact path="/guest" component={GuestPage} />
             <Route exact path="/register" component={RegisterPage} />
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/auth" component={AuthPage} />
-            <Route exact path="/play" component={PlayPage} />
+            <Route exact path="/lobby" component={LobbyPage} />
+            <Route exact path="/games/:roomId" component={PlayPage} />
+            <Route exact path="/games/" component={PlayPage} />
             {/* TODO: /games/:roomId route */}
           </Suspense>
         </ThemeProvider>

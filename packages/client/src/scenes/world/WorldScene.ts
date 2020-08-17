@@ -110,7 +110,6 @@ export class WorldScene extends Phaser.Scene {
 
     // tilesets hold each block and their tile id
     this.tileset = this.tilemap.addTilesetImage('atlas', 'atlas', TILE_WIDTH, TILE_HEIGHT, 0, 0);
-    console.log(this.tileset.image);
 
     // TODO: move this to new file
     supplyTextureLoader((async (tileId) => {
@@ -179,12 +178,12 @@ export class WorldScene extends Phaser.Scene {
 
     const initAsOnJoin = {
       packetId: SERVER_PLAYER_JOIN_ID,
-      playerId: this.initMessage.self.playerId,
+      playerId: this.initMessage.playerId,
       joinLocation: this.initMessage.spawnPosition,
       hasGun: false,
       gunEquipped: false,
-      username: this.initMessage.self.username,
-      isGuest: this.initMessage.self.isGuest,
+      username: "TODO",
+      isGuest: true,
     };
     this.mainPlayerId = this.initMessage.playerId;
     this.mainPlayer = new PrimaryPlayer(this, initAsOnJoin);

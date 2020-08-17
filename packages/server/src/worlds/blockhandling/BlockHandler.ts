@@ -25,7 +25,22 @@ export class BlockHandler {
     readonly map: Block[][][],
     readonly width: number,
     readonly height: number,
-  ) {}
+  ) {
+
+    // TODO: make the client able to handle a map where some things may be empty
+    for (let layerId = 0; layerId <= 2; layerId++) {
+      const layerMap = this.map[layerId] ?? (this.map[layerId] = []);
+
+      for (let y = 0; y < this.height; y++) {
+        const yMap = layerMap[y] ?? (layerMap[y] = []);
+
+        for (let x = 0; x < this.width; x++) {
+          yMap[x] ?? (yMap[x] = { id: 0 });
+        }
+      }
+    }
+
+  }
 
   handleSingle(packet: BlockSinglePacket, sender: Connection): ServerBlockSinglePacket | void {
 

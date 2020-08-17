@@ -17,11 +17,12 @@ type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 export default class Room {
   get id(): string { return this.#behaviour.id; }
   get status(): RoomStatus { return this.#status; }
-  get name(): string { return this.name; }
+  get name(): string { return this.#name; }
   // TODO: get these from an actual source
-  get width(): number { return this.width; }
-  get height(): number { return this.height; }
+  get width(): number { return this.#width; }
+  get height(): number { return this.#height; }
   get validateWorldPacket(): WorldPacketValidator { return this.#worldPacketValidator; }
+  get playerCount() { return this.#logic.playerCount };
 
   #name!: string;
   #width!: number;
@@ -73,7 +74,7 @@ export default class Room {
     this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
 
     this.#status = "running";
-    this.#logic = new RoomLogic(this.#onEmpty, blocks);
+    this.#logic = new RoomLogic(this.#onEmpty, blocks, details);
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;

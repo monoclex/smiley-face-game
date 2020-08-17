@@ -33,16 +33,16 @@ export default class RoomManager {
     this.lifetime();
   }
 
-  *listRooms(): Iterable<Room> {
+  *listRooms() {
     for (const room of this.#savedRooms.values()) {
       if (room.status === "starting" || room.status === "running") {
-        yield room;
+        yield { room, type: "saved" as const };
       }
     }
     
     for (const room of this.#dynamicRooms.values()) {
       if (room.status === "starting" || room.status === "running") {
-        yield room;
+        yield { room, type: "dynamic" as const };
       }
     }
   }

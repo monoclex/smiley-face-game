@@ -11,14 +11,21 @@ export default function generateWorld(width: number, height: number): string {
   const foreground: Block[][] = [];
   layers[TileLayer.Foreground] = foreground;
 
-  for (let y = 0; y < height; y++) {
-    const yLayer: Block[] = [];
-    foreground[y] = yLayer;
+  const solidLineAcrossX: Block[] = [];
 
-    for (let x = 0; x < width; x++) {
-      yLayer[x] = solid;
-    }
+  for (let x = 0; x < width; x++) {
+    solidLineAcrossX.push(solid);
   }
+
+  const sidelines: Block[] = [];
+  sidelines[0] = solid;
+  sidelines[width - 1] = solid;
+  
+  foreground[0] = solidLineAcrossX;
+  for (let y = 1; y < height - 1; y++) {
+    foreground[y] = sidelines;
+  }
+  foreground[height - 1] = solidLineAcrossX;
 
   return JSON.stringify(layers);
 }

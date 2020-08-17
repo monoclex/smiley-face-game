@@ -24,7 +24,7 @@ export default ({ location: { search } }) => {
         return result.json()
       })
       .then(json => {
-        history.push("/play?token=" + encodeURIComponent(json.token));
+        history.push("/lobby?token=" + encodeURIComponent(json.token));
       })
       .catch(setError);
 

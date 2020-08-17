@@ -3,11 +3,16 @@ import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import { api } from "../../isProduction";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
 import { LoadingSceneData } from "./LoadingSceneData";
+import { serverBlockBuffer } from "../../../../api/src/packets/ServerBlockBuffer";
+import { serverBlockSingle } from "../../../../api/src/packets/ServerBlockSingle";
+import { blockPosition } from "../../../../api/src/schemas/BlockPosition";
 
 export const globalVariableParkour = {
-  roomId: "smiley-face-game",
-  roomWidth: 25,
-  roomHeight: 25,
+  token: "",
+  name: "Smiley Face Game",
+  width: 50,
+  height: 50,
+  id: "smiley-face-game",
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -46,7 +51,7 @@ export class LoadingScene extends Phaser.Scene {
 
   create() {
     NetworkClient.connect(
-      api.connection(globalVariableParkour.roomId, globalVariableParkour.roomWidth, globalVariableParkour.roomHeight),
+      api.connection(globalVariableParkour),
       (events) => {
         events.onInit = (packet, sender) => {
           // prevent receiving any packets until the game scene changes
@@ -60,7 +65,9 @@ export class LoadingScene extends Phaser.Scene {
           console.time("init");
           this.scene.start(WORLD_SCENE_KEY, sceneData);
         };
-      }
+      },
+      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1))),
+      serverBlockSingle(blockPosition(50 - 1, 50 - 1))
     );
   }
 }

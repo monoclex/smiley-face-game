@@ -18,7 +18,7 @@ export default function schema<ReqBody, P extends core.Params = core.ParamsDicti
 
     if (errors !== null || body === undefined) {
       // TODO: it may be best to not send stack traces of errors to users in the future
-      res.send(422).send(errors);
+      res.status(422).send(errors);
       return;
     }
 
