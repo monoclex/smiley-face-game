@@ -8,7 +8,7 @@ export const ws = isSecure ? "wss" : "ws";
 
 class Urls {
   private baseUrl(): string {
-    return http + (isProduction ? "://api.sirjosh3917.com/smiley-face-game" : "://localhost:8080");
+    return http + (isProduction ? "://api.sirjosh3917.com/smiley-face-game" : "://localhost:8080") + "/v1";
   }
 
   lobby(): string {
@@ -23,6 +23,10 @@ class Urls {
 
   auth(): string {
     return this.baseUrl() + "/auth";
+  }
+
+  authGuest(): string {
+    return this.auth() + "/guest";
   }
 
   register(): string {

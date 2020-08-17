@@ -47,6 +47,7 @@ module.exports = (env, argv) => {
     },
     devServer: {
       historyApiFallback: true,
+      port: 5000
     },
     optimization: {
       splitChunks: {

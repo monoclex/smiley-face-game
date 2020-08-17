@@ -15,9 +15,25 @@ export default ({ location: { search } }) => {
   useEffect(() => {
     if (typeof name === "string") {
       // guest wanting to play, this is our name
-      fetch(api.auth())
-        .then(() => setStatus("Done Guest!"))
-        .then(() => history.push("/play"))
+      fetch(api.authGuest(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username: name })
+      })
+        .then(result => {
+          if (!result.ok) {
+            console.warn('Failed to authenticate at guest endpoint', result);
+            setStatus("Failed.");
+            return;
+          }
+
+          return result.json()
+        })
+        .then(json => {
+          history.push("/play?token=" + encodeURIComponent(json.token));
+        })
         .catch(setError);
     }
     else if (typeof username === "string" && typeof password === "string") {

@@ -1,22 +1,15 @@
 import expressWs from "express-ws";
-import * as WebSocket from 'ws';
 import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import AuthPayload from "@/jwt/payloads/AuthPayload";
 import canJoinWorld from "@/jwt/permissions/canJoinWorld";
 import extractJwt from "@/jwt/extractJwt";
-import jwt from "@/middlewares/jwt";
-import schema from "@/middlewares/schema";
-import Room from "@/worlds/Room";
-import RoomManager from "@/worlds/RoomManager";
 import { applyTo } from "@/expressapp";
 import Dependencies from "@/dependencies";
 import Connection from "@/worlds/Connection";
 
-type UsedDependencies = Pick<Dependencies, "authVerifier" | "worldProvider" | "worldVerifier" | "roomManager">;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager">;
 
 export default function(router: expressWs.Router, deps: UsedDependencies) {
-  const { authVerifier, worldProvider, worldVerifier, roomManager } = deps;
+  const { authVerifier, roomManager } = deps;
 
   applyTo(router);
 
@@ -41,6 +34,6 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
     const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
     const room = await roomManager.join(connection, worldTokenPayload);
 
-    await connection.play(room);
+    connection.play(room);
   });
 }
