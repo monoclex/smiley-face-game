@@ -5,16 +5,9 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { CssBaseline } from "@material-ui/core";
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import Lobby from "./lobby/Lobby";
 import Loading from "./Loading";
 import history from "@/ui/history";
 
-const LobbyPage = Lobby; // 'Lobby' is barely 5KiB non gzipped - not worth making lazy, and it has high chance of being hit anyways
-
-// HUGE - make lazy
-const GamePage = lazy(() => import("./game/Game"));
-
-// low chance of being hit, lazy it
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
@@ -47,23 +40,7 @@ export const App = () => {
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/auth" component={AuthPage} />
             <Route exact path="/play" component={PlayPage} />
-
-            {/* 
-                Temporary hack to allow people to join without width/height
-                (will deal with this later)
-            */}
-            <Route exact path="/games/:roomId" render={({ match }) => <GamePage roomId={match.params.roomId} />} />
-            <Route
-              exact
-              path="/games/:roomId/:width/:height"
-              render={({ match }) => (
-                <GamePage
-                  roomId={match.params.roomId}
-                  roomWidth={match.params.width}
-                  roomHeight={match.params.height}
-                />
-              )}
-            />
+            {/* TODO: /games/:roomId route */}
           </Suspense>
         </ThemeProvider>
       </Provider>
