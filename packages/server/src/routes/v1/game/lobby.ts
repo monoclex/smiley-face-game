@@ -15,7 +15,6 @@ export default async function(router: Router, deps: UsedDependencies) {
       previews.push({
         id: room.id,
         // TODO: add these properties to room
-        //@ts-expect-error
         name: room.name,
         //@ts-expect-error
         playerCount: room.players.length,

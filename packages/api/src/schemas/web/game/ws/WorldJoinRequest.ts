@@ -2,12 +2,12 @@ import Schema, { Type } from "computed-types";
 import { WorldIdSchema } from "../../../WorldId";
 import { DynamicWidthSchema } from "./DynamicWidth";
 import { DynamicHeightSchema } from "./DynamicHeight";
-import { DynamicWorldNameSchema } from "./DynamicWorldName";
+import { WorldNameSchema } from "../../../WorldName";
 
 export const WorldJoinRequestSchema = Schema.either({
   // "dynamic" worlds are ones that can be created *on demand*, without an account. They aren't saved.
   type: "dynamic" as const,
-  name: DynamicWorldNameSchema,
+  name: WorldNameSchema,
   width: DynamicWidthSchema,
   height: DynamicHeightSchema,
 }, {

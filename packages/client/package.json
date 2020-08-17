@@ -20,6 +20,7 @@
     "phaser": "^3.24.0",
     "phaser-matter-collision-plugin": "^0.10.2",
     "phaser-slopes": "^0.1.1",
+    "query-string": "^6.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.0.4",

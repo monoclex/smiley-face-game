@@ -10,8 +10,6 @@ import urlHeldGun from "./held_gun.png";
 //@ts-ignore
 import urlPlayer from "./mmmyep.png";
 
-console.log(urlAtlas);
-
 export function loadAll(loader: Phaser.Loader.LoaderPlugin) {
   loader.atlas("atlas", urlAtlas, urlAtlasJson);
   loader.image("player", urlPlayer);
