@@ -5,10 +5,10 @@ import { validateGuest } from "@smiley-face-game/api/schemas/web/auth/Guest";
 import schema from "@/middlewares/schema";
 import Dependencies from "@/dependencies";
 
-type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider">;
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider" | "worldRepo">;
 
 export default function (deps: UsedDependencies): Router {
-  const { accountRepo, authProvider } = deps;
+  const { accountRepo, worldRepo, authProvider } = deps;
 
   const router = Router();
 
@@ -44,6 +44,16 @@ export default function (deps: UsedDependencies): Router {
       email: body.email,
       password: body.password
     });
+
+    // give registered users a world to save/load/play
+    const world = await worldRepo.create({
+      owner: account,
+      width: 50,
+      height: 50,
+    });
+
+    account.worlds.push(world);
+    await accountRepo.save(account);
 
     const token = authProvider.allowAuthentication(account.id);
 

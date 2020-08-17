@@ -67,6 +67,16 @@ export default class AccountRepo {
 
   verifyPassword(account: AccountLike, password: string): Promise<boolean> {
     const accountPassword = account.password;
-    return bcrypt.compare(accountPassword, password);
+    return bcrypt.compare(password, accountPassword);
+  }
+
+  /* === modification === */
+
+  /**
+   * @deprecated
+   * Not actually deprecated, just highly suggested not to use until an alternative is propely thought about.
+   */
+  save(account: Account | AccountLike): Promise<Account> {
+    return this.#repo.save(account);
   }
 }
