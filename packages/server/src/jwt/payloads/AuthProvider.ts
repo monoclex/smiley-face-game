@@ -1,5 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
+import { validateUsername } from "@smiley-face-game/api/schemas/Username";
 import ensureValidates from "@/ensureValidates";
 import AuthPayload from "./AuthPayload";
 
@@ -24,5 +25,25 @@ export default class AuthProvider {
     };
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 hour" });
+  }
+  
+  /**
+   * Generates a JWT that only authenticates a Guest to play the game.
+   * @param name The name for the Guest.
+   */
+  allowGuestAuthentication(name: string) {
+    ensureValidates(validateUsername, name);
+
+    const payload: AuthPayload = {
+      ver: 1,
+      aud: "",
+      name,
+      can: ["play"]
+    };
+
+    // generate a token that never expires
+    // this is fine, because in new versions of the code `ver` will be changed (and thus, failing checks elsewhere)
+    // and because the only data associated with this is the guest username, there will never be any issues.
+    return jwt.sign(payload, this.#secret);
   }
 }
