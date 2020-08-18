@@ -37,6 +37,8 @@ const useStyles = makeStyles((theme) => ({
 // TODO: import from libcore
 interface GamePreview {
   id: string;
+  name: string;
+  type: "saved" | "dynamic";
   playerCount: number;
 }
 
@@ -45,8 +47,7 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
-  const { room: { id } } = props;
-  const name = id; // TODO: when rooms get their own name, use it instead
+  const { room: { id, name, type } } = props;
 
   const classes = useStyles();
 
@@ -77,7 +78,7 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <Link to={`/games/${id}`}>
+              <Link to={`/games/${id}?type=${type}`}>
                 <IconButton aria-label="play">
                   <PlayIcon />
                 </IconButton>

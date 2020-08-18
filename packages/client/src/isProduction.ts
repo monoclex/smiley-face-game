@@ -58,6 +58,8 @@ class Urls {
       joinRequest = { type: "dynamic", name: options.name!, width: options.width!, height: options.height! };
     }
 
+    console.log(joinRequest);
+
     const query = `token=${encodeURIComponent(options.token)}&world=${encodeURIComponent(JSON.stringify(joinRequest))}`;
 
     return isProduction

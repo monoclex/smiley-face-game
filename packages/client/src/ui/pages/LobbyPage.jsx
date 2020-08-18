@@ -1,12 +1,28 @@
 //@ts-check
 import React, { useState, useEffect } from "react";
-import * as qs from "query-string";
+import { motion } from "framer-motion";
 import { makeStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import SvgIcon from "@material-ui/core/SvgIcon";
+import RefreshIcon from "mdi-material-ui/Refresh";
+import PlusIcon from "mdi-material-ui/Plus";
+//@ts-ignore
+import DiscordLogo from "@/assets/discord.svg";
+import CreateRoomDialog from "@/ui/components/CreateRoomDialog";
+import { Room } from "@/ui/lobby/Room";
 import history from "@/ui/history";
+import Loading from "@/ui/Loading";
 import { api } from "@/isProduction";
 
 const useStyles = makeStyles({
-
+  input: {
+    textAlign: "center",
+  },
+  paddingStyle: {
+    // https://material-ui.com/components/grid/#negative-margin
+    padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
+  },
 });
 
 export default () => {
@@ -17,19 +33,56 @@ export default () => {
     return null;
   }
 
-  const styles = useStyles();
+  const classes = useStyles();
 
-  const [onlineRooms, setOnlineRooms] = useState([]);
+  const [roomPreviews, setRoomPreviews] = useState(undefined);
+  const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
+
+  const fetchLobby = () => {
+    setRoomPreviews(undefined);
+    api.getLobby(token).then(setRoomPreviews);
+  };
 
   // TODO: bring in stuff from old lobby component to here
   useEffect(() => {
-    setOnlineRooms([]);
-
-    api.getLobby(token).then(setOnlineRooms);
+    fetchLobby();
   }, []);
 
   return (
     <>
+      <Grid container item justify="center" alignItems="center">
+        <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
+          <IconButton onClick={() => fetchLobby()}>
+            <RefreshIcon />
+          </IconButton>
+        </motion.div>
+        <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
+          <PlusIcon />
+        </IconButton>
+        <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
+          <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
+        </IconButton>
+      </Grid>
+      <div className={classes.paddingStyle}>
+        <Grid container spacing={3} justify="center" alignItems="flex-start">
+          {!roomPreviews && <Loading message={"Loading rooms..."} />}
+          {!!roomPreviews && roomPreviews.map((room) => (
+            <Grid item key={room.id}>
+              <Room room={room} />
+            </Grid>
+          ))}
+        </Grid>
+      </div>
+
+      <CreateRoomDialog
+        open={createRoomDialogOpen}
+        onClose={() => setCreateRoomDialogOpen(false)}
+        onCreateRoom={({ width, height, name }) => {
+          history.push(`/games/?name=${encodeURIComponent(name)}&width=${width}&height=${height}`);
+          setCreateRoomDialogOpen(false);
+        }}
+      />
+    {/*
       <a onClick={() => history.push("/games/?name=ROOM&width=50&height=50&token=" + encodeURIComponent(token))}>
         new room
       </a>
@@ -41,6 +94,7 @@ export default () => {
           </a>
         </div>
       ))}
+      */}
     </>
   );
 };

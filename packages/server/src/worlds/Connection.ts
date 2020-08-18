@@ -93,7 +93,9 @@ export default class Connection {
 
   // TODO: introduce serialization stuff
   send(packet: WorldPacket) {
-    this.webSocket.send(JSON.stringify(packet));
+    if (this.webSocket.readyState === WebSocket.OPEN) {
+      this.webSocket.send(JSON.stringify(packet));
+    }
   }
 
   kill(reason: string) {

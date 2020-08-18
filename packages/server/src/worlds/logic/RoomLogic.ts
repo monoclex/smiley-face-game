@@ -8,6 +8,7 @@ import Connection from "@/worlds/Connection";
 import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
 import WorldBlocks from "@/worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
+import WebSocket from "ws";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -122,7 +123,9 @@ export default class RoomLogic {
     const packetData = JSON.stringify(packet);
 
     for (const player of this.#players.values()) {
-      player.webSocket.send(packetData);
+      if (player.webSocket.readyState === WebSocket.OPEN) {
+        player.webSocket.send(packetData);
+      }
     }
   }
 

@@ -18,6 +18,7 @@ import { updatePrimary } from "../redux/actionCreators/blockBar";
 import { connect } from "react-redux";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
 import ChatBar from "@/ui/game/chatbar/ChatBar";
+import history from "@/ui/history";
 
 export const config = {
   pixelArt: true,
@@ -71,7 +72,14 @@ const useStyles = makeStyles({
 });
 
 const Game = ({ match: { params: { roomId } }, location: { search }, updatePrimary, selectedSlot, loader }) => {
-  let { token, name, width, height, type, id } = qs.parse(search);
+  const token = localStorage.getItem("token");
+
+  if (token === null) {
+    history.push("/");
+    return null;
+  }
+
+  let { name, width, height, type, id } = qs.parse(search);
 
   width = parseInt(width);
   height = parseInt(height);
