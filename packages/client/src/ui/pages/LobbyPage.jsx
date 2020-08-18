@@ -9,8 +9,13 @@ const useStyles = makeStyles({
 
 });
 
-export default ({ location: { search } }) => {
-  const { token } = qs.parse(search);
+export default () => {
+  const token = localStorage.getItem("token");
+
+  if (token === null) {
+    history.push("/");
+    return null;
+  }
 
   const styles = useStyles();
 

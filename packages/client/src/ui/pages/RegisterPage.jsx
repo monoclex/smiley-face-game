@@ -1,45 +1,32 @@
 //@ts-check
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import React from "react";
+import GenericAuthenticationPage from "@/ui/components/GenericAuthenticationPage";
 import urlPlayer from "@/assets/mmmnop.png";
 import history from "@/ui/history";
+import { api } from "@/isProduction";
 
-const useStyles = makeStyles({
-  bigSmileyFace: {
-    width: "512px",
-    height: "512px",
-    imageRendering: "crisp-edges"
-  }
-})
-
-export default () => {
-  const styles = useStyles();
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  return (
-    <>
-      <img className={styles.bigSmileyFace} src={urlPlayer} />
-      <Typography>
-        Enter your Username
-      </Typography>
-      <TextField onChange={({ target: { value } }) => setUsername(value)} />
-      <Typography>
-        Enter your Email
-      </Typography>
-      <TextField onChange={({ target: { value } }) => setEmail(value)} />
-      <Typography>
-        Enter your Password
-      </Typography>
-      <TextField onChange={({ target: { value } }) => setPassword(value)} />
-      <Button onClick={() => { history.push("auth?username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password) + "&email=" + encodeURIComponent(email)); }}>
-        Go!
-      </Button>
-    </>
-  );
-};
+export default () => (
+  <GenericAuthenticationPage
+    smileyUrl={urlPlayer}
+    inputs={[
+      { text: "Enter your username" },
+      { text: "Enter your email" },
+      { text: "Enter your password" },
+    ]}
+    submit={([ username, email, password ]) => {
+      api.postRegister(username, email, password)
+        .then(result => {
+          if (!result.ok) {
+            console.warn('Failed to authenticate at register endpoint', result);
+            return;
+          }
+        
+          return result.json()
+        })
+        .then(json => {
+          localStorage.setItem("token", json.token);
+          history.push("/lobby");
+        });
+    }}
+  />
+);
