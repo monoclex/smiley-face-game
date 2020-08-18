@@ -6,7 +6,6 @@ const fs = require("fs");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
-  console.log(mode);
 
   return {
     mode,

@@ -31,6 +31,12 @@ export default class AccountRepo {
     return this.#repo.findOneOrFail({ id }, {  });
   }
 
+  // TODO: do this better
+  findByIdWithWorlds(id: string): Promise<Account> {
+    ensureValidates(validateAccountId, id);
+    return this.#repo.findOneOrFail({ id }, { relations: ["worlds"] });
+  }
+
   findByUsername(username: string): Promise<AccountLike> {
     ensureValidates(validateUsername, username);
     return this.#repo.findOneOrFail({ username });

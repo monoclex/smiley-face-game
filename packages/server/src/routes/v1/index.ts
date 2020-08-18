@@ -2,12 +2,14 @@ import { Router } from "express";
 import Dependencies from "@/dependencies";
 import authRouterFactory from "./auth";
 import gameRouterFactory from "./game";
+import playerRouterFactory from "./player";
 
 export default function (deps: Dependencies): Router {
   const router = Router();
 
   router.use('/auth', authRouterFactory(deps));
   router.use('/game', gameRouterFactory(deps));
+  router.use('/player', playerRouterFactory(deps));
 
   return router;
 }

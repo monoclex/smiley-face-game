@@ -47,7 +47,7 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
-  const { room: { id, name, type } } = props;
+  const { room: { id, name, type, playerCount } } = props;
 
   const classes = useStyles();
 
@@ -60,7 +60,7 @@ export const Room = (props: RoomProps) => {
               {name}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              {id}
+              {playerCount} online
             </Typography>
           </CardContent>
 

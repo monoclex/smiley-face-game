@@ -14,6 +14,7 @@ import { Room } from "@/ui/lobby/Room";
 import history from "@/ui/history";
 import Loading from "@/ui/Loading";
 import { api } from "@/isProduction";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles({
   input: {
@@ -36,23 +37,26 @@ export default () => {
   const classes = useStyles();
 
   const [roomPreviews, setRoomPreviews] = useState(undefined);
+  const [myRooms, setMyRooms] = useState(undefined);
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
 
-  const fetchLobby = () => {
+  const refresh = () => {
     setRoomPreviews(undefined);
+    setMyRooms(undefined);
     api.getLobby(token).then(setRoomPreviews);
+    api.getMyRooms(token).then(setMyRooms);
   };
 
   // TODO: bring in stuff from old lobby component to here
   useEffect(() => {
-    fetchLobby();
+    refresh();
   }, []);
 
   return (
     <>
       <Grid container item justify="center" alignItems="center">
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
-          <IconButton onClick={() => fetchLobby()}>
+          <IconButton onClick={() => refresh()}>
             <RefreshIcon />
           </IconButton>
         </motion.div>
@@ -71,7 +75,21 @@ export default () => {
               <Room room={room} />
             </Grid>
           ))}
+
         </Grid>
+
+{myRooms && <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
+  Your Rooms
+</Typography>}
+
+        {myRooms && <Grid container spacing={3} justify="center" alignItems="flex-start">
+          {!myRooms && <Loading message={"Loading your rooms..."} />}
+          {!!myRooms && myRooms.map((room) => (
+            <Grid item key={room.id}>
+              <Room room={room} />
+            </Grid>
+          ))}
+        </Grid>}
       </div>
 
       <CreateRoomDialog

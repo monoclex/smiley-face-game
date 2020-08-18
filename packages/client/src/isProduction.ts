@@ -38,8 +38,21 @@ class Urls {
     return this.baseUrl() + "/game/lobby";
   }
 
+  player(): string {
+    return this.baseUrl() + "/player";
+  }
+
   getLobby(token: string): Promise<any> {
     return fetch(this.lobby(), {
+      method: "GET",
+      headers: {
+        "Authorization": token
+      }
+    }).then(result => result.ok && result.json());
+  }
+
+  getMyRooms(token: string): Promise<any> {
+    return fetch(this.player(), {
       method: "GET",
       headers: {
         "Authorization": token
@@ -57,8 +70,6 @@ class Urls {
     else {
       joinRequest = { type: "dynamic", name: options.name!, width: options.width!, height: options.height! };
     }
-
-    console.log(joinRequest);
 
     const query = `token=${encodeURIComponent(options.token)}&world=${encodeURIComponent(JSON.stringify(joinRequest))}`;
 

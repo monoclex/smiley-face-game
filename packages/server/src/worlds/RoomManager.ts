@@ -33,6 +33,10 @@ export default class RoomManager {
     this.lifetime();
   }
 
+  getSaved(id: string): Room | undefined {
+    return this.#savedRooms.get(id);
+  }
+
   *listRooms() {
     for (const room of this.#savedRooms.values()) {
       if (room.status === "starting" || room.status === "running") {
@@ -95,7 +99,12 @@ export default class RoomManager {
         await newRoom.onRunning.promise;
 
         // TODO: should we reuse the code in the "running" case?
-        message.completion.resolve(room);
+        if (newRoom.status === "running") {
+          message.completion.resolve(room);
+        }
+        else {
+          message.completion.reject();
+        }
         continue;
       }
 
