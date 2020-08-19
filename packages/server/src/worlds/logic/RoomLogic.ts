@@ -92,9 +92,7 @@ export default class RoomLogic {
   handleLeave(connection: Connection) {
     ensureHasId(connection);
     ensureNotDead(this.#shouldBeDead);
-
-    // TODO: broadcast leaving code
-
+    
     this.#players.delete(connection.playerId!);
 
     if (this.#players.size === 0) {
