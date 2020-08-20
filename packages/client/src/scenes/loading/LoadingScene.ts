@@ -13,6 +13,9 @@ export const globalVariableParkour = {
   width: 50,
   height: 50,
   id: "smiley-face-game",
+  onId: (a: string) => {
+    return
+  },
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -61,6 +64,9 @@ export class LoadingScene extends Phaser.Scene {
             init: packet,
             networkClient: sender,
           };
+
+          console.log('init', packet, sender);
+          globalVariableParkour.onId(packet.worldId);
 
           console.time("init");
           this.scene.start(WORLD_SCENE_KEY, sceneData);

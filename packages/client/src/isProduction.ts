@@ -17,6 +17,7 @@ interface GlobalVariableParkourType {
   width?: number;
   height?: number;
   id?: string;
+  onId?: (id: string) => void;
 }
 
 class Urls {

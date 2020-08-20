@@ -17,6 +17,11 @@ getConnectionOptions()
     app.use(cors());
     app.use(bodyParser.json());
     app.use('/', routes(dependencies));
+    //@ts-ignore
+    app.use((err, req, res, next) => {
+      res.status(500)
+        .send(err);
+    })
 
     app.listen(8080, () => console.log('listening'));
   })

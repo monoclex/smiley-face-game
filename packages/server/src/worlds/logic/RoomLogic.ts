@@ -31,15 +31,17 @@ export default class RoomLogic {
   #idCounter: number = 0;
   #details: WorldDetails;
   #setStoppingStatus: () => void;
+  #id: string;
 
   get playerCount(): number { return this.#players.size; };
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails, setStopping: () => void) {
+  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails, setStopping: () => void, id: string) {
     this.blockHandler = new BlockHandler(blocks, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
     this.#setStoppingStatus = setStopping;
+    this.#id = id;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -65,6 +67,7 @@ export default class RoomLogic {
 
     connection.send({
       packetId: SERVER_INIT_ID,
+      worldId: this.#id,
       playerId: connection.playerId!,
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },

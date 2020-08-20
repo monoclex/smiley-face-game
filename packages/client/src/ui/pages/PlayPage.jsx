@@ -99,6 +99,11 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
     globalVariableParkour.width = width;
     globalVariableParkour.height = height;
     globalVariableParkour.id = id;
+    globalVariableParkour.onId = (id) => {
+      // https://stackoverflow.com/a/61596862/3780113
+      // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
+      window.history.replaceState(null, document.title, `/games/${id}?type=${type ?? "dynamic"}`);
+    }
 
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });

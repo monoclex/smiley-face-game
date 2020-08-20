@@ -1,4 +1,5 @@
 import { Router } from "express";
+import asyncHandler from "@/middlewares/asyncHandler";
 import Dependencies from "@/dependencies";
 import authRouterFactory from "./auth";
 import gameRouterFactory from "./game";
@@ -10,6 +11,11 @@ export default function (deps: Dependencies): Router {
   router.use('/auth', authRouterFactory(deps));
   router.use('/game', gameRouterFactory(deps));
   router.use('/player', playerRouterFactory(deps));
+  router.get("/err", asyncHandler((req, res) => {
+    return new Promise((r, rj) => {
+      setTimeout(() => {rj(new Error("async errer"))}, 1000);
+    });
+  }));
 
   return router;
 }

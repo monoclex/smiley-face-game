@@ -17,6 +17,9 @@
       ]
     },
     "rootDirs": ["src"],
+    "plugins": [
+      { "transform": "@zerollup/ts-transform-paths" }
+    ]
   },
   "include": [
     "src/**/*.ts"

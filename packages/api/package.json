@@ -6,10 +6,14 @@
     "lib": "./dist"
   },
   "scripts": {
-    "build:server": "yarn tsc --project . --module commonjs --outDir ./dist/cjs",
-    "build:client": "yarn tsc --project . --module ESNext --outDir ./dist/es"
+    "build:server": "yarn ttsc --project . --module commonjs --outDir ./dist/cjs",
+    "build:client": "yarn ttsc --project . --module ESNext --outDir ./dist/es"
   },
   "dependencies": {
     "computed-types": "^1.1.0"
+  },
+  "devDependencies": {
+    "@zerollup/ts-transform-paths": "^1.7.18",
+    "ttypescript": "^1.5.10"
   }
 }
