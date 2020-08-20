@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -29,14 +28,14 @@ func main() {
 
 	for {
 		verifier := EstablishConnection(verifierAddress)
-		rooms := make(map[*string]*MaybeRoom)
-		roomsLock := new(sync.Mutex)
+		rooms := NewRoomMap()
 
 		go func() {
 			server := createGateway(publicAddress, func(request *http.Request, connection *websocket.Conn) {
 				allow, roomID, err := verifier.Verify(request)
 				if err != nil {
 					fmt.Println("Couldn't verify client", err)
+					connection.Close()
 					return
 				}
 
@@ -46,26 +45,11 @@ func main() {
 				}
 
 				// TODO: support gateway transport types through the query, such as supporting messagepack or a custom
-				// protocol overload
+				// protocol overload. This way, bots who use old methods of communication can still function whilst
+				// newer clients that support newer binary protocols can continue to communicate
 
-				roomsLock.Lock()
-				value, exists := rooms[roomID]
-				if !exists {
-					value = &MaybeRoom{
-						alive: make(chan Nothing),
-						room:  nil,
-					}
-
-					rooms[roomID] = value
-				}
-				roomsLock.Unlock()
-
-				<-value.alive
-
-				value.room.clientsLock.Lock()
-				value.room.clients = append(value.room.clients, connection)
-				value.room.clientsLock.Unlock()
-
+				value := rooms.EntryFor(roomID)
+				value.Room().JoinRoom(request, connection)
 			}, func(_ *http.Request) bool { return true })
 			defer server.Shutdown(context.Background())
 
@@ -74,6 +58,17 @@ func main() {
 
 		go func() {
 			server := createGateway(privateAddress, func(request *http.Request, connection *websocket.Conn) {
+				_, message, err := connection.ReadMessage()
+				if err != nil {
+					fmt.Println("Error connecting to private gateway:", err)
+					connection.Close()
+					return
+				}
+
+				roomID := string(message)
+				maybeRoom := rooms.EntryFor(&roomID)
+
+				OpenRoom(connection, maybeRoom)
 			}, nil)
 			defer server.Shutdown(context.Background())
 

@@ -19,7 +19,7 @@ type VerificationResponse struct {
 type Verifier struct {
 	verifierServer       *websocket.Conn
 	verificationRequests chan verificationRequest
-	alive                chan nothing
+	alive                chan Nothing
 }
 
 type verificationRequest struct {
@@ -90,7 +90,7 @@ func EstablishConnection(address *string) *Verifier {
 	verifier := Verifier{
 		verifierServer:       connection,
 		verificationRequests: make(chan verificationRequest),
-		alive:                make(chan nothing),
+		alive:                make(chan Nothing),
 	}
 
 	// start listening for verification requests

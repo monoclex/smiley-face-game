@@ -1,9 +1,15 @@
 {
   "[typescript]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": true,
       "source.organizeImports": false,
     }
+  },
+  "[go]": {
+    "editor.tabSize": 8,
+    "editor.useTabStops": true
   },
   "files.exclude": {
     "**/.git": true,
