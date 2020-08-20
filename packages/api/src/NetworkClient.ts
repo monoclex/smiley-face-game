@@ -70,6 +70,7 @@ export class NetworkClient {
   readonly events: NetworkEvents;
   private _pause!: boolean;
   private _buffer: MessageEvent[];
+  private _showClosingAlert: boolean = false;
 
   private constructor(
     private readonly _webSocket: WebSocket,
@@ -94,8 +95,10 @@ export class NetworkClient {
     };
 
     this._webSocket.onclose = this._webSocket.onerror = (event) => {
-      //@ts-ignore
-      alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
+      if (this._showClosingAlert) {
+        //@ts-ignore
+        alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
+      }
     };
 
     this._webSocket.onmessage = async (event) => {
@@ -139,6 +142,11 @@ export class NetworkClient {
       // execute any hooks
       await eventCallback(packet, this);
     };
+  }
+
+  destroy(): void {
+    this._showClosingAlert = false;
+    this._webSocket.close();
   }
 
   /** Prevents any event handlers from being triggered. Pushes all incmoing messages into a buffer. */

@@ -108,9 +108,14 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
 
-    window.addEventListener("resize", () => {
+    const listener = window.addEventListener("resize", () => {
       game.scale.resize(window.innerWidth, window.innerHeight);
     });
+
+    return function cleanup() {
+      window.removeEventListener("resize", listener);
+      game.destroy(true);
+    }
   }, []);
 
   return (

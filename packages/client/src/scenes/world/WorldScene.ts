@@ -61,6 +61,7 @@ export class WorldScene extends Phaser.Scene {
 
   /** @param {import("../loading/LoadingSceneData").LoadingSceneData} data */
   init(data) {
+    this.events.on("destroy", this.destroy, this);
     this.networkClient = data.networkClient;
     this.initMessage = data.init;
 
@@ -79,6 +80,11 @@ export class WorldScene extends Phaser.Scene {
 
     /** @type {import('./components/Block').Block[][][]} */
     this.mapData = this.initMessage.blocks;
+  }
+
+  destroy() {
+    console.log('phaser game being destroyed');
+    this.networkClient.destroy();
   }
 
   preload() {
