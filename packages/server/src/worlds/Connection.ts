@@ -23,7 +23,17 @@ export default class Connection {
     readonly webSocket: WebSocket,
     readonly authTokenPayload: AuthPayload,
     readonly worldTokenPayload: WorldJoinRequest,
-  ) {}
+  ) {
+    // ping the client every 30 seconds
+    let pingTimer = setInterval(() => {
+      if (webSocket.readyState === webSocket.OPEN) {
+        webSocket.ping();
+      }
+      else {
+        clearInterval(pingTimer);
+      }
+    }, 30 * 1000);
+  }
 
   async load(accountRepo: AccountRepo) {
     if (this.authTokenPayload.aud === "") {
