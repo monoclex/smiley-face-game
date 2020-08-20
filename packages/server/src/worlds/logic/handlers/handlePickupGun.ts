@@ -14,6 +14,7 @@ export default function handlePickupGun(packet: PickupGunPacket, [sender, logic]
   }
 
   sender.hasGun = true;
+  sender.gunEquipped = true;
 
   logic.broadcast({
     packetId: SERVER_PICKUP_GUN_ID,
