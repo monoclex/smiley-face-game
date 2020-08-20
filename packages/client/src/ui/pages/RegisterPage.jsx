@@ -14,7 +14,7 @@ export default () => (
       { text: "Enter your password" },
     ]}
     submit={([ username, email, password ]) => {
-      api.postRegister(username, email, password)
+      api.postRegister(username, email.toLowerCase(), password)
         .then(result => {
           if (!result.ok) {
             console.warn('Failed to authenticate at register endpoint', result);

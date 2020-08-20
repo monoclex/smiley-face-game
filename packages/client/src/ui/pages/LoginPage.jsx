@@ -13,7 +13,7 @@ export default () => (
       { text: "Enter your password" },
     ]}
     submit={([ email, password ]) => {
-      api.postLogin(email, password)
+      api.postLogin(email.toLowerCase(), password)
         .then(result => {
           if (!result.ok) {
             console.warn('Failed to authenticate at login endpoint', result);
