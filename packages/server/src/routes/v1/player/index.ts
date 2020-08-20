@@ -17,12 +17,20 @@ export default function (deps: UsedDependencies): Router {
 
     const account = await accountRepo.findByIdWithWorlds(req.jwt.aud);
     
-    res.json(account.worlds.map(world => ({
-      type: "saved",
-      id: world.id,
-      name: world.name,
-      playerCount: roomManager.getSaved(world.id)?.playerCount ?? 0
-    })))
+    res.json({
+      name: account.username,
+      energy: account.currentEnergy,
+      maxEnergy: account.maxEnergy,
+      energyRegenerationRateMs: account.energyRegenerationRateMs,
+      lastEnergyAmount: account.lastEnergyAmount,
+      timeEnergyWasAtAmount: account.timeEnergyWasAtAmount,
+      ownedWorlds: account.worlds.map(world => ({
+        type: "saved",
+        id: world.id,
+        name: world.name,
+        playerCount: roomManager.getSaved(world.id)?.playerCount ?? 0
+      }))
+    });
   }));
 
   return router;

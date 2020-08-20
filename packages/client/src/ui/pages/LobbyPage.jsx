@@ -44,7 +44,7 @@ export default () => {
     setRoomPreviews(undefined);
     setMyRooms(undefined);
     api.getLobby(token).then(setRoomPreviews);
-    api.getMyRooms(token).then((myRooms) => { if (Array.isArray(myRooms)) { setMyRooms(myRooms); } });
+    api.getMyRooms(token).then(({ ownedWorlds }) => { if (Array.isArray(ownedWorlds)) { setMyRooms(ownedWorlds); } });
   };
 
   // TODO: bring in stuff from old lobby component to here

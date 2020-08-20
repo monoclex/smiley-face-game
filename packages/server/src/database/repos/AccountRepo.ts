@@ -65,7 +65,7 @@ export default class AccountRepo {
     account.maxEnergy = 100;
     account.lastEnergyAmount = 100;
     account.timeEnergyWasAtAmount = Date.now();
-    account.energyRegenerationRateMs = 5 * 60; // 5 minutes
+    account.energyRegenerationRateMs = 1 * 60 * 1000; // 5 minutes
     account.worlds = worlds;
 
     return await this.#repo.save(account);
