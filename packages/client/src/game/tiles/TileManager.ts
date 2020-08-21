@@ -2,6 +2,7 @@ import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import { Size } from "@smiley-face-game/api/schemas/Size";
 import urlAtlas from "@/assets/atlas.png";
 import urlAtlasJson from "@/assets/atlas_atlas.json";
+import Position from "@/math/Position";
 import key from "./key";
 
 const TILE_WIDTH = 32;
@@ -24,6 +25,11 @@ export default class TileManager {
     });
 
     this.tileset = this.tilemap.addTilesetImage("tilemap", key("tiles"));
+  }
+
+  // TODO: put this in something that handles tile layers
+  drawLine(start: Position, end: Position, tileId: TileId) {
+
   }
 
   /**
