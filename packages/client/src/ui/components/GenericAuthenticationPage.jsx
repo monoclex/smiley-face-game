@@ -1,9 +1,13 @@
 //@ts-check
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
+import { validateUsername } from "@smiley-face-game/api/schemas/Username";
+import { validateEmail } from "@smiley-face-game/api/schemas/Email";
+import { validatePassword } from "@smiley-face-game/api/schemas/Password";
 
 const useStyles = makeStyles({
   bigSmileyFace: {
@@ -19,32 +23,43 @@ const useStyles = makeStyles({
   }
 })
 
+const wrapValidator = (validator) => (input) => {
+  const result = validator(input)[0];
+  if (result === null) return undefined;
+  return result.toString();
+};
+
+const validators = {
+  // hacky way to do this and not pass in props, but idk i don't feel like properly architecturing my code
+  username: wrapValidator(validateUsername),
+  email: input => wrapValidator(validateEmail)(input.toLowerCase()),
+  password: wrapValidator(validatePassword)
+}
+
 export default ({ smileyUrl, inputs, submit }) => {
   const styles = useStyles();
-
-  let values = [], setValues = [];
-
-  for (const _ of inputs) {
-    const [value, setValue] = useState("");
-    values.push(value);
-    setValues.push(setValue);
-  }
+  const { handleSubmit, register, errors, watch } = useForm();
 
   return (
     <Container component="main" maxWidth="sm">
       <img className={styles.bigSmileyFace} src={smileyUrl} />
-      {inputs.map((input, index) => (
-        <TextField
-          fullWidth
-          key={index}
-          label={typeof input.text === "function" ? input.text(values[index]) : input.text}
-          onKeyDown={({ keyCode }) => keyCode === 13 ? submit(values) : undefined}
-          onChange={({ target: { value } }) => setValues[index](value)}
-        />
-      ))}
-      <Button fullWidth onClick={() => submit(values)}>
-        Go!
-      </Button>
+      <form onSubmit={handleSubmit(submit)}>
+        {inputs.map((input, index) => (
+          <TextField
+            key={index}
+            fullWidth
+            id={input.name}
+            name={input.name}
+            label={typeof input.text === "function" ? input.text(watch(input.name)) : input.text}
+            error={!!(errors && errors[input.name])}
+            helperText={errors && errors[input.name]?.message}
+            inputRef={register({ required: true, validate: validators[input.name] })}
+          />
+        ))}
+        <Button fullWidth type="submit">
+          Go!
+        </Button>
+      </form>
     </Container>
   );
 };

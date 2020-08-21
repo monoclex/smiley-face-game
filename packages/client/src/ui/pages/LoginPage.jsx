@@ -9,10 +9,10 @@ export default () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
     inputs={[
-      { text: "Enter your email" },
-      { text: "Enter your password" },
+      { name: "email", text: "Enter your email" },
+      { name: "password", text: "Enter your password" },
     ]}
-    submit={([ email, password ]) => {
+    submit={({ email, password }) => {
       api.postLogin(email.toLowerCase(), password)
         .then(result => {
           if (!result.ok) {

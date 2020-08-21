@@ -8,10 +8,10 @@ export default () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
     inputs={[
-      { text: (value) => !value ? "Enter your preferred username" : `Hello, ${value}!` },
+      { name: "username", text: (value) => !value ? "Enter your preferred username" : `Hello, ${value}!` },
     ]}
-    submit={([ preferredUsername ]) => {
-      api.postAuthGuest(preferredUsername)
+    submit={({ username }) => {
+      api.postAuthGuest(username)
         .then(result => {
           if (!result.ok) {
             console.warn('Failed to authenticate at guest endpoint', result);
