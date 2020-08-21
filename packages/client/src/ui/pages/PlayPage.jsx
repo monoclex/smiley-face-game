@@ -3,22 +3,20 @@
 // \--------------------------------------------------/
 
 //@ts-check
-import * as React from "react";
-import * as qs from "query-string";
-import { useEffect, useRef, useState } from "react";
-import { globalVariableParkour, LoadingScene } from "../../scenes/loading/LoadingScene";
-import { Grid, AppBar, Toolbar, Typography } from "@material-ui/core";
 import Phaser from "phaser";
-//@ts-ignore
-import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
-import { WorldScene } from "../../scenes/world/WorldScene";
-import isProduction from "../../isProduction";
-import { makeStyles } from "@material-ui/core/styles";
-import { updatePrimary } from "../redux/actionCreators/blockBar";
+import qs from "query-string";
+import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import BlockBar from "@/ui/game/blockbar/BlockBar";
+import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
+import { makeStyles } from "@material-ui/core/styles";
+import { Grid } from "@material-ui/core";
+import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
+import { WorldScene } from "@/scenes/world/WorldScene";
+import { updatePrimary } from "@/ui/redux/actionCreators/blockBar";
 import ChatBar from "@/ui/game/chatbar/ChatBar";
+import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
+import isProduction from "@/isProduction";
 
 export const config = {
   pixelArt: true,
@@ -63,8 +61,7 @@ const useStyles = makeStyles({
   },
   blockbar: {
     position: "absolute",
-    left: "25%",
-    width: "50%",
+    width: "100%",
     bottom: 0,
     margin: 0,
     padding: 0,

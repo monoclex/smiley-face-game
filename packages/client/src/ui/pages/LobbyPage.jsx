@@ -100,19 +100,6 @@ export default () => {
           setCreateRoomDialogOpen(false);
         }}
       />
-    {/*
-      <a onClick={() => history.push("/games/?name=ROOM&width=50&height=50&token=" + encodeURIComponent(token))}>
-        new room
-      </a>
-      {onlineRooms.map(preview => (
-        <div>
-          <p>{ preview.name } - { preview.playerCount } online.</p>
-          <a onClick={() => history.push("/games/" + preview.id + "?type=" + preview.type + "&token=" + encodeURIComponent(token))}>
-            play now
-          </a>
-        </div>
-      ))}
-      */}
     </>
   );
 };

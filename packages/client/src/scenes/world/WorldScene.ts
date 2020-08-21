@@ -33,7 +33,7 @@ export class WorldScene extends Phaser.Scene {
       [TileId.Full]: TileLayer.Foreground,
       [TileId.Gun]: TileLayer.Action,
     }[this.selectedBlock];
-
+    
     // assume the slot to be out of range of an actual tile id
     if (this._selectedLayer === undefined) {
       this._selectedLayer = TileLayer.Foreground;
