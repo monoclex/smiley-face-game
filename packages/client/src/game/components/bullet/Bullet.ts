@@ -1,11 +1,10 @@
 import Component from "@/game/components/Component";
-import ComponentDisplay from "@/game/components/ComponentDisplay.js";
 import BulletConfig from "./BulletConfig";
 import BulletDisplay from "./BulletDisplay";
 import BulletType from "./BulletType";
 
 export default class Bullet implements Component {
-  readonly display: ComponentDisplay;
+  readonly display: BulletDisplay;
   readonly bulletType: BulletType;
 
   constructor(scene: Phaser.Scene, bulletConfig: BulletConfig) {

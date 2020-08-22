@@ -24,4 +24,16 @@ export default class GunDisplay implements ComponentDisplay {
   set depth(value) {
     this.sprite.depth = value;
   }
+
+  renderStrappedGun() {
+    // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
+    // TODO: use origins
+    // this.sprite.setPosition(this.player.sprite.x - 6, this.player.sprite.y - 6);
+    this.sprite.setRotation(Math.PI / 3.5);
+    this.sprite.setFlipX(false);
+  }
+
+  renderHeldGun(angle: number) {
+    
+  }
 }

@@ -7,14 +7,14 @@ function key(characterType: CharacterType): string {
 }
 
 export default class CharacterDisplay implements ComponentDisplay {
-  readonly sprite: Phaser.Physics.Matter.Sprite;
+  readonly sprite: Phaser.Physics.Arcade.Sprite;
 
   static load(loader: Phaser.Loader.LoaderPlugin) {
     loader.image(key("smiley"), urlSmiley);
   }
 
   constructor(scene: Phaser.Scene, characterType: CharacterType) {
-    this.sprite = scene.matter.add.sprite(0, 0, key(characterType));
+    this.sprite = scene.physics.add.sprite(0, 0, key(characterType));
   }
   
   get depth() {
