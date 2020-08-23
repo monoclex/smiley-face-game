@@ -1,5 +1,5 @@
 import PlayerController from "./PlayerController";
-import GunController from "../gun/GunController";
+import GunController from "../guns/GunController";
 import Player from "./Player";
 
 export default class InputPlayerController implements PlayerController, GunController {

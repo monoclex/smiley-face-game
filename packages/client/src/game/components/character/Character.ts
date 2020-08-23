@@ -1,14 +1,26 @@
 import Component from "@/game/components/Component";
 import CharacterController from "./CharacterController";
-import CharacterDisplay from "./CharacterDisplay";
 import World from "@/game/world/World";
+import urlSmiley from "@/assets/mmmyep.png";
+
+type CharacterType = "smiley";
+
+function key(characterType: CharacterType): string {
+  return "character-" + characterType;
+}
 
 export default class Character implements Component {
-  readonly display: CharacterDisplay;
-  readonly controller: CharacterController;
+  readonly sprite: Phaser.Physics.Arcade.Sprite;
+
+  static load(loader: Phaser.Loader.LoaderPlugin) {
+    loader.image(key("smiley"), urlSmiley);
+  }
 
   constructor(readonly scene: Phaser.Scene, readonly world: World, controller: CharacterController) {
-    this.display = new CharacterDisplay(scene, "smiley");
+    this.sprite = scene.physics.add.sprite(0, 0, key("smiley"));
+    this.sprite.setDrag(1000, 0).setMaxVelocity(500, 520);
+    this.sprite.setOrigin(0, 0);
+    this.sprite.setCollideWorldBounds(true);
     this.controller = controller;
 
     scene.events.on("update", this.update, this);
@@ -18,7 +30,7 @@ export default class Character implements Component {
     this.scene.physics.collide(this.display.sprite, this.world.foreground.display.tilemapLayer);
     
     const sprite = this.display.sprite;
-    const acceleration = 2000;
+    const acceleration = 200;
     // we extract out the props because they could be getters/setters
     const { x, y, left, right, jump } = this.controller;
 
