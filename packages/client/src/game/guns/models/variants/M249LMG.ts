@@ -1,8 +1,8 @@
 import urlGun from "@/assets/held_gun.png";
-import OneBulletFixedFireRate from "@/game/guns/behaviour/OneBulletFixedFireRate";
+import GunModel from "@/game/guns/models/GunModel";
+import key from "@/game/guns/models/key";
 import GameScene from "@/game/GameScene";
-import GunModel from "./GunModel";
-import key from "./key";
+import OneBulletFixedFireRate from "@/game/guns/behaviour/OneBulletFixedFireRate";
 
 class Model implements GunModel {
   behaviourFactory = (game: GameScene, player: Phaser.GameObjects.Sprite) => {
