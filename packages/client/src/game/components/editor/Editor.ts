@@ -3,6 +3,7 @@ import Position from "@/math/Position";
 import Component from "@/game/components/Component";
 import World from "@/game/tiles/World";
 import EditorDisplay from "./EditorDisplay";
+import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.
@@ -22,12 +23,16 @@ class DrawingPointer {
 
   onMove() {
     const currentPosition = this.position(this.pointer);
-    this.editor.world.drawLine(this.lastPosition, currentPosition, TileId.Full);
+    this.editor.world.drawLine(this.lastPosition, currentPosition, this.id());
     this.lastPosition = currentPosition;
   }
 
   onUp() {
-    this.onMove();
+  }
+
+  id() {
+    if (this.pointer.rightButtonDown()) return TileId.Empty;
+    else return TileId.Full;
   }
 
   position(pointer: Phaser.Input.Pointer): Position {
@@ -47,6 +52,7 @@ export default class Editor implements Component {
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
     this.world = world;
+    scene.events.on("update", this.update, this);
 
     scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       const drawingPointer = new DrawingPointer(pointer, this);
@@ -55,12 +61,24 @@ export default class Editor implements Component {
     });
 
     scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
-      this.drawingPointers.get(pointer.pointerId)!.onMove();
+      const drawingPointer = this.drawingPointers.get(pointer.pointerId);
+      if (drawingPointer) {
+        drawingPointer.onMove();
+      }
     });
 
     scene.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
-      this.drawingPointers.get(pointer.pointerId)!.onUp();
-      this.drawingPointers.delete(pointer.pointerId);
+      const drawingPointer = this.drawingPointers.get(pointer.pointerId);
+      if (drawingPointer) {
+        drawingPointer.onUp();
+        this.drawingPointers.delete(pointer.pointerId);
+      }
     });
+  }
+
+  update() {
+    for (const pointer of this.drawingPointers.values()) {
+      pointer.onMove();
+    }
   }
 }

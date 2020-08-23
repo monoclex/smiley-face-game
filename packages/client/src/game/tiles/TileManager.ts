@@ -16,7 +16,7 @@ export default class TileManager {
     loader.atlas(key("tiles"), urlAtlas, urlAtlasJson);
   }
 
-  constructor(scene: Phaser.Scene, worldSize: Size) {
+  constructor(readonly scene: Phaser.Scene, worldSize: Size) {
     this.tilemap = scene.make.tilemap({
       width: worldSize.width,
       height: worldSize.height,

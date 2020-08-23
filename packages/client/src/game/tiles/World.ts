@@ -5,6 +5,7 @@ import Position from "@/math/Position";
 import Layer from "@/game/components/layer/Layer";
 import Void from "@/game/components/void/Void";
 import TileManager from "./TileManager";
+import { bresenhamsLine } from "../../../../api/src/misc";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -24,8 +25,41 @@ export default class World {
     this.void = new Void(scene, this.tileManager);
   }
 
+  deserializeBlocks(blocks: { id: TileId; }[][][]) {
+    for (let l = 0; l < blocks.length; l++) {
+      const layer = blocks[l];
+      const worldLayer = l === TileLayer.Decoration ? this.decoration : l === TileLayer.Foreground ? this.foreground : l === TileLayer.Action ? this.action : this.background;
+
+      for (let y = 0; y < layer.length; y++) {
+        const yLayer = layer[y];
+
+        for (let x = 0; x < yLayer.length; x++) {
+          const block = yLayer[x];
+
+          if (block.id !== 0) {
+            const tile = worldLayer.display.tilemapLayer.putTileAt(block.id, x, y);
+            tile.index = block.id;
+            tile.setCollision(true);
+          }
+          else {
+            const tile = worldLayer.display.tilemapLayer.getTileAt(x, y, true);
+            tile.index = -1;
+            tile.setCollision(false);
+          }
+        }
+      }
+    }
+
+    console.timeEnd("init");
+  }
+
   // TODO: put this in something that handles tile layers
-  drawLine(layer: TileLayer, start: Position, end: Position, tileId: TileId) {
-    
+  drawLine(start: Position, end: Position, tileId: TileId) {
+    bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
+      if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
+      const tile = this.foreground.display.tilemapLayer.getTileAt(x, y, true);
+      tile.index = tileId === TileId.Empty ? -1 : tileId;
+      tile.setCollision(tileId !== TileId.Empty);
+    });
   }
 }

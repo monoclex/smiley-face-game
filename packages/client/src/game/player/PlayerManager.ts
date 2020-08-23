@@ -2,6 +2,7 @@ import GunController from "@/game/components/gun/GunController";
 import PlayerController from "./PlayerController";
 import Player from "./Player";
 import PlayerLayers from "./PlayerLayers";
+import World from "../tiles/World";
 
 export default class PlayerManager {
   readonly players: Map<number, Player>;
@@ -10,8 +11,8 @@ export default class PlayerManager {
     this.players = new Map();
   }
 
-  addPlayer(id: number, layers: PlayerLayers, controller: PlayerController, gunController: GunController): Player {
-    const player = new Player(this.scene, layers, controller, gunController);
+  addPlayer(id: number, layers: PlayerLayers, world: World, controller: PlayerController, gunController: GunController): Player {
+    const player = new Player(this.scene, layers, world, controller, gunController);
     this.players.set(id, player);
     return player;
   }

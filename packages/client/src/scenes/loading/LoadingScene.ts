@@ -7,6 +7,7 @@ import { serverBlockBuffer } from "../../../../api/src/packets/ServerBlockBuffer
 import { serverBlockSingle } from "../../../../api/src/packets/ServerBlockSingle";
 import { blockPosition } from "../../../../api/src/schemas/BlockPosition";
 import loadComponentDisplays from "@/game/components/loadComponents";
+import GAME_SCENE_KEY from "@/game/GameSceneKey";
 
 export const globalVariableParkour = {
   token: "",
@@ -70,7 +71,7 @@ export class LoadingScene extends Phaser.Scene {
           globalVariableParkour.onId(packet.worldId);
 
           console.time("init");
-          this.scene.start(WORLD_SCENE_KEY, sceneData);
+          this.scene.start(GAME_SCENE_KEY, sceneData);
         };
       },
       serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema).validateServerBlockBuffer,

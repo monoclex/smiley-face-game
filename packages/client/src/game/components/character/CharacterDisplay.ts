@@ -15,6 +15,9 @@ export default class CharacterDisplay implements ComponentDisplay {
 
   constructor(scene: Phaser.Scene, characterType: CharacterType) {
     this.sprite = scene.physics.add.sprite(0, 0, key(characterType));
+    this.sprite.setDrag(1000, 0).setMaxVelocity(300, 520);
+    this.sprite.setOrigin(0, 0);
+    this.sprite.setCollideWorldBounds(true);
   }
   
   get depth() {

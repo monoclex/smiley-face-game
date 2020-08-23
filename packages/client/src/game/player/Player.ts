@@ -4,6 +4,7 @@ import GunController from "@/game/components/gun/GunController";
 import Gun from "@/game/components/gun/Gun";
 import PlayerController from "./PlayerController";
 import PlayerLayers from "./PlayerLayers";
+import World from "../tiles/World";
 
 export default class Player {
   readonly character: Character;
@@ -16,11 +17,12 @@ export default class Player {
   constructor(
     scene: Phaser.Scene,
     layers: PlayerLayers,
+    world: World,
     controller: PlayerController,
     gunController: GunController
   ) {
     this.#scene = scene;
-    this.character = new Character(scene, controller);
+    this.character = new Character(scene, world, controller);
     this.#gunController = gunController;
 
     this.#scene.events.on("update", () => {
