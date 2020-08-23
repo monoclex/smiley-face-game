@@ -27,11 +27,6 @@ export default class TileManager {
     this.tileset = this.tilemap.addTilesetImage("tilemap", key("tiles"));
   }
 
-  // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tileId: TileId) {
-
-  }
-
   /**
    * Given a TileId, this will create a unique image for that tile. It may be worthwhile to investigate optimizing this later, but for now,
    * it works and I'm not gonna touch it.

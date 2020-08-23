@@ -6,6 +6,7 @@ import { LoadingSceneData } from "./LoadingSceneData";
 import { serverBlockBuffer } from "../../../../api/src/packets/ServerBlockBuffer";
 import { serverBlockSingle } from "../../../../api/src/packets/ServerBlockSingle";
 import { blockPosition } from "../../../../api/src/schemas/BlockPosition";
+import loadComponentDisplays from "@/game/components/loadComponents";
 
 export const globalVariableParkour = {
   token: "",
@@ -49,7 +50,7 @@ export class LoadingScene extends Phaser.Scene {
       this
     );
 
-    loadAll(this.load);
+    loadComponentDisplays(this.load);
   }
 
   create() {

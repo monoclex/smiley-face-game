@@ -17,6 +17,7 @@ import ChatBar from "@/ui/game/chatbar/ChatBar";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
 import isProduction from "@/isProduction";
+import GameScene from "@/game/GameScene";
 
 export const config = {
   pixelArt: true,
@@ -25,7 +26,7 @@ export const config = {
   version: "0.1.0",
   width: window.innerWidth,
   height: window.innerHeight,
-  scene: [LoadingScene, WorldScene],
+  scene: [LoadingScene, GameScene],
   backgroundColor: "#000000",
 
   physics: {

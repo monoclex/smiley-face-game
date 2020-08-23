@@ -1,7 +1,7 @@
 import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import Position from "@/math/Position";
-import TileManager from "@/game/tiles/TileManager";
 import Component from "@/game/components/Component";
+import World from "@/game/tiles/World";
 import EditorDisplay from "./EditorDisplay";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
@@ -17,12 +17,12 @@ class DrawingPointer {
   }
 
   onDown() {
-    this.editor.tileManager.drawLine(this.lastPosition, this.lastPosition, TileId.Full);
+    this.editor.world.drawLine(this.lastPosition, this.lastPosition, TileId.Full);
   }
 
   onMove() {
     const currentPosition = this.position(this.pointer);
-    this.editor.tileManager.drawLine(this.lastPosition, currentPosition, TileId.Full);
+    this.editor.world.drawLine(this.lastPosition, currentPosition, TileId.Full);
     this.lastPosition = currentPosition;
   }
 
@@ -32,7 +32,7 @@ class DrawingPointer {
 
   position(pointer: Phaser.Input.Pointer): Position {
     const { x, y } = pointer.positionToCamera(this.editor.mainCamera) as Phaser.Math.Vector2;
-    return this.editor.tileManager.tilemap.worldToTileXY(x, y);
+    return this.editor.world.tileManager.tilemap.worldToTileXY(x, y);
   }
 }
 
@@ -40,13 +40,13 @@ export default class Editor implements Component {
   readonly display: EditorDisplay;
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
-  readonly tileManager: TileManager;
+  readonly world: World;
 
-  constructor(scene: Phaser.Scene, tileManager: TileManager) {
+  constructor(scene: Phaser.Scene, world: World) {
     this.display = new EditorDisplay();
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
-    this.tileManager = tileManager;
+    this.world = world;
 
     scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       const drawingPointer = new DrawingPointer(pointer, this);

@@ -2,18 +2,17 @@ import Component from "@/game/components/Component";
 import GunController from "./GunController";
 import GunDisplay from "./GunDisplay";
 import Bullet from "@/game/components/bullet/Bullet";
+import GunBreed from "./GunBreed";
 
 export default class Gun implements Component {
   readonly display: GunDisplay;
-  readonly controller: GunController;
 
   private _canShoot: boolean = true;
   private _scene: Phaser.Scene;
 
-  constructor(scene: Phaser.Scene, controller: GunController) {
+  constructor(scene: Phaser.Scene, readonly breed: GunBreed, readonly controller: GunController) {
     this._scene = scene;
     this.display = new GunDisplay(scene, "gun");
-    this.controller = controller;
 
     this._scene.events.on("update", this.update, this);
   }
@@ -33,13 +32,19 @@ export default class Gun implements Component {
 
   fireBullet() {
     this._canShoot = false;
-    setTimeout(() => this._canShoot = true, this.controller.fireRate);
+    setTimeout(() => this._canShoot = true, this.breed.firingRate);
 
     // TODO: figure out the math for where the bullet will go
     const bullet = new Bullet(this._scene, {
       bulletType: "bullet",
       position: { x: this.display.sprite.x, y: this.display.sprite.y },
       angle: this.controller.angle,
+      lifetime: this.breed.bulletLife,
     });
+  }
+
+  destroy() {
+    this._scene.events.off("update", this.update, this);
+    this.display.sprite.destroy();
   }
 }

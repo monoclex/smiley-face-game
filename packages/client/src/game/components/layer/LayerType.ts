@@ -1,2 +1,2 @@
-type LayerType = "foreground" | "action" | "background";
+type LayerType = "decoration" | "foreground" | "action" | "background";
 export default LayerType;
