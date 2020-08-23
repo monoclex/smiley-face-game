@@ -1,4 +1,4 @@
-import GunController from "@/game/components/gun/GunController";
+import GunController from "@/game/gun/GunController";
 import PlayerController from "./PlayerController";
 import Player from "./Player";
 import PlayerLayers from "./PlayerLayers";

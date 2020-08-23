@@ -16,7 +16,7 @@ export default class GunDisplay implements ComponentDisplay {
   constructor(scene: Phaser.Scene, gunType: GunType) {
     this.sprite = scene.add.sprite(0, 0, key(gunType));
   }
-  
+
   get depth() {
     return this.sprite.depth;
   }

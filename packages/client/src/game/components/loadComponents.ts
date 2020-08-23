@@ -1,5 +1,5 @@
 import CharacterDisplay from "@/game/components/character/CharacterDisplay";
-import GunDisplay from "@/game/components/gun/GunDisplay";
+import GunDisplay from "@/game/gun/GunDisplay";
 import BulletDisplay from "@/game/components/bullet/BulletDisplay";
 import TileManager from "@/game/world/TileManager";
 

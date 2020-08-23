@@ -1,6 +1,6 @@
 import { ServerInitPacket } from "@smiley-face-game/api/packets/ServerInit";
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import NetworkGunController from "@/game/components/gun/NetworkGunController";
+import NetworkGunController from "@/game/gun/NetworkGunController";
 import InputPlayerController from "@/game/player/InputPlayerController";
 import NetworkPlayerController from "@/game/player/NetworkPlayerController";
 import PlayerManager from "@/game/player/PlayerManager";

@@ -22,11 +22,13 @@ class DrawingPointer {
 
   onDown() {
     this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id());
+    //
   }
 
   onMove() {
     const currentPosition = this.position(this.pointer);
     this.editor.world.drawLine(this.lastPosition, currentPosition, this.id());
+    //
     this.lastPosition = currentPosition;
   }
 
