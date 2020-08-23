@@ -1,7 +1,7 @@
 import Component from "@/game/components/Component";
 import CharacterController from "./CharacterController";
 import CharacterDisplay from "./CharacterDisplay";
-import World from "@/game/tiles/World";
+import World from "@/game/world/World";
 
 export default class Character implements Component {
   readonly display: CharacterDisplay;

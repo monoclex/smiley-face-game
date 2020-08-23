@@ -16,10 +16,32 @@ import { ServerMovementPacket, SERVER_MOVEMENT_ID, validateServerMovement } from
 import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
 import { ServerPlayerJoinPacket, SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
 import { ServerPlayerLeavePacket, SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
+import { ServerPacket } from "./packets/Server";
 
-export type NetworkEventHandler<TEvent> = (event: TEvent, sender: NetworkClient) => void | Promise<void>;
+export type NetworkEventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 
 export class NetworkEvents {
+  // TODO: type check this stuff
+  private _lookup: any;
+
+  constructor(
+    readonly validateServerBlockSingle: ServerBlockSingleValidator,
+    readonly validateServerBlockBuffer: ServerBlockBufferValidator,
+  ) {
+    this._lookup = {
+      [SERVER_BLOCK_SINGLE_ID]: [this.validateServerBlockSingle, this.onBlockSingle],
+      [SERVER_MOVEMENT_ID]: [validateServerMovement, this.onMovement],
+      [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, this.onPlayerJoin],
+      [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, this.onPlayerLeave],
+      [SERVER_INIT_ID]: [validateServerInit, this.onInit],
+      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, this.onPickupGun],
+      [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, this.onFireBullet],
+      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, this.onEquipGun],
+      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, this.onBlockLine],
+      [SERVER_BLOCK_BUFFER_ID]: [this.validateServerBlockBuffer, this.onBlockBuffer],
+    };
+  }
+
   onBlockSingle?: NetworkEventHandler<ServerBlockSinglePacket>;
   onMovement?: NetworkEventHandler<ServerMovementPacket>;
   onPlayerJoin?: NetworkEventHandler<ServerPlayerJoinPacket>;
@@ -30,6 +52,33 @@ export class NetworkEvents {
   onEquipGun?: NetworkEventHandler<ServerEquipGunPacket>;
   onBlockLine?: NetworkEventHandler<ServerBlockLinePacket>;
   onBlockBuffer?: NetworkEventHandler<ServerBlockBufferPacket>;
+
+  triggerEvent(rawPacket: any): void | Promise<void> {
+
+    // make sure we can validate the packet id thte server sent us
+    if (!this._lookup[rawPacket.packetId]) {
+      console.error('[websocket] invalid packet id', rawPacket.packetId);
+      return;
+    }
+
+    const [validate, eventCallback] = this._lookup[rawPacket.packetId];
+
+      // validate the packet (type checking stuffs)
+    const [error, packet] = validate(rawPacket);
+
+    if (error !== null) {
+      console.error('[websocket] packet invalidated', error, rawPacket);
+      return;
+    }
+
+    if (eventCallback === undefined) {
+      console.warn('unregistered callback', rawPacket.packetId);
+      return;
+    }
+
+      // execute any hooks
+    return eventCallback(packet);
+  }
 }
 
 interface Position {
@@ -77,22 +126,8 @@ export class NetworkClient {
     validateServerBlockBuffer: ServerBlockBufferValidator,
     validateServerBlockSingle: ServerBlockSingleValidator,
   ) {
-    this.events = new NetworkEvents();
+    this.events = new NetworkEvents(validateServerBlockSingle, validateServerBlockBuffer);
     this._buffer = [];
-
-    // TODO: type check this stuff
-    const lookupTable = {
-      [SERVER_BLOCK_SINGLE_ID]: [validateServerBlockSingle, 'onBlockSingle'],
-      [SERVER_MOVEMENT_ID]: [validateServerMovement, 'onMovement'],
-      [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, 'onPlayerJoin'],
-      [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, 'onPlayerLeave'],
-      [SERVER_INIT_ID]: [validateServerInit, 'onInit'],
-      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, 'onPickupGun'],
-      [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, 'onFireBullet'],
-      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, 'onEquipGun'],
-      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, 'onBlockLine'],
-      [SERVER_BLOCK_BUFFER_ID]: [validateServerBlockBuffer, 'onBlockBuffer'],
-    };
 
     this._webSocket.onclose = this._webSocket.onerror = (event) => {
       if (this._showClosingAlert) {
@@ -116,31 +151,7 @@ export class NetworkClient {
         return;
       }
 
-      // make sure we can validate the packet id thte server sent us
-      if (!lookupTable[rawPacket.packetId]) {
-        console.error('[websocket] invalid packet id', rawPacket.packetId);
-        return;
-      }
-
-      const [validate, callbackName] = lookupTable[rawPacket.packetId];
-
-      // validate the packet (type checking stuffs)
-      const [error, packet] = validate(rawPacket);
-
-      if (error !== null) {
-        console.error('[websocket] packet invalidated', error, rawPacket);
-        return;
-      }
-
-      const eventCallback = this.events[callbackName];
-
-      if (eventCallback === undefined) {
-        console.warn('unregistered callback', callbackName);
-        return;
-      }
-
-      // execute any hooks
-      await eventCallback(packet, this);
+      await this.events.triggerEvent(rawPacket);
     };
   }
 

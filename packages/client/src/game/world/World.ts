@@ -5,7 +5,10 @@ import Position from "@/math/Position";
 import Layer from "@/game/components/layer/Layer";
 import Void from "@/game/components/void/Void";
 import TileManager from "./TileManager";
-import { bresenhamsLine } from "../../../../api/src/misc";
+import { bresenhamsLine } from "@smiley-face-game/api/misc";
+import tileLookup from "@/game/tiles/tileLookup";
+import Tile from "../tiles/Tile";
+import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -16,13 +19,22 @@ export default class World {
   readonly background: Layer;
   readonly void: Void;
 
-  constructor(scene: Phaser.Scene, size: Size) {
+  constructor(scene: Phaser.Scene, size: Size, readonly networkClient: NetworkClient) {
     this.tileManager = new TileManager(scene, size);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
     this.action = new Layer(this.tileManager, "action");
     this.background = new Layer(this.tileManager, "background");
     this.void = new Void(scene, this.tileManager);
+  }
+
+  layerFor(tileLayer: TileLayer): Layer {
+    // TODO: lookup obj
+    if (tileLayer === TileLayer.Decoration) return this.decoration;
+    else if (tileLayer === TileLayer.Foreground) return this.foreground;
+    else if (tileLayer === TileLayer.Action) return this.action;
+    else if (tileLayer === TileLayer.Background) return this.background;
+    throw new Error("ok?");
   }
 
   deserializeBlocks(blocks: { id: TileId; }[][][]) {
@@ -53,13 +65,28 @@ export default class World {
     console.timeEnd("init");
   }
 
+  placeBlock(position: Position, id: TileId) {
+    const { x, y } = position;
+
+    const tileBreed = tileLookup[id];
+    const tile = this.layerFor(tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
+
+    // @ts-ignore
+    const result: Tile = tileLookup[tile.index];
+    if (result !== undefined && result.onRemove) {
+      result.onRemove();
+    }
+
+    tileBreed.place(tile);
+
+    this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
+  }
+
   // TODO: put this in something that handles tile layers
   drawLine(start: Position, end: Position, tileId: TileId) {
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
-      const tile = this.foreground.display.tilemapLayer.getTileAt(x, y, true);
-      tile.index = tileId === TileId.Empty ? -1 : tileId;
-      tile.setCollision(tileId !== TileId.Empty);
+      this.placeBlock({ x, y }, tileId);
     });
   }
 }

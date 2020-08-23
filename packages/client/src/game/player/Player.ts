@@ -4,7 +4,7 @@ import GunController from "@/game/components/gun/GunController";
 import Gun from "@/game/components/gun/Gun";
 import PlayerController from "./PlayerController";
 import PlayerLayers from "./PlayerLayers";
-import World from "../tiles/World";
+import World from "../world/World";
 
 export default class Player {
   readonly character: Character;
@@ -33,6 +33,10 @@ export default class Player {
         gunController.isHeld = controller.isHeld;
       }
     }, this);
+  }
+
+  gunEquipped(equipped: boolean) {
+    this.#gunController.isHeld = equipped;
   }
 
   giveGun() {

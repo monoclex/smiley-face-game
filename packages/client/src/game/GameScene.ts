@@ -5,12 +5,15 @@ import InputPlayerController from "@/game/player/InputPlayerController";
 import NetworkPlayerController from "@/game/player/NetworkPlayerController";
 import PlayerManager from "@/game/player/PlayerManager";
 import Player from "@/game/player/Player";
-import TileManager from "@/game/tiles/TileManager";
-import World from "@/game/tiles/World";
+import TileManager from "@/game/world/TileManager";
+import World from "@/game/world/World";
 import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 import Editor from "./components/editor/Editor";
+import store from "@/ui/redux/store";
+import { supplyTextureLoader } from "../ui/redux/actionCreators/blockBar";
+import BlockBar from "./blockbar/BlockBar";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -19,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
   players!: PlayerManager;
   mainPlayer!: Player;
   editor!: Editor;
+  blockBar!: BlockBar;
 
   constructor() {
     super({
@@ -47,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
     const layerTileLayerForeground = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
-    const world = new World(this, this.initPacket.size);
+    const world = new World(this, this.initPacket.size, this.networkClient);
     layerVoid.add(world.void.display.sprite);
     layerTileLayerBackground.add(world.background.display.tilemapLayer);
     layerTileLayerAction.add(world.action.display.tilemapLayer);
@@ -57,8 +61,9 @@ export default class GameScene extends Phaser.Scene {
     world.deserializeBlocks(this.initPacket.blocks);
     this.world = world;
 
-    this.editor = new Editor(this, world);
-
+    const blockBar = new BlockBar(world);
+    this.blockBar = blockBar;
+    this.editor = new Editor(this, world, blockBar);
     this.physics.world.setBounds(0, 0, this.initPacket.size.width * TILE_WIDTH, this.initPacket.size.height * TILE_HEIGHT);
 
     const mainPlayerLayers = {
@@ -88,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.defaults.debugShowBody = true;
     this.physics.world.defaults.debugShowStaticBody = true;
 
-    this.networkClient.events.onPlayerJoin = (event, _) => {
+    this.networkClient.events.onPlayerJoin = (event) => {
       players.addPlayer(
         event.playerId,
         otherPlayerLayers,
@@ -101,13 +106,40 @@ export default class GameScene extends Phaser.Scene {
       );
     }
 
-    this.networkClient.events.onMovement = (event, _) => {
+    this.networkClient.events.onPlayerLeave = (event) => {
+      players.removePlayer(event.playerId);
+    }
+
+    this.networkClient.events.onMovement = (event) => {
       const controller = players.players.get(event.playerId)!.character.controller as NetworkPlayerController;
       controller.updatePosition(event.position.x, event.position.y);
       controller.updateInput(event.inputs.left, event.inputs.right, event.inputs.up);
     }
-  }
 
-  update() {
+    this.networkClient.events.onBlockBuffer = async (event) => {
+      for (const blockEvent of event.blocks) {
+        await this.networkClient.events.triggerEvent(blockEvent);
+      }
+    }
+
+    this.networkClient.events.onBlockLine = async (event) => {
+      this.world.drawLine(event.start, event.end, event.id);
+    }
+
+    this.networkClient.events.onBlockSingle = async (event) => {
+      this.world.placeBlock(event.position, event.id);
+    }
+
+    this.networkClient.events.onEquipGun = async (event) => {
+      this.players.onEquipGun(event.playerId, event.equipped);
+    }
+
+    this.networkClient.events.onFireBullet = async (event) => {
+      this.players.onFireBullet(event.playerId);
+    }
+
+    this.networkClient.events.onPickupGun = async (event) => {
+      this.players.onPickupGun(event.playerId);
+    }
   }
 }
