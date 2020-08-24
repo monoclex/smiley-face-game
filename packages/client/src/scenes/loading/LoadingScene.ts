@@ -1,4 +1,3 @@
-import { loadAll } from "../../assets/assets";
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import { api } from "../../isProduction";
 import { WORLD_SCENE_KEY } from "../world/WorldScene";
@@ -8,6 +7,7 @@ import { serverBlockSingle } from "../../../../api/src/packets/ServerBlockSingle
 import { blockPosition } from "../../../../api/src/schemas/BlockPosition";
 import loadComponentDisplays from "@/game/components/loadComponents";
 import GAME_SCENE_KEY from "@/game/GameSceneKey";
+import loadAll from "@/game/loadAll";
 
 export const globalVariableParkour = {
   token: "",
@@ -51,7 +51,8 @@ export class LoadingScene extends Phaser.Scene {
       this
     );
 
-    loadComponentDisplays(this.load);
+    loadAll(this.load);
+    // loadComponentDisplays(this.load);
   }
 
   create() {

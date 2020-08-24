@@ -25,6 +25,7 @@ export default class PlayerManager {
   addPlayer(id: number, layers: PlayerLayers, world: World, controller: PlayerController, gunController: GunController): Player {
     const player = new Player(this.scene, layers, world, controller, gunController);
     this.players.set(id, player);
+    player.character.addToContainer(layers.player);
     return player;
   }
 

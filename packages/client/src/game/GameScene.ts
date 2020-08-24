@@ -1,6 +1,6 @@
 import { ServerInitPacket } from "@smiley-face-game/api/packets/ServerInit";
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import NetworkGunController from "@/game/guns/NetworkGunController";
+// import NetworkGunController from "@/game/guns/NetworkGunController";
 import InputPlayerController from "@/game/player/InputPlayerController";
 import NetworkPlayerController from "@/game/player/NetworkPlayerController";
 import PlayerManager from "@/game/player/PlayerManager";
@@ -83,11 +83,11 @@ export default class GameScene extends Phaser.Scene {
     const players = new PlayerManager(this);
     const controller = new InputPlayerController(this);
     const mainPlayer = players.addPlayer(this.initPacket.playerId, mainPlayerLayers, world, controller, controller);
-    mainPlayer.character.display.sprite.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
+    mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
 
     const camera = this.cameras.main;
-    camera.startFollow(mainPlayer.character.display.sprite, false, 0.05, 0.05, -16, -16);
+    camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
     this.physics.world.defaults.debugShowBody = true;
@@ -102,7 +102,7 @@ export default class GameScene extends Phaser.Scene {
           event.joinLocation.x,
           event.joinLocation.y
         ),
-        new NetworkGunController()
+        null, // new NetworkGunController()
       );
     }
 
@@ -111,9 +111,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onMovement = (event) => {
-      const controller = players.players.get(event.playerId)!.character.controller as NetworkPlayerController;
-      controller.updatePosition(event.position.x, event.position.y);
-      controller.updateInput(event.inputs.left, event.inputs.right, event.inputs.up);
+      // const controller = players.players.get(event.playerId)!.character.controller as NetworkPlayerController;
+      // controller.updatePosition(event.position.x, event.position.y);
+      // controller.updateInput(event.inputs.left, event.inputs.right, event.inputs.up);
     }
 
     this.networkClient.events.onBlockBuffer = async (event) => {
