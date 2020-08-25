@@ -21,26 +21,10 @@ import { ServerPacket } from "./packets/Server";
 export type NetworkEventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 
 export class NetworkEvents {
-  // TODO: type check this stuff
-  private _lookup: any;
-
   constructor(
     readonly validateServerBlockSingle: ServerBlockSingleValidator,
     readonly validateServerBlockBuffer: ServerBlockBufferValidator,
-  ) {
-    this._lookup = {
-      [SERVER_BLOCK_SINGLE_ID]: [this.validateServerBlockSingle, this.onBlockSingle],
-      [SERVER_MOVEMENT_ID]: [validateServerMovement, this.onMovement],
-      [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, this.onPlayerJoin],
-      [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, this.onPlayerLeave],
-      [SERVER_INIT_ID]: [validateServerInit, this.onInit],
-      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, this.onPickupGun],
-      [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, this.onFireBullet],
-      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, this.onEquipGun],
-      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, this.onBlockLine],
-      [SERVER_BLOCK_BUFFER_ID]: [this.validateServerBlockBuffer, this.onBlockBuffer],
-    };
-  }
+  ) {}
 
   onBlockSingle?: NetworkEventHandler<ServerBlockSinglePacket>;
   onMovement?: NetworkEventHandler<ServerMovementPacket>;
@@ -54,14 +38,26 @@ export class NetworkEvents {
   onBlockBuffer?: NetworkEventHandler<ServerBlockBufferPacket>;
 
   triggerEvent(rawPacket: any): void | Promise<void> {
+    const lookup = {
+      [SERVER_BLOCK_SINGLE_ID]: [this.validateServerBlockSingle, this.onBlockSingle],
+      [SERVER_MOVEMENT_ID]: [validateServerMovement, this.onMovement],
+      [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, this.onPlayerJoin],
+      [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, this.onPlayerLeave],
+      [SERVER_INIT_ID]: [validateServerInit, this.onInit],
+      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, this.onPickupGun],
+      [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, this.onFireBullet],
+      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, this.onEquipGun],
+      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, this.onBlockLine],
+      [SERVER_BLOCK_BUFFER_ID]: [this.validateServerBlockBuffer, this.onBlockBuffer],
+    };
 
     // make sure we can validate the packet id thte server sent us
-    if (!this._lookup[rawPacket.packetId]) {
+    if (!lookup[rawPacket.packetId]) {
       console.error('[websocket] invalid packet id', rawPacket.packetId);
       return;
     }
 
-    const [validate, eventCallback] = this._lookup[rawPacket.packetId];
+    const [validate, eventCallback] = lookup[rawPacket.packetId];
 
       // validate the packet (type checking stuffs)
     const [error, packet] = validate(rawPacket);
@@ -98,14 +94,14 @@ interface InputState {
 export class NetworkClient {
   static connect(
     targetWebSocketUrl: string,
-    registerCallbacks: (events: NetworkEvents) => void,
+    registerCallbacks: (client: NetworkClient) => void,
     validateServerBlockBuffer: ServerBlockBufferValidator,
     validateServerBlockSingle: ServerBlockSingleValidator,
   ): Promise<NetworkClient> {
     return new Promise((resolve, reject) => {
       const webSocket = new WebSocket(targetWebSocketUrl);
       const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
-      registerCallbacks(networkClient.events);
+      registerCallbacks(networkClient);
 
       webSocket.onopen = () => resolve(networkClient);
 
@@ -146,6 +142,8 @@ export class NetworkClient {
       // packets come over the wire as a string of json
       const rawPacket = JSON.parse(event.data);
 
+      console.log(rawPacket.packetId);
+
       if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
         console.error('[websocket warn] server sent invalid packet', rawPacket);
         return;
@@ -163,6 +161,17 @@ export class NetworkClient {
   /** Prevents any event handlers from being triggered. Pushes all incmoing messages into a buffer. */
   pause(): void {
     this._pause = true;
+
+    // add a warning incase the websocket isn't unpaused
+    // for development purposes onyl pretty much
+    let warn;
+    warn = (() => {
+      if (this._pause) {
+        console.warn("NetworkClient websocket hasn't been unpaused yet.");
+        setTimeout(warn, 1000);
+      }
+    }).bind(this);
+    setTimeout(warn, 1000);
   }
 
   /** Unpauses the network client, and triggers all event handlers for any buffered actions. */

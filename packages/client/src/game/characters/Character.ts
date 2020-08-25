@@ -3,17 +3,22 @@ import BaseType from "@/game/characters/bases/BaseType";
 import baseKey from "@/game/characters/bases/key";
 import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
 import cosmeticKey from "@/game/characters/cosmetics/key";
+import MovementInput from "@/game/input/MovementInput";
 
 export class Character {
   readonly body: Phaser.Physics.Arcade.Sprite;
+  readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
+  readonly input: MovementInput = {};
 
   constructor(
     readonly game: GameScene,
+    readonly username: string,
     readonly base: BaseType = "original",
     readonly cosmetics: CosmeticType[] = ["smile"],
   ) {
-    this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setOrigin(0, 0);
+    this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setMaxVelocity(300, 500).setDrag(3000, 0).setOrigin(0, 0);
+    this.usernameText = this.game.add.text(0, 0, username).setOrigin(0.5, 0);
 
     this.cosmeticSprites = [];
     for (const cosmetic of cosmetics) {
@@ -30,22 +35,27 @@ export class Character {
     for (const cosmetic of this.cosmeticSprites) {
       container.add(cosmetic);
     }
+
+    container.add(this.usernameText);
+  }
+
+  setPosition(x: number, y: number) {
+    this.body.setPosition(x, y);
+  }
+
+  updateInputs(input: MovementInput) {
+    if (input.left !== undefined) this.input.left = input.left;
+    if (input.right !== undefined) this.input.right = input.right;
+    if (input.jump !== undefined) this.input.jump = input.jump;
   }
 
   update() {
     this.game.physics.collide(this.body, this.game.world.foreground.display.tilemapLayer);
     
     const sprite = this.body;
-    const acceleration = 200;
-    // we extract out the props because they could be getters/setters
-    let right = true;
-    let jump = true;
-    let left = false;
-    let x = undefined;
-    let y = undefined; // const { x, y, left, right, jump } = this.controller;
+    const acceleration = 10000;
 
-    // if the controller is a network controller, this is how we'll update the position
-    sprite.setPosition(x === undefined ? sprite.x : x, y === undefined ? sprite.y : y);
+    const { left, right, jump } = this.input;
 
     if (left && right) sprite.setAccelerationX(0);
     else if (left) { sprite.setAccelerationX(-acceleration); sprite.setFlipX(true); }
@@ -57,7 +67,12 @@ export class Character {
   }
 
   postUpdate() {
-    // once all physics calculations are done, make sure the cosmetics are on the player
+    // once all physics calculations are done, make sure that the player's extra things
+    // (like cosmetics and username) are connected to the player
+
+    // align the username above the player, with 4 pixels of padding
+    this.usernameText.setPosition(this.body.x + (this.body.width / 2), this.body.y - this.usernameText.height + 4);
+
     for (const cosmeticSprite of this.cosmeticSprites) {
       cosmeticSprite.setPosition(this.body.x, this.body.y);
     }

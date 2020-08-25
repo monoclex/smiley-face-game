@@ -1,17 +1,18 @@
-import GunController from "@/game/guns/GunController";
-import PlayerController from "./PlayerController";
+import GunModel from "@/game/guns/models/GunModel";
 import Player from "./Player";
-import PlayerLayers from "./PlayerLayers";
 import World from "../world/World";
+import { Character } from "../characters/Character";
+import GameScene from "../GameScene";
+import M249LMG from "@/game/guns/models/variants/M249LMG";
 
 export default class PlayerManager {
-  readonly players: Map<number, Player>;
+  readonly players: Map<number, Player> = new Map();
 
-  constructor(readonly scene: Phaser.Scene) {
-    this.players = new Map();
-  }
+  constructor(
+    readonly game: GameScene
+  ) {}
 
-  private getPlayer(id: number): Player {
+  getPlayer(id: number): Player {
     const player = this.players.get(id);
 
     if (player === undefined) {
@@ -22,10 +23,10 @@ export default class PlayerManager {
     return player;
   }
 
-  addPlayer(id: number, layers: PlayerLayers, world: World, controller: PlayerController, gunController: GunController): Player {
-    const player = new Player(this.scene, layers, world, controller, gunController);
+  addPlayer(id: number, username: string, playerContainer: Phaser.GameObjects.Container): Player {
+    const player = new Player(this.game, new Character(this.game, username));
     this.players.set(id, player);
-    player.character.addToContainer(layers.player);
+    player.character.addToContainer(playerContainer);
     return player;
   }
 
@@ -35,14 +36,22 @@ export default class PlayerManager {
 
   onEquipGun(playerId: number, equipped: boolean) {
     const player = this.getPlayer(playerId);
-    player.gunEquipped(equipped);
+
+    if (!player.gun) {
+      console.warn("attempted to equip gun on a player that does not have a gun");
+      return;
+    }
+
+    player.gun.equipped = equipped;
   }
 
   onFireBullet(playerId: number) {
-    this.getPlayer(playerId).gun?.fireBullet();
+    // TODO: implement
+    this.getPlayer(playerId).getGun();
   }
 
   onPickupGun(playerId: number) {
-    this.getPlayer(playerId).giveGun();
+    // TODO: allow the pickup gun packet to specify what type of gun
+    this.getPlayer(playerId).instantiateGun(M249LMG);
   }
 }

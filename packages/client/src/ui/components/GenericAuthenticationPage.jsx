@@ -1,6 +1,7 @@
 //@ts-check
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -14,12 +15,19 @@ const useStyles = makeStyles({
     // make it large
     width: "512px",
     height: "512px",
-    // when upscaling, don't make it blurry
-    imageRendering: "crisp-edges",
     // center it
     display: "block",
     marginLeft: "auto",
     marginRight: "auto"
+  },
+  upscalingOldFirefox: {
+    imageRendering: "-moz-crisp-edges"
+  },
+  upscalingNewFirefox: {
+    imageRendering: "crisp-edges"
+  },
+  upscalingChrome: {
+    imageRendering: "pixelated"
   }
 })
 
@@ -42,7 +50,7 @@ export default ({ smileyUrl, inputs, submit }) => {
 
   return (
     <Container component="main" maxWidth="sm">
-      <img className={styles.bigSmileyFace} src={smileyUrl} />
+      <img className={clsx(styles.bigSmileyFace, styles.upscalingOldFirefox, styles.upscalingNewFirefox, styles.upscalingChrome)} src={smileyUrl} />
       <form onSubmit={handleSubmit(submit)}>
         {inputs.map((input, index) => (
           <TextField

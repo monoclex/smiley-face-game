@@ -1,51 +1,26 @@
-
-import PlayerController from "./PlayerController";
-import PlayerLayers from "./PlayerLayers";
-import World from "../world/World";
 import { Character } from "@/game/characters/Character";
-import { Gun } from "@/scenes/world/components/Gun";
-import GameScene from "../GameScene";
+import GunBehaviour from "@/game/guns/behaviour/GunBehaviour";
+import GunModel from "@/game/guns/models/GunModel";
+import GameScene from "@/game/GameScene";
 
 export default class Player {
-  readonly character: Character;
-  
-  gun?: Gun;
-  
-  readonly #scene: Phaser.Scene;
-  // readonly #gunController: GunController;
+  gun?: GunBehaviour;
 
   constructor(
-    scene: GameScene,
-    layers: PlayerLayers,
-    world: World,
-    controller: PlayerController,
-    // gunController: GunController
-  ) {
-    this.#scene = scene;
-    this.character = new Character(scene);
-    // this.#gunController = gunController;
+    readonly game: GameScene,
+    readonly character: Character,
+  ) {}
 
-    this.#scene.events.on("update", () => {
-      if (!this.gun) {
-        controller.isHeld = false;
-      }
-      else {
-        // gunController.isHeld = controller.isHeld;
-      }
-    }, this);
+  instantiateGun(model: GunModel) {
+    this.gun = model.behaviourFactory(this.game, this.character.body);
+    this.game.events.on("update", this.gun.update, this.gun);
   }
 
-  gunEquipped(equipped: boolean) {
-    // this.#gunController.isHeld = equipped;
-  }
-
-  giveGun() {
-    // this.gun = new Gun(this.#scene, { firingRate: 83.333, bulletLife: 1000 }, this.#gunController);
-  }
-
-  takeGun() {
-    if (this.gun) {
-      this.gun.destroy();
+  getGun(): GunBehaviour {
+    if (!this.gun) {
+      throw new Error("attempted to equip gun on a player that does not have a gun");
     }
+
+    return this.gun;
   }
 }
