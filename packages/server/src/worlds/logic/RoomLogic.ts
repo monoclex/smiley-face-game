@@ -130,5 +130,17 @@ export default class RoomLogic {
     }
   }
 
+  broadcastExcept(excludePlayerId: number, packet: WorldPacket) {
+    // TODO: use serialization stuff
+    const packetData = JSON.stringify(packet);
+
+    for (const player of this.#players.values()) {
+      if (player.playerId === excludePlayerId) continue;
+      if (player.webSocket.readyState === WebSocket.OPEN) {
+        player.webSocket.send(packetData);
+      }
+    }
+  }
+
   // TODO: handle block updates
 }

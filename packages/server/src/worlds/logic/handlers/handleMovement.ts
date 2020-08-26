@@ -7,7 +7,7 @@ export default function handleMovement(packet: MovementPacket, [sender, logic]: 
   // TODO: does destructuring include non-required data? if so, this could be a mild vulnerability
   sender.lastPosition = { ...packet.position };
 
-  logic.broadcast({
+  logic.broadcastExcept(sender.playerId, {
     ...packet,
     packetId: SERVER_MOVEMENT_ID,
     playerId: sender.playerId!

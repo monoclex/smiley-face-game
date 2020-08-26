@@ -78,7 +78,7 @@ export default class Connection {
       // handle parsing 'data' here
       const [errors, packet] = validator(message);
       if (errors !== null || packet === undefined) {
-        console.warn("invalid packet", errors);
+        console.warn("invalid packet", errors, message);
         this.kill("Sent an invalid payload");
         return;
       }

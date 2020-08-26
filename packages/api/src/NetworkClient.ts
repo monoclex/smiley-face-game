@@ -85,7 +85,7 @@ interface Position {
 interface InputState {
   readonly left: boolean;
   readonly right: boolean;
-  readonly up: boolean;
+  readonly jump: boolean;
 }
 
 /**
@@ -199,7 +199,7 @@ export class NetworkClient {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position: { x: position.x, y: position.y },
-      inputs: { left: inputs.left, right: inputs.right, up: inputs.up },
+      inputs: { left: inputs.left, right: inputs.right, up: inputs.jump },
     };
 
     this._webSocket.send(JSON.stringify(packet));

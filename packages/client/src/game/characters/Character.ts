@@ -4,12 +4,13 @@ import baseKey from "@/game/characters/bases/key";
 import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
 import cosmeticKey from "@/game/characters/cosmetics/key";
 import MovementInput from "@/game/input/MovementInput";
+import MovementValues from "@/game/input/MovementValues";
 
 export class Character {
   readonly body: Phaser.Physics.Arcade.Sprite;
   readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
-  readonly input: MovementInput = {};
+  readonly input: MovementValues = { left: false, right: false, jump: false };
 
   constructor(
     readonly game: GameScene,
@@ -44,9 +45,11 @@ export class Character {
   }
 
   updateInputs(input: MovementInput) {
+    console.log('pre updateInputs', this.input, input);
     if (input.left !== undefined) this.input.left = input.left;
     if (input.right !== undefined) this.input.right = input.right;
     if (input.jump !== undefined) this.input.jump = input.jump;
+    console.log('post updateInputs', this.input);
   }
 
   update() {

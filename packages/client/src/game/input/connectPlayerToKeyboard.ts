@@ -1,3 +1,4 @@
+import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import Player from "@/game/player/Player";
 
 function hook(player: Player, keyboardEvent: number, onUp: (player: Player) => void, onDown: (player: Player) => void) {
@@ -6,15 +7,18 @@ function hook(player: Player, keyboardEvent: number, onUp: (player: Player) => v
   keyObj.on("up", () => onDown(player));
 }
 
-export default function connectPlayerToKeyboard(player: Player) {
+export default function connectPlayerToKeyboard(player: Player, networkClient: NetworkClient) {
   const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
 
-  const jumpOn = (player: Player) => player.character.updateInputs({ jump: true });
-  const jumpOff = (player: Player) => player.character.updateInputs({ jump: false });
-  const leftOn = (player: Player) => player.character.updateInputs({ left: true });
-  const leftOff = (player: Player) => player.character.updateInputs({ left: false });
-  const rightOn = (player: Player) => player.character.updateInputs({ right: true });
-  const rightOff = (player: Player) => player.character.updateInputs({ right: false });
+  // allows us to wrap any (player) => void action and then send a movement packet afterwords
+  const sendMovePacket = (closure: (player: Player) => void) => (player: Player) => { closure(player); networkClient.move(player.character.body, player.character.input); };
+
+  const jumpOn = sendMovePacket((player) => player.character.updateInputs({ jump: true }));
+  const jumpOff = sendMovePacket((player) => player.character.updateInputs({ jump: false }));
+  const leftOn = sendMovePacket((player) => player.character.updateInputs({ left: true }));
+  const leftOff = sendMovePacket((player) => player.character.updateInputs({ left: false }));
+  const rightOn = sendMovePacket((player) => player.character.updateInputs({ right: true }));
+  const rightOff = sendMovePacket((player) => player.character.updateInputs({ right: false }));
 
   hook(player, SPACE, jumpOn, jumpOff);
   hook(player, UP, jumpOn, jumpOff);

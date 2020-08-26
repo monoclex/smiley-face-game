@@ -63,7 +63,7 @@ export default class GameScene extends Phaser.Scene {
 
     const players = new PlayerManager(this);
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);
-    connectPlayerToKeyboard(mainPlayer);
+    connectPlayerToKeyboard(mainPlayer, this.networkClient);
 
     mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
@@ -89,6 +89,8 @@ export default class GameScene extends Phaser.Scene {
       console.log('onMovement');
       const character = players.getPlayer(event.playerId).character;
       character.setPosition(event.position.x, event.position.y);
+      //@ts-ignore
+      event.inputs.jump = event.inputs.up;
       character.updateInputs(event.inputs);
 
       // const controller = players.players.get(event.playerId)!.character.controller as NetworkPlayerController;
