@@ -89,6 +89,7 @@ export default class GameScene extends Phaser.Scene {
       console.log('onMovement');
       const character = players.getPlayer(event.playerId).character;
       character.setPosition(event.position.x, event.position.y);
+      character.setVelocity(event.velocity.x, event.velocity.y);
       //@ts-ignore
       event.inputs.jump = event.inputs.up;
       character.updateInputs(event.inputs);

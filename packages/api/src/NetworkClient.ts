@@ -195,11 +195,12 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  move(position: Position, inputs: InputState): void {
+  move(position: Position, velocity: Position, inputs: InputState): void {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
-      position: { x: position.x, y: position.y },
+      position: { x: position.x, y: position.y }, // we don't deconstruct to prevent sending needless data on the wire
       inputs: { left: inputs.left, right: inputs.right, up: inputs.jump },
+      velocity: { x: velocity.x, y: velocity.y },
     };
 
     this._webSocket.send(JSON.stringify(packet));

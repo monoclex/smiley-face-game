@@ -11,7 +11,10 @@ export default function connectPlayerToKeyboard(player: Player, networkClient: N
   const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
 
   // allows us to wrap any (player) => void action and then send a movement packet afterwords
-  const sendMovePacket = (closure: (player: Player) => void) => (player: Player) => { closure(player); networkClient.move(player.character.body, player.character.input); };
+  const sendMovePacket = (closure: (player: Player) => void) => (player: Player) => {
+    closure(player);
+    networkClient.move(player.character.body, player.character.body.body.velocity, player.character.input);
+  };
 
   const jumpOn = sendMovePacket((player) => player.character.updateInputs({ jump: true }));
   const jumpOff = sendMovePacket((player) => player.character.updateInputs({ jump: false }));

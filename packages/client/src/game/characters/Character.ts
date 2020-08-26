@@ -25,7 +25,7 @@ export class Character {
     for (const cosmetic of cosmetics) {
       this.cosmeticSprites.push(this.game.add.image(0, 0, cosmeticKey(cosmetic)).setOrigin(0, 0));
     }
-
+    
     this.game.events.on("update", this.update, this);
     this.game.events.on("postupdate", this.postUpdate, this);
   }
@@ -42,6 +42,10 @@ export class Character {
 
   setPosition(x: number, y: number) {
     this.body.setPosition(x, y);
+  }
+
+  setVelocity(x: number, y: number) {
+    this.body.setVelocity(x, y);
   }
 
   updateInputs(input: MovementInput) {
