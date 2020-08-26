@@ -31,6 +31,10 @@ export default class PlayerManager {
   }
 
   removePlayer(playerId: number) {
+    const player = this.getPlayer(playerId);
+    player.character.destroy();
+    if (player.gun) player.gun.destroy();
+    
     this.players.delete(playerId);
   }
 

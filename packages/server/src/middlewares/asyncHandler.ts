@@ -8,7 +8,7 @@ export default function handleAsync<T>(handler: T): T {
   return (req, res, next) => {
     //@ts-ignore
     return handler(req, res, next).catch(err => {
-      console.trace("received error in endpoint", err);
+      console.trace("received error in endpoint", req.originalUrl, err);
       next(err);
     });
   };

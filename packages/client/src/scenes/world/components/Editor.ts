@@ -112,7 +112,7 @@ export class Editor {
 
     // if the block position only changed by 1 block, we don't need to employ any fancy algorithms
     if (absoluteXDiff <= 1 && absoluteYDiff <= 1) {
-      if (x < 0 || y < 3 || x >= this.worldScene.worldSize.width || y >= this.worldScene.worldSize.height) return;
+      if (x < 0 || y < 0 || x >= this.worldScene.worldSize.width || y >= this.worldScene.worldSize.height) return;
 
       this._placeBlock(tileLayer, { x, y }, this._activeBlock);
       this.networkClient.placeBlock(x, y, this._activeBlock, tileLayer);

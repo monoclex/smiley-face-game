@@ -126,5 +126,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.continue();
+    this.events.on("destroy", this.onDestroy, this);
+  }
+
+  onDestroy() {
+    this.networkClient.destroy();
   }
 }

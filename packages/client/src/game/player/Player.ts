@@ -13,7 +13,6 @@ export default class Player {
 
   instantiateGun(model: GunModel) {
     this.gun = model.behaviourFactory(this.game, this.character.body);
-    this.game.events.on("update", this.gun.update, this.gun);
   }
 
   getGun(): GunBehaviour {

@@ -58,4 +58,6 @@ export default abstract class GunBehaviour {
 
     this.gun.setRotation(displayAngle);
   }
+
+  abstract destroy(): void;
 }

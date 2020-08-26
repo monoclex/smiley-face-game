@@ -84,4 +84,16 @@ export class Character {
       cosmeticSprite.setPosition(this.body.x, this.body.y);
     }
   }
+
+  destroy() {
+    this.game.events.off("update", this.update, this);
+    this.game.events.off("postupdate", this.postUpdate, this);
+
+    this.body.destroy();
+    this.usernameText.destroy();
+
+    for (const cosmeticSprite of this.cosmeticSprites) {
+      cosmeticSprite.destroy();
+    }
+  }
 }

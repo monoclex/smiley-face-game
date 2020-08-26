@@ -10,6 +10,7 @@ export default class Connection {
   connected: boolean = false;
   username!: string;
   isGuest!: boolean;
+  private _room?: Room;
 
   // room things
   // TODO: decouple 'lastPosition' default state
@@ -48,6 +49,8 @@ export default class Connection {
   }
 
   play(room: Room) {
+    this._room = room;
+
     if (!room.join(this)) {
       // TODO: send websocket a "couldn't join room" packet here?
       this.kill("Couldn't join room.");
@@ -78,24 +81,28 @@ export default class Connection {
       // handle parsing 'data' here
       const [errors, packet] = validator(message);
       if (errors !== null || packet === undefined) {
-        console.warn("invalid packet", errors, message);
-        this.kill("Sent an invalid payload");
+        console.warn("unvalidatable packet", errors, message);
+        this.kill("Sent an unvalidatable payload");
         return;
       }
 
       const result = await room.onMessage(this, packet);
       if (result === false) {
+        console.warn("invalid packet", packet);
         this.kill("sent an invalid packet");
+        return;
       }
     });
 
     this.webSocket.on("error", (error) => {
       console.warn("sudden websocket close", error);
+      if (!this.connected) return;
       this.connected = false;
       room.leave(this);
     });
 
     this.webSocket.on("close", (code, reason) => {
+      if (!this.connected) return;
       this.connected = false;
       room.leave(this);
     });
@@ -110,5 +117,11 @@ export default class Connection {
 
   kill(reason: string) {
     this.webSocket.close(undefined, reason);
+    
+    if (this._room) {
+      if (!this.connected) return;
+      this.connected = false;
+      this._room.leave(this);
+    }
   }
 }

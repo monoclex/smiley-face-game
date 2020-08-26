@@ -73,7 +73,7 @@ export class BlockHandler {
       //
       // currently you can't place blocks above y 3 because placing blocks at (0, 1) and (1, 0) cause some really weird crud
       // it's a TODO to fix them, but for now this is a hot-fix.
-      if (y < 3 || y >= this.height
+      if (y < 0 || y >= this.height
         || x < 0 || x >= this.width) return;
 
       if (didUpdate || this.map[packet.layer][y][x].id !== packet.id) {

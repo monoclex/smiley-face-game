@@ -10,6 +10,7 @@ export default class OneBulletFixedFireRate extends GunBehaviour {
     readonly fireRate: number, // how many ms per bullet
   ) {
     super(player, gun);
+    this.game.events.on("update", this.update, this);
   }
 
   _lastFire: number = -10000.0; // lol
@@ -25,5 +26,10 @@ export default class OneBulletFixedFireRate extends GunBehaviour {
     
     // TODO: spawn bullet
     console.log('pew');
+  }
+
+  destroy() {
+    this.game.events.off("update", this.update, this);
+    this.gun.destroy();
   }
 }
