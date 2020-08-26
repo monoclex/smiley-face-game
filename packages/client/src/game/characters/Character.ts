@@ -17,7 +17,7 @@ export class Character {
     readonly base: BaseType = "original",
     readonly cosmetics: CosmeticType[] = ["smile"],
   ) {
-    this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setMaxVelocity(300, 500).setDrag(3000, 0).setOrigin(0, 0);
+    this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setMaxVelocity(300, 500).setDrag(3000, 0).setOrigin(0, 0).setCollideWorldBounds(true);
     this.usernameText = this.game.add.text(0, 0, username).setOrigin(0.5, 0);
 
     this.cosmeticSprites = [];

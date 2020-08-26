@@ -59,7 +59,7 @@ export default class GameScene extends Phaser.Scene {
     const blockBar = new BlockBar(world);
     this.blockBar = blockBar;
     this.editor = new Editor(this, world, blockBar);
-    this.physics.world.setBounds(0, 0, this.initPacket.size.width * TILE_WIDTH, this.initPacket.size.height * TILE_HEIGHT);
+    this.physics.world.setBounds(0, 0, this.initPacket.size.width * TILE_WIDTH, this.initPacket.size.height * TILE_HEIGHT, true, true, true, true);
 
     const players = new PlayerManager(this);
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);

@@ -70,6 +70,10 @@ export default class World {
 
     const tileBreed = tileLookup[id];
     const tile = this.layerFor(tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
+    
+    // don't do anything as they are the same
+    if (tile.index === id) return;
+    if (id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
 
     // @ts-ignore
     const result: Tile = tileLookup[tile.index];
@@ -78,7 +82,6 @@ export default class World {
     }
 
     tileBreed.place(tile);
-
     this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
   }
 
