@@ -67,6 +67,10 @@ export default class GameScene extends Phaser.Scene {
 
     mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
+    this.events.on("update", () => {
+      console.log(!!this.mainPlayer.gun);
+      if (this.mainPlayer.gun) this.mainPlayer.gun.setLookingAt(this.input.activePointer.x, this.input.activePointer.y);
+    }, this);
 
     const camera = this.cameras.main;
     camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);

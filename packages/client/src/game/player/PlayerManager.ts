@@ -26,7 +26,7 @@ export default class PlayerManager {
   addPlayer(id: number, username: string, playerContainer: Phaser.GameObjects.Container): Player {
     const player = new Player(this.game, new Character(this.game, username));
     this.players.set(id, player);
-    player.character.addToContainer(playerContainer);
+    playerContainer.add(player.container);
     return player;
   }
 

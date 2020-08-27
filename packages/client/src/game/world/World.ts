@@ -78,7 +78,7 @@ export default class World {
     // @ts-ignore
     const result: Tile = tileLookup[tile.index];
     if (result !== undefined && result.onRemove) {
-      result.onRemove();
+      result.onRemove(tile);
     }
 
     tileBreed.place(tile);

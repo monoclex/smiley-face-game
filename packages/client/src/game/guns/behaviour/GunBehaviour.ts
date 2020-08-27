@@ -4,9 +4,11 @@ export default abstract class GunBehaviour {
   constructor(
     readonly player: Phaser.GameObjects.Sprite,
     readonly gun: Phaser.GameObjects.Sprite,
-  ) {}
+  ) {
+    gun.setOrigin(0, 0);
+  }
 
-  equipped: boolean = false;
+  equipped: boolean = true;
   angle: number = 0.0;
 
   setLookingAt(x: number, y: number) {
@@ -14,6 +16,7 @@ export default abstract class GunBehaviour {
   }
 
   update(time: number, delta: number): void {
+    
     if (!this.equipped) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
       this.gun.setPosition(this.player.x - 6, this.player.y - 6);

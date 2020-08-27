@@ -5,12 +5,14 @@ import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
 import cosmeticKey from "@/game/characters/cosmetics/key";
 import MovementInput from "@/game/input/MovementInput";
 import MovementValues from "@/game/input/MovementValues";
+import Player from "@/game/player/Player";
 
 export class Character {
   readonly body: Phaser.Physics.Arcade.Sprite;
   readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
   readonly input: MovementValues = { left: false, right: false, jump: false };
+  player?: Player;
 
   constructor(
     readonly game: GameScene,
@@ -19,6 +21,11 @@ export class Character {
     readonly cosmetics: CosmeticType[] = ["smile"],
   ) {
     this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setMaxVelocity(300, 500).setDrag(3000, 0).setOrigin(0, 0).setCollideWorldBounds(true);
+
+    // add a reference from that game object to the character for ease of use
+    //@ts-ignore
+    this.body.character = this;
+
     this.usernameText = this.game.add.text(0, 0, username).setOrigin(0.5, 0);
 
     this.cosmeticSprites = [];
@@ -48,16 +55,23 @@ export class Character {
     this.body.setVelocity(x, y);
   }
 
+  getPlayer(): Player {
+    if (!this.player) {
+      throw new Error("unable to get player - " + JSON.stringify(this));
+    }
+
+    return this.player;
+  }
+
   updateInputs(input: MovementInput) {
-    console.log('pre updateInputs', this.input, input);
     if (input.left !== undefined) this.input.left = input.left;
     if (input.right !== undefined) this.input.right = input.right;
     if (input.jump !== undefined) this.input.jump = input.jump;
-    console.log('post updateInputs', this.input);
   }
 
   update() {
     this.game.physics.collide(this.body, this.game.world.foreground.display.tilemapLayer);
+    this.game.physics.collide(this.body, this.game.world.action.display.tilemapLayer);
     
     const sprite = this.body;
     const acceleration = 10000;
