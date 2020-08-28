@@ -4,9 +4,7 @@ export default abstract class GunBehaviour {
   constructor(
     readonly player: Phaser.GameObjects.Sprite,
     readonly gun: Phaser.GameObjects.Sprite,
-  ) {
-    gun.setOrigin(0, 0);
-  }
+  ) {}
 
   equipped: boolean = true;
   angle: number = 0.0;
@@ -19,7 +17,7 @@ export default abstract class GunBehaviour {
     
     if (!this.equipped) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
-      this.gun.setPosition(this.player.x - 6, this.player.y - 6);
+      this.gun.setPosition(this.player.x + 16 - 6, this.player.y + 16 - 6);
       this.gun.setRotation(Math.PI / 3.5);
       this.gun.setFlipX(false);
       return;
@@ -28,7 +26,7 @@ export default abstract class GunBehaviour {
     // gun is equipped, have it go around the player
     
     // given the angle the user is holding it at, place the gun 20 units away from the player
-    const heldGunPosition = distanceAway(this.player, this.angle, 20);
+    const heldGunPosition = distanceAway({ x: this.player.x + 16, y: this.player.y + 16 }, this.angle, 20);
     this.gun.setPosition(heldGunPosition.x, heldGunPosition.y);
 
     // MATH TIME:

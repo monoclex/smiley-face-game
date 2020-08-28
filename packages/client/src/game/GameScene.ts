@@ -36,6 +36,7 @@ export default class GameScene extends Phaser.Scene {
     const layerVoid = this.add.container().setDepth(depth++);
     const layerTileLayerBackground = this.add.container().setDepth(depth++);
     const layerTileLayerAction = this.add.container().setDepth(depth++);
+    const layerTileLayerForeground = this.add.container().setDepth(depth++);
     const layerBullets = this.add.container().setDepth(depth++);
     const layerStrappedGuns = this.add.container().setDepth(depth++);
     const layerPlayers = this.add.container().setDepth(depth++);
@@ -43,7 +44,6 @@ export default class GameScene extends Phaser.Scene {
     const layerMainPlayerStrappedGun = this.add.container().setDepth(depth++);
     const layerMainPlayer = this.add.container().setDepth(depth++);
     const layerMainPlayerHeldGun = this.add.container().setDepth(depth++);
-    const layerTileLayerForeground = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
     const world = new World(this, this.initPacket.size, this.networkClient);
@@ -69,7 +69,10 @@ export default class GameScene extends Phaser.Scene {
     this.mainPlayer = mainPlayer;
     this.events.on("update", () => {
       console.log(!!this.mainPlayer.gun);
-      if (this.mainPlayer.gun) this.mainPlayer.gun.setLookingAt(this.input.activePointer.x, this.input.activePointer.y);
+      if (this.mainPlayer.gun) {
+        const { x, y } = this.input.activePointer.positionToCamera(this.editor.mainCamera) as Phaser.Math.Vector2
+        this.mainPlayer.gun.setLookingAt(x, y);
+      }
     }, this);
 
     const camera = this.cameras.main;
