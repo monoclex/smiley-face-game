@@ -21,6 +21,10 @@ export default class Player {
     this.game.events.on("update", this.gun.update, this.gun);
   }
 
+  get hasGun(): boolean {
+    return !!this.gun;
+  }
+
   getGun(): GunBehaviour {
     if (!this.gun) {
       throw new Error("attempted to equip gun on a player that does not have a gun");

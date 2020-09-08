@@ -6,10 +6,10 @@ export default function events(): EventSystem {
   let eventSystem = prepare();
 
   for (const hook of hooks) {
-    eventSystem.activeHook = hook;
-    hook(eventSystem);
+    eventSystem.registerHook(hook);
   }
 
+  // initialize the event systems after the hooks so that the hooks will be guaranteed to get all updates
   eventSystem.keyboard.initialize();
   eventSystem.mouse.initialize();
 

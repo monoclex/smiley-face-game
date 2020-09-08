@@ -15,30 +15,39 @@ export default abstract class System<TEvent, TDeps = {}> {
 
   abstract initialize(deps: TDeps): void;
 
-  register(handler: EventHandler<TEvent>): void {
+  register(handler: EventHandler<TEvent>, silent: boolean = false): void {
     let systems = this.systems;
     let hook = this.systems.activeHook;
-    let name = this.name;
-    const realLog = systems.log;
-    const hookLog = (...args: unknown[]) => realLog(name, ">", hook!.name, ">", ...args);
-    const invokingHookLog = (...args: unknown[]) => hookLog("log >", ...args);
+    
+    if (!silent) {
+      this._handlers.push((payload) => {
+        systems.sender = hook;
+        return handler(payload);
+      });
+    }
+    else {
+      let name = this.name;
+      const realLog = systems.log;
+      const hookLog = (...args: unknown[]) => realLog(name, ">", hook!.name, ">", ...args);
+      const invokingHookLog = (...args: unknown[]) => hookLog("log >", ...args);
 
-    this._handlers.push((payload) => {
-      hookLog("payload", payload);
-
-      systems.sender = hook;
-      systems.log = invokingHookLog;
-      const result = handler(payload);
-      systems.log = realLog;
-
-      hookLog("result", result);
-      return result;
-    });
+      this._handlers.push((payload) => {
+        hookLog("payload", payload);
+  
+        systems.sender = hook;
+        systems.log = invokingHookLog;
+        const result = handler(payload);
+        systems.log = realLog;
+  
+        hookLog("result", result);
+        return result;
+      });
+    }
   }
 
   trigger(event: TEvent): EventHandleResult;
-  trigger(event: TEvent, sender: HookRegistration): EventHandleResult;
-  trigger(event: TEvent, actualSender?: HookRegistration) {
+  trigger(event: TEvent, sender: Function): EventHandleResult;
+  trigger(event: TEvent, actualSender?: Function) {
     const sender = actualSender ?? this.systems.sender;
 
     if (!sender) {

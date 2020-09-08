@@ -8,8 +8,11 @@ import GAME_SCENE_KEY from "./GameSceneKey";
 import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
 import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
-const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
+import EventSystem from "./events/EventSystem";
+import events from "@/game/events";
 
+const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
+import registerMainPlayerGunDirectionUpdater from "./MainPlayerGunDirectionUpdater";
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
   initPacket!: ServerInitPacket;
@@ -18,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
+  eventSystem!: EventSystem;
 
   constructor() {
     super({
@@ -46,6 +50,8 @@ export default class GameScene extends Phaser.Scene {
     const layerMainPlayerHeldGun = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
+    this.eventSystem = events();
+
     const world = new World(this, this.initPacket.size, this.networkClient);
     layerVoid.add(world.void.display.sprite);
     layerTileLayerBackground.add(world.background.display.tilemapLayer);
@@ -67,12 +73,7 @@ export default class GameScene extends Phaser.Scene {
 
     mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
-    this.events.on("update", () => {
-      if (this.mainPlayer.gun) {
-        const { x, y } = this.input.activePointer.positionToCamera(this.editor.mainCamera) as Phaser.Math.Vector2
-        this.mainPlayer.gun.setLookingAt(x, y);
-      }
-    }, this);
+    registerMainPlayerGunDirectionUpdater(this.eventSystem, this.mainPlayer, this.input, this.cameras.main);
 
     const camera = this.cameras.main;
     camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);
