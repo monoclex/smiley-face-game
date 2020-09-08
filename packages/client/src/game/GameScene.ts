@@ -5,10 +5,10 @@ import Player from "@/game/player/Player";
 import World from "@/game/world/World";
 import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
-import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
 import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
+const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -68,7 +68,6 @@ export default class GameScene extends Phaser.Scene {
     mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
     this.events.on("update", () => {
-      console.log(!!this.mainPlayer.gun);
       if (this.mainPlayer.gun) {
         const { x, y } = this.input.activePointer.positionToCamera(this.editor.mainCamera) as Phaser.Math.Vector2
         this.mainPlayer.gun.setLookingAt(x, y);

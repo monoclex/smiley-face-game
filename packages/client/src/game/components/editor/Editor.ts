@@ -5,6 +5,7 @@ import World from "@/game/world/World";
 import EditorDisplay from "./EditorDisplay";
 import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 import BlockBar from "../../blockbar/BlockBar";
+import iteratePointers from "@/game/iteratePointers";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.
@@ -16,7 +17,6 @@ class DrawingPointer {
     readonly editor: Editor,
     readonly blockBar: BlockBar,
   ) {
-    console.log(blockBar);
     this.lastPosition = this.position(pointer);
   }
 
@@ -50,18 +50,21 @@ export default class Editor implements Component {
   readonly display: EditorDisplay;
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
-  readonly world: World;
 
-  constructor(scene: Phaser.Scene, world: World, blockBar: BlockBar) {
+  private _enabled: boolean = true;
+  get enabled(): boolean { return this._enabled; }
+
+  constructor(
+    readonly scene: Phaser.Scene,
+    readonly world: World,
+    readonly blockBar: BlockBar,
+  ) {
     this.display = new EditorDisplay();
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
-    this.world = world;
     scene.events.on("update", this.update, this);
-    console.log('blckbar', blockBar);
 
     scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      console.log('pd', blockBar);
       const drawingPointer = new DrawingPointer(pointer, this, blockBar);
       this.drawingPointers.set(pointer.pointerId, drawingPointer);
       drawingPointer.onDown();
@@ -86,6 +89,32 @@ export default class Editor implements Component {
   update() {
     for (const pointer of this.drawingPointers.values()) {
       pointer.onMove();
+    }
+  }
+  
+  setEnabled(status: boolean) {
+    this._enabled = status;
+
+    if (!this.enabled) {
+      // if we enabled this component, we want to start re-tracking every pointer that was down
+      for (const pointer of iteratePointers(this.scene.input)) {
+        if (!pointer.isDown) continue;
+
+        // if the pointer is down, we want to begin tracking it again
+        const drawingPointer = new DrawingPointer(pointer, this, this.blockBar);
+        this.drawingPointers.set(pointer.pointerId, drawingPointer);
+        drawingPointer.onDown();
+      }
+    }
+    else {
+      // if we disabled this component, we want to stop drawing completely
+      const keys = Array.from(this.drawingPointers.keys());
+
+      for (const key of keys) {
+        const drawingPointer = this.drawingPointers.get(key)!;
+        drawingPointer.onUp();
+        this.drawingPointers.delete(key);
+      }
     }
   }
 }
