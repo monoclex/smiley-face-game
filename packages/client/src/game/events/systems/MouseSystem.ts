@@ -1,7 +1,12 @@
 import System from "@/game/events/systems/System";
 import EventSystem from "@/game/events/EventSystem";
+import Deps from "@/game/events/Deps";
 
 interface MouseEvent {
+  id: number;
+  down: boolean;
+  x: number;
+  y: number;
 }
 
 export default class MouseSystem extends System<MouseEvent> {
@@ -9,7 +14,7 @@ export default class MouseSystem extends System<MouseEvent> {
     super(eventSystem, MouseSystem.name);
   }
   
-  initialize(): void {
-    console.warn("TODO: initialize mouse system");
+  initialize({ input, camera }: Deps): void {
+    
   }
 }

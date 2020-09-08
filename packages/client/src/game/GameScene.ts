@@ -12,7 +12,7 @@ import EventSystem from "./events/EventSystem";
 import events from "@/game/events";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
-import registerMainPlayerGunDirectionUpdater from "./MainPlayerGunDirectionUpdater";
+import registerMainPlayerGunDirectionUpdater from "./registerMainPlayerGunDirectionUpdater";
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
   initPacket!: ServerInitPacket;
@@ -50,7 +50,11 @@ export default class GameScene extends Phaser.Scene {
     const layerMainPlayerHeldGun = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
-    this.eventSystem = events();
+    this.eventSystem = events({
+      ...this,
+      scene: this,
+      camera: this.cameras.main
+    });
 
     const world = new World(this, this.initPacket.size, this.networkClient);
     layerVoid.add(world.void.display.sprite);

@@ -1,11 +1,12 @@
 import HookRegistration from "@/game/events/hooks/HookRegistration";
 import EventSystem from "@/game/events/EventSystem";
+import Deps from "@/game/events/Deps";
 
 type EventHandleResult = "pass" | "drop";
 type Payload<TEvent> = EventSystem & { event: TEvent } & { sender: unknown };
 type EventHandler<TEvent> = (payload: Payload<TEvent>) => EventHandleResult;
 
-export default abstract class System<TEvent, TDeps = {}> {
+export default abstract class System<TEvent> {
   private readonly _handlers: EventHandler<TEvent>[] = [];
 
   constructor(
@@ -13,7 +14,7 @@ export default abstract class System<TEvent, TDeps = {}> {
     readonly name: string,
   ) {}
 
-  abstract initialize(deps: TDeps): void;
+  abstract initialize(deps: Deps): void;
 
   register(handler: EventHandler<TEvent>, silent: boolean = false): void {
     let systems = this.systems;
