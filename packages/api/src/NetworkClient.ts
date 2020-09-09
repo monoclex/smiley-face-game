@@ -17,6 +17,7 @@ import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID, validateServerPickupGun } 
 import { ServerPlayerJoinPacket, SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
 import { ServerPlayerLeavePacket, SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
 import { ServerPacket } from "./packets/Server";
+import { WorldPacket } from "./packets/WorldPacket";
 
 export type NetworkEventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 
@@ -36,6 +37,21 @@ export class NetworkEvents {
   onEquipGun?: NetworkEventHandler<ServerEquipGunPacket>;
   onBlockLine?: NetworkEventHandler<ServerBlockLinePacket>;
   onBlockBuffer?: NetworkEventHandler<ServerBlockBufferPacket>;
+  leftover?: NetworkEventHandler<ServerPacket>;
+
+  hookLeftover<TMessage extends ServerPacket>(handler: NetworkEventHandler<TMessage>) {
+    this.leftover = handler;
+    this.onBlockSingle = this.leftover;
+    this.onMovement = this.leftover;
+    this.onPlayerJoin = this.leftover;
+    this.onPlayerLeave = this.leftover;
+    this.onInit = this.leftover;
+    this.onPickupGun = this.leftover;
+    this.onFireBullet = this.leftover;
+    this.onEquipGun = this.leftover;
+    this.onBlockLine = this.leftover;
+    this.onBlockBuffer = this.leftover;
+  }
 
   triggerEvent(rawPacket: any): void | Promise<void> {
     const lookup = {
@@ -242,6 +258,10 @@ export class NetworkClient {
       id: _activeBlock,
     };
 
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  send(packet: WorldPacket) {
     this._webSocket.send(JSON.stringify(packet));
   }
 }
