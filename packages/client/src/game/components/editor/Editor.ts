@@ -21,11 +21,13 @@ class DrawingPointer {
   }
 
   onDown() {
+    if (!this.editor.enabled) return;
     this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id());
     //
   }
 
   onMove() {
+    if (!this.editor.enabled) return;
     const currentPosition = this.position(this.pointer);
     this.editor.world.drawLine(this.lastPosition, currentPosition, this.id());
     //
@@ -51,7 +53,7 @@ export default class Editor implements Component {
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
 
-  private _enabled: boolean = true;
+  private _enabled: boolean = false;
   get enabled(): boolean { return this._enabled; }
 
   constructor(
@@ -84,11 +86,16 @@ export default class Editor implements Component {
         this.drawingPointers.delete(pointer.pointerId);
       }
     });
+
+    // we set enabled here to run the code responsible for setting up the pointers and whatnot
+    this.setEnabled(true);
   }
 
   update() {
     for (const pointer of this.drawingPointers.values()) {
-      pointer.onMove();
+      if (this._enabled) {
+        pointer.onMove();
+      }
     }
   }
   
@@ -99,9 +106,10 @@ export default class Editor implements Component {
     if (!this.enabled) {
       // if we enabled this component, we want to start re-tracking every pointer that was down
       for (const pointer of iteratePointers(this.scene.input)) {
-        if (!pointer.isDown) continue;
 
         // if the pointer is down, we want to begin tracking it again
+        if (!pointer.isDown) continue;
+
         const drawingPointer = new DrawingPointer(pointer, this, this.blockBar);
         this.drawingPointers.set(pointer.pointerId, drawingPointer);
         drawingPointer.onDown();

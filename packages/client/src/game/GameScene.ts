@@ -19,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
+  _keyboardE!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super({
@@ -33,8 +34,13 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     this.events.on("destroy", this.destroy, this);
+
+    // debug physics easier
     this.physics.world.defaults.debugShowBody = true;
     this.physics.world.defaults.debugShowStaticBody = true;
+
+    // hook into `E`
+    this._keyboardE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
@@ -132,6 +138,12 @@ export default class GameScene extends Phaser.Scene {
     // primary mouse cursor x/y
     const { x, y } = this.input.activePointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
 
+    // toggle the equpped-ness of the gun when E is pressed
+    if (this.mainPlayer.hasGun && Phaser.Input.Keyboard.JustDown(this._keyboardE)) {
+      let gun = this.mainPlayer.getGun();
+      gun.equipped = !gun.equipped;
+    }
+
     // when the player has a gun equipped, we want the gun to point towards where they're looking
     if (this.mainPlayer.gunEquipped) {
       this.mainPlayer.getGun().setLookingAt(x, y);
@@ -139,7 +151,14 @@ export default class GameScene extends Phaser.Scene {
 
     // we want to prevent editing the world while the gun is equipped, so that
     // when the user presses to fire, it doesn't place/destroy a block
+    console.log(this.mainPlayer.gunEquipped);
     this.editor.setEnabled(!this.mainPlayer.gunEquipped);
+
+    // fire bullets while mouse is down
+    if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown) {
+      const { x, y } = this.mainPlayer.character.body;
+      const bullet = this.add.sprite(x, y, "bullet-bullet");
+    }
   }
 
   destroy() {
