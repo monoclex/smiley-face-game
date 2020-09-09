@@ -1,3 +1,9 @@
+/**
+ * @description This system is responsible for receiving input from the mouse, and dispatching it to callers. This involves adding the raw
+ * mouse position to the camera position, so that the resulting position is a position within the world that can be used by the callers.
+ * In addition, this handles multiple pointers so that (for example) on mobile, if you drag with multiple fingers, multiple lines will show up.
+ */
+
 import System from "@/game/events/systems/System";
 import EventSystem from "@/game/events/EventSystem";
 import Deps from "@/game/events/Deps";

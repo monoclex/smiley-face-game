@@ -1,4 +1,11 @@
-import HookRegistration from "./events/hooks/HookRegistration";
+/**
+ * @description This file is responsible for receiving input from the mouse, and then sending the right packets if the user should be drawing
+ * blocks on the world.
+ */
+
+ // god have mercy
+
+import EventHook from "./events/EventHook";
 import Player from "./player/Player";
 import EventSystem from "./events/EventSystem";
 import NetworkSystem from "./events/systems/NetworkSystem";
@@ -57,7 +64,7 @@ export default function registerEditorInput(
   let pointers: Record<number, PointerState> = {};
   let userEditorState: UserEditorState = { id: TileId.Full };
 
-  const EditorInput: HookRegistration = ({ mouse }) => {
+  const EditorInput: EventHook = ({ mouse }) => {
     mouse.register(({ network, event: { id, down, x, y } }) => {
       if (!player.canEdit) {
         if (pointers[id] && pointers[id].down) pointers[id].handle(down, x, y);
