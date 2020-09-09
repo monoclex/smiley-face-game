@@ -29,6 +29,10 @@ export default class Player {
     return !!this.gun;
   }
 
+  get gunEquipped(): boolean {
+    return this.hasGun && this.gun!.equipped;
+  }
+
   getGun(): GunBehaviour {
     if (!this.gun) {
       throw new Error("attempted to equip gun on a player that does not have a gun");

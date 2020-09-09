@@ -17,25 +17,32 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
   router.ws("/ws", asyncHandler<expressWs.WebsocketRequestHandler>(async (ws, req) => {
     const { token, world } = req.query;
 
-    if (typeof token !== "string" || typeof world !== "string") {
-      throw new Error("`token`/`world` must be a string token.");
-    }
+    try {
+      if (typeof token !== "string" || typeof world !== "string") {
+        throw new Error("`token`/`world` must be a string token.");
+      }
 
-    const authTokenPayload = extractJwt(authVerifier, token);
+      const authTokenPayload = extractJwt(authVerifier, token);
     
-    if (!canJoinWorld(authTokenPayload)) {
-      throw new Error("Missing permission to play.");
+      if (!canJoinWorld(authTokenPayload)) {
+        throw new Error("Missing permission to play.");
+      }
+
+      const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
+      if (errors !== null || worldTokenPayload === undefined) {
+        throw new Error("Failed to validate WorldDetails payload.");
+      }
+
+      const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
+
+      await connection.load(accountRepo);
+      const room = await roomManager.join(connection, worldTokenPayload);
+      connection.play(room);
     }
-
-    const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
-    if (errors !== null || worldTokenPayload === undefined) {
-      throw new Error("Failed to validate WorldDetails payload.");
+    finally {
+      if (ws.readyState === ws.OPEN) {
+        ws.close();
+      }
     }
-
-    const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
-
-    await connection.load(accountRepo);
-    const room = await roomManager.join(connection, worldTokenPayload);
-    connection.play(room);
   }));
 }

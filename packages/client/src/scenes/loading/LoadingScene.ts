@@ -79,6 +79,17 @@ export class LoadingScene extends Phaser.Scene {
       },
       serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema).validateServerBlockBuffer,
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
-    );
+    )
+      .catch((err) => {
+        console.warn("caught");
+        this._progressBar.clear();
+        this._progressBar.fillStyle(0x8a8a8a, 1);
+        this._progressBar.fillRect(
+          this.cameras.main.width / 4,
+          this.cameras.main.height / 2 - 16,
+          (this.cameras.main.width / 2) * -10,
+          16
+        );
+      });
   }
 }

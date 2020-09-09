@@ -8,11 +8,9 @@ import GAME_SCENE_KEY from "./GameSceneKey";
 import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
 import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
-import EventSystem from "./events/EventSystem";
-import events from "@/game/events";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
-import registerMainPlayerGunDirectionUpdater from "./registerMainPlayerGunDirectionUpdater";
+
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
   initPacket!: ServerInitPacket;
@@ -21,7 +19,6 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  eventSystem!: EventSystem;
 
   constructor() {
     super({
@@ -35,6 +32,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.events.on("destroy", this.destroy, this);
+    this.physics.world.defaults.debugShowBody = true;
+    this.physics.world.defaults.debugShowStaticBody = true;
+
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
     const layerVoid = this.add.container().setDepth(depth++);
@@ -49,12 +50,6 @@ export default class GameScene extends Phaser.Scene {
     const layerMainPlayer = this.add.container().setDepth(depth++);
     const layerMainPlayerHeldGun = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
-
-    this.eventSystem = events({
-      ...this,
-      scene: this,
-      camera: this.cameras.main
-    });
 
     const world = new World(this, this.initPacket.size, this.networkClient);
     layerVoid.add(world.void.display.sprite);
@@ -77,17 +72,12 @@ export default class GameScene extends Phaser.Scene {
 
     mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
-    registerMainPlayerGunDirectionUpdater(this.eventSystem, this.mainPlayer, this.input, this.cameras.main);
 
     const camera = this.cameras.main;
     camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
-    this.physics.world.defaults.debugShowBody = true;
-    this.physics.world.defaults.debugShowStaticBody = true;
-
     this.networkClient.events.onPlayerJoin = (event) => {
-      console.log('onPlayerJoin');
       const player = players.addPlayer(event.playerId, event.username, layerPlayers);
       player.character.setPosition(event.joinLocation.x, event.joinLocation.y);
     }
@@ -97,7 +87,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onMovement = (event) => {
-      console.log('onMovement');
       const character = players.getPlayer(event.playerId).character;
       character.setPosition(event.position.x, event.position.y);
       character.setVelocity(event.velocity.x, event.velocity.y);
@@ -116,31 +105,44 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    this.networkClient.events.onBlockLine = async (event) => {
+    this.networkClient.events.onBlockLine = (event) => {
       this.world.drawLine(event.start, event.end, event.id);
     }
 
-    this.networkClient.events.onBlockSingle = async (event) => {
+    this.networkClient.events.onBlockSingle = (event) => {
       this.world.placeBlock(event.position, event.id);
     }
 
-    this.networkClient.events.onEquipGun = async (event) => {
+    this.networkClient.events.onEquipGun = (event) => {
       this.players.onEquipGun(event.playerId, event.equipped);
     }
 
-    this.networkClient.events.onFireBullet = async (event) => {
+    this.networkClient.events.onFireBullet = (event) => {
       this.players.onFireBullet(event.playerId);
     }
 
-    this.networkClient.events.onPickupGun = async (event) => {
+    this.networkClient.events.onPickupGun = (event) => {
       this.players.onPickupGun(event.playerId);
     }
 
     this.networkClient.continue();
-    this.events.on("destroy", this.onDestroy, this);
   }
 
-  onDestroy() {
+  update() {
+    // primary mouse cursor x/y
+    const { x, y } = this.input.activePointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
+
+    // when the player has a gun equipped, we want the gun to point towards where they're looking
+    if (this.mainPlayer.gunEquipped) {
+      this.mainPlayer.getGun().setLookingAt(x, y);
+    }
+
+    // we want to prevent editing the world while the gun is equipped, so that
+    // when the user presses to fire, it doesn't place/destroy a block
+    this.editor.setEnabled(!this.mainPlayer.gunEquipped);
+  }
+
+  destroy() {
     this.networkClient.destroy();
   }
 }

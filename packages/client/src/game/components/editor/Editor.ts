@@ -93,6 +93,7 @@ export default class Editor implements Component {
   }
   
   setEnabled(status: boolean) {
+    if (status === this._enabled) return;
     this._enabled = status;
 
     if (!this.enabled) {

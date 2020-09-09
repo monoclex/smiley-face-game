@@ -37,21 +37,6 @@ export class NetworkEvents {
   onEquipGun?: NetworkEventHandler<ServerEquipGunPacket>;
   onBlockLine?: NetworkEventHandler<ServerBlockLinePacket>;
   onBlockBuffer?: NetworkEventHandler<ServerBlockBufferPacket>;
-  leftover?: NetworkEventHandler<ServerPacket>;
-
-  hookLeftover<TMessage extends ServerPacket>(handler: NetworkEventHandler<TMessage>) {
-    this.leftover = handler;
-    this.onBlockSingle = this.leftover;
-    this.onMovement = this.leftover;
-    this.onPlayerJoin = this.leftover;
-    this.onPlayerLeave = this.leftover;
-    this.onInit = this.leftover;
-    this.onPickupGun = this.leftover;
-    this.onFireBullet = this.leftover;
-    this.onEquipGun = this.leftover;
-    this.onBlockLine = this.leftover;
-    this.onBlockBuffer = this.leftover;
-  }
 
   triggerEvent(rawPacket: any): void | Promise<void> {
     const lookup = {
@@ -115,16 +100,29 @@ export class NetworkClient {
     validateServerBlockSingle: ServerBlockSingleValidator,
   ): Promise<NetworkClient> {
     return new Promise((resolve, reject) => {
+      let resolved = false;
       const webSocket = new WebSocket(targetWebSocketUrl);
       const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
       registerCallbacks(networkClient);
 
-      webSocket.onopen = () => resolve(networkClient);
+      webSocket.addEventListener("message", () => {
+        if (!resolved) {
+          resolve(networkClient);
+        }
+        resolved = true;
+      });
 
-      webSocket.onerror = (error) => {
+      webSocket.addEventListener("error", (error) => {
         console.warn('[websocket errror]', error);
         reject(error);
-      };
+      });
+
+      webSocket.addEventListener("close", () => {
+        if (!resolved) {
+          resolved = false
+          reject("modernity");
+        }
+      });
     });
   }
 
