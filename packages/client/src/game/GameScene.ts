@@ -10,6 +10,7 @@ import BlockBar from "./blockbar/BlockBar";
 import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
+import distanceAway from "../math/distanceAway";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -156,8 +157,16 @@ export default class GameScene extends Phaser.Scene {
 
     // fire bullets while mouse is down
     if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown) {
+      // put a bullet where the player is
       const { x, y } = this.mainPlayer.character.body;
-      const bullet = this.add.sprite(x, y, "bullet-bullet");
+      const bullet = this.physics.add.sprite(x, y, "bullet-bullet").setCircle(2);
+
+      const angle = this.mainPlayer.getGun().angle;
+
+      //
+      let velocity = distanceAway({ x: 0, y: 0 }, angle, 1000);
+
+      bullet.setVelocity(velocity.x, velocity.y);
     }
   }
 
