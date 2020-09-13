@@ -141,8 +141,7 @@ export default class GameScene extends Phaser.Scene {
 
     // toggle the equpped-ness of the gun when E is pressed
     if (this.mainPlayer.hasGun && Phaser.Input.Keyboard.JustDown(this._keyboardE)) {
-      let gun = this.mainPlayer.getGun();
-      gun.equipped = !gun.equipped;
+      this.mainPlayer.toggleGunEquipped();
     }
 
     // when the player has a gun equipped, we want the gun to point towards where they're looking

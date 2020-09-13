@@ -48,6 +48,7 @@ export default class World {
         for (let x = 0; x < yLayer.length; x++) {
           const block = yLayer[x];
 
+          this.placeBlock({ x, y }, block.id, l);
         }
       }
     }
