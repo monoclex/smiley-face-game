@@ -21,7 +21,11 @@ export default class Player {
     character.addToContainer(this.container);
   }
     
-  instantiateGun(model: GunModel) {
+  instantiateGun(model: GunModel, tile: Phaser.Tilemaps.Tile) {
+    if (this === this.game.mainPlayer) {
+      this.game.networkClient.gotGun({ x: tile.x, y: tile.y });
+    }
+
     this.gun = model.behaviourFactory(this.game, this);
     this.gunSprite = this.container.last;
     this.game.events.on("update", this.gun.update, this.gun);

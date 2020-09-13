@@ -10,6 +10,7 @@ export default class GunTile implements Tile {
 
   // TODO: collision handlers
   place(tile: Phaser.Tilemaps.Tile): void {
+    let yeahtile = tile;
     tile.index = this.id;
     tile.setCollision(false);
     //@ts-ignore
@@ -21,7 +22,7 @@ export default class GunTile implements Tile {
 
       const character: Character = sprite.character;
       const player = character.getPlayer();
-      if (!player.gun) player.instantiateGun(M249LMG);
+      if (!player.gun) player.instantiateGun(M249LMG, yeahtile);
     }, this);
   }
 
