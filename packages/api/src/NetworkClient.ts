@@ -152,7 +152,7 @@ export class NetworkClient {
     this._webSocket.addEventListener("message", this.handleMessage.bind(this));
   }
 
-  async handleMessage(event: MessageEvent<any>) {
+  async handleMessage(event: MessageEvent) {
     // if paused, push message to buffer and don't handle it
     if (this._pause) {
       this._buffer.push(event);

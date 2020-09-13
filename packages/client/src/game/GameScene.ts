@@ -135,6 +135,8 @@ export default class GameScene extends Phaser.Scene {
     this.networkClient.continue();
   }
 
+  _lastBulletFire: number = 0;
+
   update() {
     // primary mouse cursor x/y
     const { x, y } = this.input.activePointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
@@ -153,8 +155,11 @@ export default class GameScene extends Phaser.Scene {
     // when the user presses to fire, it doesn't place/destroy a block
     this.editor.setEnabled(!this.mainPlayer.gunEquipped);
 
-    // fire bullets while mouse is down
-    if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown) {
+    let now = Date.now();
+    if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown // fire bullets while mouse is down
+      && this._lastBulletFire + 100 <= now) { // don't allow another bullet to be shot if it hasn't been at least 100ms since the last bullet
+      this._lastBulletFire = now;
+
       // put a bullet where the player is
       const { x, y, width, height } = this.mainPlayer.character.body;
       const bullet = this.physics.add.sprite(x + width / 2, y + height / 2, "bullet-bullet")
@@ -182,6 +187,9 @@ export default class GameScene extends Phaser.Scene {
       setTimeout(() => {
         bullet.destroy();
       }, 2000);
+
+      // send the message of a bullet being fired
+      this.networkClient.fireBullet(angle);
     }
   }
 
