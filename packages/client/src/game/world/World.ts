@@ -48,16 +48,6 @@ export default class World {
         for (let x = 0; x < yLayer.length; x++) {
           const block = yLayer[x];
 
-          if (block.id !== 0) {
-            const tile = worldLayer.display.tilemapLayer.putTileAt(block.id, x, y);
-            tile.index = block.id;
-            tile.setCollision(true);
-          }
-          else {
-            const tile = worldLayer.display.tilemapLayer.getTileAt(x, y, true);
-            tile.index = -1;
-            tile.setCollision(false);
-          }
         }
       }
     }
@@ -65,11 +55,11 @@ export default class World {
     console.timeEnd("init");
   }
 
-  placeBlock(position: Position, id: TileId) {
+  placeBlock(position: Position, id: TileId, layer?: TileLayer) {
     const { x, y } = position;
 
     const tileBreed = tileLookup[id];
-    const tile = this.layerFor(tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
+    const tile = this.layerFor(layer ?? tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
     
     // don't do anything as they are the same
     if (tile.index === id) return;
