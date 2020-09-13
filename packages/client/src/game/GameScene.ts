@@ -152,21 +152,37 @@ export default class GameScene extends Phaser.Scene {
 
     // we want to prevent editing the world while the gun is equipped, so that
     // when the user presses to fire, it doesn't place/destroy a block
-    console.log(this.mainPlayer.gunEquipped);
     this.editor.setEnabled(!this.mainPlayer.gunEquipped);
 
     // fire bullets while mouse is down
     if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown) {
       // put a bullet where the player is
-      const { x, y } = this.mainPlayer.character.body;
-      const bullet = this.physics.add.sprite(x, y, "bullet-bullet").setCircle(2);
+      const { x, y, width, height } = this.mainPlayer.character.body;
+      const bullet = this.physics.add.sprite(x + width / 2, y + height / 2, "bullet-bullet")
+        .setCircle(2) // give the bullet a circle hitbox instead of a rectangular one
+        .setOrigin(1, 0.5) // TODO: figure out how to best map the origin to the image
+        // TODO: this doesn't work:
+        // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
+        .setCollideWorldBounds(true)
+
+      // TODO: the callback doesn't get called for some reason /shrug
+      // make the bullet collide with the level
+      bullet.on("update", () => {
+        console.log("colliding with the world! :D");
+        this.physics.collide(bullet, this.world.foreground.display.tilemapLayer);
+        this.physics.collide(bullet, this.world.action.display.tilemapLayer);
+      }, this);
 
       const angle = this.mainPlayer.getGun().angle;
 
-      //
-      let velocity = distanceAway({ x: 0, y: 0 }, angle, 1000);
-
+      // spawn the bullet pretty fast at the desired angle
+      let velocity = distanceAway({ x: 0, y: 0 }, angle, 3000);
       bullet.setVelocity(velocity.x, velocity.y);
+
+      // kill bullet after 2 seconds
+      setTimeout(() => {
+        bullet.destroy();
+      }, 2000);
     }
   }
 
