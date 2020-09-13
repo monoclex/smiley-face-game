@@ -118,6 +118,7 @@ export class NetworkClient {
       });
 
       webSocket.addEventListener("close", () => {
+        console.warn("websocket connection closed");
         if (!resolved) {
           resolved = false
           reject("modernity");
@@ -129,7 +130,7 @@ export class NetworkClient {
   readonly events: NetworkEvents;
   private _pause!: boolean;
   private _buffer: MessageEvent[];
-  private _showClosingAlert: boolean = false;
+  private _showClosingAlert: boolean = true;
 
   private constructor(
     private readonly _webSocket: WebSocket,
@@ -139,14 +140,16 @@ export class NetworkClient {
     this.events = new NetworkEvents(validateServerBlockSingle, validateServerBlockBuffer);
     this._buffer = [];
 
-    this._webSocket.onclose = this._webSocket.onerror = (event) => {
+    const onClose = (event) => {
       if (this._showClosingAlert) {
         //@ts-ignore
         alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
       }
     };
+    this._webSocket.addEventListener("close", onClose);
+    this._webSocket.addEventListener("error", onClose);
 
-    this._webSocket.onmessage = async (event) => {
+    this._webSocket.addEventListener("message", async (event) => {
       // if paused, push message to buffer and don't handle it
       if (this._pause) {
         this._buffer.push(event);
@@ -164,7 +167,7 @@ export class NetworkClient {
       }
 
       await this.events.triggerEvent(rawPacket);
-    };
+    });
   }
 
   destroy(): void {

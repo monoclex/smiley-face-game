@@ -4,6 +4,7 @@ import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/Worl
 import AccountRepo from "@/database/repos/AccountRepo";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import Room from "@/worlds/Room";
+import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 
 export default class Connection {
   playerId!: number;
@@ -48,7 +49,7 @@ export default class Connection {
     }
   }
 
-  play(room: Room) {
+  async play(room: Room): Promise<void> {
     this._room = room;
 
     if (!room.join(this)) {
@@ -94,18 +95,24 @@ export default class Connection {
       }
     });
 
+    const untilClose = new PromiseCompletionSource();
+
     this.webSocket.on("error", (error) => {
       console.warn("sudden websocket close", error);
       if (!this.connected) return;
       this.connected = false;
       room.leave(this);
+      untilClose.resolve();
     });
 
     this.webSocket.on("close", (code, reason) => {
       if (!this.connected) return;
       this.connected = false;
       room.leave(this);
+      untilClose.resolve();
     });
+
+    await untilClose.promise;
   }
 
   // TODO: introduce serialization stuff

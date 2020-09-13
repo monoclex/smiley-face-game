@@ -37,7 +37,7 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
 
       await connection.load(accountRepo);
       const room = await roomManager.join(connection, worldTokenPayload);
-      connection.play(room);
+      await connection.play(room);
     }
     finally {
       if (ws.readyState === ws.OPEN) {
