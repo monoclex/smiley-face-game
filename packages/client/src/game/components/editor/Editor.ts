@@ -103,7 +103,7 @@ export default class Editor implements Component {
     if (status === this._enabled) return;
     this._enabled = status;
 
-    if (!this.enabled) {
+    if (this.enabled) {
       // if we enabled this component, we want to start re-tracking every pointer that was down
       for (const pointer of iteratePointers(this.scene.input)) {
 
