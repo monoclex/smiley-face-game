@@ -149,25 +149,27 @@ export class NetworkClient {
     this._webSocket.addEventListener("close", onClose);
     this._webSocket.addEventListener("error", onClose);
 
-    this._webSocket.addEventListener("message", async (event) => {
-      // if paused, push message to buffer and don't handle it
-      if (this._pause) {
-        this._buffer.push(event);
-        return;
-      }
+    this._webSocket.addEventListener("message", this.handleMessage.bind(this));
+  }
 
-      // packets come over the wire as a string of json
-      const rawPacket = JSON.parse(event.data);
+  async handleMessage(event: MessageEvent<any>) {
+    // if paused, push message to buffer and don't handle it
+    if (this._pause) {
+      this._buffer.push(event);
+      return;
+    }
 
-      console.log(rawPacket.packetId);
+    // packets come over the wire as a string of json
+    const rawPacket = JSON.parse(event.data);
 
-      if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
-        console.error('[websocket warn] server sent invalid packet', rawPacket);
-        return;
-      }
+    console.log(rawPacket.packetId);
 
-      await this.events.triggerEvent(rawPacket);
-    });
+    if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
+      console.error('[websocket warn] server sent invalid packet', rawPacket);
+      return;
+    }
+
+    await this.events.triggerEvent(rawPacket);
   }
 
   destroy(): void {
@@ -196,7 +198,7 @@ export class NetworkClient {
     this._pause = false;
 
     for (const message of this._buffer) {
-      await this._webSocket.onmessage(message);
+      await this.handleMessage(message);
     }
 
     this._buffer = [];
