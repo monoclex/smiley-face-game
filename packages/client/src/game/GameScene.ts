@@ -104,6 +104,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onMovement = (event) => {
+      if (event.playerId === this.initPacket.playerId) return;
       const character = players.getPlayer(event.playerId).character;
       character.setPosition(event.position.x, event.position.y);
       character.setVelocity(event.velocity.x, event.velocity.y);
@@ -131,14 +132,17 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onEquipGun = (event) => {
+      if (event.playerId === this.initPacket.playerId) return;
       this.players.onEquipGun(event.playerId, event.equipped);
     }
 
     this.networkClient.events.onFireBullet = (event) => {
+      if (event.playerId === this.initPacket.playerId) return;
       this.players.onFireBullet(event.playerId, event.angle);
     }
 
     this.networkClient.events.onPickupGun = (event) => {
+      if (event.playerId === this.initPacket.playerId) return;
       this.players.onPickupGun(event.playerId);
     }
 
