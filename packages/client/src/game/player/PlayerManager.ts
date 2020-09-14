@@ -49,13 +49,13 @@ export default class PlayerManager {
     player.gun.equipped = equipped;
   }
 
-  onFireBullet(playerId: number) {
-    // TODO: implement
-    this.getPlayer(playerId).getGun();
+  onFireBullet(playerId: number, angle: number) {
+    this.getPlayer(playerId).fireBullet(angle);
+    this.getPlayer(playerId).getGun().angle = angle;
   }
 
   onPickupGun(playerId: number) {
     // TODO: allow the pickup gun packet to specify what type of gun
-    this.getPlayer(playerId).instantiateGun(M249LMG);
+    this.getPlayer(playerId).instantiateGun(M249LMG, null);
   }
 }

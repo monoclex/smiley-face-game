@@ -48,7 +48,7 @@ export default class World {
         for (let x = 0; x < yLayer.length; x++) {
           const block = yLayer[x];
 
-          this.placeBlock({ x, y }, block.id, l);
+          this.placeBlock({ x, y }, block.id, l, false);
         }
       }
     }
@@ -56,7 +56,7 @@ export default class World {
     console.timeEnd("init");
   }
 
-  placeBlock(position: Position, id: TileId, layer?: TileLayer) {
+  placeBlock(position: Position, id: TileId, layer: TileLayer | undefined, iPlacedIt: boolean) {
     const { x, y } = position;
 
     const tileBreed = tileLookup[id];
@@ -73,14 +73,17 @@ export default class World {
     }
 
     tileBreed.place(tile);
-    this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
+
+    if (iPlacedIt) {
+      this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
+    }
   }
 
   // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tileId: TileId) {
+  drawLine(start: Position, end: Position, tileId: TileId, iPlacedIt: boolean) {
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
-      this.placeBlock({ x, y }, tileId);
+      this.placeBlock({ x, y }, tileId, undefined, iPlacedIt);
     });
   }
 }

@@ -2,6 +2,7 @@ import { Character } from "@/game/characters/Character";
 import GunBehaviour from "@/game/guns/behaviour/GunBehaviour";
 import GunModel from "@/game/guns/models/GunModel";
 import GameScene from "@/game/GameScene";
+import distanceAway from "@/math/distanceAway";
 
 /**
  * TODO: this is garbage
@@ -66,5 +67,32 @@ export default class Player {
 
     //@ts-ignore
     this.getGun().equipped = !this.getGun().equipped;
+    this.game.networkClient.equipGun(this.getGun().equipped);
+  }
+
+  fireBullet(angle: number) {
+          // put a bullet where the player is
+          const { x, y, width, height } = this.character.body;
+          const bullet = this.game.physics.add.sprite(x + width / 2, y + height / 2, "bullet-bullet")
+            .setCircle(2) // give the bullet a circle hitbox instead of a rectangular one
+            .setOrigin(1, 0.5) // TODO: figure out how to best map the origin to the image
+            // TODO: this doesn't work:
+            // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
+            .setCollideWorldBounds(true)
+    
+          // TODO: the callback doesn't get called for some reason /shrug
+          // make the bullet collide with the level
+          bullet.update = () => {
+            console.log("colliding with the world! :D");
+            this.game.physics.collide(bullet, this.game.world.foreground.display.tilemapLayer);
+            this.game.physics.collide(bullet, this.game.world.action.display.tilemapLayer);
+          };
+    
+          // spawn the bullet pretty fast at the desired angle
+          let velocity = distanceAway({ x: 0, y: 0 }, angle, 3000);
+          bullet.setVelocity(velocity.x, velocity.y);
+    
+          // kill bullet after 2 seconds
+          this.game.time.delayedCall(2000, bullet.destroy, [], bullet);
   }
 }

@@ -22,14 +22,14 @@ class DrawingPointer {
 
   onDown() {
     if (!this.editor.enabled) return;
-    this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id());
+    this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id(), true);
     //
   }
 
   onMove() {
     if (!this.editor.enabled) return;
     const currentPosition = this.position(this.pointer);
-    this.editor.world.drawLine(this.lastPosition, currentPosition, this.id());
+    this.editor.world.drawLine(this.lastPosition, currentPosition, this.id(), true);
     //
     this.lastPosition = currentPosition;
   }

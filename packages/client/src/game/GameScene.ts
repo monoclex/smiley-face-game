@@ -11,6 +11,8 @@ import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 import distanceAway from "../math/distanceAway";
+import { createFalse } from "typescript";
+import M249LMG from "@/game/guns/models/variants/M249LMG";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -74,6 +76,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, this.initPacket.size.width * TILE_WIDTH, this.initPacket.size.height * TILE_HEIGHT, true, true, true, true);
 
     const players = new PlayerManager(this);
+    this.players = players;
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);
     connectPlayerToKeyboard(mainPlayer, this.networkClient);
 
@@ -87,6 +90,13 @@ export default class GameScene extends Phaser.Scene {
     this.networkClient.events.onPlayerJoin = (event) => {
       const player = players.addPlayer(event.playerId, event.username, layerPlayers);
       player.character.setPosition(event.joinLocation.x, event.joinLocation.y);
+      console.log(event);
+      if (event.hasGun) {
+        player.instantiateGun(M249LMG, null);
+      }
+      if (event.gunEquipped) {
+        player.gunEquipped = event.gunEquipped;
+      }
     }
 
     this.networkClient.events.onPlayerLeave = (event) => {
@@ -113,11 +123,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onBlockLine = (event) => {
-      this.world.drawLine(event.start, event.end, event.id);
+      this.world.drawLine(event.start, event.end, event.id, false);
     }
 
     this.networkClient.events.onBlockSingle = (event) => {
-      this.world.placeBlock(event.position, event.id);
+      this.world.placeBlock(event.position, event.id, undefined, false);
     }
 
     this.networkClient.events.onEquipGun = (event) => {
@@ -125,7 +135,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.networkClient.events.onFireBullet = (event) => {
-      this.players.onFireBullet(event.playerId);
+      this.players.onFireBullet(event.playerId, event.angle);
     }
 
     this.networkClient.events.onPickupGun = (event) => {
@@ -160,33 +170,8 @@ export default class GameScene extends Phaser.Scene {
       && this._lastBulletFire + 100 <= now) { // don't allow another bullet to be shot if it hasn't been at least 100ms since the last bullet
       this._lastBulletFire = now;
 
-      // put a bullet where the player is
-      const { x, y, width, height } = this.mainPlayer.character.body;
-      const bullet = this.physics.add.sprite(x + width / 2, y + height / 2, "bullet-bullet")
-        .setCircle(2) // give the bullet a circle hitbox instead of a rectangular one
-        .setOrigin(1, 0.5) // TODO: figure out how to best map the origin to the image
-        // TODO: this doesn't work:
-        // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
-        .setCollideWorldBounds(true)
-
-      // TODO: the callback doesn't get called for some reason /shrug
-      // make the bullet collide with the level
-      bullet.on("update", () => {
-        console.log("colliding with the world! :D");
-        this.physics.collide(bullet, this.world.foreground.display.tilemapLayer);
-        this.physics.collide(bullet, this.world.action.display.tilemapLayer);
-      }, this);
-
       const angle = this.mainPlayer.getGun().angle;
-
-      // spawn the bullet pretty fast at the desired angle
-      let velocity = distanceAway({ x: 0, y: 0 }, angle, 3000);
-      bullet.setVelocity(velocity.x, velocity.y);
-
-      // kill bullet after 2 seconds
-      setTimeout(() => {
-        bullet.destroy();
-      }, 2000);
+      this.mainPlayer.fireBullet(angle);
 
       // send the message of a bullet being fired
       this.networkClient.fireBullet(angle);
