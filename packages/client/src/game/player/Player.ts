@@ -79,17 +79,18 @@ export default class Player {
             // TODO: this doesn't work:
             // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
             .setCollideWorldBounds(true)
-    
-          // TODO: the callback doesn't get called for some reason /shrug
-          // make the bullet collide with the level
-          bullet.update = () => {
-            console.log("colliding with the world! :D");
+
+            // make the bullet collide with the level
+          this.game.events.on("update", () => {
             this.game.physics.collide(bullet, this.game.world.foreground.display.tilemapLayer);
             this.game.physics.collide(bullet, this.game.world.action.display.tilemapLayer);
-          };
+            for (const [_, player] of this.game.players.players) {
+              this.game.physics.collide(player.character.body, bullet);
+            }
+          }, this);
     
           // spawn the bullet pretty fast at the desired angle
-          let velocity = distanceAway({ x: 0, y: 0 }, angle, 3000);
+          let velocity = distanceAway({ x: 0, y: 0 }, angle, 2000);
           bullet.setVelocity(velocity.x, velocity.y);
     
           // kill bullet after 2 seconds

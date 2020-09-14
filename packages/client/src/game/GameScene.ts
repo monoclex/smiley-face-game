@@ -90,10 +90,11 @@ export default class GameScene extends Phaser.Scene {
     this.networkClient.events.onPlayerJoin = (event) => {
       const player = players.addPlayer(event.playerId, event.username, layerPlayers);
       player.character.setPosition(event.joinLocation.x, event.joinLocation.y);
-      console.log(event);
+
       if (event.hasGun) {
         player.instantiateGun(M249LMG, null);
       }
+      
       if (event.gunEquipped) {
         player.gunEquipped = event.gunEquipped;
       }
