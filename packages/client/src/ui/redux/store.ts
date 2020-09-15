@@ -4,7 +4,7 @@ import { BlockBarActions } from './actionTypes/blockBar';
 import { BlockBarState } from './reducers/blockBar';
 import rootReducer from './reducers/index';
 
-export interface StoreState {
+interface StoreState {
   blockBar: BlockBarState;
 }
 

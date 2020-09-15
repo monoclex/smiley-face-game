@@ -20,9 +20,7 @@ import { WorldPacket } from "./packets/WorldPacket";
 import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
 import { isServerPacket } from "./packets/ServerPackets";
 
-export type NetworkEventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
-
-export class NetworkEvents {
+class NetworkEvents {
   constructor(
     readonly validateServerBlockSingle: ServerBlockSingleValidator,
     readonly validateServerBlockBuffer: ServerBlockBufferValidator,

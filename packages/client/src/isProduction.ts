@@ -6,9 +6,9 @@ import { Login } from "@smiley-face-game/api/schemas/web/auth/Login";
 const isProduction = process.env.NODE_ENV === "production";
 export default isProduction;
 
-export const isSecure = location.protocol === "https:";
-export const http = isSecure ? "https" : "http";
-export const ws = isSecure ? "wss" : "ws";
+const isSecure = location.protocol === "https:";
+const http = isSecure ? "https" : "http";
+const ws = isSecure ? "wss" : "ws";
 
 interface GlobalVariableParkourType {
   token: string;
