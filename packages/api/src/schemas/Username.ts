@@ -1,5 +1,7 @@
 import Schema, { string, Type } from "computed-types";
 
-export const UsernameSchema = Schema(string.max(32).min(3));
+const usernameRegex = /[A-Za-z0-9_]{3,20}/;
+
+export const UsernameSchema = Schema(string.regexp(usernameRegex));
 export type Username = Type<typeof UsernameSchema>;
 export const validateUsername = UsernameSchema.destruct();

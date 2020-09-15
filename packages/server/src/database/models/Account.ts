@@ -8,7 +8,7 @@ export default class Account {
   id!: string;
 
   // account details
-  @Column({ nullable: false, unique: true, length: 32 })
+  @Column({ nullable: false, unique: true, length: 20 })
   username!: string;
 
   @Column({ nullable: false, unique: true })

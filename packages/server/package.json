@@ -21,7 +21,7 @@
     "pg": "^8.3.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.0",
-    "typeorm": "^0.2.25",
+    "typeorm": "^0.2.26",
     "uuid": "^8.3.0",
     "ws": "^7.3.1"
   },
@@ -49,6 +49,7 @@
     "ts-jest": "^26.1.2",
     "ts-type-checked": "^0.5.0",
     "ttypescript": "^1.5.10",
+    "typeorm": "^0.2.26",
     "typescript": "^3.9.7",
     "typescript-transform-paths": "^2.0.0"
   },
