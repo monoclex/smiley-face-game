@@ -17,7 +17,9 @@ const useStyles = makeStyles((theme) => ({
   },
   chatList: {
     color: theme.palette.text.primary,
-    backgroundColor: theme.palette.background.default + "20", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add 39 to it to add transparency)
+    backgroundColor: theme.palette.background.default + "90", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add "90" to it to add transparency)
+    borderTopLeftRadius: "10px",
+    borderTopRightRadius: "10px",
     width: "40%",
   },
   chatRootItem: {
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 2,
   },
   chatField: {
-    backgroundColor: theme.palette.background.default + "20", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add 39 to it to add transparency)
+    backgroundColor: theme.palette.background.default + "A0", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add "A0" to it to add transparency)
     pointerEvents: "all",
     width: "40%",
   },
