@@ -3,6 +3,8 @@ import Player from "@/game/player/Player";
 
 function hook(player: Player, keyboardEvent: number, onUp: (player: Player) => void, onDown: (player: Player) => void) {
   const keyObj = player.game.input.keyboard.addKey(keyboardEvent);
+
+  // don't touch! down should be up, up should be down, otherwise it's inverted for some reason
   keyObj.on("down", () => onUp(player));
   keyObj.on("up", () => onDown(player));
 }

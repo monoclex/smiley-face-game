@@ -1,75 +1,99 @@
 //@ts-check
 
-import React from "react";
-import { Grid, ListItem, ListItemText, List } from "@material-ui/core";
+import React, { useState } from "react";
+import { Grid, ListItem, ListItemText, List, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import uiOverlayElement from "../styleBoilerplate";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useForm } from "react-hook-form";
+import { format } from "date-fns/fp";
+
+import { messagesState, chatState } from "@/recoil/atoms/chat";
+import commonUIStyles from "../commonUIStyles";
 
 const useStyles = makeStyles((theme) => ({
-  ...uiOverlayElement,
-  root: {
+  container: {
+    ...commonUIStyles.uiOverlayElement,
+    paddingLeft: theme.spacing(3),
+  },
+  chatList: {
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.default + "20", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add 39 to it to add transparency)
+    width: "40%",
+  },
+  chatRootItem: {
     paddingTop: 2,
     paddingBottom: 2,
+    paddingLeft: 4,
   },
-  child: {
+  chatChildItem: {
     marginTop: 2,
     marginBottom: 2,
   },
-  item: {
-    backgroundColor: theme.palette.background.default + "39", // TODO: make it clean (theme.palette.background.default is a hex rgb value, so we add 39 to it to add transparency)
-    color: theme.palette.text.primary,
+  chatField: {
+    backgroundColor: theme.palette.background.default + "20", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add 39 to it to add transparency)
+    pointerEvents: "all",
+    width: "40%",
   },
 }));
 
-const messages = [
-  {
-    username: "test",
-    content: "lorem",
-  },
-  {
-    username: "test",
-    content: "ipsum",
-  },
-  {
-    username: "test",
-    content: "dolor",
-  },
-  {
-    username: "test",
-    content: "sit",
-  },
-  {
-    username: "test",
-    content: "amet,",
-  },
-  {
-    username: "test",
-    content: "consectetur",
-  },
-];
-
-// @ts-ignore
-const Message = ({ index }) => {
+const Message = ({ id }) => {
   const classes = useStyles();
+  const message = useRecoilValue(messagesState)[id];
 
   return (
-    <ListItem key={index} className={classes.root} divider dense>
-      <ListItemText className={classes.child} primary={`${messages[index].username}: ${messages[index].content}`} />
+    <ListItem key={id} className={classes.chatRootItem} divider dense>
+      <div className={classes.chatChildItem}>
+        <span>{format("HH:mm:ss", message.timestamp)}</span>
+        <span>{` ${message.username}: ${message.content}`}</span>
+      </div>
     </ListItem>
   );
 };
 
 export default () => {
   const classes = useStyles();
+  const { register, handleSubmit, reset } = useForm();
+
+  const setChatState = useSetRecoilState(chatState);
+
+  const messages = useRecoilValue(messagesState);
+  const setMessages = useSetRecoilState(messagesState);
+  const addMessage = ({ content }) =>
+    setMessages((old) => [
+      {
+        id: old.length,
+        timestamp: new Date().getTime(),
+        username: "yes",
+        content,
+      },
+      ...old,
+    ]);
 
   return (
-    <Grid container justify="flex-start" alignItems="flex-end" className={classes.uiOverlayElement}>
-      <Grid item xs={6} className={classes.item}>
+    <Grid container direction="column" justify="flex-end" alignItems="flex-start" className={classes.container}>
+      <Grid item className={classes.chatList}>
         <List>
-          {[0, 1, 2, 3, 4, 5].map((id) => (
-            <Message key={id} index={id} />
+          {messages.map((message) => (
+            <Message key={message.id} id={message.id} />
           ))}
         </List>
+      </Grid>
+
+      <Grid item className={classes.chatField}>
+        <form onSubmit={handleSubmit(addMessage)} autoComplete="off">
+          <TextField
+            fullWidth
+            size="small"
+            id="content"
+            name="content"
+            label="Message"
+            placeholder="Press Enter to chat"
+            onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
+            onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
+            inputRef={register({ required: true })}
+            onKeyUp={(event) => event.key === "Enter" && reset()}
+          />
+        </form>
       </Grid>
     </Grid>
   );

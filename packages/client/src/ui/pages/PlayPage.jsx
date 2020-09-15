@@ -12,7 +12,6 @@ import { Grid } from "@material-ui/core";
 import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
 import { WorldScene } from "@/scenes/world/WorldScene";
 import Chat from "@/ui/game/chat/Chat";
-import PlayerList from "@/ui/game/playerlist/PlayerList";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
 import isProduction from "@/isProduction";
