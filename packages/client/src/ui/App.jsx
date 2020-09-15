@@ -14,6 +14,7 @@ const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const LobbyPage = lazy(() => import("./pages/LobbyPage"));
 const PlayPage = lazy(() => import("./pages/PlayPage"));
+const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 
 export const App = () => {
   const prefersDarkMode = true;
@@ -35,13 +36,13 @@ export const App = () => {
           <CssBaseline />
           <Suspense fallback={<Loading />}>
             <Route exact path="/" component={HomePage} />
+            <Route exact path="/terms" component={TermsAndConditionsPage} />
             <Route exact path="/guest" component={GuestPage} />
             <Route exact path="/register" component={RegisterPage} />
             <Route exact path="/login" component={LoginPage} />
             <Route exact path="/lobby" component={LobbyPage} />
             <Route exact path="/games/:roomId" component={PlayPage} />
             <Route exact path="/games/" component={PlayPage} />
-            {/* TODO: /games/:roomId route */}
           </Suspense>
         </ThemeProvider>
       </Provider>

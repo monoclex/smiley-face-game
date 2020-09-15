@@ -15,6 +15,9 @@ export default () => {
       <Button component={Link} to="/guest">
         Play as Guest
       </Button>
+      <Button component={Link} to="/terms">
+        Read Terms and Conditions
+      </Button>
     </>
   );
 };
