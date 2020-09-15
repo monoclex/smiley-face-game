@@ -6,13 +6,11 @@
 import Phaser from "phaser";
 import qs from "query-string";
 import React, { useEffect, useRef } from "react";
-import { connect } from "react-redux";
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
 import { WorldScene } from "@/scenes/world/WorldScene";
-import { updatePrimary } from "@/ui/redux/actionCreators/blockBar";
 import Chat from "@/ui/game/chat/Chat";
 import PlayerList from "@/ui/game/playerlist/PlayerList";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
@@ -68,7 +66,6 @@ const Game = ({
     params: { roomId },
   },
   location: { search },
-  updatePrimary,
   selectedSlot,
   loader,
 }) => {
@@ -125,7 +122,7 @@ const Game = ({
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <div className={styles.blockbar}>
-          <BlockBar onBlockSelected={updatePrimary} selected={selectedSlot} loader={loader} />
+          <BlockBar onBlockSelected={alert} selected={selectedSlot} loader={loader} />
         </div>
 
         <Chat />
@@ -134,13 +131,4 @@ const Game = ({
   );
 };
 
-const mapState = ({ blockBar }) => ({
-  selectedSlot: blockBar.selected,
-  loader: blockBar.loader,
-});
-
-const mapDispatch = {
-  updatePrimary,
-};
-
-export default connect(mapState, mapDispatch)(Game);
+export default Game;

@@ -3,8 +3,6 @@ import React, { Suspense, lazy, useMemo } from "react";
 import { Router, Route } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { CssBaseline } from "@material-ui/core";
-import { Provider } from "react-redux";
-import store from "./redux/store";
 import Loading from "./Loading";
 import history from "@/ui/history";
 
@@ -31,21 +29,19 @@ export const App = () => {
 
   return (
     <Router history={history}>
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Suspense fallback={<Loading />}>
-            <Route exact path="/" component={HomePage} />
-            <Route exact path="/terms" component={TermsAndConditionsPage} />
-            <Route exact path="/guest" component={GuestPage} />
-            <Route exact path="/register" component={RegisterPage} />
-            <Route exact path="/login" component={LoginPage} />
-            <Route exact path="/lobby" component={LobbyPage} />
-            <Route exact path="/games/:roomId" component={PlayPage} />
-            <Route exact path="/games/" component={PlayPage} />
-          </Suspense>
-        </ThemeProvider>
-      </Provider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Suspense fallback={<Loading />}>
+          <Route exact path="/" component={HomePage} />
+          <Route exact path="/terms" component={TermsAndConditionsPage} />
+          <Route exact path="/guest" component={GuestPage} />
+          <Route exact path="/register" component={RegisterPage} />
+          <Route exact path="/login" component={LoginPage} />
+          <Route exact path="/lobby" component={LobbyPage} />
+          <Route exact path="/games/:roomId" component={PlayPage} />
+          <Route exact path="/games/" component={PlayPage} />
+        </Suspense>
+      </ThemeProvider>
     </Router>
   );
 };
