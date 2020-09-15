@@ -1,4 +1,5 @@
 import urlBullet from "@/assets/bullet.png";
+import urlShoot from "@/assets/shoot.mp3";
 import ComponentDisplay from "@/game/components/ComponentDisplay";
 import BulletConfig from "./BulletConfig";
 import BulletType from "./BulletType";
@@ -12,6 +13,7 @@ export default class BulletDisplay implements ComponentDisplay {
 
   static load(loader: Phaser.Loader.LoaderPlugin) {
     loader.image(key("bullet"), urlBullet);
+    loader.audio("shoot", urlShoot);
   }
 
   constructor(scene: Phaser.Scene, config: BulletConfig) {

@@ -139,6 +139,9 @@ export default class Player {
     // spawn the bullet pretty fast at the desired angle
     let velocity = distanceAway({ x: 0, y: 0 }, angle, 2000);
     bullet.setVelocity(velocity.x, velocity.y);
+
+    // play bullet sound
+    this.game.sound.play("shoot"); // TODO: map key to where it's used, or abstract away in bullet
     
     // kill bullet after 2 seconds
     this.game.time.delayedCall(2000, bullet.destroy, [], bullet);

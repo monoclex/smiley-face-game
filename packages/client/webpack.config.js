@@ -23,7 +23,7 @@ module.exports = (env, argv) => {
           use: "babel-loader"
         },
         {
-          test: /\.(png)$/,
+          test: /\.(png|mp3)$/,
           use: "file-loader",
         },
         {
