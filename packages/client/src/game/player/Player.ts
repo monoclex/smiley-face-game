@@ -146,10 +146,16 @@ export default class Player {
 
   update() {
     if (this.gunEquipped) {
-      this.guaranteeGun.gun.setDepth(GUN_EQUIPPED_DEPTH);
+      if (this.guaranteeGun.gun.depth !== GUN_EQUIPPED_DEPTH) {
+        this.guaranteeGun.gun.setDepth(GUN_EQUIPPED_DEPTH);
+        this.container.sort("depth");
+      }
     }
     else if (this.hasGun) {
-      this.guaranteeGun.gun.setDepth(GUN_UNEQUIPPED_DEPTH);
+      if (this.guaranteeGun.gun.depth !== GUN_UNEQUIPPED_DEPTH) {
+        this.guaranteeGun.gun.setDepth(GUN_UNEQUIPPED_DEPTH);
+        this.container.sort("depth");
+      }
     }
 
     this.game.physics.collide(this.body, this.game.world.foreground.display.tilemapLayer);
