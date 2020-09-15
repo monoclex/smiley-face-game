@@ -13,6 +13,16 @@ const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIG
 import distanceAway from "../math/distanceAway";
 import { createFalse } from "typescript";
 import M249LMG from "@/game/guns/models/variants/M249LMG";
+import { ServerPackets } from "../../../api/src/packets/ServerPackets";
+import { SERVER_PLAYER_JOIN_ID } from "../../../api/src/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "../../../api/src/packets/ServerPlayerLeave";
+import { SERVER_MOVEMENT_ID } from "../../../api/src/packets/ServerMovement";
+import { SERVER_BLOCK_BUFFER_ID } from "../../../api/src/packets/ServerBlockBuffer";
+import { SERVER_BLOCK_LINE_ID } from "../../../api/src/packets/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "../../../api/src/packets/ServerBlockSingle";
+import { SERVER_EQUIP_GUN_ID } from "../../../api/src/packets/ServerEquipGun";
+import { SERVER_FIRE_BULLET_ID } from "../../../api/src/packets/ServerFireBullet";
+import { SERVER_PICKUP_GUN_ID } from "../../../api/src/packets/ServerPickupGun";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -87,65 +97,68 @@ export default class GameScene extends Phaser.Scene {
     camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
-    this.networkClient.events.onPlayerJoin = (event) => {
-      const player = players.addPlayer(event.playerId, event.username, layerPlayers);
-      player.character.setPosition(event.joinLocation.x, event.joinLocation.y);
+    this.networkClient.events.callback = (event) => {
+      switch (event.packetId) {
+        case SERVER_PLAYER_JOIN_ID: {
+          if (event.playerId === this.mainPlayer.id) return;
+  
+          const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
+          player.character.setPosition(event.joinLocation.x, event.joinLocation.y)
 
-      if (event.hasGun) {
-        player.instantiateGun(M249LMG, null);
+          if (event.hasGun) player.instantiateGun(M249LMG, null);
+          if (event.gunEquipped) player.getGun().equipped = event.gunEquipped;
+
+        } return;
+
+        case SERVER_PLAYER_LEAVE_ID: {
+          this.players.removePlayer(event.playerId);
+        } return;
+
+        case SERVER_MOVEMENT_ID: {
+          if (event.playerId === this.mainPlayer.id) return;
+
+          const character = players.getPlayer(event.playerId).character;
+          character.setPosition(event.position.x, event.position.y);
+          character.setVelocity(event.velocity.x, event.velocity.y);
+
+          event.inputs.jump = event.inputs.up;
+          character.updateInputs(event.inputs);
+    
+        } return;
+
+        case SERVER_BLOCK_BUFFER_ID: {
+          for (const blockEvent of event.blocks) {
+            this.networkClient.events.callback(blockEvent);
+          }
+        } return;
+
+        case SERVER_BLOCK_LINE_ID: {
+          this.world.drawLine(event.start, event.end, event.id, false);
+        } return;
+
+        case SERVER_BLOCK_SINGLE_ID: {
+          this.world.placeBlock(event.position, event.id, undefined, false);
+        } return;
+
+        case SERVER_EQUIP_GUN_ID: {
+          if (event.playerId === this.initPacket.playerId) return;
+
+          this.players.onEquipGun(event.playerId, event.equipped);
+        } return;
+
+        case SERVER_FIRE_BULLET_ID: {
+          if (event.playerId === this.initPacket.playerId) return;
+
+          this.players.onFireBullet(event.playerId, event.angle);
+        } return;
+
+        case SERVER_PICKUP_GUN_ID: {
+          if (event.playerId === this.initPacket.playerId) return;
+
+          this.players.onPickupGun(event.playerId);
+        } return;
       }
-      
-      if (event.gunEquipped) {
-        player.gunEquipped = event.gunEquipped;
-      }
-    }
-
-    this.networkClient.events.onPlayerLeave = (event) => {
-      players.removePlayer(event.playerId);
-    }
-
-    this.networkClient.events.onMovement = (event) => {
-      if (event.playerId === this.initPacket.playerId) return;
-      const character = players.getPlayer(event.playerId).character;
-      character.setPosition(event.position.x, event.position.y);
-      character.setVelocity(event.velocity.x, event.velocity.y);
-      //@ts-ignore
-      event.inputs.jump = event.inputs.up;
-      character.updateInputs(event.inputs);
-
-      // const controller = players.players.get(event.playerId)!.character.controller as NetworkPlayerController;
-      // controller.updatePosition(event.position.x, event.position.y);
-      // controller.updateInput(event.inputs.left, event.inputs.right, event.inputs.up);
-    }
-
-    this.networkClient.events.onBlockBuffer = async (event) => {
-      for (const blockEvent of event.blocks) {
-        await this.networkClient.events.triggerEvent(blockEvent);
-      }
-    }
-
-    this.networkClient.events.onBlockLine = (event) => {
-      this.world.drawLine(event.start, event.end, event.id, false);
-    }
-
-    this.networkClient.events.onBlockSingle = (event) => {
-      this.world.placeBlock(event.position, event.id, undefined, false);
-    }
-
-    this.networkClient.events.onEquipGun = (event) => {
-      if (event.playerId === this.initPacket.playerId) return;
-      this.players.onEquipGun(event.playerId, event.equipped);
-    }
-
-    this.networkClient.events.onFireBullet = (event) => {
-      if (event.playerId === this.initPacket.playerId) return;
-      this.players.onFireBullet(event.playerId, event.angle);
-    }
-
-    this.networkClient.events.onPickupGun = (event) => {
-      if (event.playerId === this.initPacket.playerId) return;
-      this.players.onPickupGun(event.playerId);
-    }
+    };
 
     this.networkClient.continue();
   }

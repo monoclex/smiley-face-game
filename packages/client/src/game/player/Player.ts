@@ -14,6 +14,7 @@ export default class Player {
   gunSprite?: Phaser.GameObjects.GameObject;
   
   constructor(
+    readonly id: number,
     readonly game: GameScene,
     readonly character: Character,
   ) {

@@ -6,18 +6,19 @@ import { EquipGunPacket, EQUIP_GUN_ID } from './packets/EquipGun';
 import { FireBulletPacket, FIRE_BULLET_ID } from './packets/FireBullet';
 import { MovementPacket, MOVEMENT_ID } from './packets/Movement';
 import { PickupGunPacket, PICKUP_GUN_ID } from './packets/PickupGun';
-import { ServerBlockBufferPacket, SERVER_BLOCK_BUFFER_ID, ServerBlockBufferValidator } from './packets/ServerBlockBuffer';
-import { ServerBlockLinePacket, SERVER_BLOCK_LINE_ID, validateServerBlockLine } from './packets/ServerBlockLine';
-import { ServerBlockSinglePacket, SERVER_BLOCK_SINGLE_ID, ServerBlockSingleValidator } from './packets/ServerBlockSingle';
-import { ServerEquipGunPacket, SERVER_EQUIP_GUN_ID, validateServerEquipGun } from './packets/ServerEquipGun';
-import { ServerFireBulletPacket, SERVER_FIRE_BULLET_ID, validateServerFireBullet } from './packets/ServerFireBullet';
-import { ServerInitPacket, SERVER_INIT_ID, validateServerInit } from './packets/ServerInit';
-import { ServerMovementPacket, SERVER_MOVEMENT_ID, validateServerMovement } from './packets/ServerMovement';
-import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
-import { ServerPlayerJoinPacket, SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
-import { ServerPlayerLeavePacket, SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
-import { ServerPacket } from "./packets/Server";
+import { SERVER_BLOCK_BUFFER_ID, ServerBlockBufferValidator } from './packets/ServerBlockBuffer';
+import { SERVER_BLOCK_LINE_ID, validateServerBlockLine } from './packets/ServerBlockLine';
+import { SERVER_BLOCK_SINGLE_ID, ServerBlockSingleValidator } from './packets/ServerBlockSingle';
+import { SERVER_EQUIP_GUN_ID, validateServerEquipGun } from './packets/ServerEquipGun';
+import { SERVER_FIRE_BULLET_ID, validateServerFireBullet } from './packets/ServerFireBullet';
+import { SERVER_INIT_ID, validateServerInit } from './packets/ServerInit';
+import { SERVER_MOVEMENT_ID, validateServerMovement } from './packets/ServerMovement';
+import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
+import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
+import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
 import { WorldPacket } from "./packets/WorldPacket";
+import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
+import { isServerPacket } from "./packets/ServerPackets";
 
 export type NetworkEventHandler<TEvent> = (event: TEvent) => void | Promise<void>;
 
@@ -27,54 +28,37 @@ export class NetworkEvents {
     readonly validateServerBlockBuffer: ServerBlockBufferValidator,
   ) {}
 
-  onBlockSingle?: NetworkEventHandler<ServerBlockSinglePacket>;
-  onMovement?: NetworkEventHandler<ServerMovementPacket>;
-  onPlayerJoin?: NetworkEventHandler<ServerPlayerJoinPacket>;
-  onPlayerLeave?: NetworkEventHandler<ServerPlayerLeavePacket>;
-  onInit?: NetworkEventHandler<ServerInitPacket>;
-  onPickupGun?: NetworkEventHandler<ServerPickupGunPacket>;
-  onFireBullet?: NetworkEventHandler<ServerFireBulletPacket>;
-  onEquipGun?: NetworkEventHandler<ServerEquipGunPacket>;
-  onBlockLine?: NetworkEventHandler<ServerBlockLinePacket>;
-  onBlockBuffer?: NetworkEventHandler<ServerBlockBufferPacket>;
+  callback: (packet: ServerPackets) => void | Promise<void>;
 
   triggerEvent(rawPacket: any): void | Promise<void> {
-    const lookup = {
-      [SERVER_BLOCK_SINGLE_ID]: [this.validateServerBlockSingle, this.onBlockSingle],
-      [SERVER_MOVEMENT_ID]: [validateServerMovement, this.onMovement],
-      [SERVER_PLAYER_JOIN_ID]: [validateServerPlayerJoin, this.onPlayerJoin],
-      [SERVER_PLAYER_LEAVE_ID]: [validateServerPlayerLeave, this.onPlayerLeave],
-      [SERVER_INIT_ID]: [validateServerInit, this.onInit],
-      [SERVER_PICKUP_GUN_ID]: [validateServerPickupGun, this.onPickupGun],
-      [SERVER_FIRE_BULLET_ID]: [validateServerFireBullet, this.onFireBullet],
-      [SERVER_EQUIP_GUN_ID]: [validateServerEquipGun, this.onEquipGun],
-      [SERVER_BLOCK_LINE_ID]: [validateServerBlockLine, this.onBlockLine],
-      [SERVER_BLOCK_BUFFER_ID]: [this.validateServerBlockBuffer, this.onBlockBuffer],
-    };
-
     // make sure we can validate the packet id thte server sent us
-    if (!lookup[rawPacket.packetId]) {
+    if (!isServerPacket(rawPacket)) {
       console.error('[websocket] invalid packet id', rawPacket.packetId);
       return;
     }
 
-    const [validate, eventCallback] = lookup[rawPacket.packetId];
-
-      // validate the packet (type checking stuffs)
-    const [error, packet] = validate(rawPacket);
+    const lookup = {
+      [SERVER_BLOCK_SINGLE_ID]: this.validateServerBlockSingle,
+      [SERVER_MOVEMENT_ID]: validateServerMovement,
+      [SERVER_PLAYER_JOIN_ID]: validateServerPlayerJoin,
+      [SERVER_PLAYER_LEAVE_ID]: validateServerPlayerLeave,
+      [SERVER_INIT_ID]: validateServerInit,
+      [SERVER_PICKUP_GUN_ID]: validateServerPickupGun,
+      [SERVER_FIRE_BULLET_ID]: validateServerFireBullet,
+      [SERVER_EQUIP_GUN_ID]: validateServerEquipGun,
+      [SERVER_BLOCK_LINE_ID]: validateServerBlockLine,
+      [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
+    };
+    
+    // validate the packet (type checking stuffs)
+    const [error, packet] = lookup[rawPacket.packetId](rawPacket);
 
     if (error !== null) {
       console.error('[websocket] packet invalidated', error, rawPacket);
       return;
     }
 
-    if (eventCallback === undefined) {
-      console.warn('unregistered callback', rawPacket.packetId);
-      return;
-    }
-
-      // execute any hooks
-    return eventCallback(packet);
+    return this.callback(packet);
   }
 }
 
