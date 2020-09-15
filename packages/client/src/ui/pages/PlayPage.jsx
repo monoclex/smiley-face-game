@@ -13,7 +13,8 @@ import { Grid } from "@material-ui/core";
 import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
 import { WorldScene } from "@/scenes/world/WorldScene";
 import { updatePrimary } from "@/ui/redux/actionCreators/blockBar";
-import ChatBar from "@/ui/game/chatbar/ChatBar";
+import Chat from "@/ui/game/chat/Chat";
+import PlayerList from "@/ui/game/playerlist/PlayerList";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
 import isProduction from "@/isProduction";
@@ -33,7 +34,7 @@ export const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 1000 },
-      debug: true
+      debug: true,
       // toggles hitboxes around objects
       // if we're not in production, we want to see them
       // debug: isProduction ? false : true,
@@ -62,7 +63,15 @@ const useStyles = makeStyles({
   },
 });
 
-const Game = ({ match: { params: { roomId } }, location: { search }, updatePrimary, selectedSlot, loader }) => {
+const Game = ({
+  match: {
+    params: { roomId },
+  },
+  location: { search },
+  updatePrimary,
+  selectedSlot,
+  loader,
+}) => {
   const token = localStorage.getItem("token");
 
   if (token === null) {
@@ -94,7 +103,7 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
       // https://stackoverflow.com/a/61596862/3780113
       // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
       window.history.replaceState(null, document.title, `/games/${id}?type=${type ?? "dynamic"}`);
-    }
+    };
 
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
@@ -106,7 +115,7 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
     return function cleanup() {
       window.removeEventListener("resize", listener);
       game.destroy(true);
-    }
+    };
   }, []);
 
   return (
@@ -119,7 +128,7 @@ const Game = ({ match: { params: { roomId } }, location: { search }, updatePrima
           <BlockBar onBlockSelected={updatePrimary} selected={selectedSlot} loader={loader} />
         </div>
 
-        <ChatBar />
+        <Chat />
       </Grid>
     </>
   );
