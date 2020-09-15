@@ -13,16 +13,14 @@ export default class GunTile implements Tile {
     let yeahtile = tile;
     tile.index = this.id;
     tile.setCollision(false);
-    //@ts-ignore
     tile.setCollisionCallback((sprite, tile) => {
-      if (!sprite.character) {
+      if (!sprite.player) {
         console.warn("unable to resolve tile collision", sprite, tile);
         return;
       }
 
-      const character: Character = sprite.character;
-      const player = character.getPlayer();
-      if (!player.gun) player.instantiateGun(M249LMG, yeahtile);
+      const player = sprite.player;
+      if (!player.hasGun) player.instantiateGun(M249LMG, yeahtile);
     }, this);
   }
 

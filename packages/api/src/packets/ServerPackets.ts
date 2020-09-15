@@ -38,5 +38,5 @@ const lookup = {
 
 export function isServerPacket(packet: any): packet is ServerPackets {
   if (!packet.packetId) return false;
-  return lookup[packet.packetId] ?? false;
+  return lookup[packet.packetId] || false;
 }

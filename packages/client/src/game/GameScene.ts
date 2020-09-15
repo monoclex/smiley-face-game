@@ -90,11 +90,11 @@ export default class GameScene extends Phaser.Scene {
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);
     connectPlayerToKeyboard(mainPlayer, this.networkClient);
 
-    mainPlayer.character.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
+    mainPlayer.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
 
     const camera = this.cameras.main;
-    camera.startFollow(mainPlayer.character.body, false, 0.05, 0.05, -16, -16);
+    camera.startFollow(mainPlayer.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
     this.networkClient.events.callback = (event) => {
@@ -103,10 +103,10 @@ export default class GameScene extends Phaser.Scene {
           if (event.playerId === this.mainPlayer.id) return;
   
           const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
-          player.character.setPosition(event.joinLocation.x, event.joinLocation.y)
+          player.setPosition(event.joinLocation.x, event.joinLocation.y)
 
-          if (event.hasGun) player.instantiateGun(M249LMG, null);
-          if (event.gunEquipped) player.getGun().equipped = event.gunEquipped;
+          if (event.hasGun) player.instantiateGun(M249LMG);
+          if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
 
         } return;
 
@@ -117,7 +117,7 @@ export default class GameScene extends Phaser.Scene {
         case SERVER_MOVEMENT_ID: {
           if (event.playerId === this.mainPlayer.id) return;
 
-          const character = players.getPlayer(event.playerId).character;
+          const character = players.getPlayer(event.playerId);
           character.setPosition(event.position.x, event.position.y);
           character.setVelocity(event.velocity.x, event.velocity.y);
 
@@ -171,12 +171,13 @@ export default class GameScene extends Phaser.Scene {
 
     // toggle the equpped-ness of the gun when E is pressed
     if (this.mainPlayer.hasGun && Phaser.Input.Keyboard.JustDown(this._keyboardE)) {
-      this.mainPlayer.toggleGunEquipped();
+      this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
+      this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
     }
 
     // when the player has a gun equipped, we want the gun to point towards where they're looking
     if (this.mainPlayer.gunEquipped) {
-      this.mainPlayer.getGun().setLookingAt(x, y);
+      this.mainPlayer.guaranteeGun.setLookingAt(x, y);
     }
 
     // we want to prevent editing the world while the gun is equipped, so that
@@ -188,7 +189,7 @@ export default class GameScene extends Phaser.Scene {
       && this._lastBulletFire + 100 <= now) { // don't allow another bullet to be shot if it hasn't been at least 100ms since the last bullet
       this._lastBulletFire = now;
 
-      const angle = this.mainPlayer.getGun().angle;
+      const angle = this.mainPlayer.guaranteeGun.angle;
       this.mainPlayer.fireBullet(angle);
 
       // send the message of a bullet being fired

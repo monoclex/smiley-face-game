@@ -51,6 +51,7 @@ export class NetworkEvents {
     };
     
     // validate the packet (type checking stuffs)
+    //@ts-ignore
     const [error, packet] = lookup[rawPacket.packetId](rawPacket);
 
     if (error !== null) {
@@ -112,7 +113,7 @@ export class NetworkClient {
   }
 
   readonly events: NetworkEvents;
-  private _pause!: boolean;
+  private _pause: boolean = false;
   private _buffer: MessageEvent[];
   private _showClosingAlert: boolean = true;
 

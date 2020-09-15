@@ -24,7 +24,7 @@ export default class PlayerManager {
   }
 
   addPlayer(id: number, username: string, playerContainer: Phaser.GameObjects.Container): Player {
-    const player = new Player(id, this.game, new Character(this.game, username));
+    const player = new Player(id, this.game, username);
     this.players.set(id, player);
     playerContainer.add(player.container);
     return player;
@@ -32,7 +32,7 @@ export default class PlayerManager {
 
   removePlayer(playerId: number) {
     const player = this.getPlayer(playerId);
-    player.character.destroy();
+    player.destroy();
     if (player.gun) player.gun.destroy();
     
     this.players.delete(playerId);
@@ -51,11 +51,11 @@ export default class PlayerManager {
 
   onFireBullet(playerId: number, angle: number) {
     this.getPlayer(playerId).fireBullet(angle);
-    this.getPlayer(playerId).getGun().angle = angle;
+    this.getPlayer(playerId).guaranteeGun.angle = angle;
   }
 
   onPickupGun(playerId: number) {
     // TODO: allow the pickup gun packet to specify what type of gun
-    this.getPlayer(playerId).instantiateGun(M249LMG, null);
+    this.getPlayer(playerId).instantiateGun(M249LMG);
   }
 }

@@ -6,11 +6,11 @@ import Player from "@/game/player/Player";
 import GameScene from "@/game/GameScene";
 
 class Model implements GunModel {
-  behaviourFactory = (game: GameScene, player: Player) => {
-    const body = player.character.body;
+  behaviourFactory(game: GameScene, player: Player): [OneBulletFixedFireRate, Phaser.GameObjects.Sprite] {
+    const body = player.body;
     const gun = new Phaser.GameObjects.Sprite(game, body.x, body.y, key("m249lmg"));
-    player.container.add(gun);
-    return new OneBulletFixedFireRate(game, body, gun, 100);
+    game.events.on("update", gun.update, gun);
+    return [new OneBulletFixedFireRate(game, body, gun, 100), gun];
   }
 
   load(loader: Phaser.Loader.LoaderPlugin): void {

@@ -13,15 +13,15 @@ export default function connectPlayerToKeyboard(player: Player, networkClient: N
   // allows us to wrap any (player) => void action and then send a movement packet afterwords
   const sendMovePacket = (closure: (player: Player) => void) => (player: Player) => {
     closure(player);
-    networkClient.move(player.character.body, player.character.body.body.velocity, player.character.input);
+    networkClient.move(player.body, player.body.body.velocity, player.input);
   };
 
-  const jumpOn = sendMovePacket((player) => player.character.updateInputs({ jump: true }));
-  const jumpOff = sendMovePacket((player) => player.character.updateInputs({ jump: false }));
-  const leftOn = sendMovePacket((player) => player.character.updateInputs({ left: true }));
-  const leftOff = sendMovePacket((player) => player.character.updateInputs({ left: false }));
-  const rightOn = sendMovePacket((player) => player.character.updateInputs({ right: true }));
-  const rightOff = sendMovePacket((player) => player.character.updateInputs({ right: false }));
+  const jumpOn = sendMovePacket((player) => player.updateInputs({ jump: true }));
+  const jumpOff = sendMovePacket((player) => player.updateInputs({ jump: false }));
+  const leftOn = sendMovePacket((player) => player.updateInputs({ left: true }));
+  const leftOff = sendMovePacket((player) => player.updateInputs({ left: false }));
+  const rightOn = sendMovePacket((player) => player.updateInputs({ right: true }));
+  const rightOff = sendMovePacket((player) => player.updateInputs({ right: false }));
 
   hook(player, SPACE, jumpOn, jumpOff);
   hook(player, UP, jumpOn, jumpOff);

@@ -59,7 +59,7 @@ export class LoadingScene extends Phaser.Scene {
     NetworkClient.connect(
       api.connection(globalVariableParkour),
       (client) => {
-        client.events.onInit = (packet) => {
+        client.events.callback = (packet) => {
           const sender = client;
 
           // prevent receiving any packets until the game scene changes

@@ -6,7 +6,7 @@ export default abstract class GunBehaviour {
     readonly gun: Phaser.GameObjects.Sprite,
   ) {}
 
-  readonly equipped: boolean = true;
+  equipped: boolean = true;
   angle: number = 0.0;
 
   setLookingAt(x: number, y: number) {
