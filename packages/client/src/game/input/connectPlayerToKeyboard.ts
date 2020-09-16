@@ -13,8 +13,8 @@ function hook(player: Player, keyboardEvent: number, onUp: (player: Player, even
   );
 
   // don't touch! down should be up, up should be down, otherwise it's inverted for some reason
-  keyObj.on("down", (event) => onUp(player, event, keyObj));
-  keyObj.on("up", (event) => onDown(player, event, keyObj));
+  keyObj.on("down", (key) => onUp(player, key.originalEvent, key));
+  keyObj.on("up", (key) => onDown(player, key.originalEvent, key));
 }
 
 export default function connectPlayerToKeyboard(player: Player, networkClient: NetworkClient) {
