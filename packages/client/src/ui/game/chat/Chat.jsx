@@ -1,40 +1,54 @@
 //@ts-check
 
 import React, { useState } from "react";
-import { Grid, ListItem, ListItemText, List, TextField } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Grid, ListItem, ListItemText, List, TextField, Input } from "@material-ui/core";
+import { makeStyles, fade } from "@material-ui/core/styles";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns/fp";
 
 import { messagesState, chatState } from "@/recoil/atoms/chat";
 import commonUIStyles from "../commonUIStyles";
+import SpringScrollbars from "@/ui/components/SpingScrollbars";
 
 const useStyles = makeStyles((theme) => ({
   container: {
     ...commonUIStyles.uiOverlayElement,
     paddingLeft: theme.spacing(3),
   },
-  chatList: {
+  chatListGrid: {
     color: theme.palette.text.primary,
-    backgroundColor: theme.palette.background.default + "90", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add "90" to it to add transparency)
-    borderTopLeftRadius: "10px",
-    borderTopRightRadius: "10px",
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    borderTopLeftRadius: theme.shape.borderRadius,
+    borderTopRightRadius: theme.shape.borderRadius,
+    paddingLeft: 5,
+    paddingRight: 5,
     width: "40%",
   },
-  chatRootItem: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 4,
-  },
-  chatChildItem: {
-    marginTop: 2,
-    marginBottom: 2,
+  chatList: {
+    overflow: "auto",
+    maxHeight: "100%",
+    pointerEvents: "all",
   },
   chatField: {
-    backgroundColor: theme.palette.background.default + "A0", // TODO: make this clean (theme.palette.background.default is a hex rgb value, so we add "A0" to it to add transparency)
+    borderBottomLeftRadius: theme.shape.borderRadius,
+    borderBottomRightRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
     pointerEvents: "all",
     width: "40%",
+    padding: 5,
+  },
+  chatInput: {
+    padding: theme.spacing(1, 1, 1, 1),
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+  },
+  message: {
+    paddingTop: 2,
+    paddingLeft: 4,
+    paddingBottom: 2,
+    marginTop: 2,
+    marginBottom: 2,
   },
 }));
 
@@ -43,12 +57,13 @@ const Message = ({ id }) => {
   const message = useRecoilValue(messagesState)[id];
 
   return (
-    <ListItem key={id} className={classes.chatRootItem} divider dense>
-      <div className={classes.chatChildItem}>
-        <span>{format("HH:mm:ss", message.timestamp)}</span>
-        <span>{` ${message.username}: ${message.content}`}</span>
-      </div>
-    </ListItem>
+    <div key={id} className={classes.message}>
+      <small>{format("HH:mm:ss", message.timestamp)}</small>
+      <span>
+        <b>{` ${message.username}: `}</b>
+        {`${message.content}`}
+      </span>
+    </div>
   );
 };
 
@@ -65,7 +80,7 @@ export default () => {
       {
         id: old.length,
         timestamp: new Date().getTime(),
-        username: "yes",
+        username: "yes", // TODO: actually grab their username lol
         content,
       },
       ...old,
@@ -73,29 +88,39 @@ export default () => {
 
   return (
     <Grid container direction="column" justify="flex-end" alignItems="flex-start" className={classes.container}>
-      <Grid item className={classes.chatList}>
-        <List>
+      <Grid item className={classes.chatListGrid}>
+        <SpringScrollbars
+          className={classes.chatList}
+          autoHeight
+          autoHeightMin={10}
+          autoHeightMax={400}
+          autoHide
+          autoHideTimeout={1000}
+          autoHideDuration={200}
+        >
           {messages.map((message) => (
             <Message key={message.id} id={message.id} />
           ))}
-        </List>
+        </SpringScrollbars>
       </Grid>
 
       <Grid item className={classes.chatField}>
-        <form onSubmit={handleSubmit(addMessage)} autoComplete="off">
-          <TextField
-            fullWidth
-            size="small"
-            id="content"
-            name="content"
-            label="Message"
-            placeholder="Press Enter to chat"
-            onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
-            onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
-            inputRef={register({ required: true })}
-            onKeyUp={(event) => event.key === "Enter" && reset()}
-          />
-        </form>
+        <div>
+          <form onSubmit={handleSubmit(addMessage)} autoComplete="off">
+            <Input
+              className={classes.chatInput}
+              disableUnderline
+              fullWidth
+              id="content"
+              name="content"
+              placeholder="Press Enter to chat"
+              onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
+              onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
+              inputRef={register({ required: true })}
+              onKeyUp={(event) => event.key === "Enter" && reset()}
+            />
+          </form>
+        </div>
       </Grid>
     </Grid>
   );
