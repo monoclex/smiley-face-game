@@ -22,4 +22,15 @@ export const chatState = atom<ChatState>({
   default: {
     isActive: false,
   },
+  //@ts-ignore
+  effects_UNSTABLE: [({ setSelf }) => {
+    window.recoil.chat.setState = setSelf;
+  }]
 });
+
+// initialize global state for recoil so we don't get lots of errors
+if (!window.recoil) window.recoil = { chat: {} };
+
+// TODO: hardcoding the default here until i figure out how to get the RecoilStore currently in use,
+// and then get the current state of the atom from that
+window.recoil.chat.state = { isActive: false };

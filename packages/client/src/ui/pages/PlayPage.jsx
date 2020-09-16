@@ -118,19 +118,6 @@ const Game = ({
 
   return (
     <>
-      <RecoilGameStateSync
-        state={chatState}
-        subscribe={((setState) => {
-          window.recoil = window.recoil || { chat: {} };
-          window.recoil.chat.setState = setState;
-        })}
-        unsubscribe={() => {}} // don't need to pass
-        update={((newState) => {
-          window.recoil = window.recoil || { chat: {} };
-          window.recoil.chat.state = newState;
-        })}
-      />
-      
       <Grid container justify="center">
         <div className={styles.game} ref={gameRef} />
       </Grid>
