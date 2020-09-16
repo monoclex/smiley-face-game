@@ -23,8 +23,15 @@ export const chatState = atom<ChatState>({
     isActive: false,
   },
   //@ts-ignore
-  effects_UNSTABLE: [({ setSelf }) => {
-    window.recoil.chat.setState = setSelf;
+  effects_UNSTABLE: [({ setSelf, onSet }) => {
+    onSet((value) => {
+      window.recoil.chat.state = value;
+    })
+    
+    window.recoil.chat.setState = (newState) => {
+      console.log("changing state", newState);
+      setSelf(newState);
+    };
   }]
 });
 

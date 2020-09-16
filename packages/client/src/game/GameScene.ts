@@ -49,6 +49,13 @@ export default class GameScene extends Phaser.Scene {
     setInterval(() => console.log('recoil chat isActive:', window.recoil.chat.state!.isActive), 1000);
     this.events.on("destroy", this.destroy, this);
 
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      // if the player clicks and the chat is selected, deselect the chat
+      if (window.recoil.chat.state!.isActive) {
+        window.recoil.chat.setState!({ ...window.recoil.chat.state!, isActive: false });
+      }
+    }, this);
+
     // debug physics easier
     this.physics.world.defaults.debugShowBody = true;
     this.physics.world.defaults.debugShowStaticBody = true;
