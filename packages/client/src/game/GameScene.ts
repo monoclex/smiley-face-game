@@ -46,6 +46,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    setInterval(() => console.log('recoil chat isActive:', window.recoil.chat.state!.isActive), 1000);
     this.events.on("destroy", this.destroy, this);
 
     // debug physics easier

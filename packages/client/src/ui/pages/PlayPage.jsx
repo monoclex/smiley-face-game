@@ -16,6 +16,8 @@ import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
 import isProduction from "@/isProduction";
 import GameScene from "@/game/GameScene";
+import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
+import { chatState } from "@/recoil/atoms/chat";
 
 export const config = {
   pixelArt: true,
@@ -116,6 +118,19 @@ const Game = ({
 
   return (
     <>
+      <RecoilGameStateSync
+        state={chatState}
+        subscribe={((setState) => {
+          window.recoil = window.recoil || { chat: {} };
+          window.recoil.chat.setState = setState;
+        })}
+        unsubscribe={() => {}} // don't need to pass
+        update={((newState) => {
+          window.recoil = window.recoil || { chat: {} };
+          window.recoil.chat.state = newState;
+        })}
+      />
+      
       <Grid container justify="center">
         <div className={styles.game} ref={gameRef} />
       </Grid>

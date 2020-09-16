@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 import { LoadingScene } from "@/scenes/loading/LoadingScene";
 
-interface Message {
+export interface Message {
   id: number;
   timestamp: number;
   username: string;
@@ -13,7 +13,7 @@ export const messagesState = atom<Message[]>({
   default: [],
 });
 
-interface ChatState {
+export interface ChatState {
   isActive: boolean;
 }
 
