@@ -54,7 +54,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.defaults.debugShowStaticBody = true;
 
     // hook into `E`
-    this._keyboardE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this._keyboardE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;

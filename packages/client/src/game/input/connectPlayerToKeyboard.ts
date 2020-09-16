@@ -1,21 +1,40 @@
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import Player from "@/game/player/Player";
 
-function hook(player: Player, keyboardEvent: number, onUp: (player: Player) => void, onDown: (player: Player) => void) {
-  const keyObj = player.game.input.keyboard.addKey(keyboardEvent);
+function hook(player: Player, keyboardEvent: number, onUp: (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => void, onDown: (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => void) {
+  // https://rexrainbow.github.io/phaser3-rex-notes/docs/site/keyboardevents/#key-object
+  const keyObj = player.game.input.keyboard.addKey(
+    // they keyboard event to add a key for
+    keyboardEvent,
+
+    // prevent phaser from calling preventDefault() automatically
+    // this is so if the chat is active, we can ignore the key press
+    false
+  );
 
   // don't touch! down should be up, up should be down, otherwise it's inverted for some reason
-  keyObj.on("down", () => onUp(player));
-  keyObj.on("up", () => onDown(player));
+  keyObj.on("down", (event) => onUp(player, event, keyObj));
+  keyObj.on("up", (event) => onDown(player, event, keyObj));
 }
 
 export default function connectPlayerToKeyboard(player: Player, networkClient: NetworkClient) {
   const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
 
   // allows us to wrap any (player) => void action and then send a movement packet afterwords
-  const sendMovePacket = (closure: (player: Player) => void) => (player: Player) => {
-    closure(player);
-    networkClient.move(player.body, player.body.body.velocity, player.input);
+  const sendMovePacket = (closure: (player: Player) => void) => (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => {
+    if (window.recoil.chat.state!.isActive) {
+      // don't process events when the chat is active
+      // even if that means the player presses -> in the chat and ends up going to the right,
+      // this is a feature that i personally have used and enjoyed using in EE
+    }
+    else {
+      closure(player);
+      networkClient.move(player.body, player.body.body.velocity, player.input);
+
+      if (key.isDown) {
+        event.preventDefault();
+      }
+    }
   };
 
   const jumpOn = sendMovePacket((player) => player.updateInputs({ jump: true }));
