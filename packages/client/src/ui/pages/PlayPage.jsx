@@ -65,25 +65,25 @@ const useStyles = makeStyles({
 });
 
 const Game = ({
-  match: {
-    params: { roomId },
-  },
-  location: { search },
   selectedSlot,
   loader,
+  location: { search, state },
+  match: { params: { roomId } }
 }) => {
+  // don't have to check if the token is valid because that will happen when we try to join the game
   const token = localStorage.getItem("token");
-
   if (token === null) {
     history.push("/");
     return null;
   }
 
-  let { name, width, height, type, id } = qs.parse(search);
-
-  width = parseInt(width);
-  height = parseInt(height);
-  id = roomId || id;
+  if (!state || !state.request) { // if the user navigates here naturally, we have to infer the state
+    const { type } = qs.parse(search);
+    state = {};
+    state.request = "join";
+    state.roomId = roomId;
+    state.type = type
+  }
 
   const gameRef = useRef();
   const styles = useStyles();
@@ -95,16 +95,32 @@ const Game = ({
     gameRef.current.oncontextmenu = () => false;
 
     // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
+
+    // reset the variable
+    globalVariableParkour.type = undefined;
+    globalVariableParkour.token = undefined;
+    globalVariableParkour.name = undefined;
+    globalVariableParkour.width = undefined;
+    globalVariableParkour.height = undefined;
+    globalVariableParkour.id = undefined;
+
     globalVariableParkour.token = token;
-    globalVariableParkour.type = type;
-    globalVariableParkour.name = name;
-    globalVariableParkour.width = width;
-    globalVariableParkour.height = height;
-    globalVariableParkour.id = id;
+
+    if (state.request === "create") {
+      globalVariableParkour.type = "dynamic";
+      globalVariableParkour.name = state.name;
+      globalVariableParkour.width = state.width;
+      globalVariableParkour.height = state.height;
+    }
+    else {
+      globalVariableParkour.type = state.type;
+      globalVariableParkour.id = state.roomId;
+    }
+
     globalVariableParkour.onId = (id) => {
       // https://stackoverflow.com/a/61596862/3780113
       // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
-      window.history.replaceState(null, document.title, `/games/${id}?type=${type ?? "dynamic"}`);
+      window.history.replaceState(null, document.title, `/games/${id}?type=${state.type ?? "dynamic"}`);
     };
 
     // start game
@@ -115,6 +131,7 @@ const Game = ({
     });
 
     return function cleanup() {
+      window.recoil.loading.setState!({ failed: false, why: undefined });
       window.removeEventListener("resize", listener);
       game.destroy(true);
     };
@@ -128,7 +145,7 @@ const Game = ({
     <Grid container justify="center">
       <h1>game failed to load</h1>
       <span>{ loading.why.toString() }</span>
-      <button onClick={() => { setLoading({ failed: false }); history.push(`/games/?name=${encodeURIComponent("todo")}&width=50&height=50`) }}>
+      <button onClick={() => { setLoading({ failed: false }); history.createGame({ name: "test", width: 50, height: 50 }) }}>
         gclick here to make a a new roome
       </button>
     </Grid>

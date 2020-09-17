@@ -110,7 +110,7 @@ export default () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.push(`/games/?name=${encodeURIComponent(name)}&width=${width}&height=${height}`);
+          history.createGame({ name, width: parseInt(width), height: parseInt(height) });
           setCreateRoomDialogOpen(false);
         }}
       />
