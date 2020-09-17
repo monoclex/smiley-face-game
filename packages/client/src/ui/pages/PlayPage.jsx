@@ -5,6 +5,7 @@
 //@ts-check
 import Phaser from "phaser";
 import qs from "query-string";
+import { useRecoilState } from "recoil";
 import React, { useEffect, useRef } from "react";
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import { makeStyles } from "@material-ui/core/styles";
@@ -18,6 +19,7 @@ import isProduction from "@/isProduction";
 import GameScene from "@/game/GameScene";
 import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
 import { chatState } from "@/recoil/atoms/chat";
+import { loadingState } from "@/recoil/atoms/loading";
 
 export const config = {
   pixelArt: true,
@@ -86,6 +88,8 @@ const Game = ({
   const gameRef = useRef();
   const styles = useStyles();
 
+  const [loading, setLoading] = useRecoilState(loadingState);
+
   useEffect(() => {
     // disable right click for context menu
     gameRef.current.oncontextmenu = () => false;
@@ -118,6 +122,17 @@ const Game = ({
 
   return (
     <>
+    {/* i tried to stick this in its own condition but i'm having a hard time figuring out what to do with `ref gameRef`
+        react wants it to exist otherwise it throws an error during reset. */}
+    {loading.failed && (
+    <Grid container justify="center">
+      <h1>game failed to load</h1>
+      <span>{ loading.why.toString() }</span>
+      <button onClick={() => { setLoading({ failed: false }); history.push(`/games/?name=${encodeURIComponent("todo")}&width=50&height=50`) }}>
+        gclick here to make a a new roome
+      </button>
+    </Grid>
+    )}
       <Grid container justify="center">
         <div className={styles.game} ref={gameRef} />
       </Grid>

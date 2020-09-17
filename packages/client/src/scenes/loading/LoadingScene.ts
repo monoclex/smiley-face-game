@@ -81,6 +81,10 @@ export class LoadingScene extends Phaser.Scene {
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
     )
       .catch((err) => {
+        window.recoil.loading.setState!({
+          failed: true,
+          why: err
+        });
         console.warn("caught error", err);
         this._progressBar.clear();
         this._progressBar.fillStyle(0x8a8a8a, 1);

@@ -88,11 +88,17 @@ export class NetworkClient {
       const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
       registerCallbacks(networkClient);
 
-      webSocket.addEventListener("message", () => {
-        if (!resolved) {
-          resolve(networkClient);
+      webSocket.addEventListener("message", (message) => {
+        let parsed = JSON.parse(message.data);
+        if (parsed.error) {
+          reject(new Error(parsed.error));
         }
-        resolved = true;
+        else {
+          if (!resolved) {
+            resolve(networkClient);
+          }
+          resolved = true;
+        }
       });
 
       webSocket.addEventListener("error", (error) => {
@@ -113,7 +119,7 @@ export class NetworkClient {
   readonly events: NetworkEvents;
   private _pause: boolean = false;
   private _buffer: MessageEvent[];
-  private _showClosingAlert: boolean = true;
+  private _showClosingAlert: boolean = false;
 
   private constructor(
     private readonly _webSocket: WebSocket,
@@ -145,13 +151,12 @@ export class NetworkClient {
     // packets come over the wire as a string of json
     const rawPacket = JSON.parse(event.data);
 
-    console.log(rawPacket.packetId);
-
     if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
       console.error('[websocket warn] server sent invalid packet', rawPacket);
       return;
     }
 
+    this._showClosingAlert = true; // if we get this far in handling a message, we're definitely in game and not receiving an error packet
     await this.events.triggerEvent(rawPacket);
   }
 

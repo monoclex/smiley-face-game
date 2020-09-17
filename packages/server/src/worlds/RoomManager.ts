@@ -65,7 +65,7 @@ export default class RoomManager {
       const room = this.roomFor(message.roomDetails);
 
       if (room === undefined) {
-        message.completion.reject();
+        message.completion.reject(new Error("No room exists with that ID."));
         continue;
       }
 
@@ -91,7 +91,7 @@ export default class RoomManager {
         const newRoom = this.roomFor(message.roomDetails);
 
         if (newRoom === undefined) {
-          message.completion.reject();
+          message.completion.reject(new Error("No room exists with that ID."));
           continue;
         }
 
@@ -103,7 +103,7 @@ export default class RoomManager {
           message.completion.resolve(room);
         }
         else {
-          message.completion.reject();
+          message.completion.reject(new Error("Room failed to start."));
         }
         continue;
       }

@@ -28,15 +28,13 @@ export const chatState = atom<ChatState>({
       window.recoil.chat.state = value;
     })
     
-    window.recoil.chat.setState = (newState) => {
-      console.log("changing state", newState);
-      setSelf(newState);
-    };
+    window.recoil.chat.setState = setSelf
   }]
 });
 
 // initialize global state for recoil so we don't get lots of errors
-if (!window.recoil) window.recoil = { chat: {} };
+if (!window.recoil) window.recoil = {};
+if (!window.recoil.chat) window.recoil.chat = {};
 
 // TODO: hardcoding the default here until i figure out how to get the RecoilStore currently in use,
 // and then get the current state of the atom from that

@@ -8,7 +8,8 @@ export default function handleAsync<T>(handler: T): T {
   return (req, res, next) => {
     //@ts-ignore
     return handler(req, res, next).catch(err => {
-      console.trace("received error in endpoint", req.originalUrl, err);
+      // in the case of websocket endpoints, `req` is actually `ws` and `res` is `req`
+      console.trace("received error in endpoint", req.originalUrl || res.originalUrl, err);
       next(err);
     });
   };
