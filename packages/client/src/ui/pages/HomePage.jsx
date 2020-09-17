@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import { Grid, Typography, Container } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import history from "@/ui/history";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -14,6 +15,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default () => {
   const classes = useStyles();
+  
+  // if they have a token, they should go straight to the lobby
+  if (localStorage.getItem("token") !== null) {
+    history.push("/lobby");
+    return null;
+  }
 
   return (
     <Container maxWidth={false} className={classes.container}>

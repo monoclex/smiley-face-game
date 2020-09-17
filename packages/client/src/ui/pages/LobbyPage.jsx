@@ -15,6 +15,7 @@ import history from "@/ui/history";
 import Loading from "@/ui/Loading";
 import { api } from "@/isProduction";
 import Typography from "@material-ui/core/Typography";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 const useStyles = makeStyles({
   input: {
@@ -24,6 +25,10 @@ const useStyles = makeStyles({
     // https://material-ui.com/components/grid/#negative-margin
     padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
   },
+  rotate180: {
+    // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
+    transform: "rotate(180deg)",
+  }
 });
 
 export default () => {
@@ -47,6 +52,12 @@ export default () => {
     api.getMyRooms(token).then(({ ownedWorlds }) => { if (Array.isArray(ownedWorlds)) { setMyRooms(ownedWorlds); } });
   };
 
+  const logout = () => {
+    // TODO: ask the server to invalidate the token
+    localStorage.removeItem("token");
+    history.push("/");
+  };
+
   // TODO: bring in stuff from old lobby component to here
   useEffect(() => {
     refresh();
@@ -55,6 +66,9 @@ export default () => {
   return (
     <>
       <Grid container item justify="center" alignItems="center">
+        <IconButton className={classes.rotate180} onClick={logout}>
+          <ExitToAppIcon />
+        </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()}>
             <RefreshIcon />
