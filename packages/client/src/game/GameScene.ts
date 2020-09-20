@@ -7,7 +7,6 @@ import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
-import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 import distanceAway from "../math/distanceAway";
@@ -33,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  _keyboardE!: Phaser.Input.Keyboard.Key;
+  _input = { up: 0, left: 0, right: 0, jump: 0, equip: false }; // use numbers incase more than 1 key is activating the input
 
   constructor() {
     super({
@@ -61,8 +60,35 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.defaults.debugShowBody = true;
     this.physics.world.defaults.debugShowStaticBody = true;
 
-    // hook into `E`
-    this._keyboardE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
+    // hook the keyboard
+    const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
+    [UP, W, SPACE]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.up++; });
+        key.on("up", () => { this._input.up = Math.max(this._input.up - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [A, LEFT]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.left++; });
+        key.on("up", () => { this._input.left = Math.max(this._input.left - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [D, RIGHT]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.right++; });
+        key.on("up", () => { this._input.right = Math.max(this._input.right - 1, 0); ; }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [E]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.equip = true; });
+        key.on("up", () => { this._input.equip = false; });
+      });
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
@@ -97,7 +123,6 @@ export default class GameScene extends Phaser.Scene {
     const players = new PlayerManager(this);
     this.players = players;
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);
-    connectPlayerToKeyboard(mainPlayer, this.networkClient);
 
     mainPlayer.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
@@ -178,10 +203,27 @@ export default class GameScene extends Phaser.Scene {
     // primary mouse cursor x/y
     const { x, y } = this.input.activePointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
 
-    // toggle the equpped-ness of the gun when E is pressed
-    if (this.mainPlayer.hasGun && Phaser.Input.Keyboard.JustDown(this._keyboardE)) {
-      this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
-      this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
+    // if the chat is inactive, we'll process the keyboard as if it were inputs
+    if (!chat.state.isActive) {
+      let inputs = {
+        jump: this._input.up > 0,
+        left: this._input.left > 0,
+        right: this._input.right > 0,
+      };
+
+      if (inputs.jump !== this.mainPlayer.input.jump
+        || inputs.left !== this.mainPlayer.input.left
+        || inputs.right !== this.mainPlayer.input.right) {
+        
+        this.mainPlayer.updateInputs(inputs);
+        this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input)
+      }
+      
+      // toggle the equpped-ness of the gun when E is pressed
+      if (this.mainPlayer.hasGun && this._input.equip) {
+        this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
+        this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
+      }
     }
 
     // when the player has a gun equipped, we want the gun to point towards where they're looking
