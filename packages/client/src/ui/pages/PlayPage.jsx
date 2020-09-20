@@ -125,6 +125,7 @@ const Game = ({
 
     // start game
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
+    window.game = game;
 
     const listener = window.addEventListener("resize", () => {
       game.scale.resize(window.innerWidth, window.innerHeight);
@@ -136,6 +137,17 @@ const Game = ({
       game.destroy(true);
     };
   }, []);
+
+  // just a hacky way to force the game to scale right on render
+  // a bug occurs where the click position isn't correct after a user presses the "gclick here to make a new roome" button
+  // so we force the game to resize on component render to hopefully tell phaser to correct the positioning
+  if (window.game) {
+    // when we immediately call this, the game isn't yet rendered
+    // so by delaying it until after react completes rendering we can get it to fix itself
+    setTimeout(() => {
+      game.scale.resize(window.innerWidth, window.innerHeight);
+    }, 0);
+  }
 
   return (
     <>
