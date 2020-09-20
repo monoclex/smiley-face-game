@@ -1,7 +1,7 @@
-//@ts-check
+//@ts-ignore
 
-import React, { useState } from "react";
-import { Grid, ListItem, ListItemText, List, TextField, Input } from "@material-ui/core";
+import React, { useRef, useEffect } from "react";
+import { Grid, Input } from "@material-ui/core";
 import { makeStyles, fade } from "@material-ui/core/styles";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
   container: {
     ...commonUIStyles.uiOverlayElement,
     paddingLeft: theme.spacing(3),
+  },
+  containerNotActive: {
+    display: "none",
   },
   chatListGrid: {
     color: theme.palette.text.primary,
@@ -71,7 +74,32 @@ export default () => {
   const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
+  const inputRef = useRef();
+
+  const currentChatState = useRecoilValue(chatState);
   const setChatState = useSetRecoilState(chatState);
+
+  const onKeyDown = ({ keyCode }) => {
+    // enter key
+    if (keyCode === 13 && !currentChatState.isActive) {
+      setChatState((old) => ({
+        ...old,
+        isActive: true,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", onKeyDown, true);
+
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, []);
+
+  useEffect(() => {
+    if (currentChatState.isActive) {
+      inputRef.current.focus();
+    }
+  }, [currentChatState.isActive]);
 
   const messages = useRecoilValue(messagesState);
   const setMessages = useSetRecoilState(messagesState);
@@ -86,13 +114,22 @@ export default () => {
       ...old,
     ]);
 
+  const onSubmit = (values) => {
+    if (values.content !== "") {
+      addMessage(values);
+    }
+
+    reset();
+    inputRef.current.blur();
+  };
+
   return (
     <Grid container direction="column" justify="flex-end" alignItems="flex-start" className={classes.container}>
       <Grid item className={classes.chatListGrid}>
         <SpringScrollbars
           className={classes.chatList}
           autoHeight
-          autoHeightMin={10}
+          autoHeightMin={0}
           autoHeightMax={400}
           autoHide
           autoHideTimeout={1000}
@@ -104,24 +141,28 @@ export default () => {
         </SpringScrollbars>
       </Grid>
 
-      <Grid item className={classes.chatField}>
-        <div>
-          <form onSubmit={handleSubmit(addMessage)} autoComplete="off">
-            <Input
-              className={classes.chatInput}
-              disableUnderline
-              fullWidth
-              id="content"
-              name="content"
-              placeholder="Press Enter to chat"
-              onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
-              onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
-              inputRef={register({ required: true })}
-              onKeyUp={(event) => event.key === "Enter" && reset()}
-            />
-          </form>
-        </div>
-      </Grid>
+      {currentChatState.isActive && (
+        <Grid item className={classes.chatField}>
+          <div>
+            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+              <Input
+                className={classes.chatInput}
+                disableUnderline
+                fullWidth
+                id="content"
+                name="content"
+                placeholder="Press Enter to chat"
+                onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
+                onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
+                inputRef={(ref) => {
+                  register(ref);
+                  inputRef.current = ref;
+                }}
+              />
+            </form>
+          </div>
+        </Grid>
+      )}
     </Grid>
   );
 };
