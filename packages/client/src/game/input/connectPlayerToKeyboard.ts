@@ -1,5 +1,6 @@
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import Player from "@/game/player/Player";
+import { chat } from "@/recoil/atoms/chat";
 
 function hook(player: Player, keyboardEvent: number, onUp: (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => void, onDown: (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => void) {
   // https://rexrainbow.github.io/phaser3-rex-notes/docs/site/keyboardevents/#key-object
@@ -22,7 +23,7 @@ export default function connectPlayerToKeyboard(player: Player, networkClient: N
 
   // allows us to wrap any (player) => void action and then send a movement packet afterwords
   const sendMovePacket = (closure: (player: Player) => void) => (player: Player, event: KeyboardEvent, key: Phaser.Input.Keyboard.Key) => {
-    if (window.recoil.chat.state!.isActive) {
+    if (chat.state.isActive) {
       // don't process events when the chat is active
       // even if that means the player presses -> in the chat and ends up going to the right,
       // this is a feature that i personally have used and enjoyed using in EE

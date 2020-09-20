@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { LoadingScene } from "@/scenes/loading/LoadingScene";
+import SharedGlobal from "@/recoil/SharedGlobal";
 
 export interface Message {
   id: number;
@@ -8,34 +8,24 @@ export interface Message {
   content: string;
 }
 
+export const defaultMessagesState: Message[] = [];
+export const messages = new SharedGlobal<Message[]>(defaultMessagesState);
 export const messagesState = atom<Message[]>({
   key: "messagesState",
-  default: [],
+  default: defaultMessagesState,
+  //@ts-ignore
+  effects_UNSTABLE: [messages.initialize],
 });
 
 export interface ChatState {
   isActive: boolean;
 }
 
+export const defaultChatState: ChatState = { isActive: false };
+export const chat = new SharedGlobal<ChatState>(defaultChatState);
 export const chatState = atom<ChatState>({
   key: "chatState",
-  default: {
-    isActive: false,
-  },
+  default: defaultChatState,
   //@ts-ignore
-  effects_UNSTABLE: [({ setSelf, onSet }) => {
-    onSet((value) => {
-      window.recoil.chat.state = value;
-    })
-    
-    window.recoil.chat.setState = setSelf
-  }]
+  effects_UNSTABLE: [chat.initialize]
 });
-
-// initialize global state for recoil so we don't get lots of errors
-if (!window.recoil) window.recoil = {};
-if (!window.recoil.chat) window.recoil.chat = {};
-
-// TODO: hardcoding the default here until i figure out how to get the RecoilStore currently in use,
-// and then get the current state of the atom from that
-window.recoil.chat.state = { isActive: false };

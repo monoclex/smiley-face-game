@@ -23,6 +23,7 @@ import { SERVER_BLOCK_SINGLE_ID } from "../../../api/src/packets/ServerBlockSing
 import { SERVER_EQUIP_GUN_ID } from "../../../api/src/packets/ServerEquipGun";
 import { SERVER_FIRE_BULLET_ID } from "../../../api/src/packets/ServerFireBullet";
 import { SERVER_PICKUP_GUN_ID } from "../../../api/src/packets/ServerPickupGun";
+import { chat } from "@/recoil/atoms/chat";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -46,13 +47,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    setInterval(() => console.log('recoil chat isActive:', window.recoil.chat.state!.isActive), 1000);
+    setInterval(() => console.log('recoil chat isActive:', chat.state.isActive), 1000);
     this.events.on("destroy", this.destroy, this);
 
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       // if the player clicks and the chat is selected, deselect the chat
-      if (window.recoil.chat.state!.isActive) {
-        window.recoil.chat.setState!({ ...window.recoil.chat.state!, isActive: false });
+      if (chat.state.isActive) {
+        chat.modify({ isActive: false });
       }
     }, this);
 
