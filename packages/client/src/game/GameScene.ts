@@ -23,6 +23,8 @@ import { SERVER_EQUIP_GUN_ID } from "../../../api/src/packets/ServerEquipGun";
 import { SERVER_FIRE_BULLET_ID } from "../../../api/src/packets/ServerFireBullet";
 import { SERVER_PICKUP_GUN_ID } from "../../../api/src/packets/ServerPickupGun";
 import { chat } from "@/recoil/atoms/chat";
+import { SERVER_CHAT_ID } from "../../../api/src/packets/ServerChat";
+import { messages, Message } from "../recoil/atoms/chat/index";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -38,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
     super({
       key: GAME_SCENE_KEY
     })
+    window.gameScene = this;
   }
 
   init(data: GameSceneInitializationData) {
@@ -190,6 +193,17 @@ export default class GameScene extends Phaser.Scene {
           if (event.playerId === this.initPacket.playerId) return;
 
           this.players.onPickupGun(event.playerId);
+        } return;
+
+        case SERVER_CHAT_ID: {
+          const player = this.players.getPlayer(event.playerId);
+          const newMessage: Message = {
+            id: messages.state.length,
+            timestamp: Date.now(),
+            username: player.username,
+            content: event.message
+          };
+          messages.set([ newMessage, ...messages.state ])
         } return;
       }
     };

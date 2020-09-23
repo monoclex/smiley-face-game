@@ -26,6 +26,16 @@ export default class SharedGlobal<T> {
     return this._value;
   }
 
+  set(payload: T) {
+    if (!this._setSelf) {
+      console.warn("setting state when hooks not registered yet");
+      this._value = payload;
+      return;
+    }
+
+    this._setSelf(payload);
+  }
+
   modify(modification: Partial<T>) {
     if (!this._setSelf) {
       console.warn("setting state when hooks not registered yet");

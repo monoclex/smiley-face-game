@@ -103,20 +103,10 @@ export default () => {
 
   const messages = useRecoilValue(messagesState);
   const setMessages = useSetRecoilState(messagesState);
-  const addMessage = ({ content }) =>
-    setMessages((old) => [
-      {
-        id: old.length,
-        timestamp: new Date().getTime(),
-        username: "yes", // TODO: actually grab their username lol
-        content,
-      },
-      ...old,
-    ]);
 
   const onSubmit = (values) => {
     if (values.content !== "") {
-      addMessage(values);
+      window.gameScene.networkClient.chat(values.content);
     }
 
     reset();
