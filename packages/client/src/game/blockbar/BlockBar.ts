@@ -9,6 +9,6 @@ export default class BlockBar {
   }
 
   get selectedBlock(): TileId {
-    return TileId.Full;
+    return blockbar.state.slots[blockbar.state.selected];
   }
 }
