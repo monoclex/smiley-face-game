@@ -1,4 +1,5 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require("path");
@@ -6,6 +7,7 @@ const fs = require("fs");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
+  const bundle = argv.bundle
 
   return {
     mode,
@@ -38,7 +40,8 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: "src/index.html",
         hash: true
-      })
+      }),
+      bundle && new BundleAnalyzerPlugin(),
     ],
     output: {
       filename: "[name].[contenthash].js",

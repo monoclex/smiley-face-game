@@ -9,21 +9,18 @@ import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
-import distanceAway from "../math/distanceAway";
-import { createFalse } from "typescript";
 import M249LMG from "@/game/guns/models/variants/M249LMG";
-import { ServerPackets } from "../../../api/src/packets/ServerPackets";
-import { SERVER_PLAYER_JOIN_ID } from "../../../api/src/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "../../../api/src/packets/ServerPlayerLeave";
-import { SERVER_MOVEMENT_ID } from "../../../api/src/packets/ServerMovement";
-import { SERVER_BLOCK_BUFFER_ID } from "../../../api/src/packets/ServerBlockBuffer";
-import { SERVER_BLOCK_LINE_ID } from "../../../api/src/packets/ServerBlockLine";
-import { SERVER_BLOCK_SINGLE_ID } from "../../../api/src/packets/ServerBlockSingle";
-import { SERVER_EQUIP_GUN_ID } from "../../../api/src/packets/ServerEquipGun";
-import { SERVER_FIRE_BULLET_ID } from "../../../api/src/packets/ServerFireBullet";
-import { SERVER_PICKUP_GUN_ID } from "../../../api/src/packets/ServerPickupGun";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
+import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/api/packets/ServerBlockBuffer";
+import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/packets/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/packets/ServerBlockSingle";
+import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/api/packets/ServerEquipGun";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
+import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickupGun";
 import { chat } from "@/recoil/atoms/chat";
-import { SERVER_CHAT_ID } from "../../../api/src/packets/ServerChat";
+import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
 import { messages, Message } from "../recoil/atoms/chat/index";
 
 export default class GameScene extends Phaser.Scene {
