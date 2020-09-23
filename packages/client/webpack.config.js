@@ -9,6 +9,16 @@ module.exports = (env, argv) => {
   const mode = argv.mode;
   const bundle = argv.bundle
 
+  let plugins = [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: "src/index.html",
+      hash: true
+    }),
+  ];
+
+  if (bundle) plugins.push(new BundleAnalyzerPlugin());
+
   return {
     mode,
     entry: ["./src/index.jsx"],
@@ -35,14 +45,7 @@ module.exports = (env, argv) => {
         // { test: /\.$/, use: "raw-loader" }
       ]
     },
-    plugins: [
-      new CleanWebpackPlugin(),
-      new HtmlWebpackPlugin({
-        template: "src/index.html",
-        hash: true
-      }),
-      bundle && new BundleAnalyzerPlugin(),
-    ],
+    plugins,
     output: {
       filename: "[name].[contenthash].js",
       path: path.resolve(__dirname, "dist"),
