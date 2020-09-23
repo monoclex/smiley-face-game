@@ -167,7 +167,7 @@ const Game = ({
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <div className={styles.blockbar}>
-          <BlockBar onBlockSelected={alert} selected={selectedSlot} loader={loader} />
+          <BlockBar loader={loader} />
         </div>
 
         <Chat />
