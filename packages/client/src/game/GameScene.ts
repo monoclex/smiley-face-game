@@ -7,22 +7,21 @@ import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import Editor from "./components/editor/Editor";
 import BlockBar from "./blockbar/BlockBar";
-import connectPlayerToKeyboard from "@/game/input/connectPlayerToKeyboard";
 
 const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
-import distanceAway from "../math/distanceAway";
-import { createFalse } from "typescript";
 import M249LMG from "@/game/guns/models/variants/M249LMG";
-import { ServerPackets } from "../../../api/src/packets/ServerPackets";
-import { SERVER_PLAYER_JOIN_ID } from "../../../api/src/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "../../../api/src/packets/ServerPlayerLeave";
-import { SERVER_MOVEMENT_ID } from "../../../api/src/packets/ServerMovement";
-import { SERVER_BLOCK_BUFFER_ID } from "../../../api/src/packets/ServerBlockBuffer";
-import { SERVER_BLOCK_LINE_ID } from "../../../api/src/packets/ServerBlockLine";
-import { SERVER_BLOCK_SINGLE_ID } from "../../../api/src/packets/ServerBlockSingle";
-import { SERVER_EQUIP_GUN_ID } from "../../../api/src/packets/ServerEquipGun";
-import { SERVER_FIRE_BULLET_ID } from "../../../api/src/packets/ServerFireBullet";
-import { SERVER_PICKUP_GUN_ID } from "../../../api/src/packets/ServerPickupGun";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
+import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/api/packets/ServerBlockBuffer";
+import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/packets/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/packets/ServerBlockSingle";
+import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/api/packets/ServerEquipGun";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
+import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickupGun";
+import { chat } from "@/recoil/atoms/chat";
+import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
+import { messages, Message } from "../recoil/atoms/chat/index";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -32,12 +31,13 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  _keyboardE!: Phaser.Input.Keyboard.Key;
+  _input = { up: 0, left: 0, right: 0, jump: 0, equip: false }; // use numbers incase more than 1 key is activating the input
 
   constructor() {
     super({
       key: GAME_SCENE_KEY
     })
+    window.gameScene = this;
   }
 
   init(data: GameSceneInitializationData) {
@@ -46,14 +46,49 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
+    setInterval(() => console.log('recoil chat isActive:', chat.state.isActive), 1000);
     this.events.on("destroy", this.destroy, this);
+
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      // if the player clicks and the chat is selected, deselect the chat
+      if (chat.state.isActive) {
+        chat.modify({ isActive: false });
+      }
+    }, this);
 
     // debug physics easier
     this.physics.world.defaults.debugShowBody = true;
     this.physics.world.defaults.debugShowStaticBody = true;
 
-    // hook into `E`
-    this._keyboardE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    // hook the keyboard
+    const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
+    [UP, W, SPACE]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.up++; });
+        key.on("up", () => { this._input.up = Math.max(this._input.up - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [A, LEFT]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.left++; });
+        key.on("up", () => { this._input.left = Math.max(this._input.left - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [D, RIGHT]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.right++; });
+        key.on("up", () => { this._input.right = Math.max(this._input.right - 1, 0); ; }); // TODO: figure out why bug occurs that requires Math.max
+      });
+      
+    [E]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.equip = true; });
+        key.on("up", () => { this._input.equip = false; });
+      });
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
@@ -88,7 +123,6 @@ export default class GameScene extends Phaser.Scene {
     const players = new PlayerManager(this);
     this.players = players;
     const mainPlayer = players.addPlayer(this.initPacket.playerId, this.initPacket.username, layerMainPlayer);
-    connectPlayerToKeyboard(mainPlayer, this.networkClient);
 
     mainPlayer.body.setPosition(this.initPacket.spawnPosition.x, this.initPacket.spawnPosition.y);
     this.mainPlayer = mainPlayer;
@@ -157,6 +191,17 @@ export default class GameScene extends Phaser.Scene {
 
           this.players.onPickupGun(event.playerId);
         } return;
+
+        case SERVER_CHAT_ID: {
+          const player = this.players.getPlayer(event.playerId);
+          const newMessage: Message = {
+            id: messages.state.length,
+            timestamp: Date.now(),
+            username: player.username,
+            content: event.message
+          };
+          messages.set([ newMessage, ...messages.state ])
+        } return;
       }
     };
 
@@ -169,10 +214,28 @@ export default class GameScene extends Phaser.Scene {
     // primary mouse cursor x/y
     const { x, y } = this.input.activePointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
 
-    // toggle the equpped-ness of the gun when E is pressed
-    if (this.mainPlayer.hasGun && Phaser.Input.Keyboard.JustDown(this._keyboardE)) {
-      this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
-      this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
+    // if the chat is inactive, we'll process the keyboard as if it were inputs
+    if (!chat.state.isActive) {
+      let inputs = {
+        jump: this._input.up > 0,
+        left: this._input.left > 0,
+        right: this._input.right > 0,
+      };
+
+      if (inputs.jump !== this.mainPlayer.input.jump
+        || inputs.left !== this.mainPlayer.input.left
+        || inputs.right !== this.mainPlayer.input.right) {
+        
+        this.mainPlayer.updateInputs(inputs);
+        this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input)
+      }
+      
+      // toggle the equpped-ness of the gun when E is pressed
+      if (this.mainPlayer.hasGun && this._input.equip) {
+        this._input.equip = false;
+        this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
+        this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
+      }
     }
 
     // when the player has a gun equipped, we want the gun to point towards where they're looking

@@ -17,6 +17,8 @@ import { ServerMovementSchema } from "./ServerMovement";
 import { ServerPickupGunSchema } from "./ServerPickupGun";
 import { ServerPlayerJoinSchema } from "./ServerPlayerJoin";
 import { ServerPlayerLeaveSchema } from "./ServerPlayerLeave";
+import { ChatSchema } from "./Chat";
+import { ServerChatSchema } from "./ServerChat";
 
 export type WorldPacketSchema = ReturnType<typeof worldPacket>["WorldPacketSchema"];
 export type WorldPacketValidator = ReturnType<typeof worldPacket>["validateWorldPacket"];
@@ -46,6 +48,7 @@ export function worldPacket(blockPositionSchema: BlockPositionSchema) {
       BlockSingleSchema, ServerBlockSingleSchema,
       BlockLineSchema, ServerBlockLineSchema,
       BlockBufferSchema, ServerBlockBufferSchema,
+      ChatSchema, ServerChatSchema
     )
   );
 

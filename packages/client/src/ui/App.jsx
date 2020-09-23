@@ -3,8 +3,9 @@ import React, { Suspense, lazy, useMemo } from "react";
 import { Router, Route } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { CssBaseline } from "@material-ui/core";
-import { Provider } from "react-redux";
-import store from "./redux/store";
+import { deepPurple, indigo } from "@material-ui/core/colors";
+import { RecoilRoot } from "recoil";
+
 import Loading from "./Loading";
 import history from "@/ui/history";
 
@@ -24,6 +25,8 @@ export const App = () => {
       createMuiTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
+          primary: indigo,
+          secondary: deepPurple,
         },
       }),
     [prefersDarkMode]
@@ -31,7 +34,7 @@ export const App = () => {
 
   return (
     <Router history={history}>
-      <Provider store={store}>
+      <RecoilRoot>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Suspense fallback={<Loading />}>
@@ -45,7 +48,7 @@ export const App = () => {
             <Route exact path="/games/" component={PlayPage} />
           </Suspense>
         </ThemeProvider>
-      </Provider>
+      </RecoilRoot>
     </Router>
   );
 };

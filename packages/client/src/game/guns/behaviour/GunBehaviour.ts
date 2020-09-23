@@ -10,7 +10,10 @@ export default abstract class GunBehaviour {
   angle: number = 0.0;
 
   setLookingAt(x: number, y: number) {
-    this.angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, x, y);
+    this.angle = Phaser.Math.Angle.Between(
+      this.player.x + this.player.width / 2, this.player.y + this.player.height / 2,
+      x, y
+    );
   }
 
   update(time: number, delta: number): void {

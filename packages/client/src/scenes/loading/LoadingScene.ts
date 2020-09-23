@@ -1,12 +1,9 @@
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import { api } from "../../isProduction";
-import { WORLD_SCENE_KEY } from "../world/WorldScene";
+import { api } from "@/isProduction";
 import { LoadingSceneData } from "./LoadingSceneData";
-import { serverBlockBuffer } from "../../../../api/src/packets/ServerBlockBuffer";
-import { serverBlockSingle } from "../../../../api/src/packets/ServerBlockSingle";
-import { blockPosition } from "../../../../api/src/schemas/BlockPosition";
-import loadComponentDisplays from "@/game/components/loadComponents";
-import GAME_SCENE_KEY from "@/game/GameSceneKey";
+import { serverBlockBuffer } from "@smiley-face-game/api/packets/ServerBlockBuffer";
+import { serverBlockSingle } from "@smiley-face-game/api/packets/ServerBlockSingle";
+import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
 import loadAll from "@/game/loadAll";
 
 export const globalVariableParkour = {
@@ -81,6 +78,10 @@ export class LoadingScene extends Phaser.Scene {
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
     )
       .catch((err) => {
+        window.recoil.loading.setState!({
+          failed: true,
+          why: err
+        });
         console.warn("caught error", err);
         this._progressBar.clear();
         this._progressBar.fillStyle(0x8a8a8a, 1);

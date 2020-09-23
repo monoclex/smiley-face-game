@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon",
-    "build": "parcel build src/index.ts --target node",
+    "build": "ttsc",
     "test": "jest",
     "test:watch": "jest --watch"
   },
