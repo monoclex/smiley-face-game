@@ -24,7 +24,7 @@ interface GlobalVariableParkourType {
 
 class Urls {
   private baseUrl(): string {
-    return http + (isProduction ? `://${isDev ? "beta-" : ""}api.sirjosh3917.com/smiley-face-game` : "://localhost:8080") + "/v1";
+    return http + (isProduction ? `://api.sirjosh3917.com/smiley-face-game${isDev ? "/beta" : ""}` : "://localhost:8080") + "/v1";
   }
 
   private post<T>(url: string, body: T): Promise<Response> {
