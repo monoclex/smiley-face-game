@@ -119,10 +119,17 @@ export default class Player {
   fireBullet(angle: number) {
     // put a bullet where the player is
     const { x, y, width, height } = this.body;
+
+    // to figure out the units away, we perform the following
+    // sqrt(16^2 + 16^2) + 2
+    // the resoning is that from the center of the circle to one of the corners, it'll be sqrt(16^2 + 16^2) units,
+    // then we tack on 2 to account for the size of the bullet.
+    // accuracy is not important, so i rounded to 24.627
+    let spawnPosition = distanceAway({ x: x + width / 2, y: y + height / 2 }, angle, 24.627);
     
-    const bullet = this.game.physics.add.sprite(x + width / 2, y + height / 2, "bullet-bullet")
+    const bullet = this.game.physics.add.sprite(spawnPosition.x, spawnPosition.y, "bullet-bullet")
       .setCircle(2) // give the bullet a circle hitbox instead of a rectangular one
-      .setOrigin(1, 0.5) // TODO: figure out how to best map the origin to the image
+      .setOrigin(0.5, 0.5) // TODO: figure out how to best map the origin to the image
       // TODO: this doesn't work:
       // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
       .setCollideWorldBounds(true)
