@@ -5,6 +5,7 @@ import { serverBlockBuffer } from "@smiley-face-game/api/packets/ServerBlockBuff
 import { serverBlockSingle } from "@smiley-face-game/api/packets/ServerBlockSingle";
 import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
 import loadAll from "@/game/loadAll";
+import GAME_SCENE_KEY from "@/game/GameSceneKey";
 
 export const globalVariableParkour = {
   token: "",

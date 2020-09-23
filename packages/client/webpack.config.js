@@ -12,7 +12,7 @@ module.exports = (env, argv) => {
 
   let plugins = [
     new DefinePlugin({
-      DEV: JSON.stringify(!!argv.dev)
+      "process.env.DEV": JSON.stringify(!!argv.dev)
     }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
