@@ -80,10 +80,10 @@ export default class World {
   }
 
   // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tileId: TileId, iPlacedIt: boolean) {
+  drawLine(start: Position, end: Position, tileId: TileId, iPlacedIt: boolean, layer?: TileLayer) {
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
-      this.placeBlock({ x, y }, tileId, undefined, iPlacedIt);
+      this.placeBlock({ x, y }, tileId, layer, iPlacedIt);
     });
   }
 }
