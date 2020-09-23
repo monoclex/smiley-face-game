@@ -18,6 +18,8 @@ export default class Connection {
   lastPosition: { x: number, y: number } = { x: 32, y: 32 };
   hasGun: boolean = false;
   gunEquipped: boolean = false;
+  lastMessage: Date = new Date();
+  messagesCounter: number = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
 
   get canPlaceBlocks(): boolean { return this.hasGun ? !this.gunEquipped : true; }
 

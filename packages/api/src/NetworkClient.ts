@@ -16,9 +16,11 @@ import { SERVER_MOVEMENT_ID, validateServerMovement } from './packets/ServerMove
 import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
+import { SERVER_CHAT_ID, validateServerChat } from './packets/ServerChat';
 import { WorldPacket } from "./packets/WorldPacket";
 import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
 import { isServerPacket } from "./packets/ServerPackets";
+import { ChatPacket, CHAT_ID } from "./packets/Chat";
 
 class NetworkEvents {
   constructor(
@@ -46,6 +48,7 @@ class NetworkEvents {
       [SERVER_EQUIP_GUN_ID]: validateServerEquipGun,
       [SERVER_BLOCK_LINE_ID]: validateServerBlockLine,
       [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
+      [SERVER_CHAT_ID]: validateServerChat,
     };
     
     // validate the packet (type checking stuffs)
@@ -247,6 +250,15 @@ export class NetworkClient {
       start,
       end,
       id: _activeBlock,
+    };
+
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  chat(message: string) {
+    const packet: ChatPacket = {
+      packetId: CHAT_ID,
+      message
     };
 
     this._webSocket.send(JSON.stringify(packet));
