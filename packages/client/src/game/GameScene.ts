@@ -221,6 +221,7 @@ export default class GameScene extends Phaser.Scene {
       
       // toggle the equpped-ness of the gun when E is pressed
       if (this.mainPlayer.hasGun && this._input.equip) {
+        this._input.equip = false;
         this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
         this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
       }
