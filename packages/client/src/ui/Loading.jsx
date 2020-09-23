@@ -8,11 +8,11 @@ const useStyles = makeStyles({
   fullScreen: {
     // we want it to be closer to the top of the page, rather than perfectly centered - so 80 instead of 100
     // (perfectly centered looks weird)
-    minHeight: "80vh"
-  }
-})
+    minHeight: "80vh",
+  },
+});
 
-export default ({ message }) => {
+export default ({ message = "Loading..." }) => {
   const styles = useStyles();
 
   return (
@@ -20,7 +20,7 @@ export default ({ message }) => {
     <Grid className={styles.fullScreen} container alignItems="center" justify="center">
       <Grid item>
         <Typography variant="h1" component="h1">
-          { message ?? "Loading..." }
+          {message}
         </Typography>
       </Grid>
     </Grid>

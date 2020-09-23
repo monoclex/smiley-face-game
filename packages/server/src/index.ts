@@ -23,6 +23,6 @@ getConnectionOptions()
         .send(err);
     })
 
-    app.listen(8080, () => console.log('listening'));
+    app.listen(process.env.PORT!, () => console.log('listening'));
   })
   .catch(console.error);

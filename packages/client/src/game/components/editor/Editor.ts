@@ -11,6 +11,7 @@ import iteratePointers from "@/game/iteratePointers";
 // for all the blocks simultaneously.
 class DrawingPointer {
   lastPosition: Position;
+  lastLayer?: TileLayer;
 
   constructor(
     readonly pointer: Phaser.Input.Pointer,
@@ -22,15 +23,40 @@ class DrawingPointer {
 
   onDown() {
     if (!this.editor.enabled) return;
-    this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id(), true);
-    //
+    const id = this.id();
+    this.lastLayer = undefined;
+
+    // if we're placing an empty block, try to pick a block at that position
+    if (id === TileId.Empty) {
+      // TODO: depend on the world for this picking behaviour"?
+      let { x, y } = this.lastPosition;
+      let fg = this.editor.world.foreground.display.tilemapLayer.getTileAt(x, y);
+      let action = this.editor.world.action.display.tilemapLayer.getTileAt(x, y);
+      let bg = this.editor.world.background.display.tilemapLayer.getTileAt(x, y);
+
+      if (fg) {
+        this.lastLayer = TileLayer.Foreground;
+      }
+      else if (action) {
+        this.lastLayer = TileLayer.Action;
+      }
+      else if (bg) {
+        this.lastLayer = TileLayer.Background;
+      }
+      else {
+        // by default, try to erase stuff on the foregrounnd
+        // TODO: start erasing stuff as soon as a block is picked on the right layer?
+        this.lastLayer = TileLayer.Foreground;
+      }
+    }
+
+    this.editor.world.drawLine(this.lastPosition, this.lastPosition, this.id(), true, this.lastLayer);
   }
 
   onMove() {
     if (!this.editor.enabled) return;
     const currentPosition = this.position(this.pointer);
-    this.editor.world.drawLine(this.lastPosition, currentPosition, this.id(), true);
-    //
+    this.editor.world.drawLine(this.lastPosition, currentPosition, this.id(), true, this.lastLayer);
     this.lastPosition = currentPosition;
   }
 

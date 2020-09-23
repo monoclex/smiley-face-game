@@ -4,11 +4,13 @@ import { Divider, Paper, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 
+import commonUIStyles from "../commonUIStyles";
+
 const useStyles = makeStyles({
   container: {
+    ...commonUIStyles.uiOverlayElement,
     paddingRight: 5,
     overflow: "hidden",
-    maxHeight: "90%",
   },
   paper: {
     pointerEvents: "all",

@@ -9,6 +9,7 @@ import handleEquipGun from "./handlers/handleEquipGun";
 import handleFireBullet from "./handlers/handleFireBullet";
 import handleMovement from "./handlers/handleMovement";
 import handlePickupGun from "./handlers/handlePickupGun";
+import handleChat from "./handlers/handleChat";
 
 type MaybeAsync<T> = T | Promise<T>;
 
@@ -20,6 +21,7 @@ const packetLookup: WorldPacketLookup<[Connection, RoomLogic], MaybeAsync<void |
   FIRE_BULLET: handleFireBullet,
   MOVEMENT: handleMovement,
   PICKUP_GUN: handlePickupGun,
+  CHAT: handleChat,
 
   SERVER_INIT: handleServer,
   SERVER_BLOCK_BUFFER: handleServer,
@@ -31,6 +33,7 @@ const packetLookup: WorldPacketLookup<[Connection, RoomLogic], MaybeAsync<void |
   SERVER_PICKUP_GUN: handleServer,
   SERVER_PLAYER_JOIN: handleServer,
   SERVER_PLAYER_LEAVE: handleServer,
+  SERVER_CHAT: handleServer,
 };
 
 export default packetLookup;

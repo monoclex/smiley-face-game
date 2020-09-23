@@ -16,9 +16,11 @@ import { SERVER_MOVEMENT_ID, validateServerMovement } from './packets/ServerMove
 import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
 import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
 import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
+import { SERVER_CHAT_ID, validateServerChat } from './packets/ServerChat';
 import { WorldPacket } from "./packets/WorldPacket";
 import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
 import { isServerPacket } from "./packets/ServerPackets";
+import { ChatPacket, CHAT_ID } from "./packets/Chat";
 
 class NetworkEvents {
   constructor(
@@ -46,6 +48,7 @@ class NetworkEvents {
       [SERVER_EQUIP_GUN_ID]: validateServerEquipGun,
       [SERVER_BLOCK_LINE_ID]: validateServerBlockLine,
       [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
+      [SERVER_CHAT_ID]: validateServerChat,
     };
     
     // validate the packet (type checking stuffs)
@@ -88,11 +91,17 @@ export class NetworkClient {
       const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
       registerCallbacks(networkClient);
 
-      webSocket.addEventListener("message", () => {
-        if (!resolved) {
-          resolve(networkClient);
+      webSocket.addEventListener("message", (message) => {
+        let parsed = JSON.parse(message.data);
+        if (parsed.error) {
+          reject(new Error(parsed.error));
         }
-        resolved = true;
+        else {
+          if (!resolved) {
+            resolve(networkClient);
+          }
+          resolved = true;
+        }
       });
 
       webSocket.addEventListener("error", (error) => {
@@ -113,7 +122,7 @@ export class NetworkClient {
   readonly events: NetworkEvents;
   private _pause: boolean = false;
   private _buffer: MessageEvent[];
-  private _showClosingAlert: boolean = true;
+  private _showClosingAlert: boolean = false;
 
   private constructor(
     private readonly _webSocket: WebSocket,
@@ -145,13 +154,12 @@ export class NetworkClient {
     // packets come over the wire as a string of json
     const rawPacket = JSON.parse(event.data);
 
-    console.log(rawPacket.packetId);
-
     if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
       console.error('[websocket warn] server sent invalid packet', rawPacket);
       return;
     }
 
+    this._showClosingAlert = true; // if we get this far in handling a message, we're definitely in game and not receiving an error packet
     await this.events.triggerEvent(rawPacket);
   }
 
@@ -242,6 +250,15 @@ export class NetworkClient {
       start,
       end,
       id: _activeBlock,
+    };
+
+    this._webSocket.send(JSON.stringify(packet));
+  }
+
+  chat(message: string) {
+    const packet: ChatPacket = {
+      packetId: CHAT_ID,
+      message
     };
 
     this._webSocket.send(JSON.stringify(packet));

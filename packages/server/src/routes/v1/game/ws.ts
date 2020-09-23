@@ -39,6 +39,9 @@ export default function(router: expressWs.Router, deps: UsedDependencies) {
       const room = await roomManager.join(connection, worldTokenPayload);
       await connection.play(room);
     }
+    catch (err) {
+      ws.send(JSON.stringify({ error: err.toString() }));
+    }
     finally {
       if (ws.readyState === ws.OPEN) {
         ws.close();

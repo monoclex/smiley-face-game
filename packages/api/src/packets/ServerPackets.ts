@@ -8,6 +8,7 @@ import { ServerMovementPacket, SERVER_MOVEMENT_ID } from "./ServerMovement";
 import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID } from "./ServerPickupGun";
 import { ServerPlayerJoinPacket, SERVER_PLAYER_JOIN_ID } from "./ServerPlayerJoin";
 import { ServerPlayerLeavePacket, SERVER_PLAYER_LEAVE_ID } from "./ServerPlayerLeave";
+import { SERVER_CHAT_ID, ServerChatPacket } from "./ServerChat";
 
 export type ServerPackets =
   | ServerBlockBufferPacket
@@ -20,6 +21,7 @@ export type ServerPackets =
   | ServerPickupGunPacket
   | ServerPlayerJoinPacket
   | ServerPlayerLeavePacket
+  | ServerChatPacket
   ;
 
 // TODO: dumb
@@ -34,6 +36,7 @@ const lookup = {
   [SERVER_PICKUP_GUN_ID]: true,
   [SERVER_PLAYER_JOIN_ID]: true,
   [SERVER_PLAYER_LEAVE_ID]: true,
+  [SERVER_CHAT_ID]: true,
 }
 
 export function isServerPacket(packet: any): packet is ServerPackets {

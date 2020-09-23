@@ -6,6 +6,8 @@ import { Login } from "@smiley-face-game/api/schemas/web/auth/Login";
 const isProduction = process.env.NODE_ENV === "production";
 export default isProduction;
 
+//@ts-ignore
+const isDev = process.env.DEV === true;
 const isSecure = location.protocol === "https:";
 const http = isSecure ? "https" : "http";
 const ws = isSecure ? "wss" : "ws";
@@ -22,7 +24,7 @@ interface GlobalVariableParkourType {
 
 class Urls {
   private baseUrl(): string {
-    return http + (isProduction ? "://beta-api.sirjosh3917.com/smiley-face-game" : "://localhost:8080") + "/v1";
+    return http + (isProduction ? `://${isDev ? "beta-" : ""}api.sirjosh3917.com/smiley-face-game` : "://localhost:8080") + "/v1";
   }
 
   private post<T>(url: string, body: T): Promise<Response> {
@@ -75,7 +77,7 @@ class Urls {
     const query = `token=${encodeURIComponent(options.token)}&world=${encodeURIComponent(JSON.stringify(joinRequest))}`;
 
     return isProduction
-      ? ws + `://beta-ws-api.sirjosh3917.com/smiley-face-game/v1/game/ws/?${query}`
+      ? ws + `://${isDev ? "beta-" : ""}ws-api.sirjosh3917.com/smiley-face-game/v1/game/ws/?${query}`
       : ws + `://localhost:8080/v1/game/ws/?${query}`;
   }
 

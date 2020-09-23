@@ -8,6 +8,7 @@ import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 //@ts-ignore
 import minimapImage from "./minimap.png";
+import history from "@/ui/history";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,11 +79,12 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <Link to={`/games/${id}?type=${type}`}>
-                <IconButton aria-label="play">
-                  <PlayIcon />
-                </IconButton>
-              </Link>
+              <IconButton
+                aria-label="play"
+                onClick={() => history.joinGame({ type, roomId: id })}
+              >
+                <PlayIcon />
+              </IconButton>
             </Tooltip>
           </CardActions>
         </div>
