@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack --mode=production",
+    "build-dev": "webpack --mode=production --dev",
     "view-bundle": "webpack --mode=production --bundle"
   },
   "browserslist": [

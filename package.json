@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "lerna run --parallel dev",
     "build": "lerna run --parallel build",
+    "build-dev": "lerna run --parallel build-dev",
     "lint": "lerna run --parallel lint",
     "yarn": "yarn"
   },
