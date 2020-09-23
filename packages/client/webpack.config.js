@@ -4,12 +4,16 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require("path");
 const fs = require("fs");
+const { DefinePlugin } = require("webpack");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
   const bundle = argv.bundle
 
   let plugins = [
+    new DefinePlugin({
+      DEV: JSON.stringify(!!argv.dev)
+    }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: "src/index.html",
