@@ -4,16 +4,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require("path");
 const fs = require("fs");
-const { DefinePlugin } = require("webpack");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
   const bundle = argv.bundle
 
   let plugins = [
-    new DefinePlugin({
-      "process.env.DEV": JSON.stringify(!!argv.dev)
-    }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: "src/index.html",
@@ -28,15 +24,17 @@ module.exports = (env, argv) => {
     entry: ["./src/index.jsx"],
     resolve: {
       modules: [path.resolve("./src"), path.resolve(__dirname, "../../node_modules")],
-      extensions: ['.js', '.jsx', '.ts', '.tsx']
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
     module: {
       rules: [
         {
           test: /\.(j|t)sx?$/,
-          // TODO: figure this out?
-          // exclude: /node_modules/,
-          use: "babel-loader"
+          exclude: /node_modules/,
+          use: {
+            loader: path.resolve("./swc-loader.js"),
+            options: JSON.parse(fs.readFileSync("./.swcrc", "ascii"))
+          }
         },
         {
           test: /\.(png|mp3)$/,
@@ -62,8 +60,8 @@ module.exports = (env, argv) => {
       splitChunks: {
         chunks: "all"
       },
-      minimize: mode === "production",
-      minimizer: mode === "production"? [new TerserPlugin()] : undefined,
+      // minimize: mode === "production",
+      // minimizer: mode === "production"? [new TerserPlugin()] : undefined,
     }
   };
 }
