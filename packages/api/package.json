@@ -6,14 +6,18 @@
     "lib": "./dist"
   },
   "scripts": {
-    "build:server": "yarn ttsc --project . --module commonjs --outDir ./dist/cjs",
-    "build:client": "yarn ttsc --project . --module ESNext --outDir ./dist/es"
+    "build-api": "concurrently \"yarn build:server\" \"yarn build:client\"",
+    "build:server": "swc -d dist/cjs -C module.type=commonjs ./src/",
+    "build:client": "swc -d dist/es -C module.type=commonjs ./src/"
   },
   "dependencies": {
     "computed-types": "^1.1.0"
   },
   "devDependencies": {
+    "@swc/cli": "^0.1.27",
+    "@swc/core": "^1.2.34",
     "@zerollup/ts-transform-paths": "^1.7.18",
+    "concurrently": "^5.3.0",
     "ttypescript": "^1.5.10"
   }
 }

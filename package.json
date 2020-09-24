@@ -2,10 +2,9 @@
   "name": "smiley-face-game",
   "private": true,
   "scripts": {
-    "dev": "lerna run --parallel dev",
-    "build": "lerna run --parallel build",
-    "build-dev": "lerna run --parallel build-dev",
-    "lint": "lerna run --parallel lint",
+    "dev": "lerna run build-api && lerna run --parallel dev",
+    "build": "lerna run build-api && lerna run --parallel build",
+    "build-dev": "lerna run build-api && lerna run --parallel build-dev",
     "yarn": "yarn"
   },
   "workspaces": [
