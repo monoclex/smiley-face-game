@@ -2,14 +2,19 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
+const { DefinePlugin } = require('webpack');
 const path = require("path");
 const fs = require("fs");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
-  const bundle = argv.bundle
+  const bundle = argv.bundle;
 
   let plugins = [
+    new DefinePlugin({
+      "process.env.DEV": JSON.stringify(argv.dev),
+      "process.env.NODE_ENV": JSON.stringify(argv.mode),
+    }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: "src/index.html",
@@ -44,7 +49,6 @@ module.exports = (env, argv) => {
           test: /\.svg$/,
           use: "@svgr/webpack"
         }
-        // { test: /\.$/, use: "raw-loader" }
       ]
     },
     plugins,
@@ -60,8 +64,8 @@ module.exports = (env, argv) => {
       splitChunks: {
         chunks: "all"
       },
-      // minimize: mode === "production",
-      // minimizer: mode === "production"? [new TerserPlugin()] : undefined,
+      minimize: mode === "production",
+      minimizer: mode === "production" ? [new TerserPlugin()] : undefined,
     }
   };
 }

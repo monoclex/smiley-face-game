@@ -22,6 +22,7 @@ import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickup
 import { chat } from "@/recoil/atoms/chat";
 import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
 import { messages, Message } from "../recoil/atoms/chat/index";
+import { isDev } from "@/isProduction";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -57,8 +58,8 @@ export default class GameScene extends Phaser.Scene {
     }, this);
 
     // debug physics easier
-    this.physics.world.defaults.debugShowBody = true;
-    this.physics.world.defaults.debugShowStaticBody = true;
+    this.physics.world.defaults.debugShowBody = isDev;
+    this.physics.world.defaults.debugShowStaticBody = isDev;
 
     // hook the keyboard
     const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;

@@ -7,7 +7,7 @@ const isProduction = process.env.NODE_ENV === "production";
 export default isProduction;
 
 //@ts-ignore
-const isDev = process.env.DEV === true;
+export const isDev = process.env.DEV === true;
 const isSecure = location.protocol === "https:";
 const http = isSecure ? "https" : "http";
 const ws = isSecure ? "wss" : "ws";

@@ -14,7 +14,7 @@ import { WorldScene } from "@/scenes/world/WorldScene";
 import Chat from "@/ui/game/chat/Chat";
 import BlockBar from "@/ui/game/blockbar/BlockBar";
 import history from "@/ui/history";
-import isProduction from "@/isProduction";
+import isProduction, { isDev } from "@/isProduction";
 import GameScene from "@/game/GameScene";
 import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
 import { chatState } from "@/recoil/atoms/chat";
@@ -34,7 +34,7 @@ export const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 1000 },
-      debug: true,
+      debug: isDev,
       // toggles hitboxes around objects
       // if we're not in production, we want to see them
       // debug: isProduction ? false : true,
