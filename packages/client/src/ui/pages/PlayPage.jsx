@@ -7,7 +7,6 @@ import Phaser from "phaser";
 import qs from "query-string";
 import { useRecoilState } from "recoil";
 import React, { useEffect, useRef } from "react";
-import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
 import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
@@ -132,7 +131,7 @@ const Game = ({
     });
 
     return function cleanup() {
-      window.recoil.loading.setState!({ failed: false, why: undefined });
+      window.recoil.loading.setState({ failed: false, why: undefined });
       window.removeEventListener("resize", listener);
       game.destroy(true);
     };
