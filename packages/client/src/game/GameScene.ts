@@ -42,6 +42,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: GameSceneInitializationData) {
+    this.cameras.main.roundPixels = true;
     this.networkClient = data.networkClient;
     this.initPacket = data.init;
   }

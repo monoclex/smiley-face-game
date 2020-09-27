@@ -4,8 +4,8 @@ declare module "*.png" {
 }
 
 declare module "*.json" {
-  const url: string;
-  export default url;
+  const payload: any;
+  export default payload;
 }
 
 declare module "*.mp3" {

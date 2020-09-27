@@ -1,7 +1,8 @@
 import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import { Size } from "@smiley-face-game/api/schemas/Size";
 import urlAtlas from "@/assets/atlas.png";
-import urlAtlasJson from "@/assets/atlas_atlas.json";
+import atlasJson from "@/assets/atlas_atlas.json";
+console.log('bundle is', atlasJson);
 import Position from "@/math/Position";
 import key from "./key";
 
@@ -13,7 +14,11 @@ export default class TileManager {
   readonly tileset: Phaser.Tilemaps.Tileset;
 
   static load(loader: Phaser.Loader.LoaderPlugin) {
-    loader.atlas(key("tiles"), urlAtlas, urlAtlasJson);
+    loader.atlas({
+      key: key("tiles"),
+      textureURL: urlAtlas,
+      atlasURL: atlasJson, // it's not a url (despite prop being atlasURL)
+    });
   }
 
   constructor(readonly scene: Phaser.Scene, worldSize: Size) {
@@ -24,7 +29,9 @@ export default class TileManager {
       tileHeight: TILE_HEIGHT,
     });
 
-    this.tileset = this.tilemap.addTilesetImage("tilemap", key("tiles"));
+    // i have to add this offset bullcrud smh
+    // margin is 1px and spacing is 1px from gammafp's tool
+    this.tileset = this.tilemap.addTilesetImage("tilemap", key("tiles"), 32, 32, 2, 3);
   }
 
   /**
