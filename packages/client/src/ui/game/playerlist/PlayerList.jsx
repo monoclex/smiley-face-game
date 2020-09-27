@@ -100,7 +100,7 @@ const Player = ({ id, username, role: roleParam }) => {
         open={Boolean(anchorElement)}
         onClose={handleClose}
       >
-        <MenuItem onClick={doKick}>Kick</MenuItem>
+        <MenuItem onClick={doKick}>not implemented yet</MenuItem>
       </Menu>
     </>
   );
@@ -118,7 +118,7 @@ export default ({}) => {
     });
   }, []);
 
-  const { players } = { players: [{ id: 2, username: "fdgnfdnbgdfbng", role: "non" }] }; // useRecoilValue(playerListState);
+  const { players } = useRecoilValue(playerListState);
 
   return (
     <Grid container justify="flex-end" alignItems="center" className={classes.container}>
@@ -150,7 +150,7 @@ export default ({}) => {
                     autoHideDuration={200}
                   >
                     {players.map((player, i) => (
-                      <Player id={i} {...player} />
+                      <Player key={i} {...player} />
                     ))}
                   </SpringScrollbars>
                 </Grid>

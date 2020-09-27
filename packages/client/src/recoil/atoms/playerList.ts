@@ -7,6 +7,7 @@ export interface PlayerListState {
 }
 
 export interface Player {
+  playerId: number,
   username: string,
   role: PlayerRole,
 }
