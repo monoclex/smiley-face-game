@@ -1,6 +1,6 @@
 //@ts-check
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Paper, Grid } from "@material-ui/core";
+import { Divider, Paper, Grid, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 
@@ -13,9 +13,12 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { SizeMe } from "react-sizeme";
+import { playerListState } from "@/recoil/atoms/playerList";
+import { useRecoilValue } from "recoil";
+import Menu from "@material-ui/core/Menu/Menu";
 library.add(faUserAstronaut);
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   container: {
     ...commonUIStyles.uiOverlayElement,
     paddingRight: 5,
@@ -52,19 +55,54 @@ const useStyles = makeStyles({
   hide: {
     visibility: "hidden"
   },
-});
+  hoverable: {
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover
+    },
+  },
+}));
 
-const Player = ({ id, username }) => {
+const Player = ({ id, username, role: roleParam }) => {
   const classes = useStyles();
 
-  const admin = <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" />;
-  const none = <div className={clsx(classes.noRole, classes.userIconPadding)} />
+  /** @type {import("@smiley-face-game/api/PlayerRole").default} */
+  const role = roleParam;
+
+  // https://material-ui.com/components/menus/#SimpleMenu.js
+  const [anchorElement, setAnchorElement] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorElement(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorElement(null);
+  };
+
+  const doKick = () => {
+    handleClose();
+    alert('kick');
+  };
 
   return (
-    <div key={id} className={classes.message}>
-      { Math.random() > 0.5 ? admin : none }
-      <span>{ username }</span>
-    </div>
+    <>
+      <div key={id} className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
+
+        { role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} /> }
+        { role === "admin" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
+
+        <span>{ username }</span>
+      </div>
+      <Menu
+        id={"player-" + username}
+        anchorEl={anchorElement}
+        keepMounted
+        open={Boolean(anchorElement)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={doKick}>Kick</MenuItem>
+      </Menu>
+    </>
   );
 }
 
@@ -80,7 +118,7 @@ export default ({}) => {
     });
   }, []);
 
-  const players = ["01234567890123456789", "01234567890123456789", "0123456789"].map(n => ({ username: n }));
+  const { players } = { players: [{ id: 2, username: "fdgnfdnbgdfbng", role: "non" }] }; // useRecoilValue(playerListState);
 
   return (
     <Grid container justify="flex-end" alignItems="center" className={classes.container}>
@@ -112,7 +150,7 @@ export default ({}) => {
                     autoHideDuration={200}
                   >
                     {players.map((player, i) => (
-                      <Player id={i} username={player.username} />
+                      <Player id={i} {...player} />
                     ))}
                   </SpringScrollbars>
                 </Grid>
