@@ -3,20 +3,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { Divider, Paper, Grid, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
-
+import clsx from "clsx";
+import { SizeMe } from "react-sizeme";
+import { playerListState } from "@/recoil/atoms/playerList";
+import { useRecoilValue } from "recoil";
+import Menu from "@material-ui/core/Menu/Menu";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "@/ui/components/SpingScrollbars";
 
 // so much stupid boilerplate
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
-import clsx from "clsx";
-import { SizeMe } from "react-sizeme";
-import { playerListState } from "@/recoil/atoms/playerList";
-import { useRecoilValue } from "recoil";
-import Menu from "@material-ui/core/Menu/Menu";
-library.add(faUserAstronaut);
+import { faUserAstronaut, faUserEdit, faUserTie } from "@fortawesome/free-solid-svg-icons";
+library.add(faUserAstronaut); library.add(faUserEdit); library.add(faUserTie);
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -62,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Player = ({ id, username, role: roleParam }) => {
+const Player = ({ username, role: roleParam }) => {
   const classes = useStyles();
 
   /** @type {import("@smiley-face-game/api/PlayerRole").default} */
@@ -86,9 +85,11 @@ const Player = ({ id, username, role: roleParam }) => {
 
   return (
     <>
-      <div key={id} className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
+      <div className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
 
         { role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} /> }
+        { role === "edit" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" /> }
+        { role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" /> }
         { role === "admin" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
 
         <span>{ username }</span>
