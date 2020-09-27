@@ -5,10 +5,12 @@ import { SizeSchema } from "../schemas/Size";
 import { ServerSchema } from './Server';
 import { UsernameSchema } from "../schemas/Username";
 import { WorldIdSchema } from "@smiley-face-game/api/schemas/WorldId";
+import { PlayerRoleSchema } from "../schemas/PlayerRole";
 
 export const SERVER_INIT_ID = 'SERVER_INIT';
 export const ServerInitSchema = Schema.merge({
   packetId: SERVER_INIT_ID as typeof SERVER_INIT_ID,
+  role: PlayerRoleSchema,
   worldId: WorldIdSchema,
   size: SizeSchema,
   spawnPosition: PlayerPositionSchema,

@@ -19,6 +19,7 @@ import GameScene from "@/game/GameScene";
 import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
 import { chatState } from "@/recoil/atoms/chat";
 import { loadingState } from "@/recoil/atoms/loading";
+import PlayerList from "@/ui/game/playerlist/PlayerList";
 
 export const config = {
   pixelArt: true,
@@ -170,6 +171,9 @@ const Game = ({
         </div>
 
         <Chat />
+      </Grid>
+      <Grid className={styles.uiOverlay} container justify="center">
+        <PlayerList />
       </Grid>
     </>
   );

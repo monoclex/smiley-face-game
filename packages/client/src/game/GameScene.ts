@@ -23,6 +23,7 @@ import { chat } from "@/recoil/atoms/chat";
 import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
 import { messages, Message } from "../recoil/atoms/chat/index";
 import { isDev } from "@/isProduction";
+import { playerList } from "../recoil/atoms/playerList";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -44,6 +45,14 @@ export default class GameScene extends Phaser.Scene {
   init(data: GameSceneInitializationData) {
     this.networkClient = data.networkClient;
     this.initPacket = data.init;
+
+    let self = {
+      playerId: this.initPacket.playerId,
+      username: this.initPacket.username,
+      role: this.initPacket.role
+    };
+
+    playerList.set({ players: [self] });
   }
 
   create() {
@@ -143,10 +152,21 @@ export default class GameScene extends Phaser.Scene {
           if (event.hasGun) player.instantiateGun(M249LMG);
           if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
 
+          // UI - add player
+          let newPlayer = {
+            playerId: event.playerId,
+            username: event.username,
+            role: event.role
+          };
+          
+          playerList.modify({ players: [newPlayer, ...playerList.state.players] })
         } return;
 
         case SERVER_PLAYER_LEAVE_ID: {
           this.players.removePlayer(event.playerId);
+
+          // UI - remove player
+          playerList.modify({ players: playerList.state.players.filter(player => player.playerId !== event.playerId) });
         } return;
 
         case SERVER_MOVEMENT_ID: {

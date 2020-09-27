@@ -22,7 +22,13 @@ export default class DynamicBehaviour implements Behaviour {
   }
 
   loadDetails(): Promise<WorldDetails> {
-    return Promise.resolve({ name: this.#name, width: this.#width, height: this.#height });
+    return Promise.resolve({
+      name: this.#name,
+      width: this.#width,
+      height: this.#height,
+      owner: undefined,
+      ownerId: undefined
+    });
   }
 
   saveDetails(details: WorldDetails): Promise<void> {
