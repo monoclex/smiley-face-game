@@ -5,6 +5,8 @@ import AccountRepo from "@/database/repos/AccountRepo";
 import AuthPayload from "@/jwt/payloads/AuthPayload";
 import Room from "@/worlds/Room";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
+import { PlayerRole } from "@smiley-face-game/api/schemas/PlayerRole";
+import { timingSafeEqual } from "crypto";
 
 export default class Connection {
   playerId!: number;
@@ -20,8 +22,9 @@ export default class Connection {
   gunEquipped: boolean = false;
   lastMessage: Date = new Date();
   messagesCounter: number = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
-
-  get canPlaceBlocks(): boolean { return this.hasGun ? !this.gunEquipped : true; }
+  role: PlayerRole = "non";
+  hasEdit: boolean = true;
+  get canPlaceBlocks(): boolean { return this.hasEdit && this.hasGun ? !this.gunEquipped : true; }
 
   constructor(
     readonly webSocket: WebSocket,

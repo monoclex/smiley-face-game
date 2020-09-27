@@ -45,7 +45,14 @@ export default class GameScene extends Phaser.Scene {
   init(data: GameSceneInitializationData) {
     this.networkClient = data.networkClient;
     this.initPacket = data.init;
-    playerList.set({ players: [{ playerId: this.initPacket.playerId, username: this.initPacket.username, role: "non" }] });
+
+    let self = {
+      playerId: this.initPacket.playerId,
+      username: this.initPacket.username,
+      role: this.initPacket.role
+    };
+
+    playerList.set({ players: [self] });
   }
 
   create() {
@@ -146,7 +153,13 @@ export default class GameScene extends Phaser.Scene {
           if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
 
           // UI - add player
-          playerList.modify({ players: [{ playerId: event.playerId, username: event.username, role: "non" }, ...playerList.state.players] })
+          let newPlayer = {
+            playerId: event.playerId,
+            username: event.username,
+            role: event.role
+          };
+          
+          playerList.modify({ players: [newPlayer, ...playerList.state.players] })
         } return;
 
         case SERVER_PLAYER_LEAVE_ID: {

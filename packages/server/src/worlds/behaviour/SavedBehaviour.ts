@@ -25,9 +25,15 @@ export default class SavedBehaviour implements Behaviour {
   }
 
   async loadDetails(): Promise<WorldDetails> {
-    const world = await this.#repo.findById(this.id);
+    const world = await this.#repo.findById(this.id, { withOwner: true });
 
-    return { name: world.name, width: world.width, height: world.height };
+    return {
+      name: world.name,
+      width: world.width,
+      height: world.height,
+      owner: world.owner.username,
+      ownerId: world.owner.id
+    };
   }
 
   async saveDetails(details: WorldDetails): Promise<void> {

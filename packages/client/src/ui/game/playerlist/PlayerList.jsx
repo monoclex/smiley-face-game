@@ -90,7 +90,7 @@ const Player = ({ username, role: roleParam }) => {
         { role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} /> }
         { role === "edit" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" /> }
         { role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" /> }
-        { role === "admin" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
+        { role === "staff" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
 
         <span>{ username }</span>
       </div>

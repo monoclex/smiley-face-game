@@ -53,12 +53,22 @@ export default class RoomLogic {
     
     let id = this.#idCounter++;
     connection.playerId = id;
+
+    if (connection.authTokenPayload.aud === this.#details.ownerId) {
+      connection.role = "owner";
+    }
+    else if (connection.hasEdit) {
+      connection.role = "edit";
+    }
+    console.log(connection.role);
+    // TODO: role if they're a friend or not
     
     // at this point, broadcasting will send it to everyone EXCEPT the one who's joining
     this.broadcast({
       packetId: SERVER_PLAYER_JOIN_ID,
       playerId: connection.playerId!,
       username: connection.username,
+      role: connection.role,
       isGuest: connection.isGuest,
       joinLocation: connection.lastPosition,
       hasGun: connection.hasGun,
@@ -69,6 +79,7 @@ export default class RoomLogic {
       packetId: SERVER_INIT_ID,
       worldId: this.#id,
       playerId: connection.playerId!,
+      role: connection.role,
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },
       blocks: this.blockHandler.map,
@@ -81,6 +92,7 @@ export default class RoomLogic {
         packetId: SERVER_PLAYER_JOIN_ID,
         playerId: otherUser.playerId!,
         username: otherUser.username,
+        role: otherUser.role,
         isGuest: otherUser.isGuest,
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
