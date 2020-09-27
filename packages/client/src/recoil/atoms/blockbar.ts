@@ -16,7 +16,7 @@ export const defaultBlockbarState: BlockBar = {
     [ 0]: TileId.Empty,
     [ 1]: TileId.Full,
     [ 2]: TileId.Gun,
-    [ 3]: TileId.Empty,
+    [ 3]: TileId.Arrow,
     [ 4]: TileId.Empty,
     [ 5]: TileId.Empty,
     [ 6]: TileId.Empty,

@@ -32,9 +32,10 @@ const BlockBar = () => {
     <Grid item container justify="center" alignItems="flex-end">
       {keys.map((key, i) => (
         <Block
-          key={key}
+          key={i}
           slot={key}
           slotId={i}
+          block={blockbar.slots[i]}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}
           selected={blockbar.selected === i}
           loader={blockbar.loader}

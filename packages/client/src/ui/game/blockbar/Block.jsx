@@ -38,7 +38,7 @@ const Block = (props) => {
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.slotId).then((image) => {
+    props.loader(props.block).then((image) => {
       setImageSource(image.src);
     });
   }, [props.loader]);
