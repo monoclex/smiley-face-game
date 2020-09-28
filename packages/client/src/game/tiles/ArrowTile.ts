@@ -33,5 +33,6 @@ export default class ArrowTile implements Tile<TileId.Arrow> {
   onRemove(tile: Phaser.Tilemaps.Tile) {
     //@ts-ignore
     tile.setCollisionCallback(null, null);
+    tile.rotation = 0;
   }
 }
