@@ -60,7 +60,7 @@ export default class RoomLogic {
     else if (connection.hasEdit) {
       connection.role = "edit";
     }
-    console.log(connection.role);
+
     // TODO: role if they're a friend or not
     
     // at this point, broadcasting will send it to everyone EXCEPT the one who's joining

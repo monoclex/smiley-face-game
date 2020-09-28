@@ -2,7 +2,6 @@ import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import { Size } from "@smiley-face-game/api/schemas/Size";
 import urlAtlas from "@/assets/atlas.png";
 import atlasJson from "@/assets/atlas_atlas.json";
-console.log('bundle is', atlasJson);
 import Position from "@/math/Position";
 import key from "./key";
 

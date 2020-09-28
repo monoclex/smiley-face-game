@@ -68,7 +68,6 @@ export class LoadingScene extends Phaser.Scene {
             networkClient: sender,
           };
 
-          console.log('init', packet, sender);
           globalVariableParkour.onId(packet.worldId);
 
           console.time("init");
