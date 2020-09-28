@@ -21,6 +21,8 @@ import { WorldPacket } from "./packets/WorldPacket";
 import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
 import { isServerPacket } from "./packets/ServerPackets";
 import { ChatPacket, CHAT_ID } from "./packets/Chat";
+import { Block } from "@/schemas/Block";
+import TileState from "@smiley-face-game/api/tiles/TileState";
 
 class NetworkEvents {
   constructor(
@@ -195,11 +197,12 @@ export class NetworkClient {
     this._buffer = [];
   }
 
-  placeBlock(x: number, y: number, id: TileId, layer: TileLayer): void {
+  placeBlock(x: number, y: number, id: Block, layer: TileLayer): void {
     const packet: BlockSinglePacket = {
       packetId: BLOCK_SINGLE_ID,
       position: { x, y },
-      layer, id,
+      layer,
+      ...id
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -243,13 +246,13 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileId): void {
+  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileState): void {
     const packet: BlockLinePacket = {
+      ..._activeBlock,
       packetId: BLOCK_LINE_ID,
       layer: tileLayer,
       start,
       end,
-      id: _activeBlock,
     };
 
     this._webSocket.send(JSON.stringify(packet));

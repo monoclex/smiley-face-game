@@ -13,10 +13,8 @@ import { TileId } from '@smiley-face-game/api/schemas/TileId';
 import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
 import Connection from "@/worlds/Connection";
 import World from "@/database/models/World";
-
-function newBlock(id: TileId): Block {
-  return { id };
-}
+import blocksEqual from "@smiley-face-game/api/tiles/blocksEqual";
+import copyBlock from "@smiley-face-game/api/tiles/copyBlock";
 
 type BroadcastFunction = (message: WorldPacket) => Promise<void>;
 
@@ -35,7 +33,7 @@ export class BlockHandler {
         const yMap = layerMap[y] ?? (layerMap[y] = []);
 
         for (let x = 0; x < this.width; x++) {
-          yMap[x] ?? (yMap[x] = { id: 0 });
+          yMap[x] ?? (yMap[x] = { id: TileId.Empty });
         }
       }
     }
@@ -44,8 +42,12 @@ export class BlockHandler {
 
   handleSingle(packet: BlockSinglePacket, sender: Connection): ServerBlockSinglePacket | void {
 
+    const target = this.map[packet.layer][packet.position.y][packet.position.x];
+
     // packet is known good, only do updating work if necessary
-    if (this.map[packet.layer][packet.position.y][packet.position.x].id !== packet.id) {
+    if (!blocksEqual(packet, target)) {
+      copyBlock(v => this.map[packet.layer][packet.position.y][packet.position.x] = v, packet);
+
       this.map[packet.layer][packet.position.y][packet.position.x].id = packet.id;
 
       // only if the packet updated any blocks do we want to queue it

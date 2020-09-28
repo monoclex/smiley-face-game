@@ -43,6 +43,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: GameSceneInitializationData) {
+    this.cameras.main.roundPixels = true;
     this.networkClient = data.networkClient;
     this.initPacket = data.init;
 
@@ -188,11 +189,11 @@ export default class GameScene extends Phaser.Scene {
         } return;
 
         case SERVER_BLOCK_LINE_ID: {
-          this.world.drawLine(event.start, event.end, event.id, false);
+          this.world.drawLine(event.start, event.end, event, false);
         } return;
 
         case SERVER_BLOCK_SINGLE_ID: {
-          this.world.placeBlock(event.position, event.id, undefined, false);
+          this.world.placeBlock(event.position, event, undefined, false);
         } return;
 
         case SERVER_EQUIP_GUN_ID: {

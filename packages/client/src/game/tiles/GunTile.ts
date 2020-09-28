@@ -1,11 +1,10 @@
 import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 import Tile from "./Tile";
-import { Character } from "../characters/Character";
 import M249LMG from "@/game/guns/models/variants/M249LMG";
 
-export default class GunTile implements Tile {
-  id: TileId = TileId.Gun;
+export default class GunTile implements Tile<TileId.Gun> {
+  id: TileId.Gun = TileId.Gun;
   layer: TileLayer = TileLayer.Action;
 
   // TODO: collision handlers

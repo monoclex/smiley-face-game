@@ -23,7 +23,7 @@ class DrawingPointer {
 
   onDown() {
     if (!this.editor.enabled) return;
-    const id = this.id();
+    const { id } = this.id();
     this.lastLayer = undefined;
 
     // if we're placing an empty block, try to pick a block at that position
@@ -64,7 +64,7 @@ class DrawingPointer {
   }
 
   id() {
-    if (this.pointer.rightButtonDown()) return TileId.Empty;
+    if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
     else return this.blockBar.selectedBlock;
   }
 

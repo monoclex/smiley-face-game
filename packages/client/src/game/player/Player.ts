@@ -18,6 +18,15 @@ const COSMETIC_DEPTH = _depth++;
 const GUN_EQUIPPED_DEPTH = _depth++;
 const USERNAME_DEPTH = _depth++;
 
+interface PlayerPhysicsState {
+  arrows: {
+    up: boolean,
+    down: boolean,
+    left: boolean,
+    right: boolean
+  };
+}
+
 /**
  * A Player is designed to be a dumb class in the sense that it does not source any data from the outside world, but that the outside world
  * will process events and manipulate the player to do things.
@@ -33,6 +42,7 @@ export default class Player {
 
   gun?: GunBehaviour;
   gunSprite?: Phaser.GameObjects.Sprite;
+  physicsState: PlayerPhysicsState = { arrows: { up: false, left: false, right: false, down: false }};
 
   get canEdit(): boolean {
     return true;
@@ -175,6 +185,7 @@ export default class Player {
     const acceleration = 10000;
 
     const { left, right, jump } = this.input;
+    const inArrow = this.physicsState.arrows.up || this.physicsState.arrows.right || this.physicsState.arrows.left || this.physicsState.arrows.down;
 
     if (left && right) sprite.setAccelerationX(0);
     else if (left) { sprite.setAccelerationX(-acceleration); sprite.setFlipX(true); }
@@ -182,7 +193,23 @@ export default class Player {
     else sprite.setAccelerationX(0);
     
     const onGround = sprite.body.blocked.down;
-    if (jump && onGround) sprite.setVelocityY(-500);
+    if (jump && onGround && !inArrow) sprite.setVelocityY(-500);
+
+    if (this.physicsState.arrows.up && this.physicsState.arrows.down) sprite.setAccelerationY(0);
+    else if (this.physicsState.arrows.up) sprite.setAccelerationY(-acceleration / 6);
+    else if (this.physicsState.arrows.down) sprite.setAccelerationY(acceleration / 6);
+    else sprite.setAccelerationY(0); // we don't need to do what we do for left/right down below because *phaser magic* (gravity)
+
+    if (this.physicsState.arrows.left && this.physicsState.arrows.right) sprite.setAccelerationX(0);
+    else if (this.physicsState.arrows.left) sprite.setAccelerationX(-acceleration / 6);
+    else if (this.physicsState.arrows.right) sprite.setAccelerationX(acceleration / 6);
+    else if (!left && !right) sprite.setAccelerationX(0); // only set acceleration to 0 if no keys are being pressed
+
+    // reset physics state because if in the block, they will be set again on the next frame
+    this.physicsState.arrows.up = false;
+    this.physicsState.arrows.left = false;
+    this.physicsState.arrows.right = false;
+    this.physicsState.arrows.down = false;
   }
 
   postUpdate() {
