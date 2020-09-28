@@ -64,7 +64,7 @@ class DrawingPointer {
   }
 
   id() {
-    if (this.pointer.rightButtonDown()) return TileId.Empty;
+    if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
     else return this.blockBar.selectedBlock;
   }
 

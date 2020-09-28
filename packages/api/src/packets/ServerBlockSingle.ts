@@ -3,6 +3,7 @@ import { BlockPositionSchema } from "../schemas/BlockPosition";
 import { TileIdSchema } from "../schemas/TileId";
 import { TileLayerSchema } from "../schemas/TileLayer";
 import { ServerSchema } from "./Server";
+import { BlockSchema } from "../schemas/Block";
 
 export const SERVER_BLOCK_SINGLE_ID = 'SERVER_BLOCK_SINGLE';
 
@@ -16,8 +17,7 @@ export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {
     packetId: SERVER_BLOCK_SINGLE_ID as typeof SERVER_BLOCK_SINGLE_ID,
     position: blockPositionSchema,
     layer: TileLayerSchema,
-    id: TileIdSchema,
-  }, ServerSchema);
+  }, ServerSchema, BlockSchema);
 
   const validateServerBlockSingle = ServerBlockSingleSchema.destruct();
 

@@ -5,6 +5,7 @@ import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { useRecoilState } from "recoil";
 import { blockbar as blockbarGlobal, blockbarState } from "@/recoil/atoms/blockbar";
+import nextTileState from "@smiley-face-game/api/tiles/nextTileState";
 
 const BlockBar = () => {
   const keys = "`1234567890-=".split("");
@@ -36,6 +37,10 @@ const BlockBar = () => {
           slot={key}
           slotId={i}
           block={blockbar.slots[i]}
+          nextState={() => {
+            const newTileState = nextTileState(blockbar.slots[i]);
+            setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
+          }}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}
           selected={blockbar.selected === i}
           loader={blockbar.loader}

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import { Rotation } from "@smiley-face-game/api/schemas/Rotation";
 
 const useStyles = makeStyles({
   selected: {
@@ -29,16 +31,37 @@ const useStyles = makeStyles({
   removeLineHeight: {
     lineHeight: "1px",
   },
+
+  rotate0: {
+    transform: "rotate(0deg)"
+  },
+  rotate1: {
+    transform: "rotate(-90deg)"
+  },
+  rotate2: {
+    transform: "rotate(-180deg)"
+  },
+  rotate3: {
+    transform: "rotate(-270deg)"
+  },
 });
 
 const Block = (props) => {
   const classes = useStyles(props);
   const [imageSource, setImageSource] = useState(null);
 
+  const rotation = props.block.rotation;
+  const rotationMap = {
+    [Rotation.Right]: classes.rotate0,
+    [Rotation.Up]: classes.rotate1,
+    [Rotation.Left]: classes.rotate2,
+    [Rotation.Down]: classes.rotate3
+  };
+
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.block).then((image) => {
+    props.loader(props.block.id).then((image) => {
       setImageSource(image.src);
     });
   }, [props.loader]);
@@ -46,6 +69,16 @@ const Block = (props) => {
   if (!props.loader || !imageSource) {
     return null;
   }
+
+  const handleClick = () => {
+    if (!props.selected) {
+      props.onClick();
+    }
+    else {
+      // this is for rotating a block in the hotbar
+      props.nextState();
+    }
+  };
 
   return (
     <Grid
@@ -60,8 +93,8 @@ const Block = (props) => {
         <img
           className={clsx(classes.image, {
             [classes.hover]: !props.selected,
-          })}
-          onClick={props.onClick}
+          }, rotation !== undefined && rotationMap[rotation])}
+          onClick={handleClick}
           src={imageSource}
         />
       </Grid>

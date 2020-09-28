@@ -9,6 +9,7 @@ import { bresenhamsLine } from "@smiley-face-game/api/misc";
 import tileLookup from "@/game/tiles/tileLookup";
 import Tile from "../tiles/Tile";
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
+import TileState from "@/game/tiles/TileState";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -37,7 +38,7 @@ export default class World {
     throw new Error("ok?");
   }
 
-  deserializeBlocks(blocks: { id: TileId; }[][][]) {
+  deserializeBlocks(blocks: TileState[][][]) {
     for (let l = 0; l < blocks.length; l++) {
       const layer = blocks[l];
       const worldLayer = l === TileLayer.Decoration ? this.decoration : l === TileLayer.Foreground ? this.foreground : l === TileLayer.Action ? this.action : this.background;
@@ -48,7 +49,7 @@ export default class World {
         for (let x = 0; x < yLayer.length; x++) {
           const block = yLayer[x];
 
-          this.placeBlock({ x, y }, block.id, l, false);
+          this.placeBlock({ x, y }, block, l, false);
         }
       }
     }
@@ -56,34 +57,41 @@ export default class World {
     console.timeEnd("init");
   }
 
-  placeBlock(position: Position, id: TileId, layer: TileLayer | undefined, iPlacedIt: boolean) {
+  placeBlock(position: Position, tileState: TileState, layer: TileLayer | undefined, iPlacedIt: boolean) {
     const { x, y } = position;
 
-    const tileBreed = tileLookup[id];
+    const tileBreed = tileLookup[tileState.id];
     const tile = this.layerFor(layer ?? tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
     
     // don't do anything as they are the same
-    if (tile.index === id) return;
-    if (id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
+    if (tile.index === tileState.id) {
+      if (tileState.id === TileId.Arrow) {
+        if (tile.rotation == 90 * tileState.rotation) return;
+        else {}
+      } else return;
+    }
+    if (tileState.id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
 
-    // @ts-ignore
-    const result: Tile = tileLookup[tile.index];
+    //@ts-ignore
+    const tileIndex: TileId = tile.index;
+
+    const result: Tile<typeof tileState.id> = tileLookup[tileIndex];
     if (result !== undefined && result.onRemove) {
       result.onRemove(tile);
     }
 
-    tileBreed.place(tile);
+    tileBreed.place(tile, tileState);
 
     if (iPlacedIt) {
-      this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
+      this.networkClient.placeBlock(position.x, position.y, tileState, tileBreed.layer);
     }
   }
 
   // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tileId: TileId, iPlacedIt: boolean, layer?: TileLayer) {
+  drawLine(start: Position, end: Position, tile: TileState, iPlacedIt: boolean, layer?: TileLayer) {
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
-      this.placeBlock({ x, y }, tileId, layer, iPlacedIt);
+      this.placeBlock({ x, y }, tile, layer, iPlacedIt);
     });
   }
 }
