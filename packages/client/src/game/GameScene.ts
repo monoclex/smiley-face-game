@@ -57,7 +57,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    setInterval(() => console.log('recoil chat isActive:', chat.state.isActive), 1000);
     this.events.on("destroy", this.destroy, this);
 
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {

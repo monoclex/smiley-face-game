@@ -127,13 +127,15 @@ const Game = ({
     const game = new Phaser.Game({ ...config, parent: gameRef.current });
     window.game = game;
 
-    const listener = window.addEventListener("resize", () => {
+    const listener = () => {
       game.scale.resize(window.innerWidth, window.innerHeight);
-    });
+    };
+    
+    window.addEventListener("resize", listener);
 
     return function cleanup() {
-      window.recoil.loading.setState({ failed: false, why: undefined });
       window.removeEventListener("resize", listener);
+      window.recoil.loading.setState({ failed: false, why: undefined });
       game.destroy(true);
     };
   }, []);
