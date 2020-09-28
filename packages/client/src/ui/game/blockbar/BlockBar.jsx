@@ -13,7 +13,7 @@ const BlockBar = () => {
   const [blockbar, setBlockbar] = useRecoilState(blockbarState);
 
   useEffect(() => {
-    document.addEventListener('keydown', keyboardEvent => {
+    const listener = (keyboardEvent) => {
       const map = {
         '`': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '0': 10, '-': 11, '=': 12,
         '~': 0, '!': 1, '@': 2, '#': 3, '$': 4, '%': 5, '^': 6, '&': 7, '*': 8, '(': 9, ')': 10, '_': 11, '+': 12,
@@ -23,11 +23,21 @@ const BlockBar = () => {
 
       if (slot === undefined) return;
 
-      // here we use the global state to modify the blockbar because apparently the local `blockbar` does not have
-      // the right value for `loader` while we're in here. whuuuut?
-      blockbarGlobal.modify({ selected: slot });
-    });
-  }, []);
+      if (blockbar.selected === slot) {
+        // if we've already selected the block, we wanna go to the next state
+        const newTileState = nextTileState(blockbar.slots[slot]);
+        setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [slot]: newTileState } });
+      }
+      else {
+        setBlockbar({ ...blockbar, selected: slot });
+      }
+    };
+    document.addEventListener('keydown', listener);
+
+    return function() {
+      document.removeEventListener("keydown", listener);
+    }
+  }, [blockbar]);
 
   return (
     <Grid item container justify="center" alignItems="flex-end">
