@@ -6,6 +6,7 @@ import { serverBlockSingle } from "@smiley-face-game/api/packets/ServerBlockSing
 import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
 import loadAll from "@/game/loadAll";
 import GAME_SCENE_KEY from "@/game/GameSceneKey";
+import { loading } from "@/recoil/atoms/loading";
 
 export const globalVariableParkour = {
   token: "",
@@ -78,7 +79,7 @@ export class LoadingScene extends Phaser.Scene {
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
     )
       .catch((err) => {
-        window.recoil.loading.setState!({
+        loading.set({
           failed: true,
           why: err
         });

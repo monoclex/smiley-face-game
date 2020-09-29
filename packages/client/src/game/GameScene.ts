@@ -24,6 +24,7 @@ import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
 import { messages, Message } from "../recoil/atoms/chat/index";
 import { isDev } from "@/isProduction";
 import { playerList } from "../recoil/atoms/playerList";
+import { loading } from "../recoil/atoms/loading/index";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -227,6 +228,7 @@ export default class GameScene extends Phaser.Scene {
     };
 
     this.networkClient.continue();
+    loading.set({ failed: false });
   }
 
   _lastBulletFire: number = 0;

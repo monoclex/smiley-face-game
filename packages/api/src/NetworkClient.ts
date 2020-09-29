@@ -23,6 +23,7 @@ import { isServerPacket } from "./packets/ServerPackets";
 import { ChatPacket, CHAT_ID } from "./packets/Chat";
 import { Block } from "@/schemas/Block";
 import TileState from "@smiley-face-game/api/tiles/TileState";
+import { SERVER_ROLE_UPDATE_ID, validateServerRoleUpdate } from "./packets/ServerRoleUpdate";
 
 class NetworkEvents {
   constructor(
@@ -51,6 +52,7 @@ class NetworkEvents {
       [SERVER_BLOCK_LINE_ID]: validateServerBlockLine,
       [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
       [SERVER_CHAT_ID]: validateServerChat,
+      [SERVER_ROLE_UPDATE_ID]: validateServerRoleUpdate,
     };
     
     // validate the packet (type checking stuffs)
