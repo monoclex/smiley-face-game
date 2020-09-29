@@ -36,6 +36,7 @@ export default class RoomLogic {
   #behaviour: Behaviour;
 
   get playerCount(): number { return this.#players.size; };
+  player(id: number): Connection | undefined { return this.#players.get(id); }
 
   constructor(
     onEmpty: PromiseCompletionSource<void>,
