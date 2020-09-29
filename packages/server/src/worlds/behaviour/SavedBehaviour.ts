@@ -2,15 +2,27 @@ import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
 import WorldRepo from "@/database/repos/WorldRepo";
 import WorldBlocks from "@/worlds/WorldBlocks";
 import Behaviour from "./Behavior";
+import Connection from "@/worlds/Connection";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
+  #details: WorldDetails | undefined;
   
   readonly id: string;
 
   constructor(worldRepo: WorldRepo, id: string) {
     this.id = id;
     this.#repo = worldRepo;
+  }
+
+  onPlayerJoin(connection: Connection) {
+    if (this.#details === undefined) {
+      connection.hasEdit = false;
+      console.warn("unable to check details of world");
+    }
+    else {
+      connection.hasEdit = this.#details.ownerId === connection.authTokenPayload.aud;
+    }
   }
 
   async loadBlocks(): Promise<WorldBlocks> {
@@ -27,13 +39,16 @@ export default class SavedBehaviour implements Behaviour {
   async loadDetails(): Promise<WorldDetails> {
     const world = await this.#repo.findById(this.id, { withOwner: true });
 
-    return {
+    const details = {
       name: world.name,
       width: world.width,
       height: world.height,
       owner: world.owner.username,
       ownerId: world.owner.id
     };
+
+    this.#details = details;
+    return details;
   }
 
   async saveDetails(details: WorldDetails): Promise<void> {
@@ -44,5 +59,6 @@ export default class SavedBehaviour implements Behaviour {
 
     world.name = details.name;
     await this.#repo.save(world);
+    this.#details = details;
   }
 }
