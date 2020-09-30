@@ -61,7 +61,8 @@ export default class World {
     const { x, y } = position;
 
     const tileBreed = tileLookup[tileState.id];
-    const tile = this.layerFor(layer ?? tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
+    const actualLayer = layer ?? tileBreed.layer;
+    const tile = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
     
     // don't do anything as they are the same
     if (tile.index === tileState.id) {
@@ -83,7 +84,7 @@ export default class World {
     tileBreed.place(tile, tileState);
 
     if (iPlacedIt) {
-      this.networkClient.placeBlock(position.x, position.y, tileState, tileBreed.layer);
+      this.networkClient.placeBlock(position.x, position.y, tileState, actualLayer);
     }
   }
 
