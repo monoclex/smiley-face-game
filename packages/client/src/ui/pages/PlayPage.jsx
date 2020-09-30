@@ -22,6 +22,7 @@ import { loadingState, loading as sharedGlobalLoading } from "@/recoil/atoms/loa
 import PlayerList from "@/ui/game/playerlist/PlayerList";
 import { playerListState } from "@/recoil/atoms/playerList";
 import { blockbarState } from "@/recoil/atoms/blockbar";
+import currentPlayer from "@/recoil/selectors/currentPlayer";
 
 export const config = {
   pixelArt: true,
@@ -91,7 +92,7 @@ const Game = ({
   const styles = useStyles();
 
   const [loading, setLoading] = useRecoilState(loadingState);
-  const playerList = useRecoilValue(playerListState);
+  const mainPlayer = useRecoilValue(currentPlayer);
 
   // this fixes a bug where because the blockbar might not be rendered before the game begins, not initializing the recoil blockbar state,
   // we have to use the recoil state so that it is guaranteed to get initialized before the game begins
@@ -175,7 +176,7 @@ const Game = ({
         <div className={styles.game} ref={gameRef} />
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
-        {((loading.failed === false) && (playerList.players.filter(p => p.playerId === window.gameScene.mainPlayer.id)[0].role !== "non") ?
+        {((loading.failed === false) && (mainPlayer !== undefined) && (mainPlayer.role !== "non") ?
         (<div className={styles.blockbar}>
           <BlockBar loader={loader} />
         </div>) : null)}
