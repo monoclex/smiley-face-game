@@ -25,6 +25,7 @@ import { messages, Message } from "../recoil/atoms/chat/index";
 import { isDev } from "@/isProduction";
 import { playerList } from "../recoil/atoms/playerList";
 import { loading } from "../recoil/atoms/loading/index";
+import { SERVER_ROLE_UPDATE_ID } from "../../../api/src/packets/ServerRoleUpdate";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -223,6 +224,22 @@ export default class GameScene extends Phaser.Scene {
             content: event.message
           };
           messages.set([ newMessage, ...messages.state ])
+        } return;
+
+        case SERVER_ROLE_UPDATE_ID: {
+          const modified = playerList.state.players.map(player => {
+            if (player.playerId === event.playerId) {
+              return {
+                ...player,
+                role: event.newRole
+              };
+            }
+            else {
+              return player;
+            }
+          });
+
+          playerList.modify({ players: modified });
         } return;
       }
     };

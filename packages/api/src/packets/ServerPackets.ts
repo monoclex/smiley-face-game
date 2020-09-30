@@ -9,6 +9,7 @@ import { ServerPickupGunPacket, SERVER_PICKUP_GUN_ID } from "./ServerPickupGun";
 import { ServerPlayerJoinPacket, SERVER_PLAYER_JOIN_ID } from "./ServerPlayerJoin";
 import { ServerPlayerLeavePacket, SERVER_PLAYER_LEAVE_ID } from "./ServerPlayerLeave";
 import { SERVER_CHAT_ID, ServerChatPacket } from "./ServerChat";
+import { ServerRoleUpdatePacket } from "./ServerRoleUpdate";
 
 export type ServerPackets =
   | ServerBlockBufferPacket
@@ -22,6 +23,7 @@ export type ServerPackets =
   | ServerPlayerJoinPacket
   | ServerPlayerLeavePacket
   | ServerChatPacket
+  | ServerRoleUpdatePacket
   ;
 
 // TODO: dumb
