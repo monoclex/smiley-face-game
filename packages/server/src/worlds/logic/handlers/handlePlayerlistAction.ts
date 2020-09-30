@@ -13,6 +13,7 @@ export default function handlePlayerlistAction(packet: PlayerlistActionPacket, [
       const target = logic.player(packet.playerId);
       if (target === undefined) return;
 
+      target.role = "edit";
       logic.broadcast({
         packetId: SERVER_ROLE_UPDATE_ID,
         playerId: target.playerId,
@@ -26,6 +27,7 @@ export default function handlePlayerlistAction(packet: PlayerlistActionPacket, [
       const target = logic.player(packet.playerId);
       if (target === undefined) return;
 
+      target.role = "non";
       logic.broadcast({
         packetId: SERVER_ROLE_UPDATE_ID,
         playerId: target.playerId,
