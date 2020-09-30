@@ -37,7 +37,7 @@ export default class GameScene extends Phaser.Scene {
   editor!: Editor;
   blockBar!: BlockBar;
   _input = { up: 0, left: 0, right: 0, jump: 0, equip: false }; // use numbers incase more than 1 key is activating the input
-  self!: { role: PlayerRole };
+  self!: { playerId: number, username: string, role: PlayerRole };
 
   constructor() {
     super({
@@ -58,8 +58,6 @@ export default class GameScene extends Phaser.Scene {
     };
 
     this.self = self;
-
-    playerList.set({ players: [self] });
   }
 
   create() {
@@ -254,6 +252,7 @@ export default class GameScene extends Phaser.Scene {
       }
     };
 
+    playerList.set({ players: [this.self] });
     this.networkClient.continue();
     loading.set({ failed: false });
   }
