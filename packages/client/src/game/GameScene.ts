@@ -26,6 +26,7 @@ import { isDev } from "@/isProduction";
 import { playerList } from "../recoil/atoms/playerList";
 import { loading } from "../recoil/atoms/loading/index";
 import { SERVER_ROLE_UPDATE_ID } from "../../../api/src/packets/ServerRoleUpdate";
+import PlayerRole from "../../../api/src/PlayerRole";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -36,6 +37,7 @@ export default class GameScene extends Phaser.Scene {
   editor!: Editor;
   blockBar!: BlockBar;
   _input = { up: 0, left: 0, right: 0, jump: 0, equip: false }; // use numbers incase more than 1 key is activating the input
+  self!: { role: PlayerRole };
 
   constructor() {
     super({
@@ -49,11 +51,13 @@ export default class GameScene extends Phaser.Scene {
     this.networkClient = data.networkClient;
     this.initPacket = data.init;
 
-    let self = {
+    const self = {
       playerId: this.initPacket.playerId,
       username: this.initPacket.username,
       role: this.initPacket.role
     };
+
+    this.self = self;
 
     playerList.set({ players: [self] });
   }
@@ -229,10 +233,16 @@ export default class GameScene extends Phaser.Scene {
         case SERVER_ROLE_UPDATE_ID: {
           const modified = playerList.state.players.map(player => {
             if (player.playerId === event.playerId) {
-              return {
+              const modified = {
                 ...player,
                 role: event.newRole
               };
+
+              if (player.playerId === mainPlayer.id) {
+                this.self = modified;
+              }
+
+              return modified;
             }
             else {
               return player;
@@ -285,7 +295,9 @@ export default class GameScene extends Phaser.Scene {
 
     // we want to prevent editing the world while the gun is equipped, so that
     // when the user presses to fire, it doesn't place/destroy a block
-    this.editor.setEnabled(!this.mainPlayer.gunEquipped);
+    //
+    // we also want to prevent the user from editing if they don't have edit
+    this.editor.setEnabled(!this.mainPlayer.gunEquipped && this.self.role === "edit" || this.self.role === "owner");
 
     let now = Date.now();
     if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown // fire bullets while mouse is down

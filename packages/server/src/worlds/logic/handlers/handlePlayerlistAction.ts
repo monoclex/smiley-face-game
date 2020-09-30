@@ -13,7 +13,9 @@ export default function handlePlayerlistAction(packet: PlayerlistActionPacket, [
       const target = logic.player(packet.playerId);
       if (target === undefined) return;
 
+      console.log("gave edit to", target.playerId);
       target.role = "edit";
+      target.hasEdit = true;
       logic.broadcast({
         packetId: SERVER_ROLE_UPDATE_ID,
         playerId: target.playerId,
@@ -28,6 +30,7 @@ export default function handlePlayerlistAction(packet: PlayerlistActionPacket, [
       if (target === undefined) return;
 
       target.role = "non";
+      target.hasEdit = false;
       logic.broadcast({
         packetId: SERVER_ROLE_UPDATE_ID,
         playerId: target.playerId,
