@@ -1,12 +1,22 @@
 import { atom } from "recoil";
 import SharedGlobal from "@/recoil/SharedGlobal";
 
-export interface Loading {
-  failed?: boolean;
-  why?: string;
+interface StateLoading {
+  failed: undefined;
 }
 
-export const defaultLoading: Loading = {};
+interface StateLoadingFailed {
+  failed: true;
+  why: string;
+}
+
+interface StateLoadingSuccess {
+  failed: false;
+}
+
+export type Loading = StateLoading | StateLoadingFailed | StateLoadingSuccess;
+
+export const defaultLoading: Loading = { failed: undefined };
 export const loading = new SharedGlobal<Loading>(defaultLoading);
 export const loadingState = atom<Loading>({
   key: "loadingState",
