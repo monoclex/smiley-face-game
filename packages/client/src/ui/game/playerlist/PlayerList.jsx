@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Player = ({ username, role: roleParam }) => {
+const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
 
   /** @type {import("@smiley-face-game/api/PlayerRole").default} */
@@ -85,11 +85,16 @@ const Player = ({ username, role: roleParam }) => {
   };
 
   const setEdit = (shouldHaveEdit) => {
-
+    if (shouldHaveEdit) {
+      window.gameScene.networkClient.giveEdit(playerId);
+    }
+    else {
+      window.gameScene.networkClient.takeEdit(playerId);
+    }
   };
 
   const kick = () => {
-    alert("kick");
+    window.gameScene.networkClient.kick(playerId);
   };
 
   return (
