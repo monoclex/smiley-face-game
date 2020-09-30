@@ -1,30 +1,26 @@
 import { atom } from "recoil";
-import { LoadingScene } from "@/scenes/loading/LoadingScene";
+import SharedGlobal from "@/recoil/SharedGlobal";
 
-export interface LoadingState {
-  failed: boolean;
-  why?: string;
+interface StateLoading {
+  failed: undefined;
 }
 
-export const loadingState = atom<LoadingState>({
+interface StateLoadingFailed {
+  failed: true;
+  why: string;
+}
+
+interface StateLoadingSuccess {
+  failed: false;
+}
+
+export type Loading = StateLoading | StateLoadingFailed | StateLoadingSuccess;
+
+export const defaultLoading: Loading = { failed: undefined };
+export const loading = new SharedGlobal<Loading>(defaultLoading);
+export const loadingState = atom<Loading>({
   key: "loadingState",
-  default: {
-    failed: false,
-  },
+  default: defaultLoading,
   //@ts-ignore
-  effects_UNSTABLE: [({ setSelf, onSet }) => {
-    onSet((value) => {
-      window.recoil.loading.state = value;
-    })
-    
-    window.recoil.loading.setState = setSelf;
-  }]
+  effects_UNSTABLE: [loading.initialize]
 });
-
-// initialize global state for recoil so we don't get lots of errors
-if (!window.recoil) window.recoil = {};
-if (!window.recoil.loading) window.recoil.loading = {};
-
-// TODO: hardcoding the default here until i figure out how to get the RecoilStore currently in use,
-// and then get the current state of the atom from that
-window.recoil.loading.state = { failed: false };

@@ -23,6 +23,8 @@ import { isServerPacket } from "./packets/ServerPackets";
 import { ChatPacket, CHAT_ID } from "./packets/Chat";
 import { Block } from "@/schemas/Block";
 import TileState from "@smiley-face-game/api/tiles/TileState";
+import { SERVER_ROLE_UPDATE_ID, validateServerRoleUpdate } from "./packets/ServerRoleUpdate";
+import { PlayerlistActionPacket, PLAYER_LIST_ACTION_ID } from "./packets/PlayerlistAction";
 
 class NetworkEvents {
   constructor(
@@ -51,6 +53,7 @@ class NetworkEvents {
       [SERVER_BLOCK_LINE_ID]: validateServerBlockLine,
       [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
       [SERVER_CHAT_ID]: validateServerChat,
+      [SERVER_ROLE_UPDATE_ID]: validateServerRoleUpdate,
     };
     
     // validate the packet (type checking stuffs)
@@ -265,6 +268,36 @@ export class NetworkClient {
     };
 
     this._webSocket.send(JSON.stringify(packet));
+  }
+
+  giveEdit(playerId: number) {
+    const packet: PlayerlistActionPacket = {
+      packetId: PLAYER_LIST_ACTION_ID,
+      action: "give edit",
+      playerId
+    };
+
+    this.send(packet);
+  }
+
+  takeEdit(playerId: number) {
+    const packet: PlayerlistActionPacket = {
+      packetId: PLAYER_LIST_ACTION_ID,
+      action: "remove edit",
+      playerId
+    };
+
+    this.send(packet);
+  }
+
+  kick(playerId: number) {
+    const packet: PlayerlistActionPacket = {
+      packetId: PLAYER_LIST_ACTION_ID,
+      action: "kick",
+      playerId
+    };
+
+    this.send(packet);
   }
 
   send(packet: WorldPacket) {

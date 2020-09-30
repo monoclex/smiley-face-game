@@ -1,6 +1,6 @@
 //@ts-check
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Paper, Grid, MenuItem } from "@material-ui/core";
+import { Divider, Paper, Grid, MenuItem, Checkbox } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 import clsx from "clsx";
@@ -10,11 +10,15 @@ import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "@/ui/components/SpingScrollbars";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import { Pencil, ShoeCleat } from "mdi-material-ui";
 
 // so much stupid boilerplate
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserAstronaut, faUserEdit, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import currentPlayer from "@/recoil/selectors/currentPlayer";
+import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
 library.add(faUserAstronaut); library.add(faUserEdit); library.add(faUserTie);
 
 const useStyles = makeStyles((theme) => ({
@@ -61,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Player = ({ username, role: roleParam }) => {
+const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
 
   /** @type {import("@smiley-face-game/api/PlayerRole").default} */
@@ -69,6 +73,8 @@ const Player = ({ username, role: roleParam }) => {
 
   // https://material-ui.com/components/menus/#SimpleMenu.js
   const [anchorElement, setAnchorElement] = useState(null);
+
+  const mainPlayer = useRecoilValue(currentPlayer) ?? { username: "", role: "non", playerId: -1 };
 
   const handleClick = (event) => {
     setAnchorElement(event.currentTarget);
@@ -78,9 +84,17 @@ const Player = ({ username, role: roleParam }) => {
     setAnchorElement(null);
   };
 
-  const doKick = () => {
-    handleClose();
-    alert('kick');
+  const setEdit = (shouldHaveEdit) => {
+    if (shouldHaveEdit) {
+      window.gameScene.networkClient.giveEdit(playerId);
+    }
+    else {
+      window.gameScene.networkClient.takeEdit(playerId);
+    }
+  };
+
+  const kick = () => {
+    window.gameScene.networkClient.kick(playerId);
   };
 
   return (
@@ -88,7 +102,7 @@ const Player = ({ username, role: roleParam }) => {
       <div className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
 
         { role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} /> }
-        { role === "edit" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" /> }
+        { role === "edit" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" onClick={() => setEdit(false)} /> }
         { role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" /> }
         { role === "staff" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
 
@@ -101,7 +115,25 @@ const Player = ({ username, role: roleParam }) => {
         open={Boolean(anchorElement)}
         onClose={handleClose}
       >
-        <MenuItem onClick={doKick}>not implemented yet</MenuItem>
+        <Grid container justify="center" direction="column">
+          {mainPlayer.role === "owner" && (
+            <>
+              <ToggleButton
+                value="edit"
+                aria-label="edit"
+                selected={role === "edit"}
+                onChange={() => setEdit(!(role === "edit"))}
+              >
+                <Pencil />
+              </ToggleButton>
+              <MenuItem
+                onClick={kick}
+              >
+                <ShoeCleat />
+              </MenuItem>
+            </>
+          )}
+        </Grid>
       </Menu>
     </>
   );

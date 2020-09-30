@@ -23,8 +23,8 @@ export default class Connection {
   lastMessage: Date = new Date();
   messagesCounter: number = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
   role: PlayerRole = "non";
-  hasEdit: boolean = true;
-  get canPlaceBlocks(): boolean { return this.hasEdit && this.hasGun ? !this.gunEquipped : true; }
+  hasEdit: boolean = false;
+  get canPlaceBlocks(): boolean { return this.hasEdit && (this.hasGun ? !this.gunEquipped : true); }
 
   constructor(
     readonly webSocket: WebSocket,

@@ -4,6 +4,7 @@ import WorldBlocks from "@/worlds/WorldBlocks";
 import ensureValidates from "@/ensureValidates";
 import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
+import Connection from "@/worlds/Connection";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;
@@ -19,6 +20,10 @@ export default class DynamicBehaviour implements Behaviour {
     this.#name = joinRequest.name;
     this.#width = joinRequest.width;
     this.#height = joinRequest.height;
+  }
+
+  onPlayerJoin(connection: Connection) {
+    connection.hasEdit = true;
   }
 
   loadDetails(): Promise<WorldDetails> {

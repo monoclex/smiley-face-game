@@ -19,6 +19,8 @@ import { ServerPlayerJoinSchema } from "./ServerPlayerJoin";
 import { ServerPlayerLeaveSchema } from "./ServerPlayerLeave";
 import { ChatSchema } from "./Chat";
 import { ServerChatSchema } from "./ServerChat";
+import { PlayerlistActionSchema } from "@smiley-face-game/api/packets/PlayerlistAction";
+import { ServerRoleUpdateSchema } from "./ServerRoleUpdate";
 
 export type WorldPacketSchema = ReturnType<typeof worldPacket>["WorldPacketSchema"];
 export type WorldPacketValidator = ReturnType<typeof worldPacket>["validateWorldPacket"];
@@ -42,6 +44,7 @@ export function worldPacket(blockPositionSchema: BlockPositionSchema) {
       PickupGunSchema, ServerPickupGunSchema,
       FireBulletSchema, ServerFireBulletSchema,
       EquipGunSchema, ServerEquipGunSchema,
+      PlayerlistActionSchema, ServerRoleUpdateSchema
     ),
 
     Schema.either(

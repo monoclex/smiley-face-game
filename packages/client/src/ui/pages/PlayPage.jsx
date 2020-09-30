@@ -5,7 +5,7 @@
 //@ts-check
 import Phaser from "phaser";
 import qs from "query-string";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
@@ -18,8 +18,11 @@ import isProduction, { isDev } from "@/isProduction";
 import GameScene from "@/game/GameScene";
 import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
 import { chatState } from "@/recoil/atoms/chat";
-import { loadingState } from "@/recoil/atoms/loading";
+import { loadingState, loading as sharedGlobalLoading } from "@/recoil/atoms/loading";
 import PlayerList from "@/ui/game/playerlist/PlayerList";
+import { playerListState } from "@/recoil/atoms/playerList";
+import { blockbarState } from "@/recoil/atoms/blockbar";
+import currentPlayer from "@/recoil/selectors/currentPlayer";
 
 export const config = {
   pixelArt: true,
@@ -89,6 +92,11 @@ const Game = ({
   const styles = useStyles();
 
   const [loading, setLoading] = useRecoilState(loadingState);
+  const mainPlayer = useRecoilValue(currentPlayer);
+
+  // this fixes a bug where because the blockbar might not be rendered before the game begins, not initializing the recoil blockbar state,
+  // we have to use the recoil state so that it is guaranteed to get initialized before the game begins
+  const _ = useRecoilState(blockbarState);
 
   useEffect(() => {
     // disable right click for context menu
@@ -135,7 +143,7 @@ const Game = ({
 
     return function cleanup() {
       window.removeEventListener("resize", listener);
-      window.recoil.loading.setState({ failed: false, why: undefined });
+      sharedGlobalLoading.set({ failed: undefined, why: undefined })
       game.destroy(true);
     };
   }, []);
@@ -168,9 +176,10 @@ const Game = ({
         <div className={styles.game} ref={gameRef} />
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
-        <div className={styles.blockbar}>
+        {((loading.failed === false) && (mainPlayer !== undefined) && (mainPlayer.role !== "non") ?
+        (<div className={styles.blockbar}>
           <BlockBar loader={loader} />
-        </div>
+        </div>) : null)}
 
         <Chat />
       </Grid>

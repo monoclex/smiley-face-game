@@ -9,6 +9,7 @@ import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
 import WorldBlocks from "@/worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
+import Behaviour from "@/worlds/behaviour/Behavior";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -32,16 +33,26 @@ export default class RoomLogic {
   #details: WorldDetails;
   #setStoppingStatus: () => void;
   #id: string;
+  #behaviour: Behaviour;
 
   get playerCount(): number { return this.#players.size; };
+  player(id: number): Connection | undefined { return this.#players.get(id); }
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails, setStopping: () => void, id: string) {
+  constructor(
+    onEmpty: PromiseCompletionSource<void>,
+    blocks: WorldBlocks,
+    details: WorldDetails,
+    setStopping: () => void,
+    id: string,
+    roomBehaviour: Behaviour
+  ) {
     this.blockHandler = new BlockHandler(blocks, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
     this.#setStoppingStatus = setStopping;
     this.#id = id;
+    this.#behaviour = roomBehaviour;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -51,6 +62,8 @@ export default class RoomLogic {
     // NOTE: code for the TODO above should primarily be in the code that generates tokens for connecting to worlds,
     // and before connecting the token should be checked if it should be invalidated.
     
+    this.#behaviour.onPlayerJoin(connection);
+
     let id = this.#idCounter++;
     connection.playerId = id;
 

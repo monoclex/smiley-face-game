@@ -74,7 +74,7 @@ export default class Room {
     this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
 
     this.#status = "running";
-    this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => this.#status = "stopping", this.id);
+    this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => this.#status = "stopping", this.id, this.#behaviour);
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;
