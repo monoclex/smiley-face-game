@@ -25,6 +25,8 @@ import { Block } from "@/schemas/Block";
 import TileState from "@smiley-face-game/api/tiles/TileState";
 import { SERVER_ROLE_UPDATE_ID, validateServerRoleUpdate } from "./packets/ServerRoleUpdate";
 import { PlayerlistActionPacket, PLAYER_LIST_ACTION_ID } from "./packets/PlayerlistAction";
+import MovementInput from "../../client/src/game/input/MovementInput";
+import MovementValues from "@/game/input/MovementValues";
 
 class NetworkEvents {
   constructor(
@@ -72,12 +74,6 @@ class NetworkEvents {
 interface Position {
   readonly x: number;
   readonly y: number;
-}
-
-interface InputState {
-  readonly left: boolean;
-  readonly right: boolean;
-  readonly jump: boolean;
 }
 
 /**
@@ -211,11 +207,11 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  move(position: Position, velocity: Position, inputs: InputState): void {
+  move(position: Position, velocity: Position, inputs: MovementValues): void {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position: { x: position.x, y: position.y }, // we don't deconstruct to prevent sending needless data on the wire
-      inputs: { left: inputs.left, right: inputs.right, up: inputs.jump },
+      inputs: { left: inputs.left, right: inputs.right, up: inputs.up, jump: inputs.jump },
       velocity: { x: velocity.x, y: velocity.y },
     };
 

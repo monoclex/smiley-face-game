@@ -112,6 +112,7 @@ export default class Player {
   updateInputs(input: MovementInput) {
     if (input.left !== undefined) this.input.left = input.left;
     if (input.right !== undefined) this.input.right = input.right;
+    if (input.up !== undefined) this.input.up = input.up;
     if (input.jump !== undefined) this.input.jump = input.jump;
   }
     
@@ -184,7 +185,7 @@ export default class Player {
     const sprite = this.body;
     const acceleration = 10000;
 
-    const { left, right, jump } = this.input;
+    const { left, right, up, jump } = this.input;
     const inArrow = this.physicsState.arrows.up || this.physicsState.arrows.right || this.physicsState.arrows.left || this.physicsState.arrows.down;
 
     if (left && right) sprite.setAccelerationX(0);
@@ -193,7 +194,7 @@ export default class Player {
     else sprite.setAccelerationX(0);
     
     const onGround = sprite.body.blocked.down;
-    if (jump && onGround && !inArrow) sprite.setVelocityY(-500);
+    if ((jump || up) && onGround && !inArrow) sprite.setVelocityY(-500);
 
     if (this.physicsState.arrows.up && this.physicsState.arrows.down) sprite.setAccelerationY(0);
     else if (this.physicsState.arrows.up) sprite.setAccelerationY(-acceleration / 6);

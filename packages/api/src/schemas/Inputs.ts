@@ -5,6 +5,7 @@ export const InputsSchema = Schema({
   left: boolean,
   right: boolean,
   up: boolean,
+  jump: boolean,
 });
 export type Inputs = Type<typeof InputsSchema>;
 export const validateInputs = InputsSchema.destruct();

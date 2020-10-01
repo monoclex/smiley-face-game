@@ -36,7 +36,7 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  _input = { up: 0, left: 0, right: 0, jump: 0, equip: false }; // use numbers incase more than 1 key is activating the input
+  _input = { up: 0, left: 0, right: 0, jump: false, equip: false }; // use numbers incase more than 1 key is activating the input
   self!: { playerId: number, username: string, role: PlayerRole };
 
   constructor() {
@@ -76,11 +76,18 @@ export default class GameScene extends Phaser.Scene {
 
     // hook the keyboard
     const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
-    [UP, W, SPACE]
+    [UP, W]
       .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
       .map(key => {
         key.on("down", () => { this._input.up++; });
         key.on("up", () => { this._input.up = Math.max(this._input.up - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      });
+    
+    [SPACE]
+      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
+      .map(key => {
+        key.on("down", () => { this._input.jump = true; });
+        key.on("up", () => { this._input.jump = false; });
       });
       
     [A, LEFT]
@@ -180,9 +187,7 @@ export default class GameScene extends Phaser.Scene {
           character.setPosition(event.position.x, event.position.y);
           character.setVelocity(event.velocity.x, event.velocity.y);
 
-          event.inputs.jump = event.inputs.up;
           character.updateInputs(event.inputs);
-    
         } return;
 
         case SERVER_BLOCK_BUFFER_ID: {
@@ -266,14 +271,16 @@ export default class GameScene extends Phaser.Scene {
     // if the chat is inactive, we'll process the keyboard as if it were inputs
     if (!chat.state.isActive) {
       let inputs = {
-        jump: this._input.up > 0,
         left: this._input.left > 0,
         right: this._input.right > 0,
+        up: this._input.up > 0,
+        jump: this._input.jump,
       };
 
       if (inputs.jump !== this.mainPlayer.input.jump
         || inputs.left !== this.mainPlayer.input.left
-        || inputs.right !== this.mainPlayer.input.right) {
+        || inputs.right !== this.mainPlayer.input.right
+        || inputs.up !== this.mainPlayer.input.up) {
         
         this.mainPlayer.updateInputs(inputs);
         this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input)
