@@ -7,20 +7,19 @@ import { api } from "@/isProduction";
 export default () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
-    inputs={[
-      { name: "username", text: (value) => !value ? "Enter your preferred username" : `Hello, ${value}!` },
-    ]}
+    inputs={[{ name: "username", text: (value) => (!value ? "Enter your preferred username" : `Hello, ${value}!`) }]}
     submit={({ username }) => {
-      api.postAuthGuest(username)
-        .then(result => {
+      api
+        .postAuthGuest(username)
+        .then((result) => {
           if (!result.ok) {
-            console.warn('Failed to authenticate at guest endpoint', result);
+            console.warn("Failed to authenticate at guest endpoint", result);
             return;
           }
-        
-          return result.json()
+
+          return result.json();
         })
-        .then(json => {
+        .then((json) => {
           localStorage.setItem("token", json.token);
           history.push("/lobby");
         });

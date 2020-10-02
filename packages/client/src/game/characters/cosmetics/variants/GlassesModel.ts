@@ -10,4 +10,4 @@ class Model implements CosmeticModel {
   }
 }
 
-export default new Model;
+export default new Model();

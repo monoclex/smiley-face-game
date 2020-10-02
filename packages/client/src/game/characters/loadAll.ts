@@ -6,7 +6,7 @@ export default function loadAll(loader: Phaser.Loader.LoaderPlugin) {
     // @ts-ignore
     baseLookup[key].load(loader);
   }
-  
+
   for (const key in cosmeticLookup) {
     // @ts-ignore
     cosmeticLookup[key].load(loader);

@@ -15,7 +15,7 @@ export const globalVariableParkour = {
   height: 50,
   id: "smiley-face-game",
   onId: (a: string) => {
-    return
+    return;
   },
 };
 
@@ -27,7 +27,7 @@ export class LoadingScene extends Phaser.Scene {
 
   constructor() {
     super({
-      key: "LoadingScene"
+      key: "LoadingScene",
     });
   }
 
@@ -75,23 +75,23 @@ export class LoadingScene extends Phaser.Scene {
           this.scene.start(GAME_SCENE_KEY, sceneData);
         };
       },
-      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema).validateServerBlockBuffer,
+      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema)
+        .validateServerBlockBuffer,
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
-    )
-      .catch((err) => {
-        loading.set({
-          failed: true,
-          why: err
-        });
-        console.warn("caught error", err);
-        this._progressBar.clear();
-        this._progressBar.fillStyle(0x8a8a8a, 1);
-        this._progressBar.fillRect(
-          this.cameras.main.width / 4,
-          this.cameras.main.height / 2 - 16,
-          (this.cameras.main.width / 2) * -10,
-          16
-        );
+    ).catch((err) => {
+      loading.set({
+        failed: true,
+        why: err,
       });
+      console.warn("caught error", err);
+      this._progressBar.clear();
+      this._progressBar.fillStyle(0x8a8a8a, 1);
+      this._progressBar.fillRect(
+        this.cameras.main.width / 4,
+        this.cameras.main.height / 2 - 16,
+        (this.cameras.main.width / 2) * -10,
+        16
+      );
+    });
   }
 }

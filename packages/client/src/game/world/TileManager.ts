@@ -55,19 +55,14 @@ export default class TileManager {
       height: frame.customData.frame.h,
     };
 
-    const renderImageCanvas = document.createElement('canvas');
+    const renderImageCanvas = document.createElement("canvas");
     renderImageCanvas.width = TILE_WIDTH;
     renderImageCanvas.height = TILE_HEIGHT;
 
-    const context = renderImageCanvas.getContext('2d')!;
-    context.drawImage(imageSource,
-      x, y,
-      width, height,
-      0, 0,
-      TILE_WIDTH, TILE_HEIGHT
-    );
+    const context = renderImageCanvas.getContext("2d")!;
+    context.drawImage(imageSource, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
 
-    const blob = await new Promise(resolve => renderImageCanvas.toBlob(resolve));
+    const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
     const url = URL.createObjectURL(blob);
 
     const tileTexture = new Image();

@@ -1,4 +1,4 @@
-type RecoilEffects<T> = { setSelf: (value: T) => void, onSet: (callback: (value: T) => void) => void }
+type RecoilEffects<T> = { setSelf: (value: T) => void; onSet: (callback: (value: T) => void) => void };
 
 export default class SharedGlobal<T> {
   private _setSelf?: (value: T) => void;

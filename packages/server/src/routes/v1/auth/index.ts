@@ -6,7 +6,10 @@ import schema from "@/middlewares/schema";
 import asyncHandler from "@/middlewares/asyncHandler";
 import Dependencies from "@/dependencies";
 
-type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider" | "worldRepo">;
+type UsedDependencies = Pick<
+  Dependencies,
+  "accountRepo" | "authProvider" | "worldRepo"
+>;
 
 export default function (deps: UsedDependencies): Router {
   const { accountRepo, worldRepo, authProvider } = deps;
@@ -15,58 +18,80 @@ export default function (deps: UsedDependencies): Router {
 
   // TODO: should there be some kind of timeout so that this isn't susceptible to timing attacks from people
   // guessing emails and seeing if something works (verifyPassword is not susceptible to timing attacks, just findByEmail)
-  router.post('/login', schema(validateLogin, asyncHandler(async (req, res) => {
-    const body = req.body;
+  router.post(
+    "/login",
+    schema(
+      validateLogin,
+      asyncHandler(async (req, res) => {
+        const body = req.body;
 
-    try {
-      const account = await accountRepo.findByEmail(body.email);
+        try {
+          const account = await accountRepo.findByEmail(body.email);
 
-      if (!await accountRepo.verifyPassword(account, body.password)) {
-        throw new Error("Passwords don't match.");
-      }
+          if (!(await accountRepo.verifyPassword(account, body.password))) {
+            throw new Error("Passwords don't match.");
+          }
 
-      // TODO: move this outside the try catch?
-      const token = authProvider.allowAuthentication(account.id);
-  
-      res.json({ token, id: account.id });
-    } catch (error) {
-      console.warn("Authentication attempt failed for user", body.email, error);
-      res.status(400);
-    }
-  })));
+          // TODO: move this outside the try catch?
+          const token = authProvider.allowAuthentication(account.id);
 
-  router.post('/register', schema(validateRegister, asyncHandler(async (req, res) => {
-    const body = req.body;
+          res.json({ token, id: account.id });
+        } catch (error) {
+          console.warn(
+            "Authentication attempt failed for user",
+            body.email,
+            error
+          );
+          res.status(400);
+        }
+      })
+    )
+  );
 
-    // TODO: verify captcha
+  router.post(
+    "/register",
+    schema(
+      validateRegister,
+      asyncHandler(async (req, res) => {
+        const body = req.body;
 
-    const account = await accountRepo.create({
-      username: body.username,
-      email: body.email,
-      password: body.password
-    });
+        // TODO: verify captcha
 
-    // give registered users a world to save/load/play
-    const world = await worldRepo.create({
-      owner: account,
-      width: 50,
-      height: 50,
-    });
+        const account = await accountRepo.create({
+          username: body.username,
+          email: body.email,
+          password: body.password,
+        });
 
-    account.worlds.push(world);
-    await accountRepo.save(account);
+        // give registered users a world to save/load/play
+        const world = await worldRepo.create({
+          owner: account,
+          width: 50,
+          height: 50,
+        });
 
-    const token = authProvider.allowAuthentication(account.id);
+        account.worlds.push(world);
+        await accountRepo.save(account);
 
-    res.status(201).json({ token, id: account.id });
-  })));
+        const token = authProvider.allowAuthentication(account.id);
 
-  router.post('/guest', schema(validateGuest, asyncHandler(async (req, res) => {
-    const body = req.body;
+        res.status(201).json({ token, id: account.id });
+      })
+    )
+  );
 
-    const token = authProvider.allowGuestAuthentication(body.username);
-    res.json({ token });
-  })));
+  router.post(
+    "/guest",
+    schema(
+      validateGuest,
+      asyncHandler(async (req, res) => {
+        const body = req.body;
+
+        const token = authProvider.allowGuestAuthentication(body.username);
+        res.json({ token });
+      })
+    )
+  );
 
   return router;
 }

@@ -1,14 +1,13 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Block } from '@smiley-face-game/api/schemas/Block';
-import Account from './Account';
+import { Block } from "@smiley-face-game/api/schemas/Block";
+import Account from "./Account";
 
 @Entity()
 export default class World {
-
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @ManyToOne(type => Account, author => author.worlds)
+  @ManyToOne((type) => Account, (author) => author.worlds)
   owner!: Account;
 
   @Column({ nullable: false, length: 64 })

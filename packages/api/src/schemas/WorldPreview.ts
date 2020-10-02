@@ -1,5 +1,5 @@
 import Schema, { number, Type } from "computed-types";
-import { RoomIdSchema } from './RoomId';
+import { RoomIdSchema } from "./RoomId";
 
 export const GamePreviewSchema = Schema({
   id: RoomIdSchema,

@@ -17,7 +17,11 @@ export default class BulletDisplay implements ComponentDisplay {
   }
 
   constructor(scene: Phaser.Scene, config: BulletConfig) {
-    const { bulletType, position: { x, y }, angle } = config;
+    const {
+      bulletType,
+      position: { x, y },
+      angle,
+    } = config;
 
     // TODO: consolidate default value in one place (`bulletType`)
     this.sprite = scene.matter.add.image(x, y, key(bulletType ?? "bullet"), undefined, {
@@ -28,7 +32,7 @@ export default class BulletDisplay implements ComponentDisplay {
       angle: angle,
     });
   }
-  
+
   get depth() {
     return this.sprite.depth;
   }

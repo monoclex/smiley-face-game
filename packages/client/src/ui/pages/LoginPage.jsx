@@ -13,16 +13,17 @@ export default () => (
       { name: "password", text: "Enter your password" },
     ]}
     submit={({ email, password }) => {
-      api.postLogin(email.toLowerCase(), password)
-        .then(result => {
+      api
+        .postLogin(email.toLowerCase(), password)
+        .then((result) => {
           if (!result.ok) {
-            console.warn('Failed to authenticate at login endpoint', result);
+            console.warn("Failed to authenticate at login endpoint", result);
             return;
           }
-        
-          return result.json()
+
+          return result.json();
         })
-        .then(json => {
+        .then((json) => {
           localStorage.setItem("token", json.token);
           history.push("/lobby");
         });

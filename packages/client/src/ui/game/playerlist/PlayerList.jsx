@@ -12,14 +12,18 @@ import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "@/ui/components/SpingScrollbars";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
+import currentPlayer from "@/recoil/selectors/currentPlayer";
+import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
+import { useSnackbar } from "notistack";
 
 // so much stupid boilerplate
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserAstronaut, faUserEdit, faUserTie } from "@fortawesome/free-solid-svg-icons";
-import currentPlayer from "@/recoil/selectors/currentPlayer";
-import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
-library.add(faUserAstronaut); library.add(faUserEdit); library.add(faUserTie);
+
+library.add(faUserAstronaut);
+library.add(faUserEdit);
+library.add(faUserTie);
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -48,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 2,
   },
   userIconPadding: {
-    marginRight: 4
+    marginRight: 4,
   },
   noRole: {
     width: "0.875em",
@@ -56,17 +60,18 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-block",
   },
   hide: {
-    visibility: "hidden"
+    visibility: "hidden",
   },
   hoverable: {
     "&:hover": {
-      backgroundColor: theme.palette.action.hover
+      backgroundColor: theme.palette.action.hover,
     },
   },
 }));
 
 const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
 
   /** @type {import("@smiley-face-game/api/PlayerRole").default} */
   const role = roleParam;
@@ -87,26 +92,33 @@ const Player = ({ username, playerId, role: roleParam }) => {
   const setEdit = (shouldHaveEdit) => {
     if (shouldHaveEdit) {
       window.gameScene.networkClient.giveEdit(playerId);
-    }
-    else {
+    } else {
       window.gameScene.networkClient.takeEdit(playerId);
     }
+
+    enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {
+      variant: "success",
+    });
   };
 
   const kick = () => {
     window.gameScene.networkClient.kick(playerId);
+    enqueueSnackbar(`Kicked ${username}`, {
+      variant: "success",
+    });
   };
 
   return (
     <>
       <div className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
+        {role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} />}
+        {role === "edit" && (
+          <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" onClick={() => setEdit(false)} />
+        )}
+        {role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" />}
+        {role === "staff" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" />}
 
-        { role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} /> }
-        { role === "edit" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" onClick={() => setEdit(false)} /> }
-        { role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" /> }
-        { role === "staff" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" /> }
-
-        <span>{ username }</span>
+        <span>{username}</span>
       </div>
       <Menu
         id={"player-" + username}
@@ -126,9 +138,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
               >
                 <Pencil />
               </ToggleButton>
-              <MenuItem
-                onClick={kick}
-              >
+              <MenuItem onClick={kick}>
                 <ShoeCleat />
               </MenuItem>
             </>
@@ -137,7 +147,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
       </Menu>
     </>
   );
-}
+};
 
 export default ({}) => {
   const classes = useStyles();
@@ -156,41 +166,43 @@ export default ({}) => {
   return (
     <Grid container justify="flex-end" alignItems="center" className={classes.container}>
       <Grid item>
-        <SizeMe>{({ size }) =>
-          <motion.div
-            // if we don't have the size yet, hide the component so that
-            // instead of being fully visible and then getting shifted to the right side of the screen,
-            // it goes from being invisible to popping up. it makes it less jarring
-            className={clsx(!size.width && classes.hide)}
-            // the '0' never matters here. we just ensure we have the size
-            animate={{ translateX: size.width ? (size.width - 30) : 0 }}
-            // while we hover, we reset the tranlateX thing we did
-            whileHover={{ translateX: 0 }}
-            // if we don't set the duration of the transition to 0 initially, as soon as the component becomes visible it'll
-            // still be jarring and make the jump. see where duration is defined for more info
-            transition={{ duration }}
-          >
-            <Paper className={classes.paper}>
-              <Grid container direction="column">
-                <Grid item>
-                  <SpringScrollbars
-                    className={classes.chatList}
-                    autoHeight
-                    autoHeightMin={0}
-                    autoHeightMax={400}
-                    autoHide
-                    autoHideTimeout={1000}
-                    autoHideDuration={200}
-                  >
-                    {players.map((player, i) => (
-                      <Player key={i} {...player} />
-                    ))}
-                  </SpringScrollbars>
+        <SizeMe>
+          {({ size }) => (
+            <motion.div
+              // if we don't have the size yet, hide the component so that
+              // instead of being fully visible and then getting shifted to the right side of the screen,
+              // it goes from being invisible to popping up. it makes it less jarring
+              className={clsx(!size.width && classes.hide)}
+              // the '0' never matters here. we just ensure we have the size
+              animate={{ translateX: size.width ? size.width - 30 : 0 }}
+              // while we hover, we reset the tranlateX thing we did
+              whileHover={{ translateX: 0 }}
+              // if we don't set the duration of the transition to 0 initially, as soon as the component becomes visible it'll
+              // still be jarring and make the jump. see where duration is defined for more info
+              transition={{ duration }}
+            >
+              <Paper className={classes.paper}>
+                <Grid container direction="column">
+                  <Grid item>
+                    <SpringScrollbars
+                      className={classes.chatList}
+                      autoHeight
+                      autoHeightMin={0}
+                      autoHeightMax={400}
+                      autoHide
+                      autoHideTimeout={1000}
+                      autoHideDuration={200}
+                    >
+                      {players.map((player, i) => (
+                        <Player key={i} {...player} />
+                      ))}
+                    </SpringScrollbars>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Paper>
-          </motion.div>
-        }</SizeMe>
+              </Paper>
+            </motion.div>
+          )}
+        </SizeMe>
       </Grid>
     </Grid>
   );

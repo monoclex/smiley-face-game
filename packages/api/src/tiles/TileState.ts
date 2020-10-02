@@ -9,7 +9,7 @@ export function defaultFor(id: TileId): TileState {
   switch (id) {
     case TileId.Arrow:
       return { id, rotation: Rotation.Up };
-      
+
     default:
       return { id };
   }

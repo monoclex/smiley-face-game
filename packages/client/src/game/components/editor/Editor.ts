@@ -13,11 +13,7 @@ class DrawingPointer {
   lastPosition: Position;
   lastLayer?: TileLayer;
 
-  constructor(
-    readonly pointer: Phaser.Input.Pointer,
-    readonly editor: Editor,
-    readonly blockBar: BlockBar,
-  ) {
+  constructor(readonly pointer: Phaser.Input.Pointer, readonly editor: Editor, readonly blockBar: BlockBar) {
     this.lastPosition = this.position(pointer);
   }
 
@@ -36,14 +32,11 @@ class DrawingPointer {
 
       if (fg) {
         this.lastLayer = TileLayer.Foreground;
-      }
-      else if (action) {
+      } else if (action) {
         this.lastLayer = TileLayer.Action;
-      }
-      else if (bg) {
+      } else if (bg) {
         this.lastLayer = TileLayer.Background;
-      }
-      else {
+      } else {
         // by default, try to erase stuff on the foregrounnd
         // TODO: start erasing stuff as soon as a block is picked on the right layer?
         this.lastLayer = TileLayer.Foreground;
@@ -60,8 +53,7 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() {
-  }
+  onUp() {}
 
   id() {
     if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
@@ -80,13 +72,11 @@ export default class Editor implements Component {
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   private _enabled: boolean = false;
-  get enabled(): boolean { return this._enabled; }
+  get enabled(): boolean {
+    return this._enabled;
+  }
 
-  constructor(
-    readonly scene: Phaser.Scene,
-    readonly world: World,
-    readonly blockBar: BlockBar,
-  ) {
+  constructor(readonly scene: Phaser.Scene, readonly world: World, readonly blockBar: BlockBar) {
     this.display = new EditorDisplay();
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
@@ -124,7 +114,7 @@ export default class Editor implements Component {
       }
     }
   }
-  
+
   setEnabled(status: boolean) {
     if (status === this._enabled) return;
     this._enabled = status;
@@ -132,7 +122,6 @@ export default class Editor implements Component {
     if (this.enabled) {
       // if we enabled this component, we want to start re-tracking every pointer that was down
       for (const pointer of iteratePointers(this.scene.input)) {
-
         // if the pointer is down, we want to begin tracking it again
         if (!pointer.isDown) continue;
 
@@ -140,8 +129,7 @@ export default class Editor implements Component {
         this.drawingPointers.set(pointer.pointerId, drawingPointer);
         drawingPointer.onDown();
       }
-    }
-    else {
+    } else {
       // if we disabled this component, we want to stop drawing completely
       const keys = Array.from(this.drawingPointers.keys());
 

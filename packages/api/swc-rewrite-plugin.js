@@ -9,12 +9,18 @@ module.exports = (program) => {
     const declaration = item;
 
     if (declaration.source.value.startsWith("@smiley-face-game/api")) {
-      declaration.source.value = declaration.source.value.replace("@smiley-face-game/api", path.resolve(__dirname, "./src"));
+      declaration.source.value = declaration.source.value.replace(
+        "@smiley-face-game/api",
+        path.resolve(__dirname, "./src")
+      );
       continue;
     }
-    
+
     if (declaration.source.value.startsWith("@/")) {
-      declaration.source.value = declaration.source.value.replace("@/", path.resolve(__dirname, "./src/") + "/")
+      declaration.source.value = declaration.source.value.replace(
+        "@/",
+        path.resolve(__dirname, "./src/") + "/"
+      );
       continue;
     }
   }

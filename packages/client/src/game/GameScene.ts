@@ -1,32 +1,33 @@
-import { ServerInitPacket } from "@smiley-face-game/api/packets/ServerInit";
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import PlayerManager from "@/game/player/PlayerManager";
-import Player from "@/game/player/Player";
-import World from "@/game/world/World";
-import GameSceneInitializationData from "./GameSceneInitializationData";
-import GAME_SCENE_KEY from "./GameSceneKey";
-import Editor from "./components/editor/Editor";
-import BlockBar from "./blockbar/BlockBar";
-
-const TILE_WIDTH = 32; const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 import M249LMG from "@/game/guns/models/variants/M249LMG";
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
-import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
+import Player from "@/game/player/Player";
+import PlayerManager from "@/game/player/PlayerManager";
+import World from "@/game/world/World";
+import { isDev } from "@/isProduction";
+import { chat } from "@/recoil/atoms/chat";
+import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/api/packets/ServerBlockBuffer";
 import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/packets/ServerBlockLine";
 import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/packets/ServerBlockSingle";
+import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
 import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/api/packets/ServerEquipGun";
 import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
+import { ServerInitPacket } from "@smiley-face-game/api/packets/ServerInit";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
 import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickupGun";
-import { chat } from "@/recoil/atoms/chat";
-import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
-import { messages, Message } from "../recoil/atoms/chat/index";
-import { isDev } from "@/isProduction";
-import { playerList } from "../recoil/atoms/playerList";
-import { loading } from "../recoil/atoms/loading/index";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
 import { SERVER_ROLE_UPDATE_ID } from "../../../api/src/packets/ServerRoleUpdate";
 import PlayerRole from "../../../api/src/PlayerRole";
+import { Message, messages } from "../recoil/atoms/chat/index";
+import { loading } from "../recoil/atoms/loading/index";
+import { playerList } from "../recoil/atoms/playerList";
+import BlockBar from "./blockbar/BlockBar";
+import Editor from "./components/editor/Editor";
+import GameSceneInitializationData from "./GameSceneInitializationData";
+import GAME_SCENE_KEY from "./GameSceneKey";
+
+const TILE_WIDTH = 32;
+const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 
 export default class GameScene extends Phaser.Scene {
   networkClient!: NetworkClient;
@@ -37,12 +38,12 @@ export default class GameScene extends Phaser.Scene {
   editor!: Editor;
   blockBar!: BlockBar;
   _input = { up: 0, left: 0, right: 0, jump: false, equip: false }; // use numbers incase more than 1 key is activating the input
-  self!: { playerId: number, username: string, role: PlayerRole };
+  self!: { playerId: number; username: string; role: PlayerRole };
 
   constructor() {
     super({
-      key: GAME_SCENE_KEY
-    })
+      key: GAME_SCENE_KEY,
+    });
     window.gameScene = this;
   }
 
@@ -54,7 +55,7 @@ export default class GameScene extends Phaser.Scene {
     const self = {
       playerId: this.initPacket.playerId,
       username: this.initPacket.username,
-      role: this.initPacket.role
+      role: this.initPacket.role,
     };
 
     this.self = self;
@@ -63,12 +64,16 @@ export default class GameScene extends Phaser.Scene {
   create() {
     this.events.on("destroy", this.destroy, this);
 
-    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      // if the player clicks and the chat is selected, deselect the chat
-      if (chat.state.isActive) {
-        chat.modify({ isActive: false });
-      }
-    }, this);
+    this.input.on(
+      "pointerdown",
+      (pointer: Phaser.Input.Pointer) => {
+        // if the player clicks and the chat is selected, deselect the chat
+        if (chat.state.isActive) {
+          chat.modify({ isActive: false });
+        }
+      },
+      this
+    );
 
     // debug physics easier
     this.physics.world.defaults.debugShowBody = isDev;
@@ -77,38 +82,68 @@ export default class GameScene extends Phaser.Scene {
     // hook the keyboard
     const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
     [UP, W]
-      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
-      .map(key => {
-        key.on("down", () => { this._input.up++; });
-        key.on("up", () => { this._input.up = Math.max(this._input.up - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      .map((key) =>
+        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
+      )
+      .map((key) => {
+        key.on("down", () => {
+          this._input.up++;
+        });
+        key.on("up", () => {
+          this._input.up = Math.max(this._input.up - 1, 0);
+        }); // TODO: figure out why bug occurs that requires Math.max
       });
-    
+
     [SPACE]
-      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
-      .map(key => {
-        key.on("down", () => { this._input.jump = true; });
-        key.on("up", () => { this._input.jump = false; });
+      .map((key) =>
+        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
+      )
+      .map((key) => {
+        key.on("down", () => {
+          this._input.jump = true;
+        });
+        key.on("up", () => {
+          this._input.jump = false;
+        });
       });
-      
+
     [A, LEFT]
-      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
-      .map(key => {
-        key.on("down", () => { this._input.left++; });
-        key.on("up", () => { this._input.left = Math.max(this._input.left - 1, 0); }); // TODO: figure out why bug occurs that requires Math.max
+      .map((key) =>
+        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
+      )
+      .map((key) => {
+        key.on("down", () => {
+          this._input.left++;
+        });
+        key.on("up", () => {
+          this._input.left = Math.max(this._input.left - 1, 0);
+        }); // TODO: figure out why bug occurs that requires Math.max
       });
-      
+
     [D, RIGHT]
-      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
-      .map(key => {
-        key.on("down", () => { this._input.right++; });
-        key.on("up", () => { this._input.right = Math.max(this._input.right - 1, 0); ; }); // TODO: figure out why bug occurs that requires Math.max
+      .map((key) =>
+        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
+      )
+      .map((key) => {
+        key.on("down", () => {
+          this._input.right++;
+        });
+        key.on("up", () => {
+          this._input.right = Math.max(this._input.right - 1, 0);
+        }); // TODO: figure out why bug occurs that requires Math.max
       });
-      
+
     [E]
-      .map(key => this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */))
-      .map(key => {
-        key.on("down", () => { this._input.equip = true; });
-        key.on("up", () => { this._input.equip = false; });
+      .map((key) =>
+        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
+      )
+      .map((key) => {
+        key.on("down", () => {
+          this._input.equip = true;
+        });
+        key.on("up", () => {
+          this._input.equip = false;
+        });
       });
 
     // layers of the world (not to be confused with tile layers)
@@ -139,7 +174,16 @@ export default class GameScene extends Phaser.Scene {
     const blockBar = new BlockBar(world);
     this.blockBar = blockBar;
     this.editor = new Editor(this, world, blockBar);
-    this.physics.world.setBounds(0, 0, this.initPacket.size.width * TILE_WIDTH, this.initPacket.size.height * TILE_HEIGHT, true, true, true, true);
+    this.physics.world.setBounds(
+      0,
+      0,
+      this.initPacket.size.width * TILE_WIDTH,
+      this.initPacket.size.height * TILE_HEIGHT,
+      true,
+      true,
+      true,
+      true
+    );
 
     const players = new PlayerManager(this);
     this.players = players;
@@ -154,106 +198,129 @@ export default class GameScene extends Phaser.Scene {
 
     this.networkClient.events.callback = (event) => {
       switch (event.packetId) {
-        case SERVER_PLAYER_JOIN_ID: {
-          if (event.playerId === this.mainPlayer.id) return;
-  
-          const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
-          player.setPosition(event.joinLocation.x, event.joinLocation.y)
+        case SERVER_PLAYER_JOIN_ID:
+          {
+            if (event.playerId === this.mainPlayer.id) return;
 
-          if (event.hasGun) player.instantiateGun(M249LMG);
-          if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
+            const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
+            player.setPosition(event.joinLocation.x, event.joinLocation.y);
 
-          // UI - add player
-          let newPlayer = {
-            playerId: event.playerId,
-            username: event.username,
-            role: event.role
-          };
-          
-          playerList.modify({ players: [newPlayer, ...playerList.state.players] })
-        } return;
+            if (event.hasGun) player.instantiateGun(M249LMG);
+            if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
 
-        case SERVER_PLAYER_LEAVE_ID: {
-          this.players.removePlayer(event.playerId);
+            // UI - add player
+            let newPlayer = {
+              playerId: event.playerId,
+              username: event.username,
+              role: event.role,
+            };
 
-          // UI - remove player
-          playerList.modify({ players: playerList.state.players.filter(player => player.playerId !== event.playerId) });
-        } return;
-
-        case SERVER_MOVEMENT_ID: {
-          if (event.playerId === this.mainPlayer.id) return;
-
-          const character = players.getPlayer(event.playerId);
-          character.setPosition(event.position.x, event.position.y);
-          character.setVelocity(event.velocity.x, event.velocity.y);
-
-          character.updateInputs(event.inputs);
-        } return;
-
-        case SERVER_BLOCK_BUFFER_ID: {
-          for (const blockEvent of event.blocks) {
-            this.networkClient.events.callback(blockEvent);
+            playerList.modify({ players: [newPlayer, ...playerList.state.players] });
           }
-        } return;
+          return;
 
-        case SERVER_BLOCK_LINE_ID: {
-          this.world.drawLine(event.start, event.end, event, false, event.layer);
-        } return;
+        case SERVER_PLAYER_LEAVE_ID:
+          {
+            this.players.removePlayer(event.playerId);
 
-        case SERVER_BLOCK_SINGLE_ID: {
-          this.world.placeBlock(event.position, event, event.layer, false);
-        } return;
+            // UI - remove player
+            playerList.modify({
+              players: playerList.state.players.filter((player) => player.playerId !== event.playerId),
+            });
+          }
+          return;
 
-        case SERVER_EQUIP_GUN_ID: {
-          if (event.playerId === this.initPacket.playerId) return;
+        case SERVER_MOVEMENT_ID:
+          {
+            if (event.playerId === this.mainPlayer.id) return;
 
-          this.players.onEquipGun(event.playerId, event.equipped);
-        } return;
+            const character = players.getPlayer(event.playerId);
+            character.setPosition(event.position.x, event.position.y);
+            character.setVelocity(event.velocity.x, event.velocity.y);
 
-        case SERVER_FIRE_BULLET_ID: {
-          if (event.playerId === this.initPacket.playerId) return;
+            character.updateInputs(event.inputs);
+          }
+          return;
 
-          this.players.onFireBullet(event.playerId, event.angle);
-        } return;
+        case SERVER_BLOCK_BUFFER_ID:
+          {
+            for (const blockEvent of event.blocks) {
+              this.networkClient.events.callback(blockEvent);
+            }
+          }
+          return;
 
-        case SERVER_PICKUP_GUN_ID: {
-          if (event.playerId === this.initPacket.playerId) return;
+        case SERVER_BLOCK_LINE_ID:
+          {
+            this.world.drawLine(event.start, event.end, event, false, event.layer);
+          }
+          return;
 
-          this.players.onPickupGun(event.playerId);
-        } return;
+        case SERVER_BLOCK_SINGLE_ID:
+          {
+            this.world.placeBlock(event.position, event, event.layer, false);
+          }
+          return;
 
-        case SERVER_CHAT_ID: {
-          const player = this.players.getPlayer(event.playerId);
-          const newMessage: Message = {
-            id: messages.state.length,
-            timestamp: Date.now(),
-            username: player.username,
-            content: event.message
-          };
-          messages.set([ newMessage, ...messages.state ])
-        } return;
+        case SERVER_EQUIP_GUN_ID:
+          {
+            if (event.playerId === this.initPacket.playerId) return;
 
-        case SERVER_ROLE_UPDATE_ID: {
-          const modified = playerList.state.players.map(player => {
-            if (player.playerId === event.playerId) {
-              const modified = {
-                ...player,
-                role: event.newRole
-              };
+            this.players.onEquipGun(event.playerId, event.equipped);
+          }
+          return;
 
-              if (player.playerId === mainPlayer.id) {
-                this.self = modified;
+        case SERVER_FIRE_BULLET_ID:
+          {
+            if (event.playerId === this.initPacket.playerId) return;
+
+            this.players.onFireBullet(event.playerId, event.angle);
+          }
+          return;
+
+        case SERVER_PICKUP_GUN_ID:
+          {
+            if (event.playerId === this.initPacket.playerId) return;
+
+            this.players.onPickupGun(event.playerId);
+          }
+          return;
+
+        case SERVER_CHAT_ID:
+          {
+            const player = this.players.getPlayer(event.playerId);
+            const newMessage: Message = {
+              id: messages.state.length,
+              timestamp: Date.now(),
+              username: player.username,
+              content: event.message,
+            };
+            messages.set([newMessage, ...messages.state]);
+          }
+          return;
+
+        case SERVER_ROLE_UPDATE_ID:
+          {
+            const modified = playerList.state.players.map((player) => {
+              if (player.playerId === event.playerId) {
+                const modified = {
+                  ...player,
+                  role: event.newRole,
+                };
+
+                if (player.playerId === mainPlayer.id) {
+                  this.self = modified;
+                }
+
+                return modified;
+              } else {
+                return player;
               }
+            });
 
-              return modified;
-            }
-            else {
-              return player;
-            }
-          });
-
-          playerList.modify({ players: modified });
-        } return;
+            playerList.modify({ players: modified });
+          }
+          return;
       }
     };
 
@@ -277,15 +344,16 @@ export default class GameScene extends Phaser.Scene {
         jump: this._input.jump,
       };
 
-      if (inputs.jump !== this.mainPlayer.input.jump
-        || inputs.left !== this.mainPlayer.input.left
-        || inputs.right !== this.mainPlayer.input.right
-        || inputs.up !== this.mainPlayer.input.up) {
-        
+      if (
+        inputs.jump !== this.mainPlayer.input.jump ||
+        inputs.left !== this.mainPlayer.input.left ||
+        inputs.right !== this.mainPlayer.input.right ||
+        inputs.up !== this.mainPlayer.input.up
+      ) {
         this.mainPlayer.updateInputs(inputs);
-        this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input)
+        this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input);
       }
-      
+
       // toggle the equpped-ness of the gun when E is pressed
       if (this.mainPlayer.hasGun && this._input.equip) {
         this._input.equip = false;
@@ -303,11 +371,15 @@ export default class GameScene extends Phaser.Scene {
     // when the user presses to fire, it doesn't place/destroy a block
     //
     // we also want to prevent the user from editing if they don't have edit
-    this.editor.setEnabled(!this.mainPlayer.gunEquipped && this.self.role === "edit" || this.self.role === "owner");
+    this.editor.setEnabled((!this.mainPlayer.gunEquipped && this.self.role === "edit") || this.self.role === "owner");
 
     let now = Date.now();
-    if (this.mainPlayer.gunEquipped && this.input.activePointer.isDown // fire bullets while mouse is down
-      && this._lastBulletFire + 100 <= now) { // don't allow another bullet to be shot if it hasn't been at least 100ms since the last bullet
+    if (
+      this.mainPlayer.gunEquipped &&
+      this.input.activePointer.isDown && // fire bullets while mouse is down
+      this._lastBulletFire + 100 <= now
+    ) {
+      // don't allow another bullet to be shot if it hasn't been at least 100ms since the last bullet
       this._lastBulletFire = now;
 
       const angle = this.mainPlayer.guaranteeGun.angle;

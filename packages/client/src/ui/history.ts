@@ -28,26 +28,26 @@ const modifiedHistory: ModifiedHistory = {
   home: () => {
     history.push({
       pathname: "/",
-      state: null
+      state: null,
     });
   },
   lobby: () => {
     history.push({
       pathname: "/lobby",
-      state: null
+      state: null,
     });
   },
   joinGame: (options) => {
     history.push({
       pathname: `/games/${options.roomId}`,
-      state: { ...options, request: "join" }
+      state: { ...options, request: "join" },
     });
   },
   createGame: (options) => {
     history.push({
       pathname: `/games/`,
-      state: { ...options, request: "create" }
-    })
+      state: { ...options, request: "create" },
+    });
   },
 };
 

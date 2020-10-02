@@ -17,26 +17,27 @@ export default class Connection {
 
   // room things
   // TODO: decouple 'lastPosition' default state
-  lastPosition: { x: number, y: number } = { x: 32, y: 32 };
+  lastPosition: { x: number; y: number } = { x: 32, y: 32 };
   hasGun: boolean = false;
   gunEquipped: boolean = false;
   lastMessage: Date = new Date();
   messagesCounter: number = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
   role: PlayerRole = "non";
   hasEdit: boolean = false;
-  get canPlaceBlocks(): boolean { return this.hasEdit && (this.hasGun ? !this.gunEquipped : true); }
+  get canPlaceBlocks(): boolean {
+    return this.hasEdit && (this.hasGun ? !this.gunEquipped : true);
+  }
 
   constructor(
     readonly webSocket: WebSocket,
     readonly authTokenPayload: AuthPayload,
-    readonly worldTokenPayload: WorldJoinRequest,
+    readonly worldTokenPayload: WorldJoinRequest
   ) {
     // ping the client every 30 seconds
     let pingTimer = setInterval(() => {
       if (webSocket.readyState === webSocket.OPEN) {
         webSocket.ping();
-      }
-      else {
+      } else {
         clearInterval(pingTimer);
       }
     }, 30 * 1000);
@@ -46,8 +47,7 @@ export default class Connection {
     if (this.authTokenPayload.aud === "") {
       this.isGuest = true;
       this.username = this.authTokenPayload.name!;
-    }
-    else {
+    } else {
       const account = await accountRepo.findById(this.authTokenPayload.aud);
       this.isGuest = false;
       this.username = account.username;
@@ -129,7 +129,7 @@ export default class Connection {
 
   kill(reason: string) {
     this.webSocket.close(undefined, reason);
-    
+
     if (this._room) {
       if (!this.connected) return;
       this.connected = false;

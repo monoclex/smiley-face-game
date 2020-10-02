@@ -13,7 +13,7 @@ import TileState from "@/game/tiles/TileState";
 
 export default class World {
   readonly tileManager: TileManager;
-  
+
   readonly decoration: Layer;
   readonly foreground: Layer;
   readonly action: Layer;
@@ -41,7 +41,14 @@ export default class World {
   deserializeBlocks(blocks: TileState[][][]) {
     for (let l = 0; l < blocks.length; l++) {
       const layer = blocks[l];
-      const worldLayer = l === TileLayer.Decoration ? this.decoration : l === TileLayer.Foreground ? this.foreground : l === TileLayer.Action ? this.action : this.background;
+      const worldLayer =
+        l === TileLayer.Decoration
+          ? this.decoration
+          : l === TileLayer.Foreground
+          ? this.foreground
+          : l === TileLayer.Action
+          ? this.action
+          : this.background;
 
       for (let y = 0; y < layer.length; y++) {
         const yLayer = layer[y];
@@ -63,12 +70,13 @@ export default class World {
     const tileBreed = tileLookup[tileState.id];
     const actualLayer = layer ?? tileBreed.layer;
     const tile = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
-    
+
     // don't do anything as they are the same
     if (tile.index === tileState.id) {
       if (tileState.id === TileId.Arrow) {
         if (tile.rotation == 90 * tileState.rotation) return;
-        else {}
+        else {
+        }
       } else return;
     }
     if (tileState.id === TileId.Empty && tile.index === -1) return; // special case for empty tiles

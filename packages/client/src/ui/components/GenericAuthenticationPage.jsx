@@ -18,18 +18,18 @@ const useStyles = makeStyles({
     // center it
     display: "block",
     marginLeft: "auto",
-    marginRight: "auto"
+    marginRight: "auto",
   },
   upscalingOldFirefox: {
-    imageRendering: "-moz-crisp-edges"
+    imageRendering: "-moz-crisp-edges",
   },
   upscalingNewFirefox: {
-    imageRendering: "crisp-edges"
+    imageRendering: "crisp-edges",
   },
   upscalingChrome: {
-    imageRendering: "pixelated"
-  }
-})
+    imageRendering: "pixelated",
+  },
+});
 
 const wrapValidator = (validator) => (input) => {
   const result = validator(input)[0];
@@ -40,9 +40,9 @@ const wrapValidator = (validator) => (input) => {
 const validators = {
   // hacky way to do this and not pass in props, but idk i don't feel like properly architecturing my code
   username: wrapValidator(validateUsername),
-  email: input => wrapValidator(validateEmail)(input.toLowerCase()),
-  password: wrapValidator(validatePassword)
-}
+  email: (input) => wrapValidator(validateEmail)(input.toLowerCase()),
+  password: wrapValidator(validatePassword),
+};
 
 export default ({ smileyUrl, inputs, submit }) => {
   const styles = useStyles();
@@ -50,7 +50,15 @@ export default ({ smileyUrl, inputs, submit }) => {
 
   return (
     <Container component="main" maxWidth="sm">
-      <img className={clsx(styles.bigSmileyFace, styles.upscalingOldFirefox, styles.upscalingNewFirefox, styles.upscalingChrome)} src={smileyUrl} />
+      <img
+        className={clsx(
+          styles.bigSmileyFace,
+          styles.upscalingOldFirefox,
+          styles.upscalingNewFirefox,
+          styles.upscalingChrome
+        )}
+        src={smileyUrl}
+      />
       <form onSubmit={handleSubmit(submit)}>
         {inputs.map((input, index) => (
           <TextField

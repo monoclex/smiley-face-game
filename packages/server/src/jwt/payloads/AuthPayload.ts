@@ -9,9 +9,9 @@ export default interface AuthPayload {
   /**
    * The version the payload is on. Every time this interface is changed and the change is deployed, this counter must increment to signal
    * that payloads with a lesser version number are to be invalidated.
-   * 
+   *
    * By invalidating older JwtPayloads, this prevents bugs from arising as all property accesses are guaranteed to work.
-   * 
+   *
    * For example, if an older JwtPayload had field "a" of type number and "b" of type string, and a newer JwtPayload had a field "a" of type
    * string and "c" of type string, accesses to field "a" being a string may cause some hidden bugs that are hard to find, and not having
    * field "c" be accessible may also cause some problems.
@@ -22,7 +22,7 @@ export default interface AuthPayload {
 
   /**
    * The JWT "aud" (Audience) Claim: https://tools.ietf.org/html/rfc7519#section-4.1.3
-   * 
+   *
    * The audience will be the Account Id of an Account.
    * If no Account Id is specified (""), then this user is a Guest.
    */
@@ -36,7 +36,7 @@ export default interface AuthPayload {
 
   /**
    * The permissions that this token is good for.
-   * 
+   *
    * `play` - this permission allows connecting to worlds in to the game.
    * `shop` - this permission allows purchasing items from the shop.
    */

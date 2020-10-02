@@ -1,8 +1,8 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require('terser-webpack-plugin');
-const { DefinePlugin } = require('webpack');
+const TerserPlugin = require("terser-webpack-plugin");
+const { DefinePlugin } = require("webpack");
 const path = require("path");
 const fs = require("fs");
 
@@ -18,7 +18,7 @@ module.exports = (env, argv) => {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: "src/index.html",
-      hash: true
+      hash: true,
     }),
   ];
 
@@ -28,8 +28,11 @@ module.exports = (env, argv) => {
     mode,
     entry: ["./src/index.jsx"],
     resolve: {
-      modules: [path.resolve("./src"), path.resolve(__dirname, "../../node_modules")],
-      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      modules: [
+        path.resolve("./src"),
+        path.resolve(__dirname, "../../node_modules"),
+      ],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
     module: {
       rules: [
@@ -38,8 +41,8 @@ module.exports = (env, argv) => {
           exclude: /node_modules/,
           use: {
             loader: path.resolve("./swc-loader.js"),
-            options: JSON.parse(fs.readFileSync("./.swcrc", "ascii"))
-          }
+            options: JSON.parse(fs.readFileSync("./.swcrc", "ascii")),
+          },
         },
         {
           test: /\.(png|mp3)$/,
@@ -47,9 +50,9 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.svg$/,
-          use: "@svgr/webpack"
-        }
-      ]
+          use: "@svgr/webpack",
+        },
+      ],
     },
     plugins,
     output: {
@@ -58,14 +61,14 @@ module.exports = (env, argv) => {
     },
     devServer: {
       historyApiFallback: true,
-      port: 5000
+      port: 5000,
     },
     optimization: {
       splitChunks: {
-        chunks: "all"
+        chunks: "all",
       },
       minimize: mode === "production",
       minimizer: mode === "production" ? [new TerserPlugin()] : undefined,
-    }
+    },
   };
-}
+};

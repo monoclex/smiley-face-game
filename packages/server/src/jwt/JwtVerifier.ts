@@ -9,7 +9,9 @@ interface FailedValidationResult {
   readonly success: false;
 }
 
-type ValidationResult<TPayload> = PassedValidationResult<TPayload> | FailedValidationResult;
+type ValidationResult<TPayload> =
+  | PassedValidationResult<TPayload>
+  | FailedValidationResult;
 
 type Validator<TPayload> = (input: unknown) => input is TPayload;
 
@@ -35,8 +37,7 @@ export default class JwtVerifier<TPayload> {
       }
 
       return { success: true, payload };
-    }
-    catch {
+    } catch {
       return { success: false };
     }
   }

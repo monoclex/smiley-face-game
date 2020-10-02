@@ -3,7 +3,10 @@ import Connection from "@/worlds/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
 
-export default function handleFireBullet(packet: FireBulletPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default function handleFireBullet(
+  packet: FireBulletPacket,
+  [sender, logic]: [Connection, RoomLogic]
+) {
   // need to have a gun to shoot
   if (!sender.hasGun || !sender.gunEquipped) {
     return false;

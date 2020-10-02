@@ -24,16 +24,20 @@ interface GlobalVariableParkourType {
 
 class Urls {
   private baseUrl(): string {
-    return http + (isProduction ? `://api.sirjosh3917.com/smiley-face-game${isDev ? "/beta" : ""}` : "://localhost:8080") + "/v1";
+    return (
+      http +
+      (isProduction ? `://api.sirjosh3917.com/smiley-face-game${isDev ? "/beta" : ""}` : "://localhost:8080") +
+      "/v1"
+    );
   }
 
   private post<T>(url: string, body: T): Promise<Response> {
     return fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
   }
 
@@ -49,18 +53,18 @@ class Urls {
     return fetch(this.lobby(), {
       method: "GET",
       headers: {
-        "Authorization": token
-      }
-    }).then(result => result.ok && result.json());
+        Authorization: token,
+      },
+    }).then((result) => result.ok && result.json());
   }
 
   getMyRooms(token: string): Promise<any> {
     return fetch(this.player(), {
       method: "GET",
       headers: {
-        "Authorization": token
-      }
-    }).then(result => result.ok && result.json());
+        Authorization: token,
+      },
+    }).then((result) => result.ok && result.json());
   }
 
   connection(options: GlobalVariableParkourType): string {
@@ -69,8 +73,7 @@ class Urls {
     if (options.id) {
       //@ts-ignore
       joinRequest = { type: options.type!, id: options.id };
-    }
-    else {
+    } else {
       joinRequest = { type: "dynamic", name: options.name!, width: options.width!, height: options.height! };
     }
 

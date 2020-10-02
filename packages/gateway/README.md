@@ -1,4 +1,5 @@
 # Go Gateway
+
 At some point in the future, for scalability purposes, it will become necessary to move the primarily single-threaded node process into multiple.
 After looking around, I have concluded that the usage of [`threads.js`](https://www.npmjs.com/package/threads) will be used to start
 rooms on their own threads, and each child node process should communicate with the Go Gateway.

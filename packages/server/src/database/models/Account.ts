@@ -1,9 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import World from './World';
+import World from "./World";
 
 @Entity()
 export default class Account {
-
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -47,21 +46,28 @@ export default class Account {
     }
 
     const millisecondsSinceUnixEpoch = Date.now();
-    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - this.timeEnergyWasAtAmount;
-    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
-    const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
+    const millisecondsEnergyHasBeenRegenerating =
+      millisecondsSinceUnixEpoch - this.timeEnergyWasAtAmount;
+    const amountOfRegeneratedEnergyPrecise =
+      millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
+    const amountOfRegeneratedEnergy = Math.trunc(
+      amountOfRegeneratedEnergyPrecise
+    ); // | 0 would also work here
 
     // cap the energy to maxEnergy
-    return Math.min(this.lastEnergyAmount + amountOfRegeneratedEnergy, this.maxEnergy);
+    return Math.min(
+      this.lastEnergyAmount + amountOfRegeneratedEnergy,
+      this.maxEnergy
+    );
   }
 
   set currentEnergy(energy: number) {
     this.lastEnergyAmount = energy;
-    
+
     const millisecondsSinceUnixEpoch = Date.now();
     this.timeEnergyWasAtAmount = millisecondsSinceUnixEpoch;
   }
 
-  @OneToMany(type => World, world => world.owner)
+  @OneToMany((type) => World, (world) => world.owner)
   worlds!: World[];
 }

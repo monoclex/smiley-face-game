@@ -1,2 +1,1 @@
-export default interface ComponentDisplay {
-}
+export default interface ComponentDisplay {}

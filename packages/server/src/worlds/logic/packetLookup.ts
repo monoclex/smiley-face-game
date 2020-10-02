@@ -14,7 +14,10 @@ import handleServer from "./handlers/handleServer";
 
 type MaybeAsync<T> = T | Promise<T>;
 
-const packetLookup: WorldPacketLookup<[Connection, RoomLogic], MaybeAsync<void | boolean>> = {
+const packetLookup: WorldPacketLookup<
+  [Connection, RoomLogic],
+  MaybeAsync<void | boolean>
+> = {
   BLOCK_BUFFER: handleBlockBuffer,
   BLOCK_LINE: handleBlockLine,
   BLOCK_SINGLE: handleBlockSingle,

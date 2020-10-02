@@ -14,16 +14,17 @@ export default () => (
       { name: "password", text: "Enter your password" },
     ]}
     submit={({ username, email, password }) => {
-      api.postRegister(username, email.toLowerCase(), password)
-        .then(result => {
+      api
+        .postRegister(username, email.toLowerCase(), password)
+        .then((result) => {
           if (!result.ok) {
-            console.warn('Failed to authenticate at register endpoint', result);
+            console.warn("Failed to authenticate at register endpoint", result);
             return;
           }
-        
-          return result.json()
+
+          return result.json();
         })
-        .then(json => {
+        .then((json) => {
           localStorage.setItem("token", json.token);
           history.push("/lobby");
         });

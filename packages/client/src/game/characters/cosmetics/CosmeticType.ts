@@ -1,6 +1,3 @@
-type CosmeticType =
-  | "smile"
-  | "glasses"
-  ;
+type CosmeticType = "smile" | "glasses";
 
 export default CosmeticType;

@@ -15,7 +15,7 @@ import history from "@/ui/history";
 import Loading from "@/ui/Loading";
 import { api } from "@/isProduction";
 import Typography from "@material-ui/core/Typography";
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 const useStyles = makeStyles({
   input: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles({
   rotate180: {
     // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
     transform: "rotate(180deg)",
-  }
+  },
 });
 
 export default () => {
@@ -49,7 +49,11 @@ export default () => {
     setRoomPreviews(undefined);
     setMyRooms(undefined);
     api.getLobby(token).then(setRoomPreviews);
-    api.getMyRooms(token).then(({ ownedWorlds }) => { if (Array.isArray(ownedWorlds)) { setMyRooms(ownedWorlds); } });
+    api.getMyRooms(token).then(({ ownedWorlds }) => {
+      if (Array.isArray(ownedWorlds)) {
+        setMyRooms(ownedWorlds);
+      }
+    });
   };
 
   const logout = () => {
@@ -84,26 +88,31 @@ export default () => {
       <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
           {!roomPreviews && <Loading message={"Loading rooms..."} />}
-          {!!roomPreviews && roomPreviews.map((room) => (
-            <Grid item key={room.id}>
-              <Room room={room} />
-            </Grid>
-          ))}
-
+          {!!roomPreviews &&
+            roomPreviews.map((room) => (
+              <Grid item key={room.id}>
+                <Room room={room} />
+              </Grid>
+            ))}
         </Grid>
 
-{myRooms && <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
-  Your Rooms
-</Typography>}
+        {myRooms && (
+          <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
+            Your Rooms
+          </Typography>
+        )}
 
-        {myRooms && <Grid container spacing={3} justify="center" alignItems="flex-start">
-          {!myRooms && <Loading message={"Loading your rooms..."} />}
-          {!!myRooms && myRooms.map((room) => (
-            <Grid item key={room.id}>
-              <Room room={room} />
-            </Grid>
-          ))}
-        </Grid>}
+        {myRooms && (
+          <Grid container spacing={3} justify="center" alignItems="flex-start">
+            {!myRooms && <Loading message={"Loading your rooms..."} />}
+            {!!myRooms &&
+              myRooms.map((room) => (
+                <Grid item key={room.id}>
+                  <Room room={room} />
+                </Grid>
+              ))}
+          </Grid>
+        )}
       </div>
 
       <CreateRoomDialog

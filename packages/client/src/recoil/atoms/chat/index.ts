@@ -27,5 +27,5 @@ export const chatState = atom<ChatState>({
   key: "chatState",
   default: defaultChatState,
   //@ts-ignore
-  effects_UNSTABLE: [chat.initialize]
+  effects_UNSTABLE: [chat.initialize],
 });

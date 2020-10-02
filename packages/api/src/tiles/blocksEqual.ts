@@ -5,8 +5,6 @@ export default function blocksEqual(a: Block, b: Block) {
   if (a.id === b.id) {
     if (a.id === TileId.Arrow && b.id === TileId.Arrow) {
       return a.rotation === b.rotation;
-    }
-    else return true;
-  }
-  else return false;
+    } else return true;
+  } else return false;
 }

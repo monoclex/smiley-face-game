@@ -8,9 +8,7 @@ import M249LMG from "@/game/guns/models/variants/M249LMG";
 export default class PlayerManager {
   readonly players: Map<number, Player> = new Map();
 
-  constructor(
-    readonly game: GameScene
-  ) {}
+  constructor(readonly game: GameScene) {}
 
   getPlayer(id: number): Player {
     const player = this.players.get(id);
@@ -34,7 +32,7 @@ export default class PlayerManager {
     const player = this.getPlayer(playerId);
     player.destroy();
     if (player.gun) player.gun.destroy();
-    
+
     this.players.delete(playerId);
   }
 

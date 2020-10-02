@@ -22,5 +22,5 @@ export const loadingState = atom<Loading>({
   key: "loadingState",
   default: defaultLoading,
   //@ts-ignore
-  effects_UNSTABLE: [loading.initialize]
+  effects_UNSTABLE: [loading.initialize],
 });
