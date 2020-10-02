@@ -12,13 +12,15 @@ import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "@/ui/components/SpingScrollbars";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
+import currentPlayer from "@/recoil/selectors/currentPlayer";
+import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
+import { useSnackbar } from "notistack";
 
 // so much stupid boilerplate
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserAstronaut, faUserEdit, faUserTie } from "@fortawesome/free-solid-svg-icons";
-import currentPlayer from "@/recoil/selectors/currentPlayer";
-import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
+
 library.add(faUserAstronaut);
 library.add(faUserEdit);
 library.add(faUserTie);
@@ -69,6 +71,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
 
   /** @type {import("@smiley-face-game/api/PlayerRole").default} */
   const role = roleParam;
@@ -92,10 +95,17 @@ const Player = ({ username, playerId, role: roleParam }) => {
     } else {
       window.gameScene.networkClient.takeEdit(playerId);
     }
+
+    enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {
+      variant: "success",
+    });
   };
 
   const kick = () => {
     window.gameScene.networkClient.kick(playerId);
+    enqueueSnackbar(`Kicked ${username}`, {
+      variant: "success",
+    });
   };
 
   return (
