@@ -18,6 +18,6 @@
       "@smiley-face-game/api/*": ["../api/src/*"],
       "@/*": ["./src/*"]
     },
-    "rootDirs": ["src"],
+    "rootDirs": ["src"]
   }
 }

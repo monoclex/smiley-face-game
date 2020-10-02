@@ -15,8 +15,32 @@ const BlockBar = () => {
   useEffect(() => {
     const listener = (keyboardEvent) => {
       const map = {
-        '`': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '0': 10, '-': 11, '=': 12,
-        '~': 0, '!': 1, '@': 2, '#': 3, '$': 4, '%': 5, '^': 6, '&': 7, '*': 8, '(': 9, ')': 10, '_': 11, '+': 12,
+        "`": 0,
+        1: 1,
+        2: 2,
+        3: 3,
+        4: 4,
+        5: 5,
+        6: 6,
+        7: 7,
+        8: 8,
+        9: 9,
+        0: 10,
+        "-": 11,
+        "=": 12,
+        "~": 0,
+        "!": 1,
+        "@": 2,
+        "#": 3,
+        $: 4,
+        "%": 5,
+        "^": 6,
+        "&": 7,
+        "*": 8,
+        "(": 9,
+        ")": 10,
+        _: 11,
+        "+": 12,
       };
 
       const slot = map[keyboardEvent.key];
@@ -27,16 +51,15 @@ const BlockBar = () => {
         // if we've already selected the block, we wanna go to the next state
         const newTileState = nextTileState(blockbar.slots[slot]);
         setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [slot]: newTileState } });
-      }
-      else {
+      } else {
         setBlockbar({ ...blockbar, selected: slot });
       }
     };
-    document.addEventListener('keydown', listener);
+    document.addEventListener("keydown", listener);
 
-    return function() {
+    return function () {
       document.removeEventListener("keydown", listener);
-    }
+    };
   }, [blockbar]);
 
   return (

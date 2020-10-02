@@ -43,7 +43,7 @@ export default class RoomManager {
         yield { room, type: "saved" as const };
       }
     }
-    
+
     for (const room of this.#dynamicRooms.values()) {
       if (room.status === "starting" || room.status === "running") {
         yield { room, type: "dynamic" as const };
@@ -79,7 +79,7 @@ export default class RoomManager {
         message.completion.resolve(room);
         continue;
       }
-      
+
       if (room.status === "stopping") {
         // have to wait for the room to stop before we can instantiate a new room in the map
         await room.onStopped.promise;
@@ -101,53 +101,49 @@ export default class RoomManager {
         // TODO: should we reuse the code in the "running" case?
         if (newRoom.status === "running") {
           message.completion.resolve(room);
-        }
-        else {
+        } else {
           message.completion.reject(new Error("Room failed to start."));
         }
         continue;
       }
 
-      console.warn('possibly unhandled message', message);
+      console.warn("possibly unhandled message", message);
     }
   }
 
   private roomFor(details: WorldJoinRequest): Room | undefined {
     ensureValidates(validateWorldJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
-    
+
     if (details.type === "saved") {
       const room = this.#savedRooms.get(details.id);
 
       if (room === undefined) {
         // "what if the room doesn't exist?" that's handled by room's run() function
-        const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));
+        const newRoom = new Room(
+          new SavedBehaviour(this.#deps.worldRepo, details.id)
+        );
         this.#savedRooms.set(details.id, newRoom);
         return newRoom;
-      }
-      else {
+      } else {
         return room;
       }
-    }
-    else if (details.type === "dynamic") {
-
+    } else if (details.type === "dynamic") {
       if ("id" in details) {
         const room = this.#dynamicRooms.get(details.id);
-  
+
         if (room === undefined) {
           return undefined;
         }
-  
+
         return room;
-      }
-      else {
+      } else {
         const id = this.#generator.genIdForDynamicWorld();
         const newRoom = new Room(new DynamicBehaviour(details, id));
         this.#dynamicRooms.set(id, newRoom);
         return newRoom;
       }
-    }
-    else {
+    } else {
       // unexpected path
       return undefined;
     }

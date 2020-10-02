@@ -3,7 +3,10 @@ import { EquipGunPacket } from "@smiley-face-game/api/packets/EquipGun";
 import Connection from "@/worlds/Connection";
 import RoomLogic from "@/worlds/logic/RoomLogic";
 
-export default async function handleEquipGun(packet: EquipGunPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default async function handleEquipGun(
+  packet: EquipGunPacket,
+  [sender, logic]: [Connection, RoomLogic]
+) {
   // must have a gun to equip it
   if (!sender.hasGun) {
     return false;
@@ -12,7 +15,7 @@ export default async function handleEquipGun(packet: EquipGunPacket, [sender, lo
   // only send a new packet if the gun's equip state changed
   if (sender.gunEquipped == packet.equipped) {
     // don't disconnect the user if they send redundant packets
-    console.warn('redundant equip packet sent by', sender.playerId);
+    console.warn("redundant equip packet sent by", sender.playerId);
     return;
   }
 
@@ -21,6 +24,6 @@ export default async function handleEquipGun(packet: EquipGunPacket, [sender, lo
   logic.broadcast({
     packetId: SERVER_EQUIP_GUN_ID,
     playerId: sender.playerId!,
-    equipped: sender.gunEquipped
+    equipped: sender.gunEquipped,
   });
 }

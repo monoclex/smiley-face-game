@@ -18,9 +18,14 @@ export class Character {
     readonly game: GameScene,
     readonly username: string,
     readonly base: BaseType = "original",
-    readonly cosmetics: CosmeticType[] = ["smile"],
+    readonly cosmetics: CosmeticType[] = ["smile"]
   ) {
-    this.body = this.game.physics.add.sprite(0, 0, baseKey(base)).setMaxVelocity(300, 500).setDrag(3000, 0).setOrigin(0, 0).setCollideWorldBounds(true);
+    this.body = this.game.physics.add
+      .sprite(0, 0, baseKey(base))
+      .setMaxVelocity(300, 500)
+      .setDrag(3000, 0)
+      .setOrigin(0, 0)
+      .setCollideWorldBounds(true);
 
     // add a reference from that game object to the character for ease of use
     //@ts-ignore
@@ -32,14 +37,14 @@ export class Character {
     for (const cosmetic of cosmetics) {
       this.cosmeticSprites.push(this.game.add.image(0, 0, cosmeticKey(cosmetic)).setOrigin(0, 0));
     }
-    
+
     this.game.events.on("update", this.update, this);
     this.game.events.on("postupdate", this.postUpdate, this);
   }
 
   addToContainer(container: Phaser.GameObjects.Container) {
     container.add(this.body);
-    
+
     for (const cosmetic of this.cosmeticSprites) {
       container.add(cosmetic);
     }
@@ -72,17 +77,21 @@ export class Character {
   update() {
     this.game.physics.collide(this.body, this.game.world.foreground.display.tilemapLayer);
     this.game.physics.collide(this.body, this.game.world.action.display.tilemapLayer);
-    
+
     const sprite = this.body;
     const acceleration = 10000;
 
     const { left, right, jump } = this.input;
 
     if (left && right) sprite.setAccelerationX(0);
-    else if (left) { sprite.setAccelerationX(-acceleration); sprite.setFlipX(true); }
-    else if (right) { sprite.setAccelerationX(acceleration); sprite.setFlipX(false); }
-    else sprite.setAccelerationX(0);
-    
+    else if (left) {
+      sprite.setAccelerationX(-acceleration);
+      sprite.setFlipX(true);
+    } else if (right) {
+      sprite.setAccelerationX(acceleration);
+      sprite.setFlipX(false);
+    } else sprite.setAccelerationX(0);
+
     const onGround = sprite.body.blocked.down;
     if (jump && onGround) sprite.setVelocityY(-500);
   }
@@ -92,7 +101,7 @@ export class Character {
     // (like cosmetics and username) are connected to the player
 
     // align the username above the player, with 4 pixels of padding
-    this.usernameText.setPosition(this.body.x + (this.body.width / 2), this.body.y - this.usernameText.height + 4);
+    this.usernameText.setPosition(this.body.x + this.body.width / 2, this.body.y - this.usernameText.height + 4);
 
     for (const cosmeticSprite of this.cosmeticSprites) {
       cosmeticSprite.setPosition(this.body.x, this.body.y);

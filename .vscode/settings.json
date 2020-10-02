@@ -4,7 +4,7 @@
     "editor.insertSpaces": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": true,
-      "source.organizeImports": false,
+      "source.organizeImports": false
     }
   },
   "[go]": {

@@ -22,10 +22,18 @@ export default class ArrowTile implements Tile<TileId.Arrow> {
 
       const player: Player = sprite.player;
       switch (tileState.rotation) {
-        case Rotation.Up: player.physicsState.arrows.up = true; break;
-        case Rotation.Right: player.physicsState.arrows.right = true; break;
-        case Rotation.Down: player.physicsState.arrows.down = true; break;
-        case Rotation.Left: player.physicsState.arrows.left = true; break;
+        case Rotation.Up:
+          player.physicsState.arrows.up = true;
+          break;
+        case Rotation.Right:
+          player.physicsState.arrows.right = true;
+          break;
+        case Rotation.Down:
+          player.physicsState.arrows.down = true;
+          break;
+        case Rotation.Left:
+          player.physicsState.arrows.left = true;
+          break;
       }
     }, this);
   }

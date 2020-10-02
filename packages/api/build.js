@@ -3,7 +3,9 @@ const { promises: fs } = require("fs");
 const path = require("path");
 const plugin = require("./swc-rewrite-plugin");
 
-main().then(() => console.log("done")).catch(console.error);
+main()
+  .then(() => console.log("done"))
+  .catch(console.error);
 
 async function main() {
   const swcrc = JSON.parse(await fs.readFile("./.swcrc", "utf-8"));
@@ -27,7 +29,7 @@ async function swcTransform(filename, swcrc) {
     sourceFileName: filename,
     plugin,
     swcrc: false,
-    ...swcrc
+    ...swcrc,
   });
 
   if (filename.endsWith(".ts") || filename.endsWith(".js")) {
@@ -37,15 +39,17 @@ async function swcTransform(filename, swcrc) {
 
   const target = path.join("dist/", filename.substr("src/".length));
   const dir = path.dirname(target);
-  await fs.mkdir(dir, { recursive: true })
-  try { await fs.truncate(target, 0); } catch {}
+  await fs.mkdir(dir, { recursive: true });
+  try {
+    await fs.truncate(target, 0);
+  } catch {}
   await fs.writeFile(target, transformed.code);
 }
 
 async function* walk(dir) {
-    for await (const d of await fs.opendir(dir)) {
-        const entry = path.join(dir, d.name);
-        if (d.isDirectory()) yield* walk(entry);
-        else if (d.isFile()) yield entry;
-    }
+  for await (const d of await fs.opendir(dir)) {
+    const entry = path.join(dir, d.name);
+    if (d.isDirectory()) yield* walk(entry);
+    else if (d.isFile()) yield entry;
+  }
 }

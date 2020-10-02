@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default () => {
   const classes = useStyles();
-  
+
   // if they have a token, they should go straight to the lobby
   if (localStorage.getItem("token") !== null) {
     history.push("/lobby");

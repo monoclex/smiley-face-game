@@ -1,35 +1,68 @@
-import { TileId } from '@smiley-face-game/api/schemas/TileId';
-import { TileLayer } from '@smiley-face-game/api/schemas/TileLayer';
-import { BlockLinePacket, BLOCK_LINE_ID } from './packets/BlockLine';
-import { BlockSinglePacket, BLOCK_SINGLE_ID } from './packets/BlockSingle';
-import { EquipGunPacket, EQUIP_GUN_ID } from './packets/EquipGun';
-import { FireBulletPacket, FIRE_BULLET_ID } from './packets/FireBullet';
-import { MovementPacket, MOVEMENT_ID } from './packets/Movement';
-import { PickupGunPacket, PICKUP_GUN_ID } from './packets/PickupGun';
-import { SERVER_BLOCK_BUFFER_ID, ServerBlockBufferValidator } from './packets/ServerBlockBuffer';
-import { SERVER_BLOCK_LINE_ID, validateServerBlockLine } from './packets/ServerBlockLine';
-import { SERVER_BLOCK_SINGLE_ID, ServerBlockSingleValidator } from './packets/ServerBlockSingle';
-import { SERVER_EQUIP_GUN_ID, validateServerEquipGun } from './packets/ServerEquipGun';
-import { SERVER_FIRE_BULLET_ID, validateServerFireBullet } from './packets/ServerFireBullet';
-import { SERVER_INIT_ID, validateServerInit } from './packets/ServerInit';
-import { SERVER_MOVEMENT_ID, validateServerMovement } from './packets/ServerMovement';
-import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from './packets/ServerPickupGun';
-import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from './packets/ServerPlayerJoin';
-import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from './packets/ServerPlayerLeave';
-import { SERVER_CHAT_ID, validateServerChat } from './packets/ServerChat';
+import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
+import { BlockLinePacket, BLOCK_LINE_ID } from "./packets/BlockLine";
+import { BlockSinglePacket, BLOCK_SINGLE_ID } from "./packets/BlockSingle";
+import { EquipGunPacket, EQUIP_GUN_ID } from "./packets/EquipGun";
+import { FireBulletPacket, FIRE_BULLET_ID } from "./packets/FireBullet";
+import { MovementPacket, MOVEMENT_ID } from "./packets/Movement";
+import { PickupGunPacket, PICKUP_GUN_ID } from "./packets/PickupGun";
+import {
+  SERVER_BLOCK_BUFFER_ID,
+  ServerBlockBufferValidator,
+} from "./packets/ServerBlockBuffer";
+import {
+  SERVER_BLOCK_LINE_ID,
+  validateServerBlockLine,
+} from "./packets/ServerBlockLine";
+import {
+  SERVER_BLOCK_SINGLE_ID,
+  ServerBlockSingleValidator,
+} from "./packets/ServerBlockSingle";
+import {
+  SERVER_EQUIP_GUN_ID,
+  validateServerEquipGun,
+} from "./packets/ServerEquipGun";
+import {
+  SERVER_FIRE_BULLET_ID,
+  validateServerFireBullet,
+} from "./packets/ServerFireBullet";
+import { SERVER_INIT_ID, validateServerInit } from "./packets/ServerInit";
+import {
+  SERVER_MOVEMENT_ID,
+  validateServerMovement,
+} from "./packets/ServerMovement";
+import {
+  SERVER_PICKUP_GUN_ID,
+  validateServerPickupGun,
+} from "./packets/ServerPickupGun";
+import {
+  SERVER_PLAYER_JOIN_ID,
+  validateServerPlayerJoin,
+} from "./packets/ServerPlayerJoin";
+import {
+  SERVER_PLAYER_LEAVE_ID,
+  validateServerPlayerLeave,
+} from "./packets/ServerPlayerLeave";
+import { SERVER_CHAT_ID, validateServerChat } from "./packets/ServerChat";
 import { WorldPacket } from "./packets/WorldPacket";
 import { ServerPackets } from "@smiley-face-game/api/packets/ServerPackets";
 import { isServerPacket } from "./packets/ServerPackets";
 import { ChatPacket, CHAT_ID } from "./packets/Chat";
 import { Block } from "@/schemas/Block";
 import TileState from "@smiley-face-game/api/tiles/TileState";
-import { SERVER_ROLE_UPDATE_ID, validateServerRoleUpdate } from "./packets/ServerRoleUpdate";
-import { PlayerlistActionPacket, PLAYER_LIST_ACTION_ID } from "./packets/PlayerlistAction";
+import {
+  SERVER_ROLE_UPDATE_ID,
+  validateServerRoleUpdate,
+} from "./packets/ServerRoleUpdate";
+import {
+  PlayerlistActionPacket,
+  PLAYER_LIST_ACTION_ID,
+} from "./packets/PlayerlistAction";
 
 class NetworkEvents {
   constructor(
     readonly validateServerBlockSingle: ServerBlockSingleValidator,
-    readonly validateServerBlockBuffer: ServerBlockBufferValidator,
+    readonly validateServerBlockBuffer: ServerBlockBufferValidator
   ) {}
 
   callback: (packet: ServerPackets) => void | Promise<void>;
@@ -37,7 +70,7 @@ class NetworkEvents {
   triggerEvent(rawPacket: any): void | Promise<void> {
     // make sure we can validate the packet id thte server sent us
     if (!isServerPacket(rawPacket)) {
-      console.error('[websocket] invalid packet id', rawPacket.packetId);
+      console.error("[websocket] invalid packet id", rawPacket.packetId);
       return;
     }
 
@@ -55,13 +88,13 @@ class NetworkEvents {
       [SERVER_CHAT_ID]: validateServerChat,
       [SERVER_ROLE_UPDATE_ID]: validateServerRoleUpdate,
     };
-    
+
     // validate the packet (type checking stuffs)
     //@ts-ignore
     const [error, packet] = lookup[rawPacket.packetId](rawPacket);
 
     if (error !== null) {
-      console.error('[websocket] packet invalidated', error, rawPacket);
+      console.error("[websocket] packet invalidated", error, rawPacket);
       return;
     }
 
@@ -88,20 +121,23 @@ export class NetworkClient {
     targetWebSocketUrl: string,
     registerCallbacks: (client: NetworkClient) => void,
     validateServerBlockBuffer: ServerBlockBufferValidator,
-    validateServerBlockSingle: ServerBlockSingleValidator,
+    validateServerBlockSingle: ServerBlockSingleValidator
   ): Promise<NetworkClient> {
     return new Promise((resolve, reject) => {
       let resolved = false;
       const webSocket = new WebSocket(targetWebSocketUrl);
-      const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
+      const networkClient = new NetworkClient(
+        webSocket,
+        validateServerBlockBuffer,
+        validateServerBlockSingle
+      );
       registerCallbacks(networkClient);
 
       webSocket.addEventListener("message", (message) => {
         let parsed = JSON.parse(message.data);
         if (parsed.error) {
           reject(new Error(parsed.error));
-        }
-        else {
+        } else {
           if (!resolved) {
             resolve(networkClient);
           }
@@ -110,14 +146,14 @@ export class NetworkClient {
       });
 
       webSocket.addEventListener("error", (error) => {
-        console.warn('[websocket errror]', error);
+        console.warn("[websocket errror]", error);
         reject(error);
       });
 
       webSocket.addEventListener("close", () => {
         console.warn("websocket connection closed");
         if (!resolved) {
-          resolved = false
+          resolved = false;
           reject("modernity");
         }
       });
@@ -132,15 +168,21 @@ export class NetworkClient {
   private constructor(
     private readonly _webSocket: WebSocket,
     validateServerBlockBuffer: ServerBlockBufferValidator,
-    validateServerBlockSingle: ServerBlockSingleValidator,
+    validateServerBlockSingle: ServerBlockSingleValidator
   ) {
-    this.events = new NetworkEvents(validateServerBlockSingle, validateServerBlockBuffer);
+    this.events = new NetworkEvents(
+      validateServerBlockSingle,
+      validateServerBlockBuffer
+    );
     this._buffer = [];
 
     const onClose = (event) => {
       if (this._showClosingAlert) {
         //@ts-ignore
-        alert('connection to server died, pls refresh' + (event.reason || JSON.stringify(event)));
+        alert(
+          "connection to server died, pls refresh" +
+            (event.reason || JSON.stringify(event))
+        );
       }
     };
     this._webSocket.addEventListener("close", onClose);
@@ -159,8 +201,8 @@ export class NetworkClient {
     // packets come over the wire as a string of json
     const rawPacket = JSON.parse(event.data);
 
-    if (!rawPacket.packetId || typeof rawPacket.packetId !== 'string') {
-      console.error('[websocket warn] server sent invalid packet', rawPacket);
+    if (!rawPacket.packetId || typeof rawPacket.packetId !== "string") {
+      console.error("[websocket warn] server sent invalid packet", rawPacket);
       return;
     }
 
@@ -205,7 +247,7 @@ export class NetworkClient {
       packetId: BLOCK_SINGLE_ID,
       position: { x, y },
       layer,
-      ...id
+      ...id,
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -225,7 +267,7 @@ export class NetworkClient {
   gotGun(position: Position): void {
     const packet: PickupGunPacket = {
       packetId: PICKUP_GUN_ID,
-      position
+      position,
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -234,7 +276,7 @@ export class NetworkClient {
   fireBullet(angle: number): void {
     const packet: FireBulletPacket = {
       packetId: FIRE_BULLET_ID,
-      angle
+      angle,
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -243,13 +285,18 @@ export class NetworkClient {
   equipGun(equipped: boolean): void {
     const packet: EquipGunPacket = {
       packetId: EQUIP_GUN_ID,
-      equipped
+      equipped,
     };
 
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileState): void {
+  placeLine(
+    tileLayer: TileLayer,
+    start: Position,
+    end: Position,
+    _activeBlock: TileState
+  ): void {
     const packet: BlockLinePacket = {
       ..._activeBlock,
       packetId: BLOCK_LINE_ID,
@@ -264,7 +311,7 @@ export class NetworkClient {
   chat(message: string) {
     const packet: ChatPacket = {
       packetId: CHAT_ID,
-      message
+      message,
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -274,7 +321,7 @@ export class NetworkClient {
     const packet: PlayerlistActionPacket = {
       packetId: PLAYER_LIST_ACTION_ID,
       action: "give edit",
-      playerId
+      playerId,
     };
 
     this.send(packet);
@@ -284,7 +331,7 @@ export class NetworkClient {
     const packet: PlayerlistActionPacket = {
       packetId: PLAYER_LIST_ACTION_ID,
       action: "remove edit",
-      playerId
+      playerId,
     };
 
     this.send(packet);
@@ -294,7 +341,7 @@ export class NetworkClient {
     const packet: PlayerlistActionPacket = {
       packetId: PLAYER_LIST_ACTION_ID,
       action: "kick",
-      playerId
+      playerId,
     };
 
     this.send(packet);

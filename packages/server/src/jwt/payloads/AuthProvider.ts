@@ -26,7 +26,7 @@ export default class AuthProvider {
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 hour" });
   }
-  
+
   /**
    * Generates a JWT that only authenticates a Guest to play the game.
    * @param name The name for the Guest.
@@ -38,7 +38,7 @@ export default class AuthProvider {
       ver: 1,
       aud: "",
       name,
-      can: ["play"]
+      can: ["play"],
     };
 
     // generate a token that never expires

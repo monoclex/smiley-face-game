@@ -28,7 +28,7 @@ export default class AccountRepo {
 
   findById(id: string): Promise<AccountLike> {
     ensureValidates(validateAccountId, id);
-    return this.#repo.findOneOrFail({ id }, {  });
+    return this.#repo.findOneOrFail({ id }, {});
   }
 
   // TODO: do this better

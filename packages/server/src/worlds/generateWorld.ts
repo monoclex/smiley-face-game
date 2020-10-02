@@ -20,7 +20,7 @@ export default function generateWorld(width: number, height: number): string {
   const sidelines: Block[] = [];
   sidelines[0] = solid;
   sidelines[width - 1] = solid;
-  
+
   foreground[0] = solidLineAcrossX;
   for (let y = 1; y < height - 1; y++) {
     foreground[y] = sidelines;

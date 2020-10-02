@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton, } from "@material-ui/core";
+import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@material-ui/core";
 import ThumbUpIcon from "mdi-material-ui/ThumbUp";
 import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
@@ -48,7 +48,9 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
-  const { room: { id, name, type, playerCount } } = props;
+  const {
+    room: { id, name, type, playerCount },
+  } = props;
 
   const classes = useStyles();
 
@@ -79,10 +81,7 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton
-                aria-label="play"
-                onClick={() => history.joinGame({ type, roomId: id })}
-              >
+              <IconButton aria-label="play" onClick={() => history.joinGame({ type, roomId: id })}>
                 <PlayIcon />
               </IconButton>
             </Tooltip>

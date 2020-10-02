@@ -15,20 +15,20 @@ export const defaultBlockbarState: BlockBar = {
   selected: 1,
   loader: null,
   slots: {
-    [ 0]: defaultFor(TileId.Empty),
-    [ 1]: defaultFor(TileId.Full),
-    [ 2]: defaultFor(TileId.Gun),
-    [ 3]: defaultFor(TileId.Arrow),
-    [ 4]: defaultFor(TileId.Empty),
-    [ 5]: defaultFor(TileId.Empty),
-    [ 6]: defaultFor(TileId.Empty),
-    [ 7]: defaultFor(TileId.Empty),
-    [ 8]: defaultFor(TileId.Empty),
-    [ 9]: defaultFor(TileId.Empty),
+    [0]: defaultFor(TileId.Empty),
+    [1]: defaultFor(TileId.Full),
+    [2]: defaultFor(TileId.Gun),
+    [3]: defaultFor(TileId.Arrow),
+    [4]: defaultFor(TileId.Empty),
+    [5]: defaultFor(TileId.Empty),
+    [6]: defaultFor(TileId.Empty),
+    [7]: defaultFor(TileId.Empty),
+    [8]: defaultFor(TileId.Empty),
+    [9]: defaultFor(TileId.Empty),
     [10]: defaultFor(TileId.Empty),
     [11]: defaultFor(TileId.Empty),
     [12]: defaultFor(TileId.Empty),
-  }
+  },
 };
 export const blockbar = new SharedGlobal<BlockBar>(defaultBlockbarState);
 export const blockbarState = atom<BlockBar>({

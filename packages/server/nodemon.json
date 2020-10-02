@@ -1,8 +1,6 @@
 {
   "signal": "SIGHUP",
-  "watch": [
-    "src/"
-  ],
+  "watch": ["src/"],
   "ext": "ts",
   "exec": "ttsc && node src/index.js"
 }

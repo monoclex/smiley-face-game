@@ -2,7 +2,11 @@ import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game
 import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
 import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
 import { Block } from "@smiley-face-game/api/schemas/Block";
-import { worldPacket, WorldPacket, WorldPacketValidator } from "@smiley-face-game/api/packets/WorldPacket";
+import {
+  worldPacket,
+  WorldPacket,
+  WorldPacketValidator,
+} from "@smiley-face-game/api/packets/WorldPacket";
 import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
 import WorldRepo from "@/database/repos/WorldRepo";
 import Connection from "@/worlds/Connection";
@@ -15,14 +19,28 @@ import ensureValidates from "../ensureValidates";
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
 export default class Room {
-  get id(): string { return this.#behaviour.id; }
-  get status(): RoomStatus { return this.#status; }
-  get name(): string { return this.#name; }
+  get id(): string {
+    return this.#behaviour.id;
+  }
+  get status(): RoomStatus {
+    return this.#status;
+  }
+  get name(): string {
+    return this.#name;
+  }
   // TODO: get these from an actual source
-  get width(): number { return this.#width; }
-  get height(): number { return this.#height; }
-  get validateWorldPacket(): WorldPacketValidator { return this.#worldPacketValidator; }
-  get playerCount() { return this.#logic.playerCount };
+  get width(): number {
+    return this.#width;
+  }
+  get height(): number {
+    return this.#height;
+  }
+  get validateWorldPacket(): WorldPacketValidator {
+    return this.#worldPacketValidator;
+  }
+  get playerCount() {
+    return this.#logic.playerCount;
+  }
 
   #name!: string;
   #width!: number;
@@ -54,11 +72,13 @@ export default class Room {
     try {
       const blocksPromise = this.getBlocks();
       const detailsPromise = this.#behaviour.loadDetails();
-      const [blocksResult, detailsResult] = await Promise.all([blocksPromise, detailsPromise]);  
+      const [blocksResult, detailsResult] = await Promise.all([
+        blocksPromise,
+        detailsPromise,
+      ]);
       blocks = blocksResult;
       details = detailsResult;
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Couldn't load saved world '", this.id, "': ", error);
       this.#status = "stopping";
       this.onRunning.resolve();
@@ -71,10 +91,19 @@ export default class Room {
     this.#width = details.width;
     this.#height = details.height;
 
-    this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
+    this.#worldPacketValidator = worldPacket(
+      blockPosition(this.width - 1, this.height - 1).BlockPositionSchema
+    ).validateWorldPacket;
 
     this.#status = "running";
-    this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => this.#status = "stopping", this.id, this.#behaviour);
+    this.#logic = new RoomLogic(
+      this.#onEmpty,
+      blocks,
+      details,
+      () => (this.#status = "stopping"),
+      this.id,
+      this.#behaviour
+    );
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;
@@ -96,8 +125,12 @@ export default class Room {
 
   join(connection: Connection): boolean {
     if (this.#logic === undefined) {
-      console.error("welp this hit somehow, @/worlds/Room.ts Room.join(Connection)");
-      throw new Error("this.#logic should never be undefined when calling `join`");
+      console.error(
+        "welp this hit somehow, @/worlds/Room.ts Room.join(Connection)"
+      );
+      throw new Error(
+        "this.#logic should never be undefined when calling `join`"
+      );
     }
 
     return this.#logic.handleJoin(connection);
@@ -105,8 +138,12 @@ export default class Room {
 
   leave(connection: Connection) {
     if (this.#logic === undefined) {
-      console.error("welp this hit somehow, @/worlds/Room.ts Room.leave(Connection)");
-      throw new Error("this.#logic should never be undefined when calling `leave`");
+      console.error(
+        "welp this hit somehow, @/worlds/Room.ts Room.leave(Connection)"
+      );
+      throw new Error(
+        "this.#logic should never be undefined when calling `leave`"
+      );
     }
 
     this.#logic.handleLeave(connection);

@@ -33,16 +33,16 @@ const useStyles = makeStyles({
   },
 
   rotate0: {
-    transform: "rotate(0deg)"
+    transform: "rotate(0deg)",
   },
   rotate1: {
-    transform: "rotate(-90deg)"
+    transform: "rotate(-90deg)",
   },
   rotate2: {
-    transform: "rotate(-180deg)"
+    transform: "rotate(-180deg)",
   },
   rotate3: {
-    transform: "rotate(-270deg)"
+    transform: "rotate(-270deg)",
   },
 });
 
@@ -55,7 +55,7 @@ const Block = (props) => {
     [Rotation.Right]: classes.rotate0,
     [Rotation.Up]: classes.rotate1,
     [Rotation.Left]: classes.rotate2,
-    [Rotation.Down]: classes.rotate3
+    [Rotation.Down]: classes.rotate3,
   };
 
   useEffect(() => {
@@ -73,8 +73,7 @@ const Block = (props) => {
   const handleClick = () => {
     if (!props.selected) {
       props.onClick();
-    }
-    else {
+    } else {
       // this is for rotating a block in the hotbar
       props.nextState();
     }
@@ -91,9 +90,13 @@ const Block = (props) => {
       </Grid>
       <Grid item className={classes.removeLineHeight}>
         <img
-          className={clsx(classes.image, {
-            [classes.hover]: !props.selected,
-          }, rotation !== undefined && rotationMap[rotation])}
+          className={clsx(
+            classes.image,
+            {
+              [classes.hover]: !props.selected,
+            },
+            rotation !== undefined && rotationMap[rotation]
+          )}
           onClick={handleClick}
           src={imageSource}
         />

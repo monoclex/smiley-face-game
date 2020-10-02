@@ -8,14 +8,19 @@ import playerRouterFactory from "./player";
 export default function (deps: Dependencies): Router {
   const router = Router();
 
-  router.use('/auth', authRouterFactory(deps));
-  router.use('/game', gameRouterFactory(deps));
-  router.use('/player', playerRouterFactory(deps));
-  router.get("/err", asyncHandler((req, res) => {
-    return new Promise((r, rj) => {
-      setTimeout(() => {rj(new Error("async errer"))}, 1000);
-    });
-  }));
+  router.use("/auth", authRouterFactory(deps));
+  router.use("/game", gameRouterFactory(deps));
+  router.use("/player", playerRouterFactory(deps));
+  router.get(
+    "/err",
+    asyncHandler((req, res) => {
+      return new Promise((r, rj) => {
+        setTimeout(() => {
+          rj(new Error("async errer"));
+        }, 1000);
+      });
+    })
+  );
 
   return router;
 }

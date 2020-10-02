@@ -71,7 +71,9 @@ const Game = ({
   selectedSlot,
   loader,
   location: { search, state },
-  match: { params: { roomId } }
+  match: {
+    params: { roomId },
+  },
 }) => {
   // don't have to check if the token is valid because that will happen when we try to join the game
   const token = localStorage.getItem("token");
@@ -80,12 +82,13 @@ const Game = ({
     return null;
   }
 
-  if (!state || !state.request) { // if the user navigates here naturally, we have to infer the state
+  if (!state || !state.request) {
+    // if the user navigates here naturally, we have to infer the state
     const { type } = qs.parse(search);
     state = {};
     state.request = "join";
     state.roomId = roomId;
-    state.type = type
+    state.type = type;
   }
 
   const gameRef = useRef();
@@ -119,8 +122,7 @@ const Game = ({
       globalVariableParkour.name = state.name;
       globalVariableParkour.width = state.width;
       globalVariableParkour.height = state.height;
-    }
-    else {
+    } else {
       globalVariableParkour.type = state.type;
       globalVariableParkour.id = state.roomId;
     }
@@ -138,12 +140,12 @@ const Game = ({
     const listener = () => {
       game.scale.resize(window.innerWidth, window.innerHeight);
     };
-    
+
     window.addEventListener("resize", listener);
 
     return function cleanup() {
       window.removeEventListener("resize", listener);
-      sharedGlobalLoading.set({ failed: undefined, why: undefined })
+      sharedGlobalLoading.set({ failed: undefined, why: undefined });
       game.destroy(true);
     };
   }, []);
@@ -161,25 +163,31 @@ const Game = ({
 
   return (
     <>
-    {/* i tried to stick this in its own condition but i'm having a hard time figuring out what to do with `ref gameRef`
+      {/* i tried to stick this in its own condition but i'm having a hard time figuring out what to do with `ref gameRef`
         react wants it to exist otherwise it throws an error during reset. */}
-    {loading.failed && (
-    <Grid container justify="center">
-      <h1>game failed to load</h1>
-      <span>{ loading.why.toString() }</span>
-      <button onClick={() => { setLoading({ failed: false }); history.createGame({ name: "test", width: 50, height: 50 }) }}>
-        gclick here to make a a new roome
-      </button>
-    </Grid>
-    )}
+      {loading.failed && (
+        <Grid container justify="center">
+          <h1>game failed to load</h1>
+          <span>{loading.why.toString()}</span>
+          <button
+            onClick={() => {
+              setLoading({ failed: false });
+              history.createGame({ name: "test", width: 50, height: 50 });
+            }}
+          >
+            gclick here to make a a new roome
+          </button>
+        </Grid>
+      )}
       <Grid container justify="center">
         <div className={styles.game} ref={gameRef} />
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
-        {((loading.failed === false) && (mainPlayer !== undefined) && (mainPlayer.role !== "non") ?
-        (<div className={styles.blockbar}>
-          <BlockBar loader={loader} />
-        </div>) : null)}
+        {loading.failed === false && mainPlayer !== undefined && mainPlayer.role !== "non" ? (
+          <div className={styles.blockbar}>
+            <BlockBar loader={loader} />
+          </div>
+        ) : null}
 
         <Chat />
       </Grid>
