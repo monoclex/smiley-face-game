@@ -9,6 +9,7 @@ import { SnackbarProvider } from "notistack";
 
 import Loading from "./Loading";
 import history from "@/ui/history";
+import { SnackbarUtilsConfigurator } from "@/SnackbarUtils";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -37,6 +38,7 @@ export const App = () => {
     <Router history={history}>
       <RecoilRoot>
         <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
+          <SnackbarUtilsConfigurator />
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <Suspense fallback={<Loading />}>

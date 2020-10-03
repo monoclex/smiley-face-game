@@ -42,7 +42,7 @@ export default function (deps: UsedDependencies): Router {
             body.email,
             error
           );
-          res.status(400);
+          res.status(400).json({ error: "Login failed." });
         }
       })
     )
@@ -55,7 +55,22 @@ export default function (deps: UsedDependencies): Router {
       asyncHandler(async (req, res) => {
         const body = req.body;
 
-        // TODO: verify captcha
+        // TODO: require them to verify a captcha
+        // TODO: don't send 201 status on error
+
+        try {
+          await accountRepo.findByUsername(body.username);
+          res.status(201).json({ error: "Username taken." });
+        } catch {
+          // good, it shouldn't exist
+        }
+
+        try {
+          await accountRepo.findByEmail(body.email);
+          res.status(201).json({ error: "Email taken." });
+        } catch {
+          // good, it shouldn't exist
+        }
 
         const account = await accountRepo.create({
           username: body.username,
