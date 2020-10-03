@@ -55,7 +55,10 @@ class Urls {
       headers: {
         Authorization: token,
       },
-    }).then((result) => result.ok && result.json());
+    }).then((result) => {
+      if (!result.ok) throw new Error("Couldn't GET lobby.");
+      return result.json();
+    });
   }
 
   getMyRooms(token: string): Promise<any> {
@@ -64,7 +67,10 @@ class Urls {
       headers: {
         Authorization: token,
       },
-    }).then((result) => result.ok && result.json());
+    }).then((result) => {
+      if (!result.ok) throw new Error("Couldn't GET player.");
+      return result.json();
+    });
   }
 
   connection(options: GlobalVariableParkourType): string {

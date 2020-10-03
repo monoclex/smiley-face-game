@@ -16,6 +16,7 @@ import Loading from "@/ui/Loading";
 import { api } from "@/isProduction";
 import Typography from "@material-ui/core/Typography";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles({
   input: {
@@ -40,6 +41,7 @@ export default () => {
   }
 
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [roomPreviews, setRoomPreviews] = useState(undefined);
   const [myRooms, setMyRooms] = useState(undefined);
@@ -48,12 +50,30 @@ export default () => {
   const refresh = () => {
     setRoomPreviews(undefined);
     setMyRooms(undefined);
-    api.getLobby(token).then(setRoomPreviews);
-    api.getMyRooms(token).then(({ ownedWorlds }) => {
-      if (Array.isArray(ownedWorlds)) {
-        setMyRooms(ownedWorlds);
-      }
-    });
+
+    let didExit = false;
+    const exit = () => {
+      if (didExit) return;
+      didExit = true;
+
+      enqueueSnackbar("Logged out - invalid token", {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+
+      localStorage.removeItem("token");
+      history.push("/");
+    };
+
+    api.getLobby(token).then(setRoomPreviews).catch(exit);
+    api
+      .getMyRooms(token)
+      .then(({ ownedWorlds }) => {
+        if (Array.isArray(ownedWorlds)) {
+          setMyRooms(ownedWorlds);
+        }
+      })
+      .catch(exit);
   };
 
   const logout = () => {
