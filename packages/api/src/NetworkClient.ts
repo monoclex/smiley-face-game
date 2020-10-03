@@ -11,48 +11,50 @@ import { MovementPacket, MOVEMENT_ID } from "./packets/Movement";
 import { PickupGunPacket, PICKUP_GUN_ID } from "./packets/PickupGun";
 import {
   PlayerlistActionPacket,
-  PLAYER_LIST_ACTION_ID
+  PLAYER_LIST_ACTION_ID,
 } from "./packets/PlayerlistAction";
 import {
-  ServerBlockBufferValidator, SERVER_BLOCK_BUFFER_ID
+  ServerBlockBufferValidator,
+  SERVER_BLOCK_BUFFER_ID,
 } from "./packets/ServerBlockBuffer";
 import {
   SERVER_BLOCK_LINE_ID,
-  validateServerBlockLine
+  validateServerBlockLine,
 } from "./packets/ServerBlockLine";
 import {
-  ServerBlockSingleValidator, SERVER_BLOCK_SINGLE_ID
+  ServerBlockSingleValidator,
+  SERVER_BLOCK_SINGLE_ID,
 } from "./packets/ServerBlockSingle";
 import { SERVER_CHAT_ID, validateServerChat } from "./packets/ServerChat";
 import {
   SERVER_EQUIP_GUN_ID,
-  validateServerEquipGun
+  validateServerEquipGun,
 } from "./packets/ServerEquipGun";
 import {
   SERVER_FIRE_BULLET_ID,
-  validateServerFireBullet
+  validateServerFireBullet,
 } from "./packets/ServerFireBullet";
 import { SERVER_INIT_ID, validateServerInit } from "./packets/ServerInit";
 import {
   SERVER_MOVEMENT_ID,
-  validateServerMovement
+  validateServerMovement,
 } from "./packets/ServerMovement";
 import { isServerPacket } from "./packets/ServerPackets";
 import {
   SERVER_PICKUP_GUN_ID,
-  validateServerPickupGun
+  validateServerPickupGun,
 } from "./packets/ServerPickupGun";
 import {
   SERVER_PLAYER_JOIN_ID,
-  validateServerPlayerJoin
+  validateServerPlayerJoin,
 } from "./packets/ServerPlayerJoin";
 import {
   SERVER_PLAYER_LEAVE_ID,
-  validateServerPlayerLeave
+  validateServerPlayerLeave,
 } from "./packets/ServerPlayerLeave";
 import {
   SERVER_ROLE_UPDATE_ID,
-  validateServerRoleUpdate
+  validateServerRoleUpdate,
 } from "./packets/ServerRoleUpdate";
 import { WorldPacket } from "./packets/WorldPacket";
 
@@ -248,7 +250,12 @@ export class NetworkClient {
     const packet: MovementPacket = {
       packetId: MOVEMENT_ID,
       position: { x: position.x, y: position.y }, // we don't deconstruct to prevent sending needless data on the wire
-      inputs: { left: inputs.left, right: inputs.right, up: inputs.up, jump: inputs.jump },
+      inputs: {
+        left: inputs.left,
+        right: inputs.right,
+        up: inputs.up,
+        jump: inputs.jump,
+      },
       velocity: { x: velocity.x, y: velocity.y },
     };
 

@@ -100,7 +100,7 @@ export default class RoomManager {
 
         // TODO: should we reuse the code in the "running" case?
         if (newRoom.status === "running") {
-          message.completion.resolve(room);
+          message.completion.resolve(newRoom);
         } else {
           message.completion.reject(new Error("Room failed to start."));
         }
