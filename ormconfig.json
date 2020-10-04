@@ -6,10 +6,11 @@
   "username": "sfg",
   "password": "local-postgresql-dev-this-is-fine",
   "database": "sfg",
-  "synchronize": true,
+  "synchronize": false,
   "logging": true,
-  "entities": ["src/database/models/**/*.js"],
-  "migrations": ["src/database/migrations/**/*"],
+  "migrationsRun": true,
+  "entities": ["src/database/models/**/*.ts"],
+  "migrations": ["src/database/migrations/**/*.ts"],
   "cli": {
     "entitiesDir": "src/database/models",
     "migrationsDir": "src/database/migrations"
