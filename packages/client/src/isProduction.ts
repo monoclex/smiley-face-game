@@ -26,7 +26,7 @@ class Urls {
   private baseUrl(): string {
     return (
       http +
-      (isProduction ? `://api.sirjosh3917.com/smiley-face-game${isDev ? "/beta" : ""}` : "://localhost:8080") +
+      (isProduction ? `://api.sirjosh3917.com/smiley-face-game${isDev ? "/dev" : ""}` : "://localhost:8080") +
       "/v1"
     );
   }
@@ -86,7 +86,7 @@ class Urls {
     const query = `token=${encodeURIComponent(options.token)}&world=${encodeURIComponent(JSON.stringify(joinRequest))}`;
 
     return isProduction
-      ? ws + `://${isDev ? "beta-" : ""}ws-api.sirjosh3917.com/smiley-face-game/v1/game/ws/?${query}`
+      ? ws + `://${isDev ? "dev-" : ""}ws-api.sirjosh3917.com/smiley-face-game/v1/game/ws/?${query}`
       : ws + `://localhost:8080/v1/game/ws/?${query}`;
   }
 
