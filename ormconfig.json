@@ -1,0 +1,17 @@
+{
+  "name": "default",
+  "type": "postgres",
+  "host": "localhost",
+  "port": "5432",
+  "username": "sfg",
+  "password": "local-postgresql-dev-this-is-fine",
+  "database": "sfg",
+  "synchronize": true,
+  "logging": true,
+  "entities": ["src/database/models/**/*.js"],
+  "migrations": ["src/database/migrations/**/*"],
+  "cli": {
+    "entitiesDir": "src/database/models",
+    "migrationsDir": "src/database/migrations"
+  }
+}

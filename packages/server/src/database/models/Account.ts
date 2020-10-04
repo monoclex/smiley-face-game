@@ -30,7 +30,7 @@ export default class Account {
   /**
    * The amount of milliseconds since the Unix epoch, that points to the point in time of which lastEnergyAmount was set.
    */
-  @Column()
+  @Column({ type: "bigint" })
   timeEnergyWasAtAmount!: number;
 
   /**
