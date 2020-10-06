@@ -7,17 +7,8 @@ export default function copyBlock(
 ) {
   switch (source.id) {
     case TileId.Empty:
-    case TileId.Full:
-    case TileId.Gun:
-      {
-        setDestination({ id: source.id });
-      }
-      break;
-
-    case TileId.Arrow:
-      {
-        setDestination({ id: TileId.Arrow, rotation: source.rotation });
-      }
-      break;
+    case TileId.Gun: setDestination({ id: source.id }); break;
+    case TileId.Full: setDestination({ id: source.id, color: source.color }); break;
+    case TileId.Arrow: setDestination({ id: TileId.Arrow, rotation: source.rotation }); break;
   }
 }

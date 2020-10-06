@@ -10,6 +10,7 @@ import WorldBlocks from "@/worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
 import Behaviour from "@/worlds/behaviour/Behavior";
+import { ServerInitPacket } from "../../../../api/src/packets/ServerInit";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -95,7 +96,7 @@ export default class RoomLogic {
       gunEquipped: connection.gunEquipped,
     });
 
-    connection.send({
+    const initPacket: ServerInitPacket = {
       packetId: SERVER_INIT_ID,
       worldId: this.#id,
       playerId: connection.playerId!,
@@ -105,7 +106,9 @@ export default class RoomLogic {
       blocks: this.blockHandler.map,
       username: connection.username,
       isGuest: connection.isGuest,
-    });
+    };
+
+    connection.send(initPacket);
 
     for (const otherUser of this.#players.values()) {
       connection.send({

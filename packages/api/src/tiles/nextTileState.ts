@@ -1,9 +1,12 @@
 import TileState from "./TileState";
 import { TileId } from "@smiley-face-game/api/schemas/TileId";
 import nextRotation from "./nextRotation";
+import nextColor from "@smiley-face-game/api/tiles/nextColor";
 
 export default function nextTileState(current: TileState): TileState {
   switch (current.id) {
+    case TileId.Full:
+      return { ...current, color: nextColor(current.color) };
     case TileId.Arrow:
       return { ...current, rotation: nextRotation(current.rotation) };
     default:

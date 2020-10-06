@@ -15,7 +15,7 @@ import { ServerBlockLineSchema } from "./ServerBlockLine";
 import { serverBlockSingle } from "./ServerBlockSingle";
 import { ServerEquipGunSchema } from "./ServerEquipGun";
 import { ServerFireBulletSchema } from "./ServerFireBullet";
-import { ServerInitSchema } from "./ServerInit";
+import { ServerInitSchema, ServerInitPacket } from "./ServerInit";
 import { ServerMovementSchema } from "./ServerMovement";
 import { ServerPickupGunSchema } from "./ServerPickupGun";
 import { ServerPlayerJoinSchema } from "./ServerPlayerJoin";
@@ -31,7 +31,7 @@ export type WorldPacketSchema = ReturnType<
 export type WorldPacketValidator = ReturnType<
   typeof worldPacket
 >["validateWorldPacket"];
-export type WorldPacket = Type<WorldPacketSchema>;
+export type WorldPacket = Exclude<Type<WorldPacketSchema>, { packetId: "SERVER_INIT" }> | ServerInitPacket;
 
 export function worldPacket(blockPositionSchema: BlockPositionSchema) {
   const BlockSingleSchema = blockSingle(blockPositionSchema).BlockSingleSchema;

@@ -1,5 +1,5 @@
 import Schema, { array, Type, boolean } from "computed-types";
-import { BlockSchema } from "../schemas/Block";
+import { BlockSchema, Block } from "../schemas/Block";
 import { PlayerPositionSchema } from "../schemas/PlayerPosition";
 import { SizeSchema } from "../schemas/Size";
 import { ServerSchema } from "./Server";
@@ -21,5 +21,5 @@ export const ServerInitSchema = Schema.merge(
   },
   ServerSchema
 );
-export type ServerInitPacket = Type<typeof ServerInitSchema>;
+export type ServerInitPacket = Omit<Type<typeof ServerInitSchema>, "blocks"> & { blocks: Block[][][] };
 export const validateServerInit = ServerInitSchema.destruct();
