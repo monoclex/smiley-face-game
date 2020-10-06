@@ -31,40 +31,21 @@ const useStyles = makeStyles({
   removeLineHeight: {
     lineHeight: "1px",
   },
-
-  rotate0: {
-    transform: "rotate(0deg)",
-  },
-  rotate1: {
-    transform: "rotate(-90deg)",
-  },
-  rotate2: {
-    transform: "rotate(-180deg)",
-  },
-  rotate3: {
-    transform: "rotate(-270deg)",
-  },
 });
 
 const Block = (props) => {
   const classes = useStyles(props);
   const [imageSource, setImageSource] = useState(null);
 
-  const rotation = props.block.rotation;
-  const rotationMap = {
-    [Rotation.Right]: classes.rotate0,
-    [Rotation.Up]: classes.rotate1,
-    [Rotation.Left]: classes.rotate2,
-    [Rotation.Down]: classes.rotate3,
-  };
-
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.block.id).then((image) => {
+    console.log("getting new block");
+    props.loader(props.block).then((image) => {
+      console.log("new");
       setImageSource(image.src);
     });
-  }, [props.loader]);
+  }, [props.loader, props.block.id, props.block.color, props.block.rotation]);
 
   if (!props.loader || !imageSource) {
     return null;
@@ -89,17 +70,7 @@ const Block = (props) => {
         <span>{props.slot}</span>
       </Grid>
       <Grid item className={classes.removeLineHeight}>
-        <img
-          className={clsx(
-            classes.image,
-            {
-              [classes.hover]: !props.selected,
-            },
-            rotation !== undefined && rotationMap[rotation]
-          )}
-          onClick={handleClick}
-          src={imageSource}
-        />
+        <img className={clsx(classes.image, props.selected && classes.hover)} onClick={handleClick} src={imageSource} />
       </Grid>
     </Grid>
   );

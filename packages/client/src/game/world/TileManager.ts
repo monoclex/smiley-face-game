@@ -4,6 +4,9 @@ import urlAtlas from "@/assets/atlas.png";
 import atlasJson from "@/assets/atlas_atlas.json";
 import Position from "@/math/Position";
 import key from "./key";
+import { Block } from "../../../../api/src/schemas/Block";
+import { Rotation } from "@smiley-face-game/api/schemas/Rotation";
+import tileLookup from "@/game/tiles/tileLookup";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32;
@@ -34,12 +37,12 @@ export default class TileManager {
   }
 
   /**
-   * Given a TileId, this will create a unique image for that tile. It may be worthwhile to investigate optimizing this later, but for now,
+   * Given a block, this will create a unique image for that tile. It may be worthwhile to investigate optimizing this later, but for now,
    * it works and I'm not gonna touch it.
-   * @param tileId The TileId to fetch an image for.
+   * @param block The block to fetch an image for.
    */
-  async imageOf(tileId: TileId): Promise<HTMLImageElement> {
-    const frame = this.frameOfTile(tileId);
+  async imageOf(block: Block): Promise<HTMLImageElement> {
+    const frame = this.frameOfTile(block.id);
     const imageSource = frame.source.source as HTMLImageElement;
 
     // so we have the original image source for the texture atlas, we'll use an offscreen canvas to render specifically just the
@@ -60,7 +63,46 @@ export default class TileManager {
     renderImageCanvas.height = TILE_HEIGHT;
 
     const context = renderImageCanvas.getContext("2d")!;
-    context.drawImage(imageSource, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
+
+    // apparently we need to rotate before drawing the image... ?????
+    // https://stackoverflow.com/a/17412387
+    if (block.id === TileId.Arrow) {
+      context.clearRect(0, 0, renderImageCanvas.width, renderImageCanvas.height);
+      context.save();
+      context.translate(renderImageCanvas.width / 2, renderImageCanvas.height / 2);
+      switch (block.rotation) {
+        case Rotation.Right: break; // it already faces right by default
+        case Rotation.Up: context.rotate(-Math.PI / 2); break;
+        case Rotation.Left: context.rotate(-Math.PI); break;
+        case Rotation.Down: context.rotate(-3 * Math.PI / 2); break;
+      }
+      context.drawImage(imageSource, x, y, width, height, -width / 2, -height / 2, TILE_WIDTH, TILE_HEIGHT);
+      context.restore();
+    }
+    else {
+      context.drawImage(imageSource, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
+    }
+
+
+    if (block.id === TileId.Full) {
+      // tint the image by drawing another rectangle over it
+      const data = context.getImageData(0, 0, 32, 32);
+
+      const hack = { setCollision: () => { } } as unknown as Phaser.Tilemaps.Tile;
+      tileLookup[TileId.Full].place(hack, block);
+      const tintAsString = hack.tint.toString(16).padStart(6, '0');
+      const [r, g, b] = [tintAsString.substr(0, 2), tintAsString.substr(2, 2), tintAsString.substr(4, 2)]
+        .map(str => parseInt(str, 16) / 255);
+
+      for (let offset = 0; offset < data.data.byteLength; offset += 4) {
+        // RGBA order
+        data.data[offset] *= r;
+        data.data[offset + 1] *= g;
+        data.data[offset + 2] *= b;
+      }
+
+      context.putImageData(data, 0, 0);
+    }
 
     const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
     const url = URL.createObjectURL(blob);
