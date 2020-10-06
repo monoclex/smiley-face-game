@@ -10,6 +10,7 @@ import tileLookup from "@/game/tiles/tileLookup";
 import Tile from "../tiles/Tile";
 import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
 import TileState from "@/game/tiles/TileState";
+import blocksEqual from "../../../../api/src/tiles/blocksEqual";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -45,10 +46,10 @@ export default class World {
         l === TileLayer.Decoration
           ? this.decoration
           : l === TileLayer.Foreground
-          ? this.foreground
-          : l === TileLayer.Action
-          ? this.action
-          : this.background;
+            ? this.foreground
+            : l === TileLayer.Action
+              ? this.action
+              : this.background;
 
       for (let y = 0; y < layer.length; y++) {
         const yLayer = layer[y];
@@ -72,12 +73,8 @@ export default class World {
     const tile = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
 
     // don't do anything as they are the same
-    if (tile.index === tileState.id) {
-      if (tileState.id === TileId.Arrow) {
-        if (tile.rotation == 90 * tileState.rotation) return;
-        else {
-        }
-      } else return;
+    if (tile.tileState && blocksEqual(tileState, tile.tileState)) {
+      return;
     }
     if (tileState.id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
 
@@ -89,6 +86,7 @@ export default class World {
       result.onRemove(tile);
     }
 
+    tile.tileState = { ...tileState };
     tileBreed.place(tile, tileState);
 
     if (iPlacedIt) {
