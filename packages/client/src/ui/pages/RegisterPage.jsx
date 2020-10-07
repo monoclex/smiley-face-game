@@ -12,7 +12,7 @@ export default () => (
     inputs={[
       { name: "username", text: "Enter your username" },
       { name: "email", text: "Enter your email" },
-      { name: "password", text: "Enter your password" },
+      { name: "password", text: "Enter your password", type: "password" },
     ]}
     submit={({ username, email, password }) => {
       api

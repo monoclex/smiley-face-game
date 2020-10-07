@@ -63,6 +63,7 @@ export default ({ smileyUrl, inputs, submit }) => {
         {inputs.map((input, index) => (
           <TextField
             key={index}
+            type={input?.type}
             fullWidth
             id={input.name}
             name={input.name}

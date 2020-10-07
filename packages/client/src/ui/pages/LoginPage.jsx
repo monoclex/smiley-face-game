@@ -11,7 +11,7 @@ export default () => (
     smileyUrl={urlPlayer}
     inputs={[
       { name: "email", text: "Enter your email" },
-      { name: "password", text: "Enter your password" },
+      { name: "password", text: "Enter your password", type: "password" },
     ]}
     submit={({ email, password }) => {
       api
