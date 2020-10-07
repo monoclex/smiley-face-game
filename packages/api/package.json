@@ -11,7 +11,7 @@
     "build:client": "swc -d dist/es -C module.type=commonjs ./src/"
   },
   "dependencies": {
-    "computed-types": "^1.1.0"
+    "computed-types": "^1.4.0"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.27",
