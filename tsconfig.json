@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "node",
+    "strict": true,
+    "noEmit": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "strictNullChecks": true,
+    "skipLibCheck": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@smiley-face-game/*": ["packages/*/src"]
+    }
+  }
+}

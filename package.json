@@ -1,19 +1,16 @@
 {
-  "name": "smiley-face-game",
-  "private": true,
-  "scripts": {
-    "dev": "lerna run build-api && lerna run --parallel dev",
-    "build": "lerna run build-api && lerna run --parallel build",
-    "build-dev": "lerna run build-api && lerna run --parallel build-dev",
-    "yarn": "yarn"
-  },
-  "workspaces": [
-    "packages/**"
-  ],
-  "dependencies": {
-    "ts-node": "^8.10.2"
-  },
-  "devDependencies": {
-    "lerna": "^3.22.1"
-  }
+	"name": "smiley-face-game",
+	"private": true,
+	"scripts": {
+		"dev": "lerna run build-api && lerna run --parallel dev",
+		"build": "lerna run build-api && lerna run --parallel build",
+		"build-dev": "lerna run build-api && lerna run --parallel build-dev",
+		"yarn": "yarn"
+	},
+	"devDependencies": {
+		"lerna": "^3.22.1"
+	},
+	"workspaces": [
+		"packages/**"
+	]
 }
