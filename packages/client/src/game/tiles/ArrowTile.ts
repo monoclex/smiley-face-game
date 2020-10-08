@@ -4,7 +4,7 @@ import { TileId } from "@smiley-face-game/schemas/TileId";
 import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import TileState from "@smiley-face-game/common/tiles/TileState";
 import Tile from "./Tile";
-import type { SpriteEx } from "phaser-tile-addons";
+import type { SpriteEx } from "../../phaser-tile-addons";
 
 export default class ArrowTile implements Tile<TileId.Arrow> {
   id: TileId.Arrow = TileId.Arrow;

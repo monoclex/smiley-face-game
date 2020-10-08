@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { validateLogin } from "@smiley-face-game/schemas/web/auth/Login";
-import { validateRegister } from "@smiley-face-game/schemas/web/auth/Register";
-import { validateGuest } from "@smiley-face-game/schemas/web/auth/Guest";
+import { validateLogin } from "@smiley-face-game/schemas/web";
+import { validateRegister } from "@smiley-face-game/schemas/web";
+import { validateGuest } from "@smiley-face-game/schemas/web";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";

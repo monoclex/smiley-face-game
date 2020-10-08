@@ -11,7 +11,7 @@ import Tile from "../tiles/Tile";
 import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
 import TileState from "../../game/tiles/TileState";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
-import type { TileEx } from "phaser-tile-addons";
+import type { TileEx } from "../../phaser-tile-addons";
 
 export default class World {
   readonly tileManager: TileManager;

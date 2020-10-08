@@ -1,3 +1,3 @@
-declare interface ImportAssetByUrlSnowpackPluginOptions {
+export declare interface PluginOptions {
   extensions: string[];
 }

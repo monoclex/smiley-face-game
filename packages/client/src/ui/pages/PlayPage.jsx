@@ -2,7 +2,6 @@
 // | COPY PASTED FROM Game.jsx, MUST CLEAN THIS LATER |
 // \--------------------------------------------------/
 
-//@ts-check
 import Phaser from "phaser";
 import qs from "query-string";
 import { useRecoilState, useRecoilValue } from "recoil";

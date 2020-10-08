@@ -7,7 +7,7 @@ export default class World {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @ManyToOne((type) => Account, (author) => author.worlds)
+  @ManyToOne(() => Account, (author) => author.worlds)
   owner!: Account;
 
   @Column({ nullable: false, length: 64 })

@@ -1,6 +1,6 @@
 import { Color } from "@smiley-face-game/schemas/Color";
 
-export default function nextColor(current: Color): Color {
+export default function nextColor(current: Color | undefined): Color {
   switch (current) {
     case undefined:
     case "white": return "black";
@@ -11,6 +11,6 @@ export default function nextColor(current: Color): Color {
     case "yellow": return "green";
     case "green": return "blue";
     case "blue": return "purple";
-    case "purple": return undefined;
+    case "purple": return "white";
   }
 }

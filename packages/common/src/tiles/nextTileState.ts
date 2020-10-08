@@ -6,7 +6,7 @@ import nextColor from "@smiley-face-game/common/tiles/nextColor";
 export default function nextTileState(current: TileState): TileState {
   switch (current.id) {
     case TileId.Full:
-      return { ...current, color: nextColor(current.color) };
+      return { ...current, color: nextColor(current.color || "white") };
     case TileId.Arrow:
       return { ...current, rotation: nextRotation(current.rotation) };
     default:

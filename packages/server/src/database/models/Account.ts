@@ -68,6 +68,6 @@ export default class Account {
     this.timeEnergyWasAtAmount = millisecondsSinceUnixEpoch;
   }
 
-  @OneToMany((type) => World, (world) => world.owner)
+  @OneToMany(() => World, (world) => world.owner)
   worlds!: World[];
 }

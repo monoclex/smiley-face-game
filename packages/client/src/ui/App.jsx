@@ -1,4 +1,3 @@
-//@ts-check
 import React, { Suspense, lazy, useMemo } from "react";
 import { Router, Route } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";

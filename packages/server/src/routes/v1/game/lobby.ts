@@ -12,7 +12,7 @@ export default async function (router: Router, deps: UsedDependencies) {
     "/lobby",
     jwt(
       authVerifier,
-      asyncHandler(async (req, res) => {
+      asyncHandler(async (_, res) => {
         let previews = [];
 
         // TODO: depending on the verification level of the JWT, display hidden/visible/e.t.c rooms

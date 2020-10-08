@@ -2,7 +2,7 @@ import { TileId } from "@smiley-face-game/schemas/TileId";
 import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import Tile from "./Tile";
 import M249LMG from "../../game/guns/models/variants/M249LMG";
-import type { SpriteEx } from "phaser-tile-addons";
+import type { SpriteEx } from "../../phaser-tile-addons";
 
 export default class GunTile implements Tile<TileId.Gun> {
   id: TileId.Gun = TileId.Gun;

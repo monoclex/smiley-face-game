@@ -33,11 +33,11 @@ function findAssetPath(mount, filePath) {
   throw new Error(`Couldn't find mounted path for asset '${filePath}'`);
 }
 
-/** @type {import("snowpack").SnowpackPluginFactory<ImportAssetByUrlSnowpackPluginOptions>} */
+/** @type {import("snowpack").SnowpackPluginFactory<import("./import-asset-by-url-snowpack-plugin").PluginOptions>} */
 module.exports = function ({ mount }, { extensions }) {
   return {
     name: "import-asset-by-url-snowpack-plugin",
-    resolve: { input: extensions, output: [...extensions, ".js"] },
+    resolve: { input: extensions, output: [".js", ...extensions] },
     load: async ({ filePath, fileExt }) => {
       const [assetMountPath, assetSubPath] = findAssetPath(mount, filePath);
       const assetUrl = joinPaths(assetMountPath, assetSubPath);

@@ -8,7 +8,7 @@ export default function ensureValidates<TData>(
   validator: (data: TData) => [TypeError | null, unknown?],
   data: TData
 ) {
-  const [errors, _] = validator(data);
+  const [errors] = validator(data);
 
   if (errors !== null) {
     throw new Error(`Failed to validate "${data}" as valid data.`);

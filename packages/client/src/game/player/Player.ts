@@ -8,7 +8,7 @@ import CosmeticType from "../../game/characters/cosmetics/CosmeticType";
 import cosmeticKey from "../../game/characters/cosmetics/key";
 import MovementInput from "../../game/input/MovementInput";
 import MovementValues from "../../game/input/MovementValues";
-import type { SpriteEx } from "phaser-tile-addons";
+import type { SpriteEx } from "../../phaser-tile-addons";
 
 // the higher the depth number, the closer to the user it appears
 let _depth = 0;

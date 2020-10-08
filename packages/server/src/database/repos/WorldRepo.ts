@@ -4,7 +4,6 @@ import { validateWorldId } from "@smiley-face-game/schemas/WorldId";
 import { Block } from "@smiley-face-game/schemas/Block";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
-import Account from "../../database/models/Account";
 import World from "../../database/models/World";
 import generateWorld from "../../worlds/generateWorld";
 import ensureValidates from "../../ensureValidates";

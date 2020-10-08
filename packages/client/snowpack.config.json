@@ -1,11 +1,22 @@
 {
+  "devOptions": {
+    "port": 5000
+  },
   "plugins": [
     "@snowpack/plugin-react-refresh",
     "@snowpack/plugin-typescript",
+    "./import-svg-as-react-component-snowpack-plugin.js",
     ["./import-asset-by-url-snowpack-plugin.js", { "extensions": [".mp3", ".png"] }]
   ],
+  "alias": {
+    "@smiley-face-game/common": "/__snowpack_monorepo_package/common/",
+    "@smiley-face-game/packets": "/__snowpack_monorepo_package/packets/",
+    "@smiley-face-game/schemas": "/__snowpack_monorepo_package/schemas/"
+  },
   "mount": {
-    "public": "/",
-    "src": "/"
+    "src": "/",
+    "../common/src": "/__snowpack_monorepo_package/common/",
+    "../packets/src": "/__snowpack_monorepo_package/packets/",
+    "../schemas/src": "/__snowpack_monorepo_package/schemas/"
   }
 }
