@@ -1,6 +1,6 @@
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
-import { Rotation } from "@smiley-face-game/common/schemas/Rotation";
-import { Block } from "../schemas/Block";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { Rotation } from "@smiley-face-game/schemas/Rotation";
+import { Block } from "@smiley-face-game/schemas/Block";
 
 type TileState = Block;
 

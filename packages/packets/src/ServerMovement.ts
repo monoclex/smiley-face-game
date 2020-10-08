@@ -1,8 +1,8 @@
 import Schema, { Type } from "computed-types";
-import { InputsSchema } from "../schemas/Inputs";
-import { PlayerPositionSchema } from "../schemas/PlayerPosition";
+import { InputsSchema } from "@smiley-face-game/schemas/Inputs";
+import { PlayerPositionSchema } from "@smiley-face-game/schemas/PlayerPosition";
 import { ServerSchema } from "./Server";
-import { PhysicsVelocitySchema } from "../schemas/PhysicsVelocity";
+import { PhysicsVelocitySchema } from "@smiley-face-game/schemas/PhysicsVelocity";
 
 export const SERVER_MOVEMENT_ID = "SERVER_MOVEMENT";
 export const ServerMovementSchema = Schema.merge(

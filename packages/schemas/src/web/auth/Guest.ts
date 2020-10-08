@@ -1,5 +1,5 @@
 import Schema, { Type } from "computed-types";
-import { UsernameSchema } from "@smiley-face-game/common/schemas/Username";
+import { UsernameSchema } from "@smiley-face-game/schemas/Username";
 
 export const GuestSchema = Schema({
   username: UsernameSchema,

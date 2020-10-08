@@ -18,5 +18,8 @@
   },
   "dependencies": {
     "computed-types": "^1.4.0"
+  },
+  "devDependencies": {
+    "ws": "^7.3.1"
   }
 }

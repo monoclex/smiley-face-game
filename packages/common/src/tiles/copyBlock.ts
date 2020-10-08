@@ -1,4 +1,4 @@
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { TileId } from "@smiley-face-game/schemas/TileId";
 import Block from "@smiley-face-game/common/tiles/TileState";
 
 export default function copyBlock(

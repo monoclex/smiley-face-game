@@ -1,22 +1,30 @@
 import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
 import { api } from "../../isProduction";
 import { LoadingSceneData } from "./LoadingSceneData";
-import { serverBlockBuffer } from "@smiley-face-game/common/packets/ServerBlockBuffer";
-import { serverBlockSingle } from "@smiley-face-game/common/packets/ServerBlockSingle";
-import { blockPosition } from "@smiley-face-game/common/schemas/BlockPosition";
+import { serverBlockBuffer } from "@smiley-face-game/packets/ServerBlockBuffer";
+import { serverBlockSingle } from "@smiley-face-game/packets/ServerBlockSingle";
+import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
 import loadAll from "../../game/loadAll";
 import GAME_SCENE_KEY from "../../game/GameSceneKey";
 import { loading } from "../../recoil/atoms/loading";
+import WebSocket from "ws";
 
-export const globalVariableParkour = {
+interface GlobalVariableParkourType {
+  token: string,
+  name: string,
+  width: number,
+  height: number,
+  id: string,
+  onId: (id: string) => void,
+}
+
+export const globalVariableParkour: GlobalVariableParkourType = {
   token: "",
   name: "Smiley Face Game",
   width: 50,
   height: 50,
   id: "smiley-face-game",
-  onId: (a: string) => {
-    return;
-  },
+  onId: () => { },
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -59,6 +67,7 @@ export class LoadingScene extends Phaser.Scene {
       api.connection(globalVariableParkour),
       (client) => {
         client.events.callback = (packet) => {
+          if (packet.packetId !== "SERVER_INIT") throw new Error("should've been called with server_init first");
           const sender = client;
 
           // prevent receiving any packets until the game scene changes
@@ -77,7 +86,8 @@ export class LoadingScene extends Phaser.Scene {
       },
       serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema)
         .validateServerBlockBuffer,
-      serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
+      serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle,
+      class A extends WebSocket { constructor(address: string) { super(address) } }
     ).catch((err) => {
       loading.set({
         failed: true,

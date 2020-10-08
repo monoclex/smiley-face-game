@@ -4,8 +4,14 @@
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": "./src",
+    "paths": {
+      "@smiley-face-game/common/*": ["../../common/src/*"],
+      "@smiley-face-game/packets/*": ["../../packets/src/*"],
+      "@smiley-face-game/schemas/*": ["../../schemas/src/*"]
+    }
   },
-  "include": ["src/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules/**/*", "../../node_modules/**/*"]
 }

@@ -1,6 +1,6 @@
-import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
-import { Size } from "@smiley-face-game/common/schemas/Size";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { Size } from "@smiley-face-game/schemas/Size";
 import Position from "../../math/Position";
 import Layer from "../../game/components/layer/Layer";
 import Void from "../../game/components/void/Void";
@@ -11,6 +11,7 @@ import Tile from "../tiles/Tile";
 import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
 import TileState from "../../game/tiles/TileState";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
+import type { TileEx } from "phaser-tile-addons";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -62,7 +63,7 @@ export default class World {
 
     const tileBreed = tileLookup[tileState.id];
     const actualLayer = layer ?? tileBreed.layer;
-    const tile = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
+    const tile: TileEx = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
 
     // don't do anything as they are the same
     if (tile.tileState && blocksEqual(tileState, tile.tileState)) {
@@ -79,6 +80,8 @@ export default class World {
     }
 
     tile.tileState = { ...tileState };
+    // TODO: fix this somehow?
+    //@ts-expect-error
     tileBreed.place(tile, tileState);
 
     if (iPlacedIt) {

@@ -1,5 +1,5 @@
 import Schema, { Type } from "computed-types";
-import { BlockPositionSchema } from "../schemas/BlockPosition";
+import { BlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
 import { blockBuffer } from "./BlockBuffer";
 import { BlockLineSchema } from "./BlockLine";
 import { blockSingle } from "./BlockSingle";
@@ -19,7 +19,7 @@ import { ServerPlayerJoinSchema } from "./ServerPlayerJoin";
 import { ServerPlayerLeaveSchema } from "./ServerPlayerLeave";
 import { ChatSchema } from "./Chat";
 import { ServerChatSchema } from "./ServerChat";
-import { PlayerlistActionSchema } from "@smiley-face-game/common/packets/PlayerlistAction";
+import { PlayerlistActionSchema } from "@smiley-face-game/packets/PlayerlistAction";
 import { ServerRoleUpdateSchema } from "./ServerRoleUpdate";
 
 export type WorldPacketSchema = ReturnType<

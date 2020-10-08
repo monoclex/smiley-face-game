@@ -1,7 +1,4 @@
-import GunModel from "../../game/guns/models/GunModel";
 import Player from "./Player";
-import World from "../world/World";
-import { Character } from "../characters/Character";
 import GameScene from "../GameScene";
 import M249LMG from "../../game/guns/models/variants/M249LMG";
 

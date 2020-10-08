@@ -1,10 +1,10 @@
-import { blockPosition } from "@smiley-face-game/common/schemas/BlockPosition";
-import { Block } from "@smiley-face-game/common/schemas/Block";
+import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
+import { Block } from "@smiley-face-game/schemas/Block";
 import {
   worldPacket,
   WorldPacket,
   WorldPacketValidator,
-} from "@smiley-face-game/common/packets/WorldPacket";
+} from "@smiley-face-game/packets/WorldPacket";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";

@@ -1,5 +1,5 @@
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import TileState from "@smiley-face-game/common/tiles/TileState";
 import Tile from "./Tile";
 

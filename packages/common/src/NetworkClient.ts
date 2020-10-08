@@ -1,62 +1,65 @@
-import { Block } from "./schemas/Block";
-import { ServerPackets } from "@smiley-face-game/common/packets/ServerPackets";
-import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import { Block } from "@smiley-face-game/schemas/Block";
+import { ServerPackets } from "@smiley-face-game/packets/ServerPackets";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import TileState from "@smiley-face-game/common/tiles/TileState";
-import { BlockLinePacket, BLOCK_LINE_ID } from "./packets/BlockLine";
-import { BlockSinglePacket, BLOCK_SINGLE_ID } from "./packets/BlockSingle";
-import { ChatPacket, CHAT_ID } from "./packets/Chat";
-import { EquipGunPacket, EQUIP_GUN_ID } from "./packets/EquipGun";
-import { FireBulletPacket, FIRE_BULLET_ID } from "./packets/FireBullet";
-import { MovementPacket, MOVEMENT_ID } from "./packets/Movement";
-import { PickupGunPacket, PICKUP_GUN_ID } from "./packets/PickupGun";
+import { BlockLinePacket, BLOCK_LINE_ID } from "@smiley-face-game/packets/BlockLine";
+import { BlockSinglePacket, BLOCK_SINGLE_ID } from "@smiley-face-game/packets/BlockSingle";
+import { ChatPacket, CHAT_ID } from "@smiley-face-game/packets/Chat";
+import { EquipGunPacket, EQUIP_GUN_ID } from "@smiley-face-game/packets/EquipGun";
+import { FireBulletPacket, FIRE_BULLET_ID } from "@smiley-face-game/packets/FireBullet";
+import { MovementPacket, MOVEMENT_ID } from "@smiley-face-game/packets/Movement";
+import { PickupGunPacket, PICKUP_GUN_ID } from "@smiley-face-game/packets/PickupGun";
 import {
   PlayerlistActionPacket,
   PLAYER_LIST_ACTION_ID,
-} from "./packets/PlayerlistAction";
+} from "@smiley-face-game/packets/PlayerlistAction";
 import {
   ServerBlockBufferValidator,
   SERVER_BLOCK_BUFFER_ID,
-} from "./packets/ServerBlockBuffer";
+} from "@smiley-face-game/packets/ServerBlockBuffer";
 import {
   SERVER_BLOCK_LINE_ID,
   validateServerBlockLine,
-} from "./packets/ServerBlockLine";
+} from "@smiley-face-game/packets/ServerBlockLine";
 import {
   ServerBlockSingleValidator,
   SERVER_BLOCK_SINGLE_ID,
-} from "./packets/ServerBlockSingle";
-import { SERVER_CHAT_ID, validateServerChat } from "./packets/ServerChat";
+} from "@smiley-face-game/packets/ServerBlockSingle";
+import { SERVER_CHAT_ID, validateServerChat } from "@smiley-face-game/packets/ServerChat";
 import {
   SERVER_EQUIP_GUN_ID,
   validateServerEquipGun,
-} from "./packets/ServerEquipGun";
+} from "@smiley-face-game/packets/ServerEquipGun";
 import {
   SERVER_FIRE_BULLET_ID,
   validateServerFireBullet,
-} from "./packets/ServerFireBullet";
-import { SERVER_INIT_ID, validateServerInit } from "./packets/ServerInit";
+} from "@smiley-face-game/packets/ServerFireBullet";
+import { SERVER_INIT_ID, validateServerInit } from "@smiley-face-game/packets/ServerInit";
 import {
   SERVER_MOVEMENT_ID,
   validateServerMovement,
-} from "./packets/ServerMovement";
-import { isServerPacket } from "./packets/ServerPackets";
+} from "@smiley-face-game/packets/ServerMovement";
+import { isServerPacket } from "@smiley-face-game/packets/ServerPackets";
 import {
   SERVER_PICKUP_GUN_ID,
   validateServerPickupGun,
-} from "./packets/ServerPickupGun";
+} from "@smiley-face-game/packets/ServerPickupGun";
 import {
   SERVER_PLAYER_JOIN_ID,
   validateServerPlayerJoin,
-} from "./packets/ServerPlayerJoin";
+} from "@smiley-face-game/packets/ServerPlayerJoin";
 import {
   SERVER_PLAYER_LEAVE_ID,
   validateServerPlayerLeave,
-} from "./packets/ServerPlayerLeave";
+} from "@smiley-face-game/packets/ServerPlayerLeave";
 import {
   SERVER_ROLE_UPDATE_ID,
   validateServerRoleUpdate,
-} from "./packets/ServerRoleUpdate";
-import { WorldPacket } from "./packets/WorldPacket";
+} from "@smiley-face-game/packets/ServerRoleUpdate";
+import { WorldPacket } from "@smiley-face-game/packets/WorldPacket";
+
+import type WebSocket from "ws";
+import type { MessageEvent } from "ws";
 
 class NetworkEvents {
   constructor(
@@ -64,7 +67,7 @@ class NetworkEvents {
     readonly validateServerBlockBuffer: ServerBlockBufferValidator
   ) { }
 
-  callback: (packet: ServerPackets) => void | Promise<void>;
+  callback!: (packet: ServerPackets) => void | Promise<void>;
 
   triggerEvent(rawPacket: any): void | Promise<void> {
     // make sure we can validate the packet id thte server sent us
@@ -92,7 +95,7 @@ class NetworkEvents {
     //@ts-ignore
     const [error, packet] = lookup[rawPacket.packetId](rawPacket);
 
-    if (error !== null) {
+    if (error !== null || packet === undefined) {
       console.error("[websocket] packet invalidated", error, rawPacket);
       return;
     }
@@ -114,11 +117,12 @@ export class NetworkClient {
     targetWebSocketUrl: string,
     registerCallbacks: (client: NetworkClient) => void,
     validateServerBlockBuffer: ServerBlockBufferValidator,
-    validateServerBlockSingle: ServerBlockSingleValidator
+    validateServerBlockSingle: ServerBlockSingleValidator,
+    webSocketImpl: new (address: string) => WebSocket
   ): Promise<NetworkClient> {
     return new Promise((resolve, reject) => {
       let resolved = false;
-      const webSocket = new WebSocket(targetWebSocketUrl);
+      const webSocket = new webSocketImpl(targetWebSocketUrl);
       const networkClient = new NetworkClient(
         webSocket,
         validateServerBlockBuffer,
@@ -169,12 +173,13 @@ export class NetworkClient {
     );
     this._buffer = [];
 
-    const onClose = (event: { reason: string }) => {
+    const onClose = (event: { reason: string } | { error: Error }) => {
       if (this._showClosingAlert) {
+        const reason = "reason" in event ? event.reason : event.error.message;
         //@ts-ignore
         alert(
           "connection to server died, pls refresh" +
-          (event.reason || JSON.stringify(event))
+          (reason || JSON.stringify(event))
         );
       }
     };
@@ -188,6 +193,11 @@ export class NetworkClient {
     // if paused, push message to buffer and don't handle it
     if (this._pause) {
       this._buffer.push(event);
+      return;
+    }
+
+    if (typeof event.data !== "string") {
+      console.warn("expected string for packet");
       return;
     }
 

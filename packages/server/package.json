@@ -13,6 +13,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
+    "packets": "^1.0.17",
     "pg": "^8.4.0",
     "typeorm": "^0.2.28"
   },
@@ -24,6 +25,8 @@
     "ts-node": "^9.0.0"
   },
   "peerDependencies": {
-    "@smiley-face-game/common": "0.0.0"
+    "@smiley-face-game/common": "0.0.0",
+    "@smiley-face-game/schemas": "0.0.0",
+    "@smiley-face-game/packets": "0.0.0"
   }
 }

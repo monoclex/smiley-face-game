@@ -1,7 +1,7 @@
-import { FireBulletPacket } from "@smiley-face-game/common/packets/FireBullet";
+import { FireBulletPacket } from "@smiley-face-game/packets/FireBullet";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/common/packets/ServerFireBullet";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/packets/ServerFireBullet";
 
 export default function handleFireBullet(
   packet: FireBulletPacket,

@@ -1,4 +1,4 @@
-import { WorldDetails } from "@smiley-face-game/common/schemas/WorldDetails";
+import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
 import WorldRepo from "../../database/repos/WorldRepo";
 import WorldBlocks from "../../worlds/WorldBlocks";
 import Behaviour from "./Behavior";

@@ -1,4 +1,4 @@
-import { Rotation } from "@smiley-face-game/common/schemas/Rotation";
+import { Rotation } from "@smiley-face-game/schemas/Rotation";
 
 export default function next(current: Rotation): Rotation {
   switch (current) {

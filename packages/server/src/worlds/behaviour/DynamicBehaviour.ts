@@ -1,8 +1,8 @@
 import {
   WorldJoinRequest,
   validateWorldJoinRequest,
-} from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
-import { WorldDetails } from "@smiley-face-game/common/schemas/WorldDetails";
+} from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
+import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
 import WorldBlocks from "../../worlds/WorldBlocks";
 import ensureValidates from "../../ensureValidates";
 import Behaviour from "./Behavior";

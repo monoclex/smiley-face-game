@@ -1,5 +1,5 @@
-import { validateWorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
+import { WorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import MPSC from "../concurrency/MPSC";
 import Connection from "../worlds/Connection";

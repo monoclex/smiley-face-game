@@ -1,5 +1,5 @@
 import Schema, { Type } from "computed-types";
-import { PlayerlistActionKindSchema } from "../schemas/PlayerlistActionKind";
+import { PlayerlistActionKindSchema } from "@smiley-face-game/schemas/PlayerlistActionKind";
 
 export const PLAYER_LIST_ACTION_ID = "PLAYER_LIST_ACTION";
 export const PlayerlistActionSchema = Schema.merge(

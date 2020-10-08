@@ -1,29 +1,29 @@
 // TODO: clean this file up later
 
 import { bresenhamsLine } from "@smiley-face-game/common/misc";
-import { BlockBufferPacket } from "@smiley-face-game/common/packets/BlockBuffer";
+import { BlockBufferPacket } from "@smiley-face-game/packets/BlockBuffer";
 import {
   BlockLinePacket,
   BLOCK_LINE_ID,
-} from "@smiley-face-game/common/packets/BlockLine";
+} from "@smiley-face-game/packets/BlockLine";
 import {
   BlockSinglePacket,
   BLOCK_SINGLE_ID,
-} from "@smiley-face-game/common/packets/BlockSingle";
+} from "@smiley-face-game/packets/BlockSingle";
 import {
   ServerBlockBufferPacket,
   SERVER_BLOCK_BUFFER_ID,
-} from "@smiley-face-game/common/packets/ServerBlockBuffer";
+} from "@smiley-face-game/packets/ServerBlockBuffer";
 import {
   ServerBlockLinePacket,
   SERVER_BLOCK_LINE_ID,
-} from "@smiley-face-game/common/packets/ServerBlockLine";
+} from "@smiley-face-game/packets/ServerBlockLine";
 import {
   ServerBlockSinglePacket,
   SERVER_BLOCK_SINGLE_ID,
-} from "@smiley-face-game/common/packets/ServerBlockSingle";
-import { Block } from "@smiley-face-game/common/schemas/Block";
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
+} from "@smiley-face-game/packets/ServerBlockSingle";
+import { Block } from "@smiley-face-game/schemas/Block";
+import { TileId } from "@smiley-face-game/schemas/TileId";
 import Connection from "../../worlds/Connection";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 import copyBlock from "@smiley-face-game/common/tiles/copyBlock";

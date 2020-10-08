@@ -1,5 +1,5 @@
-import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/common/packets/ServerEquipGun";
-import { EquipGunPacket } from "@smiley-face-game/common/packets/EquipGun";
+import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/packets/ServerEquipGun";
+import { EquipGunPacket } from "@smiley-face-game/packets/EquipGun";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 

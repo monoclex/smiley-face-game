@@ -1,9 +1,8 @@
-import Component from "../../../game/components/Component";
 import TileManager from "../../../game/world/TileManager";
 import LayerDisplay from "./LayerDisplay";
 import LayerType from "./LayerType";
 
-export default class Layer implements Component {
+export default class Layer {
   readonly display: LayerDisplay;
 
   constructor(tileManager: TileManager, layer: LayerType) {

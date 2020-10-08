@@ -1,4 +1,4 @@
-import { createBrowserHistory, History, LocationState } from "history";
+import { createBrowserHistory, History } from "history";
 
 type Request<TRequest, TPayload> = { request: TRequest } & TPayload;
 type HistoryState = null | Request<"join", JoinRoomRequest> | Request<"create", CreateRoomRequest>;

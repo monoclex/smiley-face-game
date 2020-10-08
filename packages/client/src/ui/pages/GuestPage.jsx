@@ -4,6 +4,7 @@ import GenericAuthenticationPage from "../../ui/components/GenericAuthentication
 import urlPlayer from "../../assets/mmmyep.png";
 import history from "../../ui/history";
 import { api } from "../../isProduction";
+
 export default () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}

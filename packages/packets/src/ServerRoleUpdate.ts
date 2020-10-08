@@ -1,6 +1,6 @@
 import Schema, { Type } from "computed-types";
 import { ServerSchema } from "./Server";
-import { PlayerRoleSchema } from "../schemas/PlayerRole";
+import { PlayerRoleSchema } from "@smiley-face-game/schemas/PlayerRole";
 
 export const SERVER_ROLE_UPDATE_ID = "SERVER_ROLE_UPDATE";
 export const ServerRoleUpdateSchema = Schema.merge(

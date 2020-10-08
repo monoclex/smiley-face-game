@@ -1,11 +1,11 @@
 import Schema, { array, Type, boolean } from "computed-types";
-import { BlockSchema, Block } from "../schemas/Block";
-import { PlayerPositionSchema } from "../schemas/PlayerPosition";
-import { SizeSchema } from "../schemas/Size";
+import { BlockSchema, Block } from "@smiley-face-game/schemas/Block";
+import { PlayerPositionSchema } from "@smiley-face-game/schemas/PlayerPosition";
+import { SizeSchema } from "@smiley-face-game/schemas/Size";
 import { ServerSchema } from "./Server";
-import { UsernameSchema } from "../schemas/Username";
-import { WorldIdSchema } from "@smiley-face-game/common/schemas/WorldId";
-import { PlayerRoleSchema } from "../schemas/PlayerRole";
+import { UsernameSchema } from "@smiley-face-game/schemas/Username";
+import { WorldIdSchema } from "@smiley-face-game/schemas/WorldId";
+import { PlayerRoleSchema } from "@smiley-face-game/schemas/PlayerRole";
 
 export const SERVER_INIT_ID = "SERVER_INIT";
 export const ServerInitSchema = Schema.merge(

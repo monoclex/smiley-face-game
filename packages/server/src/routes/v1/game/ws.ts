@@ -1,5 +1,5 @@
 import expressWs from "express-ws";
-import { validateWorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
 import canJoinWorld from "../../../jwt/permissions/canJoinWorld";
 import extractJwt from "../../../jwt/extractJwt";
 import asyncHandler from "../../../middlewares/asyncHandler";

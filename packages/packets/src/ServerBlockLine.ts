@@ -1,8 +1,8 @@
 import Schema, { Type } from "computed-types";
-import { BoundlessBlockPositionSchema } from "../schemas/BlockPosition";
-import { TileLayerSchema } from "../schemas/TileLayer";
+import { BoundlessBlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
+import { TileLayerSchema } from "@smiley-face-game/schemas/TileLayer";
 import { ServerSchema } from "./Server";
-import { BlockSchema } from "../schemas/Block";
+import { BlockSchema } from "@smiley-face-game/schemas/Block";
 
 export const SERVER_BLOCK_LINE_ID = "SERVER_BLOCK_LINE";
 export const ServerBlockLineSchema = Schema.merge(

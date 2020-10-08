@@ -1,7 +1,7 @@
 import { Connection, Repository } from "typeorm";
-import { validateAccountId } from "@smiley-face-game/common/schemas/AccountId";
-import { validateWorldId } from "@smiley-face-game/common/schemas/WorldId";
-import { Block } from "@smiley-face-game/common/schemas/Block";
+import { validateAccountId } from "@smiley-face-game/schemas/AccountId";
+import { validateWorldId } from "@smiley-face-game/schemas/WorldId";
+import { Block } from "@smiley-face-game/schemas/Block";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
 import Account from "../../database/models/Account";

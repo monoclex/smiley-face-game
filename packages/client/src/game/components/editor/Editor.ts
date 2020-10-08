@@ -1,11 +1,11 @@
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { TileId } from "@smiley-face-game/schemas/TileId";
 import Position from "../../../math/Position";
-import Component from "../../../game/components/Component";
 import World from "../../../game/world/World";
 import EditorDisplay from "./EditorDisplay";
-import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import BlockBar from "../../blockbar/BlockBar";
 import iteratePointers from "../../../game/iteratePointers";
+import TileState from "@smiley-face-game/common/tiles/TileState";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.
@@ -55,7 +55,7 @@ class DrawingPointer {
 
   onUp() { }
 
-  id() {
+  id(): TileState {
     if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
     else return this.blockBar.selectedBlock;
   }
@@ -66,7 +66,7 @@ class DrawingPointer {
   }
 }
 
-export default class Editor implements Component {
+export default class Editor {
   readonly display: EditorDisplay;
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;

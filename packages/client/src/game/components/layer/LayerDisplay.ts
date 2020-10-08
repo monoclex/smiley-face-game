@@ -1,8 +1,7 @@
-import ComponentDisplay from "../../../game/components/ComponentDisplay";
 import TileManager from "../../../game/world/TileManager";
 import LayerType from "./LayerType";
 
-export default class LayerDisplay implements ComponentDisplay {
+export default class LayerDisplay {
   readonly tilemapLayer: Phaser.Tilemaps.DynamicTilemapLayer;
 
   constructor(tileManager: TileManager, layer: LayerType) {

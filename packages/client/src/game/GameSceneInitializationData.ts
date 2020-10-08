@@ -1,4 +1,4 @@
-import { ServerInitPacket } from "@smiley-face-game/common/packets/ServerInit";
+import { ServerInitPacket } from "@smiley-face-game/packets/ServerInit";
 import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
 
 export default interface GameSceneInitializationData {

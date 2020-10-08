@@ -1,7 +1,7 @@
 import Schema, { Type } from "computed-types";
-import { InputsSchema } from "../schemas/Inputs";
-import { PlayerPositionSchema } from "../schemas/PlayerPosition";
-import { PhysicsVelocitySchema } from "../schemas/PhysicsVelocity";
+import { InputsSchema } from "@smiley-face-game/schemas/Inputs";
+import { PlayerPositionSchema } from "@smiley-face-game/schemas/PlayerPosition";
+import { PhysicsVelocitySchema } from "@smiley-face-game/schemas/PhysicsVelocity";
 
 export const MOVEMENT_ID = "MOVEMENT";
 export const MovementSchema = Schema({

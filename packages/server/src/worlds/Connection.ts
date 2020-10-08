@@ -1,11 +1,11 @@
 import * as WebSocket from "ws";
-import { WorldPacket } from "@smiley-face-game/common/packets/WorldPacket";
-import { WorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { WorldPacket } from "@smiley-face-game/packets/WorldPacket";
+import { WorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
 import AccountRepo from "../database/repos/AccountRepo";
 import AuthPayload from "../jwt/payloads/AuthPayload";
 import Room from "../worlds/Room";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
-import { PlayerRole } from "@smiley-face-game/common/schemas/PlayerRole";
+import { PlayerRole } from "@smiley-face-game/schemas/PlayerRole";
 
 export default class Connection {
   playerId!: number;

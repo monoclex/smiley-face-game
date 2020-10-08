@@ -1,7 +1,7 @@
 import Schema, { Type } from "computed-types";
-import { BlockPositionSchema } from "../schemas/BlockPosition";
-import { TileLayerSchema } from "../schemas/TileLayer";
-import { BlockSchema } from "../schemas/Block";
+import { BlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
+import { TileLayerSchema } from "@smiley-face-game/schemas/TileLayer";
+import { BlockSchema } from "@smiley-face-game/schemas/Block";
 
 export const BLOCK_SINGLE_ID = "BLOCK_SINGLE";
 

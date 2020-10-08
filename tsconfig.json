@@ -20,8 +20,8 @@
     "baseUrl": "./",
     "paths": {
       "@smiley-face-game/common/*": ["packages/common/src/*"],
-      "@smiley-face-game/common": ["packages/common/src"],
-      "@smiley-face-game/*": ["packages/*/src"]
+      "@smiley-face-game/packets/*": ["packages/packets/src/*"],
+      "@smiley-face-game/schemas/*": ["packages/schemas/src/*"]
     }
   },
   "exclude": ["node_modules/**/*"]

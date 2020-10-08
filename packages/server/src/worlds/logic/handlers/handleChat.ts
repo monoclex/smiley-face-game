@@ -1,5 +1,5 @@
-import { SERVER_CHAT_ID } from "@smiley-face-game/common/packets/ServerChat";
-import { ChatPacket } from "@smiley-face-game/common/packets/Chat";
+import { SERVER_CHAT_ID } from "@smiley-face-game/packets/ServerChat";
+import { ChatPacket } from "@smiley-face-game/packets/Chat";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 import filterMessage from "@smiley-face-game/common/filterMessage";

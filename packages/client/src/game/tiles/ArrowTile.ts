@@ -1,9 +1,10 @@
 import Player from "../../game/player/Player";
-import { Rotation } from "@smiley-face-game/common/schemas/Rotation";
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import { Rotation } from "@smiley-face-game/schemas/Rotation";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import TileState from "@smiley-face-game/common/tiles/TileState";
 import Tile from "./Tile";
+import type { SpriteEx } from "phaser-tile-addons";
 
 export default class ArrowTile implements Tile<TileId.Arrow> {
   id: TileId.Arrow = TileId.Arrow;
@@ -14,7 +15,7 @@ export default class ArrowTile implements Tile<TileId.Arrow> {
     tile.setCollision(false);
     tile.rotation = tileState.rotation * -(Math.PI / 2); // `-` to combat phaser weirdness :v
 
-    tile.setCollisionCallback((sprite, tile) => {
+    tile.setCollisionCallback((sprite: SpriteEx, tile: Phaser.Tilemaps.Tile) => {
       if (!sprite.player) {
         console.warn("unable to resolve tile collision", sprite, tile);
         return;

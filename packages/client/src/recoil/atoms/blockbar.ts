@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 import SharedGlobal from "../../recoil/SharedGlobal";
 import { SelectedSlotId } from "../../client/Slot";
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { TileId } from "@smiley-face-game/schemas/TileId";
 import TileState from "../../game/tiles/TileState";
 import { defaultFor } from "@smiley-face-game/common/tiles/TileState";
 

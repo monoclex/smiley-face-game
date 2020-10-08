@@ -1,6 +1,6 @@
 import Schema, { Type } from "computed-types";
-import { PasswordSchema } from "@smiley-face-game/common/schemas/Password";
-import { EmailSchema } from "@smiley-face-game/common/schemas/Email";
+import { PasswordSchema } from "@smiley-face-game/schemas/Password";
+import { EmailSchema } from "@smiley-face-game/schemas/Email";
 
 export const LoginSchema = Schema.either({
   email: EmailSchema,

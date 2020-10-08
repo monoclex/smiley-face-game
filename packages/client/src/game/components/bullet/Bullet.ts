@@ -1,9 +1,8 @@
-import Component from "../../../game/components/Component";
 import BulletConfig from "./BulletConfig";
 import BulletDisplay from "./BulletDisplay";
 import BulletType from "./BulletType";
 
-export default class Bullet implements Component {
+export default class Bullet {
   readonly display: BulletDisplay;
   readonly bulletType: BulletType;
 

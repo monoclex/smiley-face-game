@@ -1,4 +1,4 @@
-import { BlockBufferPacket } from "@smiley-face-game/common/packets/BlockBuffer";
+import { BlockBufferPacket } from "@smiley-face-game/packets/BlockBuffer";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 

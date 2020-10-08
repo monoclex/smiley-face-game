@@ -1,4 +1,4 @@
-import { Color } from "@smiley-face-game/common/schemas/Color";
+import { Color } from "@smiley-face-game/schemas/Color";
 
 export default function nextColor(current: Color): Color {
   switch (current) {

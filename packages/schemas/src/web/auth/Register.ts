@@ -1,7 +1,7 @@
 import Schema, { Type } from "computed-types";
-import { UsernameSchema } from "@smiley-face-game/common/schemas/Username";
-import { PasswordSchema } from "@smiley-face-game/common/schemas/Password";
-import { EmailSchema } from "@smiley-face-game/common/schemas/Email";
+import { UsernameSchema } from "@smiley-face-game/schemas/Username";
+import { PasswordSchema } from "@smiley-face-game/schemas/Password";
+import { EmailSchema } from "@smiley-face-game/schemas/Email";
 
 export const RegisterSchema = Schema({
   username: UsernameSchema,

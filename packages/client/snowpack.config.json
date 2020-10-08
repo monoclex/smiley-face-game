@@ -1,8 +1,9 @@
 {
-  "alias": {
-    "@smiley-face-game/common": "../common/src"
-  },
-  "plugins": ["@snowpack/plugin-react-refresh", "@snowpack/plugin-typescript"],
+  "plugins": [
+    "@snowpack/plugin-react-refresh",
+    "@snowpack/plugin-typescript",
+    ["./import-asset-by-url-snowpack-plugin.js", { "extensions": [".mp3", ".png"] }]
+  ],
   "mount": {
     "public": "/",
     "src": "/"

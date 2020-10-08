@@ -1,11 +1,10 @@
-import { TileId } from "@smiley-face-game/common/schemas/TileId";
-import { Size } from "@smiley-face-game/common/schemas/Size";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { Size } from "@smiley-face-game/schemas/Size";
 import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
-import Position from "../../math/Position";
 import key from "./key";
-import { Block } from "@smiley-face-game/common/schemas/Block";
-import { Rotation } from "@smiley-face-game/common/schemas/Rotation";
+import { Block } from "@smiley-face-game/schemas/Block";
+import { Rotation } from "@smiley-face-game/schemas/Rotation";
 import tileLookup from "../../game/tiles/tileLookup";
 
 const TILE_WIDTH = 32;

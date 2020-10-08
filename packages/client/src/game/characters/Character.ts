@@ -11,7 +11,7 @@ export class Character {
   readonly body: Phaser.Physics.Arcade.Sprite;
   readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
-  readonly input: MovementValues = { left: false, right: false, jump: false };
+  readonly input: MovementValues = { left: false, right: false, jump: false, up: false };
   player?: Player;
 
   constructor(

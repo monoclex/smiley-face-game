@@ -1,5 +1,5 @@
-import { MovementPacket } from "@smiley-face-game/common/packets/Movement";
-import { SERVER_MOVEMENT_ID } from "@smiley-face-game/common/packets/ServerMovement";
+import { MovementPacket } from "@smiley-face-game/packets/Movement";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/packets/ServerMovement";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 
