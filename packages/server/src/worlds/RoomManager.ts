@@ -1,10 +1,10 @@
-import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import MPSC from "@/concurrency/MPSC";
-import Connection from "@/worlds/Connection";
-import Dependencies from "@/dependencies";
-import UuidGenerator from "@/UuidGenerator";
+import { validateWorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { WorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
+import MPSC from "../concurrency/MPSC";
+import Connection from "../worlds/Connection";
+import Dependencies from "../dependencies";
+import UuidGenerator from "../UuidGenerator";
 import Room from "./Room";
 import ensureValidates from "../ensureValidates";
 import SavedBehaviour from "./behaviour/SavedBehaviour";

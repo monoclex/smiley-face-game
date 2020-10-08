@@ -6,12 +6,10 @@ import { CssBaseline, Snackbar } from "@material-ui/core";
 import { deepPurple, indigo } from "@material-ui/core/colors";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
-//@ts-ignore
-import MetaTags from "react-meta-tags";
 
 import Loading from "./Loading";
-import history from "@/ui/history";
-import { SnackbarUtilsConfigurator } from "@/SnackbarUtils";
+import history from "./history";
+import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -41,9 +39,6 @@ export const App = () => {
       <RecoilRoot>
         <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
           <SnackbarUtilsConfigurator />
-          <MetaTags>
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-          </MetaTags>
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <Suspense fallback={<Loading />}>

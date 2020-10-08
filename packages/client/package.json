@@ -1,67 +1,46 @@
 {
   "name": "@smiley-face-game/client",
   "version": "0.0.0",
+  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack-dev-server --dev",
-    "build": "webpack --mode=production",
-    "build-dev": "webpack --mode=production --dev",
-    "view-bundle": "webpack --mode=production --bundle"
+    "dev": "snowpack dev",
+    "build": "snowpack build",
+    "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
   },
-  "browserslist": [
-    "last 2 firefox versions",
-    "last 2 chrome versions"
-  ],
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.30",
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.11",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.56",
     "clsx": "^1.1.1",
-    "framer-motion": "^1.11.1",
+    "date-fns": "^2.16.1",
+    "framer-motion": "^2.7.8",
     "mdi-material-ui": "^6.19.0",
-    "notistack": "^1.0.0",
-    "phaser": "^3.24.0",
-    "pixi-tilemap": "^2.1.3",
-    "pixi.js": "^5.3.3",
-    "planck-js": "^0.3.22",
-    "query-string": "^6.13.1",
+    "notistack": "^1.0.1",
+    "phaser": "^3.24.1",
+    "query-string": "^6.13.5",
     "react": "^16.13.1",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.13.1",
-    "react-hook-form": "^6.0.4",
-    "react-meta-tags": "^0.7.4",
+    "react-hook-form": "^6.9.2",
     "react-router-dom": "^5.2.0",
     "react-sizeme": "^2.6.12",
     "rebound": "^0.1.0",
-    "recoil": "^0.0.11",
-    "regenerator-runtime": "^0.13.7"
+    "recoil": "^0.0.13"
   },
   "devDependencies": {
-    "@svgr/webpack": "^5.4.0",
-    "@swc/cli": "^0.1.27",
-    "@swc/core": "^1.2.34",
-    "@types/react": "^16.9.43",
+    "@snowpack/app-scripts-react": "^1.12.2",
+    "@snowpack/plugin-react-refresh": "^2.3.1",
+    "@snowpack/plugin-typescript": "^1.0.1",
+    "@types/react": "^16.9.51",
     "@types/react-dom": "^16.9.8",
-    "@types/react-router-dom": "^5.1.5",
-    "clean-webpack-plugin": "^3.0.0",
-    "file-loader": "^6.0.0",
-    "html-webpack-plugin": "^4.3.0",
-    "loader-utils": "^2.0.0",
-    "swc-loader": "^0.1.12",
-    "terser-webpack-plugin": "^4.1.0",
-    "ts-loader": "^8.0.2",
-    "typescript": "^3.9.7",
-    "url-loader": "^4.1.0",
-    "webpack": "^4.44.1",
-    "webpack-bundle-analyzer": "^3.9.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-plugin-replace": "^1.2.0"
+    "@types/snowpack-env": "^2.3.0",
+    "snowpack": "^2.13.3"
   },
   "peerDependencies": {
-    "@smiley-face-game/api": "^0.0.0"
+    "@smiley-face-game/common": "0.0.0"
   }
 }

@@ -1,20 +1,14 @@
-import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
-import { Block } from "@smiley-face-game/api/schemas/Block";
+import { blockPosition } from "@smiley-face-game/common/schemas/BlockPosition";
+import { Block } from "@smiley-face-game/common/schemas/Block";
 import {
   worldPacket,
   WorldPacket,
   WorldPacketValidator,
-} from "@smiley-face-game/api/packets/WorldPacket";
-import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import WorldRepo from "@/database/repos/WorldRepo";
-import Connection from "@/worlds/Connection";
-import Dependencies from "@/dependencies";
+} from "@smiley-face-game/common/packets/WorldPacket";
+import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
+import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
-import generateWorld from "./generateWorld";
-import ensureValidates from "../ensureValidates";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
@@ -126,7 +120,7 @@ export default class Room {
   join(connection: Connection): boolean {
     if (this.#logic === undefined) {
       console.error(
-        "welp this hit somehow, @/worlds/Room.ts Room.join(Connection)"
+        "welp this hit somehow, ../worlds/Room.ts Room.join(Connection)"
       );
       throw new Error(
         "this.#logic should never be undefined when calling `join`"
@@ -139,7 +133,7 @@ export default class Room {
   leave(connection: Connection) {
     if (this.#logic === undefined) {
       console.error(
-        "welp this hit somehow, @/worlds/Room.ts Room.leave(Connection)"
+        "welp this hit somehow, ../worlds/Room.ts Room.leave(Connection)"
       );
       throw new Error(
         "this.#logic should never be undefined when calling `leave`"

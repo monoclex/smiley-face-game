@@ -1,7 +1,7 @@
-import distanceAway from "@/math/distanceAway";
+import distanceAway from "../../../math/distanceAway";
 
 export default abstract class GunBehaviour {
-  constructor(readonly player: Phaser.GameObjects.Sprite, readonly gun: Phaser.GameObjects.Sprite) {}
+  constructor(readonly player: Phaser.GameObjects.Sprite, readonly gun: Phaser.GameObjects.Sprite) { }
 
   equipped: boolean = true;
   angle: number = 0.0;

@@ -1,16 +1,16 @@
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { Size } from "@smiley-face-game/api/schemas/Size";
-import Position from "@/math/Position";
-import Layer from "@/game/components/layer/Layer";
-import Void from "@/game/components/void/Void";
+import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { Size } from "@smiley-face-game/common/schemas/Size";
+import Position from "../../math/Position";
+import Layer from "../../game/components/layer/Layer";
+import Void from "../../game/components/void/Void";
 import TileManager from "./TileManager";
-import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import tileLookup from "@/game/tiles/tileLookup";
+import { bresenhamsLine } from "@smiley-face-game/common/misc";
+import tileLookup from "../../game/tiles/tileLookup";
 import Tile from "../tiles/Tile";
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import TileState from "@/game/tiles/TileState";
-import blocksEqual from "../../../../api/src/tiles/blocksEqual";
+import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
+import TileState from "../../game/tiles/TileState";
+import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -42,14 +42,6 @@ export default class World {
   deserializeBlocks(blocks: TileState[][][]) {
     for (let l = 0; l < blocks.length; l++) {
       const layer = blocks[l];
-      const worldLayer =
-        l === TileLayer.Decoration
-          ? this.decoration
-          : l === TileLayer.Foreground
-            ? this.foreground
-            : l === TileLayer.Action
-              ? this.action
-              : this.background;
 
       for (let y = 0; y < layer.length; y++) {
         const yLayer = layer[y];
@@ -96,7 +88,7 @@ export default class World {
 
   // TODO: put this in something that handles tile layers
   drawLine(start: Position, end: Position, tile: TileState, iPlacedIt: boolean, layer?: TileLayer) {
-    bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
+    bresenhamsLine(start.x, start.y, end.x, end.y, (x: number, y: number) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
       this.placeBlock({ x, y }, tile, layer, iPlacedIt);
     });

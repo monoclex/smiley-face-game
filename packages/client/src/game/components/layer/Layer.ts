@@ -1,5 +1,5 @@
-import Component from "@/game/components/Component";
-import TileManager from "@/game/world/TileManager";
+import Component from "../../../game/components/Component";
+import TileManager from "../../../game/world/TileManager";
 import LayerDisplay from "./LayerDisplay";
 import LayerType from "./LayerType";
 

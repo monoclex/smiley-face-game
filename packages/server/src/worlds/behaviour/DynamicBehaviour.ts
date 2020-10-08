@@ -1,13 +1,13 @@
 import {
   WorldJoinRequest,
   validateWorldJoinRequest,
-} from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import WorldBlocks from "@/worlds/WorldBlocks";
-import ensureValidates from "@/ensureValidates";
+} from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { WorldDetails } from "@smiley-face-game/common/schemas/WorldDetails";
+import WorldBlocks from "../../worlds/WorldBlocks";
+import ensureValidates from "../../ensureValidates";
 import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
-import Connection from "@/worlds/Connection";
+import Connection from "../../worlds/Connection";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;
@@ -62,7 +62,7 @@ export default class DynamicBehaviour implements Behaviour {
     );
   }
 
-  saveBlocks(blocks: WorldBlocks): Promise<void> {
+  saveBlocks(): Promise<void> {
     return Promise.resolve();
   }
 }

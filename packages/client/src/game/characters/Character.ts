@@ -1,11 +1,11 @@
-import GameScene from "@/game/GameScene";
-import BaseType from "@/game/characters/bases/BaseType";
-import baseKey from "@/game/characters/bases/key";
-import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
-import cosmeticKey from "@/game/characters/cosmetics/key";
-import MovementInput from "@/game/input/MovementInput";
-import MovementValues from "@/game/input/MovementValues";
-import Player from "@/game/player/Player";
+import GameScene from "../../game/GameScene";
+import BaseType from "../../game/characters/bases/BaseType";
+import baseKey from "../../game/characters/bases/key";
+import CosmeticType from "../../game/characters/cosmetics/CosmeticType";
+import cosmeticKey from "../../game/characters/cosmetics/key";
+import MovementInput from "../../game/input/MovementInput";
+import MovementValues from "../../game/input/MovementValues";
+import Player from "../../game/player/Player";
 
 export class Character {
   readonly body: Phaser.Physics.Arcade.Sprite;

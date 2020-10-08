@@ -5,14 +5,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { SizeMe } from "react-sizeme";
-import { playerListState } from "@/recoil/atoms/playerList";
+import { playerListState } from "../../../recoil/atoms/playerList";
 import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
 import commonUIStyles from "../commonUIStyles";
-import SpringScrollbars from "@/ui/components/SpingScrollbars";
+import SpringScrollbars from "../../../ui/components/SpingScrollbars";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
-import currentPlayer from "@/recoil/selectors/currentPlayer";
+import currentPlayer from "../../../recoil/selectors/currentPlayer";
 import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
 import { useSnackbar } from "notistack";
 
@@ -73,7 +73,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
-  /** @type {import("@smiley-face-game/api/PlayerRole").default} */
+  /** @type {import("@smiley-face-game/common/PlayerRole").default} */
   const role = roleParam;
 
   // https://material-ui.com/components/menus/#SimpleMenu.js

@@ -1,13 +1,13 @@
 import { Connection, Repository } from "typeorm";
-import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
-import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
-import { Block } from "@smiley-face-game/api/schemas/Block";
-import AccountLike from "@/database/modelishs/AccountLike";
-import WorldLike from "@/database/modelishs/WorldLike";
-import Account from "@/database/models/Account";
-import World from "@/database/models/World";
-import generateWorld from "@/worlds/generateWorld";
-import ensureValidates from "@/ensureValidates";
+import { validateAccountId } from "@smiley-face-game/common/schemas/AccountId";
+import { validateWorldId } from "@smiley-face-game/common/schemas/WorldId";
+import { Block } from "@smiley-face-game/common/schemas/Block";
+import AccountLike from "../../database/modelishs/AccountLike";
+import WorldLike from "../../database/modelishs/WorldLike";
+import Account from "../../database/models/Account";
+import World from "../../database/models/World";
+import generateWorld from "../../worlds/generateWorld";
+import ensureValidates from "../../ensureValidates";
 
 type QueryOptions = { withOwner: boolean };
 

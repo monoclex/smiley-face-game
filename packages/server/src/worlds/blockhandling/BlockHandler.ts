@@ -1,37 +1,32 @@
 // TODO: clean this file up later
 
-import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import { BlockBufferPacket } from "@smiley-face-game/api/packets/BlockBuffer";
+import { bresenhamsLine } from "@smiley-face-game/common/misc";
+import { BlockBufferPacket } from "@smiley-face-game/common/packets/BlockBuffer";
 import {
   BlockLinePacket,
   BLOCK_LINE_ID,
-} from "@smiley-face-game/api/packets/BlockLine";
+} from "@smiley-face-game/common/packets/BlockLine";
 import {
   BlockSinglePacket,
   BLOCK_SINGLE_ID,
-} from "@smiley-face-game/api/packets/BlockSingle";
+} from "@smiley-face-game/common/packets/BlockSingle";
 import {
   ServerBlockBufferPacket,
   SERVER_BLOCK_BUFFER_ID,
-} from "@smiley-face-game/api/packets/ServerBlockBuffer";
+} from "@smiley-face-game/common/packets/ServerBlockBuffer";
 import {
   ServerBlockLinePacket,
   SERVER_BLOCK_LINE_ID,
-} from "@smiley-face-game/api/packets/ServerBlockLine";
+} from "@smiley-face-game/common/packets/ServerBlockLine";
 import {
   ServerBlockSinglePacket,
   SERVER_BLOCK_SINGLE_ID,
-} from "@smiley-face-game/api/packets/ServerBlockSingle";
-import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
-import { Block } from "@smiley-face-game/api/schemas/Block";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
-import Connection from "@/worlds/Connection";
-import World from "@/database/models/World";
-import blocksEqual from "@smiley-face-game/api/tiles/blocksEqual";
-import copyBlock from "@smiley-face-game/api/tiles/copyBlock";
-
-type BroadcastFunction = (message: WorldPacket) => Promise<void>;
+} from "@smiley-face-game/common/packets/ServerBlockSingle";
+import { Block } from "@smiley-face-game/common/schemas/Block";
+import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import Connection from "../../worlds/Connection";
+import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
+import copyBlock from "@smiley-face-game/common/tiles/copyBlock";
 
 export class BlockHandler {
   constructor(

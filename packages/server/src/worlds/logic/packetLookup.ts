@@ -1,6 +1,6 @@
-import { WorldPacketLookup } from "@smiley-face-game/api/packets/WorldPacket";
-import RoomLogic from "@/worlds/logic/RoomLogic";
-import Connection from "@/worlds/Connection";
+import { WorldPacketLookup } from "@smiley-face-game/common/packets/WorldPacket";
+import RoomLogic from "../../worlds/logic/RoomLogic";
+import Connection from "../../worlds/Connection";
 import handleBlockBuffer from "./handlers/handleBlockBuffer";
 import handleBlockLine from "./handlers/handleBlockLine";
 import handleBlockSingle from "./handlers/handleBlockSingle";

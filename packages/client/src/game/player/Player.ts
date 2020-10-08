@@ -1,14 +1,14 @@
-import { Character } from "@/game/characters/Character";
-import GunBehaviour from "@/game/guns/behaviour/GunBehaviour";
-import GunModel from "@/game/guns/models/GunModel";
-import GameScene from "@/game/GameScene";
-import distanceAway from "@/math/distanceAway";
-import BaseType from "@/game/characters/bases/BaseType";
-import baseKey from "@/game/characters/bases/key";
-import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
-import cosmeticKey from "@/game/characters/cosmetics/key";
-import MovementInput from "@/game/input/MovementInput";
-import MovementValues from "@/game/input/MovementValues";
+import { Character } from "../../game/characters/Character";
+import GunBehaviour from "../../game/guns/behaviour/GunBehaviour";
+import GunModel from "../../game/guns/models/GunModel";
+import GameScene from "../../game/GameScene";
+import distanceAway from "../../math/distanceAway";
+import BaseType from "../../game/characters/bases/BaseType";
+import baseKey from "../../game/characters/bases/key";
+import CosmeticType from "../../game/characters/cosmetics/CosmeticType";
+import cosmeticKey from "../../game/characters/cosmetics/key";
+import MovementInput from "../../game/input/MovementInput";
+import MovementValues from "../../game/input/MovementValues";
 
 // the higher the depth number, the closer to the user it appears
 let _depth = 0;

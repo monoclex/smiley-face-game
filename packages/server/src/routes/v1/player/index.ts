@@ -1,6 +1,6 @@
 import { Router } from "express";
-import jwt from "@/middlewares/jwt";
-import Dependencies from "@/dependencies";
+import jwt from "../../../middlewares/jwt";
+import Dependencies from "../../../dependencies";
 
 type UsedDependencies = Pick<
   Dependencies,

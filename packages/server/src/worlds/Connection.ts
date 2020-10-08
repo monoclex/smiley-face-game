@@ -1,12 +1,11 @@
 import * as WebSocket from "ws";
-import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import AccountRepo from "@/database/repos/AccountRepo";
-import AuthPayload from "@/jwt/payloads/AuthPayload";
-import Room from "@/worlds/Room";
+import { WorldPacket } from "@smiley-face-game/common/packets/WorldPacket";
+import { WorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import AccountRepo from "../database/repos/AccountRepo";
+import AuthPayload from "../jwt/payloads/AuthPayload";
+import Room from "../worlds/Room";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
-import { PlayerRole } from "@smiley-face-game/api/schemas/PlayerRole";
-import { timingSafeEqual } from "crypto";
+import { PlayerRole } from "@smiley-face-game/common/schemas/PlayerRole";
 
 export default class Connection {
   playerId!: number;
@@ -110,7 +109,7 @@ export default class Connection {
       untilClose.resolve();
     });
 
-    this.webSocket.on("close", (code, reason) => {
+    this.webSocket.on("close", () => {
       if (!this.connected) return;
       this.connected = false;
       room.leave(this);

@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
-import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
-import { validateUsername } from "@smiley-face-game/api/schemas/Username";
-import ensureValidates from "@/ensureValidates";
+import { validateAccountId } from "@smiley-face-game/common/schemas/AccountId";
+import { validateUsername } from "@smiley-face-game/common/schemas/Username";
+import ensureValidates from "../../ensureValidates";
 import AuthPayload from "./AuthPayload";
 
 export default class AuthProvider {

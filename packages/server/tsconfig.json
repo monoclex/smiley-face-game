@@ -1,24 +1,8 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
-    "lib": ["ESNext"],
-    "strict": true,
-    "noImplicitAny": true,
-    "alwaysStrict": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "baseUrl": "./",
-    "paths": {
-      "@smiley-face-game/api/*": ["../api/src/*"],
-      "@/*": ["./src/*"]
-    },
-    "rootDirs": ["src"],
-    "plugins": [
-      { "transform": "@zerollup/ts-transform-paths" },
-      { "transform": "ts-type-checked/transformer" }
-    ]
-  }
+    "module": "CommonJS"
+  },
+  "include": ["src/*"]
 }

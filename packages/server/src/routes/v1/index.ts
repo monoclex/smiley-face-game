@@ -1,6 +1,6 @@
 import { Router } from "express";
-import asyncHandler from "@/middlewares/asyncHandler";
-import Dependencies from "@/dependencies";
+import asyncHandler from "../../middlewares/asyncHandler";
+import Dependencies from "../../dependencies";
 import authRouterFactory from "./auth";
 import gameRouterFactory from "./game";
 import playerRouterFactory from "./player";
@@ -13,8 +13,8 @@ export default function (deps: Dependencies): Router {
   router.use("/player", playerRouterFactory(deps));
   router.get(
     "/err",
-    asyncHandler((req, res) => {
-      return new Promise((r, rj) => {
+    asyncHandler(() => {
+      return new Promise((_, rj) => {
         setTimeout(() => {
           rj(new Error("async errer"));
         }, 1000);
@@ -36,7 +36,7 @@ export default function (deps: UsedDependencies): Router {
   // TODO: strongly typed results?
   router.get('/worlds', jwt(jwtVerifier, async (req, res) => {
     const worldsPayload = [];
-    
+
     const accountId = req.jwt.aud;
     for (const world of await worldRepo.findOwnedBy(accountId)) {
       worldsPayload.push({

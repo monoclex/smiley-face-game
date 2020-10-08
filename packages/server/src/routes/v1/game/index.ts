@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Dependencies from "@/dependencies";
+import Dependencies from "../../../dependencies";
 import lobby from "./lobby";
 import ws from "./ws";
 

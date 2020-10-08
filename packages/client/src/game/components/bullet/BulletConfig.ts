@@ -1,4 +1,4 @@
-import Position from "@/math/Position";
+import Position from "../../../math/Position";
 import BulletType from "./BulletType";
 
 export default interface BulletConfig {

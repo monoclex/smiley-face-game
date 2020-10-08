@@ -1,6 +1,6 @@
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
-import TileState from "@smiley-face-game/api/tiles/TileState";
+import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
+import TileState from "@smiley-face-game/common/tiles/TileState";
 import Tile from "./Tile";
 
 export default class FullTile implements Tile<TileId.Full> {

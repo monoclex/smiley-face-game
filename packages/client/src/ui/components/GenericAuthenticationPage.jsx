@@ -6,9 +6,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
-import { validateUsername } from "@smiley-face-game/api/schemas/Username";
-import { validateEmail } from "@smiley-face-game/api/schemas/Email";
-import { validatePassword } from "@smiley-face-game/api/schemas/Password";
+import { validateUsername } from "@smiley-face-game/common/schemas/Username";
+import { validateEmail } from "@smiley-face-game/common/schemas/Email";
+import { validatePassword } from "@smiley-face-game/common/schemas/Password";
 
 const useStyles = makeStyles({
   bigSmileyFace: {

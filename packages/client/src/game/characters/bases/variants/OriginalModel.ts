@@ -1,6 +1,6 @@
-import urlOriginal from "@/assets/base.png";
-import BaseModel from "@/game/characters/bases/BaseModel";
-import key from "@/game/characters/bases/key";
+import urlOriginal from "../../../../assets/base.png";
+import BaseModel from "../../../../game/characters/bases/BaseModel";
+import key from "../../../../game/characters/bases/key";
 
 class Model implements BaseModel {
   readonly type = "original";

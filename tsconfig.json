@@ -11,7 +11,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -19,7 +19,10 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
+      "@smiley-face-game/common/*": ["packages/common/src/*"],
+      "@smiley-face-game/common": ["packages/common/src"],
       "@smiley-face-game/*": ["packages/*/src"]
     }
-  }
+  },
+  "exclude": ["node_modules/**/*"]
 }

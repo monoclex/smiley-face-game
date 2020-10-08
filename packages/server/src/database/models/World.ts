@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Block } from "@smiley-face-game/api/schemas/Block";
+import { Block } from "@smiley-face-game/common/schemas/Block";
 import Account from "./Account";
 
 @Entity()

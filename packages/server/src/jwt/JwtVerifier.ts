@@ -25,7 +25,7 @@ export default class JwtVerifier<TPayload> {
   }
 
   /**
-   * Checks if a token is valid, and type checks the payload using ts-type-checked.
+   * Checks if a token is valid, and type checks the payload using the validator passed in.
    * @param token The token to validate.
    */
   isValid(token: string): ValidationResult<TPayload> {

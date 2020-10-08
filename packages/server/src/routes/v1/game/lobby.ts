@@ -1,7 +1,7 @@
 import { Router } from "express";
-import asyncHandler from "@/middlewares/asyncHandler";
-import jwt from "@/middlewares/jwt";
-import Dependencies from "@/dependencies";
+import asyncHandler from "../../../middlewares/asyncHandler";
+import jwt from "../../../middlewares/jwt";
+import Dependencies from "../../../dependencies";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager">;
 

@@ -1,6 +1,6 @@
-import { BlockBufferPacket } from "@smiley-face-game/api/packets/BlockBuffer";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { BlockBufferPacket } from "@smiley-face-game/common/packets/BlockBuffer";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
 
 export default function handleBlockBuffer(
   packet: BlockBufferPacket,

@@ -1,6 +1,6 @@
 import { atom } from "recoil";
-import SharedGlobal from "@/recoil/SharedGlobal";
-import PlayerRole from "@smiley-face-game/api/PlayerRole";
+import SharedGlobal from "../../recoil/SharedGlobal";
+import type PlayerRole from "@smiley-face-game/common/PlayerRole";
 
 export interface PlayerListState {
   players: Player[];

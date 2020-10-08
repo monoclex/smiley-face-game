@@ -1,6 +1,6 @@
-import { Block } from "@smiley-face-game/api/schemas/Block";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
+import { Block } from "@smiley-face-game/common/schemas/Block";
+import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/common/schemas/TileLayer";
 
 export default function generateWorld(width: number, height: number): string {
   // by using this one block, every single block in this array shares the same reference

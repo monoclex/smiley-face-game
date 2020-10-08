@@ -1,6 +1,6 @@
-import urlBullet from "@/assets/bullet.png";
-import urlShoot from "@/assets/shoot.mp3";
-import ComponentDisplay from "@/game/components/ComponentDisplay";
+import urlBullet from "../../../assets/bullet.png";
+import urlShoot from "../../../assets/shoot.mp3";
+import ComponentDisplay from "../../../game/components/ComponentDisplay";
 import BulletConfig from "./BulletConfig";
 import BulletType from "./BulletType";
 

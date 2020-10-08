@@ -1,5 +1,5 @@
-import AccountLike from "@/database/modelishs/AccountLike";
-import AccountRepo from "@/database/repos/AccountRepo";
+import AccountLike from "../database/modelishs/AccountLike";
+import AccountRepo from "../database/repos/AccountRepo";
 import ShopItem from "./ShopItem";
 
 export default class Purchaser {

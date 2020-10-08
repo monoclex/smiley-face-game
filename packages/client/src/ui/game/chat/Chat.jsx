@@ -7,9 +7,9 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns/fp";
 
-import { messagesState, chatState } from "@/recoil/atoms/chat";
+import { messagesState, chatState } from "../../../recoil/atoms/chat";
 import commonUIStyles from "../commonUIStyles";
-import SpringScrollbars from "@/ui/components/SpingScrollbars";
+import SpringScrollbars from "../../../ui/components/SpingScrollbars";
 
 const useStyles = makeStyles((theme) => ({
   container: {

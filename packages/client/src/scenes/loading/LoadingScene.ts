@@ -1,12 +1,12 @@
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import { api } from "@/isProduction";
+import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
+import { api } from "../../isProduction";
 import { LoadingSceneData } from "./LoadingSceneData";
-import { serverBlockBuffer } from "@smiley-face-game/api/packets/ServerBlockBuffer";
-import { serverBlockSingle } from "@smiley-face-game/api/packets/ServerBlockSingle";
-import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
-import loadAll from "@/game/loadAll";
-import GAME_SCENE_KEY from "@/game/GameSceneKey";
-import { loading } from "@/recoil/atoms/loading";
+import { serverBlockBuffer } from "@smiley-face-game/common/packets/ServerBlockBuffer";
+import { serverBlockSingle } from "@smiley-face-game/common/packets/ServerBlockSingle";
+import { blockPosition } from "@smiley-face-game/common/schemas/BlockPosition";
+import loadAll from "../../game/loadAll";
+import GAME_SCENE_KEY from "../../game/GameSceneKey";
+import { loading } from "../../recoil/atoms/loading";
 
 export const globalVariableParkour = {
   token: "",

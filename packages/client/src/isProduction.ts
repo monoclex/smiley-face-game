@@ -1,7 +1,7 @@
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { Guest } from "@smiley-face-game/api/schemas/web/auth/Guest";
-import { Register } from "@smiley-face-game/api/schemas/web/auth/Register";
-import { Login } from "@smiley-face-game/api/schemas/web/auth/Login";
+import { WorldJoinRequest } from "@smiley-face-game/common/schemas/web/game/ws/WorldJoinRequest";
+import { Guest } from "@smiley-face-game/common/schemas/web/auth/Guest";
+import { Register } from "@smiley-face-game/common/schemas/web/auth/Register";
+import { Login } from "@smiley-face-game/common/schemas/web/auth/Login";
 //@ts-ignore
 const isProduction = process.env.NODE_ENV === "production";
 export default isProduction;

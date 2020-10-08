@@ -1,16 +1,16 @@
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
-import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
-import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import Connection from "@/worlds/Connection";
-import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
-import WorldBlocks from "@/worlds/WorldBlocks";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/common/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/common/packets/ServerPlayerLeave";
+import { SERVER_INIT_ID } from "@smiley-face-game/common/packets/ServerInit";
+import { WorldPacket } from "@smiley-face-game/common/packets/WorldPacket";
+import { WorldDetails } from "@smiley-face-game/common/schemas/WorldDetails";
+import PromiseCompletionSource from "../../concurrency/PromiseCompletionSource";
+import Connection from "../../worlds/Connection";
+import { BlockHandler } from "../../worlds/blockhandling/BlockHandler";
+import WorldBlocks from "../../worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
-import Behaviour from "@/worlds/behaviour/Behavior";
-import { ServerInitPacket } from "../../../../api/src/packets/ServerInit";
+import Behaviour from "../../worlds/behaviour/Behavior";
+import { ServerInitPacket } from "@smiley-face-game/common/packets/ServerInit";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {

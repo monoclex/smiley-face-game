@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { useRecoilState } from "recoil";
-import { blockbar as blockbarGlobal, blockbarState } from "@/recoil/atoms/blockbar";
-import nextTileState from "@smiley-face-game/api/tiles/nextTileState";
+import { blockbar as blockbarGlobal, blockbarState } from "../../../recoil/atoms/blockbar";
+import nextTileState from "@smiley-face-game/common/tiles/nextTileState";
 
 const BlockBar = () => {
   const keys = "`1234567890-=".split("");

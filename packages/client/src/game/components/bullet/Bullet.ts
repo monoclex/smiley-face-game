@@ -1,4 +1,4 @@
-import Component from "@/game/components/Component";
+import Component from "../../../game/components/Component";
 import BulletConfig from "./BulletConfig";
 import BulletDisplay from "./BulletDisplay";
 import BulletType from "./BulletType";

@@ -1,14 +1,14 @@
-import GunModel from "@/game/guns/models/GunModel";
+import GunModel from "../../game/guns/models/GunModel";
 import Player from "./Player";
 import World from "../world/World";
 import { Character } from "../characters/Character";
 import GameScene from "../GameScene";
-import M249LMG from "@/game/guns/models/variants/M249LMG";
+import M249LMG from "../../game/guns/models/variants/M249LMG";
 
 export default class PlayerManager {
   readonly players: Map<number, Player> = new Map();
 
-  constructor(readonly game: GameScene) {}
+  constructor(readonly game: GameScene) { }
 
   getPlayer(id: number): Player {
     const player = this.players.get(id);

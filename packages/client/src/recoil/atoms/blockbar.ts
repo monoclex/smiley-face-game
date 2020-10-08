@@ -1,14 +1,14 @@
 import { atom } from "recoil";
-import SharedGlobal from "@/recoil/SharedGlobal";
-import { SlotId, SelectedSlotId } from "@/client/Slot";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import TileState from "@/game/tiles/TileState";
-import { defaultFor } from "@smiley-face-game/api/tiles/TileState";
+import SharedGlobal from "../../recoil/SharedGlobal";
+import { SelectedSlotId } from "../../client/Slot";
+import { TileId } from "@smiley-face-game/common/schemas/TileId";
+import TileState from "../../game/tiles/TileState";
+import { defaultFor } from "@smiley-face-game/common/tiles/TileState";
 
 export interface BlockBar {
   selected: SelectedSlotId;
   slots: { [key in SelectedSlotId]: TileState };
-  loader: null | ((tileId: TileId) => Promise<HTMLImageElement>);
+  loader: null | ((tileState: TileState) => Promise<HTMLImageElement>);
 }
 
 export const defaultBlockbarState: BlockBar = {

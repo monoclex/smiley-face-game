@@ -1,8 +1,8 @@
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import WorldRepo from "@/database/repos/WorldRepo";
-import WorldBlocks from "@/worlds/WorldBlocks";
+import { WorldDetails } from "@smiley-face-game/common/schemas/WorldDetails";
+import WorldRepo from "../../database/repos/WorldRepo";
+import WorldBlocks from "../../worlds/WorldBlocks";
 import Behaviour from "./Behavior";
-import Connection from "@/worlds/Connection";
+import Connection from "../../worlds/Connection";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;

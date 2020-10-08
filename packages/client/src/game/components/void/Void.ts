@@ -1,5 +1,5 @@
-import Component from "@/game/components/Component";
-import TileManager from "@/game/world/TileManager";
+import Component from "../../../game/components/Component";
+import TileManager from "../../../game/world/TileManager";
 import VoidDisplay from "./VoidDisplay";
 
 export default class Void implements Component {

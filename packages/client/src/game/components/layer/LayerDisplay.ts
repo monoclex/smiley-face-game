@@ -1,5 +1,5 @@
-import ComponentDisplay from "@/game/components/ComponentDisplay";
-import TileManager from "@/game/world/TileManager";
+import ComponentDisplay from "../../../game/components/ComponentDisplay";
+import TileManager from "../../../game/world/TileManager";
 import LayerType from "./LayerType";
 
 export default class LayerDisplay implements ComponentDisplay {
