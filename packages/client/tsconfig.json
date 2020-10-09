@@ -5,13 +5,7 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "allowJs": true,
-    "jsx": "react",
-    "baseUrl": "./",
-    "paths": {
-      "@smiley-face-game/common/*": ["../common/src/*"],
-      "@smiley-face-game/packets/*": ["../packets/src/*"],
-      "@smiley-face-game/schemas/*": ["../schemas/src/*"]
-    }
+    "jsx": "react"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules/**/*", "../../node_modules/**/*"]
