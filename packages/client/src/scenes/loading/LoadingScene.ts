@@ -7,7 +7,6 @@ import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
 import loadAll from "../../game/loadAll";
 import GAME_SCENE_KEY from "../../game/GameSceneKey";
 import { loading } from "../../recoil/atoms/loading";
-import WebSocket from "ws";
 
 interface GlobalVariableParkourType {
   token: string,
@@ -87,7 +86,8 @@ export class LoadingScene extends Phaser.Scene {
       serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema)
         .validateServerBlockBuffer,
       serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle,
-      class A extends WebSocket { constructor(address: string) { super(address) } }
+      //@ts-ignore
+      WebSocket
     ).catch((err) => {
       loading.set({
         failed: true,

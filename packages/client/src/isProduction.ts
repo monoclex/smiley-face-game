@@ -3,10 +3,10 @@ import { Guest } from "@smiley-face-game/schemas/web";
 import { Register } from "@smiley-face-game/schemas/web";
 import { Login } from "@smiley-face-game/schemas/web";
 
-const isProduction = import.meta.env.MODE === "production";
+const isProduction = process.env.NODE_ENV === "production";
 export default isProduction;
 
-export const isDev = import.meta.env.DEV === true;
+export const isDev = process.env.DEV === true;
 const isSecure = location.protocol === "https:";
 const http = isSecure ? "https" : "http";
 const ws = isSecure ? "wss" : "ws";
