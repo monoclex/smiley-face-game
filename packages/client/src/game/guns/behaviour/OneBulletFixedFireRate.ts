@@ -1,5 +1,5 @@
-import GameScene from "@/game/GameScene";
-import GunBehaviour from "@/game/guns/behaviour/GunBehaviour";
+import GameScene from "../../../game/GameScene";
+import GunBehaviour from "../../../game/guns/behaviour/GunBehaviour";
 
 // https://en.wikipedia.org/wiki/M249_light_machine_gun
 export default class OneBulletFixedFireRate extends GunBehaviour {

@@ -1,9 +1,9 @@
-import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickupGun";
-import { PickupGunPacket } from "@smiley-face-game/api/packets/PickupGun";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/packets/ServerPickupGun";
+import { PickupGunPacket } from "@smiley-face-game/packets/PickupGun";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
 
 export default function handlePickupGun(
   packet: PickupGunPacket,

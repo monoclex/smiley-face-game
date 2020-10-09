@@ -1,10 +1,10 @@
-import { ServerPacket } from "@smiley-face-game/api/packets/Server";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { ServerPacket } from "@smiley-face-game/packets/Server";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../RoomLogic";
 
 export default function handleServer<T extends ServerPacket>(
-  packet: T,
-  [sender, logic]: [Connection, RoomLogic]
+  _: T,
+  [sender]: [Connection, RoomLogic]
 ) {
   sender.kill("Sent server packet.");
 }

@@ -1,4 +1,4 @@
-import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
+import CosmeticType from "../../../game/characters/cosmetics/CosmeticType";
 
 export default interface CosmeticModel {
   readonly type: CosmeticType;

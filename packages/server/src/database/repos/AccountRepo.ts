@@ -1,13 +1,13 @@
 import { Connection, Repository } from "typeorm";
 import bcrypt from "bcrypt";
-import { validateUsername } from "@smiley-face-game/api/schemas/Username";
-import { validateEmail } from "@smiley-face-game/api/schemas/Email";
-import { validatePassword } from "@smiley-face-game/api/schemas/Password";
-import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
-import Account from "@/database/models/Account";
-import World from "@/database/models/World";
-import AccountLike from "@/database/modelishs/AccountLike";
-import ensureValidates from "@/ensureValidates";
+import { validateUsername } from "@smiley-face-game/schemas/Username";
+import { validateEmail } from "@smiley-face-game/schemas/Email";
+import { validatePassword } from "@smiley-face-game/schemas/Password";
+import { validateAccountId } from "@smiley-face-game/schemas/AccountId";
+import Account from "../../database/models/Account";
+import World from "../../database/models/World";
+import AccountLike from "../../database/modelishs/AccountLike";
+import ensureValidates from "../../ensureValidates";
 
 // TODO: should this be made a Schema?
 interface AccountDetails {

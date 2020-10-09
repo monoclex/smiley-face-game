@@ -1,6 +1,6 @@
-import { BlockSinglePacket } from "@smiley-face-game/api/packets/BlockSingle";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { BlockSinglePacket } from "@smiley-face-game/packets/BlockSingle";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
 
 export default function handleBlockSingle(
   packet: BlockSinglePacket,

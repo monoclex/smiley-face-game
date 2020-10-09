@@ -1,7 +1,7 @@
-import { PlayerlistActionPacket } from "@smiley-face-game/api/packets/PlayerlistAction";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
-import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/api/packets/ServerRoleUpdate";
+import { PlayerlistActionPacket } from "@smiley-face-game/packets/PlayerlistAction";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
+import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
 
 export default function handlePlayerlistAction(
   packet: PlayerlistActionPacket,

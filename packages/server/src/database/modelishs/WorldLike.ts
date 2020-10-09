@@ -1,4 +1,4 @@
-import World from "@/database/models/World";
+import World from "../../database/models/World";
 
 type WorldLike = Omit<World, "owner">;
 

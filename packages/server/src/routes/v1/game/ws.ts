@@ -1,11 +1,11 @@
 import expressWs from "express-ws";
-import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import canJoinWorld from "@/jwt/permissions/canJoinWorld";
-import extractJwt from "@/jwt/extractJwt";
-import asyncHandler from "@/middlewares/asyncHandler";
-import Connection from "@/worlds/Connection";
-import { applyTo } from "@/expressapp";
-import Dependencies from "@/dependencies";
+import { validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
+import canJoinWorld from "../../../jwt/permissions/canJoinWorld";
+import extractJwt from "../../../jwt/extractJwt";
+import asyncHandler from "../../../middlewares/asyncHandler";
+import Connection from "../../../worlds/Connection";
+import { applyTo } from "../../../expressapp";
+import Dependencies from "../../../dependencies";
 
 type UsedDependencies = Pick<
   Dependencies,

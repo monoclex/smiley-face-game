@@ -1,7 +1,7 @@
-import { MovementPacket } from "@smiley-face-game/api/packets/Movement";
-import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { MovementPacket } from "@smiley-face-game/packets/Movement";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/packets/ServerMovement";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
 
 export default function handleMovement(
   packet: MovementPacket,

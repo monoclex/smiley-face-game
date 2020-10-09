@@ -1,23 +1,23 @@
-import M249LMG from "@/game/guns/models/variants/M249LMG";
-import Player from "@/game/player/Player";
-import PlayerManager from "@/game/player/PlayerManager";
-import World from "@/game/world/World";
-import { isDev } from "@/isProduction";
-import { chat } from "@/recoil/atoms/chat";
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/api/packets/ServerBlockBuffer";
-import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/api/packets/ServerBlockLine";
-import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/api/packets/ServerBlockSingle";
-import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
-import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/api/packets/ServerEquipGun";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
-import { ServerInitPacket } from "@smiley-face-game/api/packets/ServerInit";
-import { SERVER_MOVEMENT_ID } from "@smiley-face-game/api/packets/ServerMovement";
-import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/api/packets/ServerPickupGun";
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
-import { SERVER_ROLE_UPDATE_ID } from "../../../api/src/packets/ServerRoleUpdate";
-import PlayerRole from "../../../api/src/PlayerRole";
+import M249LMG from "./guns/models/variants/M249LMG";
+import Player from "./player/Player";
+import PlayerManager from "./player/PlayerManager";
+import World from "./world/World";
+import { isDev } from "../isProduction";
+import { chat } from "../recoil/atoms/chat";
+import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
+import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/packets/ServerBlockBuffer";
+import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/packets/ServerBlockLine";
+import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/packets/ServerBlockSingle";
+import { SERVER_CHAT_ID } from "@smiley-face-game/packets/ServerChat";
+import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/packets/ServerEquipGun";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/packets/ServerFireBullet";
+import { ServerInitPacket } from "@smiley-face-game/packets/ServerInit";
+import { SERVER_MOVEMENT_ID } from "@smiley-face-game/packets/ServerMovement";
+import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/packets/ServerPickupGun";
+import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/packets/ServerPlayerLeave";
+import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
+import PlayerRole from "@smiley-face-game/common/PlayerRole";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
 import { playerList } from "../recoil/atoms/playerList";
@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.input.on(
       "pointerdown",
-      (pointer: Phaser.Input.Pointer) => {
+      () => {
         // if the player clicks and the chat is selected, deselect the chat
         if (chat.state.isActive) {
           chat.modify({ isActive: false });
@@ -152,13 +152,8 @@ export default class GameScene extends Phaser.Scene {
     const layerTileLayerBackground = this.add.container().setDepth(depth++);
     const layerTileLayerAction = this.add.container().setDepth(depth++);
     const layerTileLayerForeground = this.add.container().setDepth(depth++);
-    const layerBullets = this.add.container().setDepth(depth++);
-    const layerStrappedGuns = this.add.container().setDepth(depth++);
     const layerPlayers = this.add.container().setDepth(depth++);
-    const layerHeldGuns = this.add.container().setDepth(depth++);
-    const layerMainPlayerStrappedGun = this.add.container().setDepth(depth++);
     const layerMainPlayer = this.add.container().setDepth(depth++);
-    const layerMainPlayerHeldGun = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
     const world = new World(this, this.initPacket.size, this.networkClient);

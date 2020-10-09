@@ -1,7 +1,8 @@
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
+import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import Tile from "./Tile";
-import M249LMG from "@/game/guns/models/variants/M249LMG";
+import M249LMG from "../../game/guns/models/variants/M249LMG";
+import type { SpriteEx } from "../../phaser-tile-addons";
 
 export default class GunTile implements Tile<TileId.Gun> {
   id: TileId.Gun = TileId.Gun;
@@ -12,7 +13,7 @@ export default class GunTile implements Tile<TileId.Gun> {
     let yeahtile = tile;
     tile.index = this.id;
     tile.setCollision(false);
-    tile.setCollisionCallback((sprite, tile) => {
+    tile.setCollisionCallback((sprite: SpriteEx, tile: Phaser.Tilemaps.Tile) => {
       if (!sprite.player) {
         console.warn("unable to resolve tile collision", sprite, tile);
         return;

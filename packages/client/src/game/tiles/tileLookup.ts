@@ -1,4 +1,4 @@
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import { TileId } from "@smiley-face-game/schemas/TileId";
 import Tile from "./Tile";
 import EmptyTile from "./EmptyTile";
 import FullTile from "./FullTile";
@@ -12,7 +12,7 @@ const tileLookup = {
   [TileId.Arrow]: new ArrowTile(),
 };
 
-function ensureTypeChecked(lookup: { [key in TileId]: Tile<key> }) {}
+function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) { }
 ensureTypeChecked(tileLookup);
 
 export default tileLookup;

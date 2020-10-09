@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@material-ui/core";
 import ThumbUpIcon from "mdi-material-ui/ThumbUp";
@@ -8,7 +7,7 @@ import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 //@ts-ignore
 import minimapImage from "./minimap.png";
-import history from "@/ui/history";
+import history from "../../ui/history";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -1,6 +1,6 @@
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import WorldBlocks from "@/worlds/WorldBlocks";
-import Connection from "@/worlds/Connection";
+import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
+import WorldBlocks from "../../worlds/WorldBlocks";
+import Connection from "../../worlds/Connection";
 
 export default interface Behaviour {
   readonly id: string;

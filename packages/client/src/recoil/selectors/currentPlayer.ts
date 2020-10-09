@@ -1,4 +1,4 @@
-import { Player } from "@/recoil/atoms/playerList";
+import { Player } from "../../recoil/atoms/playerList";
 import { selector } from "recoil";
 import { playerListState } from "../atoms/playerList";
 

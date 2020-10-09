@@ -1,7 +1,7 @@
-import distanceAway from "@/math/distanceAway";
+import distanceAway from "../../../math/distanceAway";
 
 export default abstract class GunBehaviour {
-  constructor(readonly player: Phaser.GameObjects.Sprite, readonly gun: Phaser.GameObjects.Sprite) {}
+  constructor(readonly player: Phaser.GameObjects.Sprite, readonly gun: Phaser.GameObjects.Sprite) { }
 
   equipped: boolean = true;
   angle: number = 0.0;
@@ -15,7 +15,7 @@ export default abstract class GunBehaviour {
     );
   }
 
-  update(time: number, delta: number): void {
+  update(_time: number, _delta: number): void {
     if (!this.equipped) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
       this.gun.setPosition(this.player.x + 16 - 6, this.player.y + 16 - 6);

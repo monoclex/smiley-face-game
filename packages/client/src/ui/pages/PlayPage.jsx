@@ -2,27 +2,24 @@
 // | COPY PASTED FROM Game.jsx, MUST CLEAN THIS LATER |
 // \--------------------------------------------------/
 
-//@ts-check
 import Phaser from "phaser";
 import qs from "query-string";
 import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
-import { globalVariableParkour, LoadingScene } from "@/scenes/loading/LoadingScene";
-import { WorldScene } from "@/scenes/world/WorldScene";
-import Chat from "@/ui/game/chat/Chat";
-import BlockBar from "@/ui/game/blockbar/BlockBar";
-import history from "@/ui/history";
-import isProduction, { isDev } from "@/isProduction";
-import GameScene from "@/game/GameScene";
-import RecoilGameStateSync from "@/ui/game/recoil/RecoilGameStateSync";
-import { chatState } from "@/recoil/atoms/chat";
-import { loadingState, loading as sharedGlobalLoading } from "@/recoil/atoms/loading";
-import PlayerList from "@/ui/game/playerlist/PlayerList";
-import { playerListState } from "@/recoil/atoms/playerList";
-import { blockbarState } from "@/recoil/atoms/blockbar";
-import currentPlayer from "@/recoil/selectors/currentPlayer";
+import { globalVariableParkour, LoadingScene } from "../../scenes/loading/LoadingScene";
+import Chat from "../../ui/game/chat/Chat";
+import BlockBar from "../../ui/game/blockbar/BlockBar";
+import history from "../../ui/history";
+import isProduction, { isDev } from "../../isProduction";
+import GameScene from "../../game/GameScene";
+import { chatState } from "../../recoil/atoms/chat";
+import { loadingState, loading as sharedGlobalLoading } from "../../recoil/atoms/loading";
+import PlayerList from "../../ui/game/playerlist/PlayerList";
+import { playerListState } from "../../recoil/atoms/playerList";
+import { blockbarState } from "../../recoil/atoms/blockbar";
+import currentPlayer from "../../recoil/selectors/currentPlayer";
 
 export const config = {
   pixelArt: true,

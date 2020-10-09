@@ -1,0 +1,9 @@
+{
+  "name": "@smiley-face-game/packets",
+  "version": "0.0.0",
+  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
+  }
+}

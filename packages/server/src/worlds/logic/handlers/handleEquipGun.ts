@@ -1,7 +1,7 @@
-import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/api/packets/ServerEquipGun";
-import { EquipGunPacket } from "@smiley-face-game/api/packets/EquipGun";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/packets/ServerEquipGun";
+import { EquipGunPacket } from "@smiley-face-game/packets/EquipGun";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
 
 export default async function handleEquipGun(
   packet: EquipGunPacket,
@@ -26,4 +26,6 @@ export default async function handleEquipGun(
     playerId: sender.playerId!,
     equipped: sender.gunEquipped,
   });
+
+  return;
 }

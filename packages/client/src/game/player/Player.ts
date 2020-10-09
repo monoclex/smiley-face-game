@@ -1,14 +1,14 @@
-import { Character } from "@/game/characters/Character";
-import GunBehaviour from "@/game/guns/behaviour/GunBehaviour";
-import GunModel from "@/game/guns/models/GunModel";
-import GameScene from "@/game/GameScene";
-import distanceAway from "@/math/distanceAway";
-import BaseType from "@/game/characters/bases/BaseType";
-import baseKey from "@/game/characters/bases/key";
-import CosmeticType from "@/game/characters/cosmetics/CosmeticType";
-import cosmeticKey from "@/game/characters/cosmetics/key";
-import MovementInput from "@/game/input/MovementInput";
-import MovementValues from "@/game/input/MovementValues";
+import GunBehaviour from "../../game/guns/behaviour/GunBehaviour";
+import GunModel from "../../game/guns/models/GunModel";
+import GameScene from "../../game/GameScene";
+import distanceAway from "../../math/distanceAway";
+import BaseType from "../../game/characters/bases/BaseType";
+import baseKey from "../../game/characters/bases/key";
+import CosmeticType from "../../game/characters/cosmetics/CosmeticType";
+import cosmeticKey from "../../game/characters/cosmetics/key";
+import MovementInput from "../../game/input/MovementInput";
+import MovementValues from "../../game/input/MovementValues";
+import type { SpriteEx } from "../../phaser-tile-addons";
 
 // the higher the depth number, the closer to the user it appears
 let _depth = 0;
@@ -35,10 +35,10 @@ interface PlayerPhysicsState {
  */
 export default class Player {
   readonly container: Phaser.GameObjects.Container;
-  readonly body: Phaser.Physics.Arcade.Sprite;
+  readonly body: Phaser.Physics.Arcade.Sprite & SpriteEx;
   readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
-  readonly input: MovementValues = { left: false, right: false, jump: false };
+  readonly input: MovementValues = { left: false, right: false, jump: false, up: false };
 
   gun?: GunBehaviour;
   gunSprite?: Phaser.GameObjects.Sprite;

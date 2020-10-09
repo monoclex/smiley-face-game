@@ -1,2 +1,2 @@
-import { Block } from "@smiley-face-game/api/schemas/Block";
+import { Block } from "@smiley-face-game/schemas/Block";
 export default Block;

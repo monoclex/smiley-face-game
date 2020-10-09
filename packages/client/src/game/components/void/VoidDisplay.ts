@@ -1,8 +1,7 @@
-import ComponentDisplay from "@/game/components/ComponentDisplay";
-import TileManager from "@/game/world/TileManager";
-import key from "@/game/world/key";
+import TileManager from "../../../game/world/TileManager";
+import key from "../../../game/world/key";
 
-export default class VoidDisplay implements ComponentDisplay {
+export default class VoidDisplay {
   readonly sprite: Phaser.GameObjects.TileSprite;
 
   constructor(scene: Phaser.Scene, tileManager: TileManager) {

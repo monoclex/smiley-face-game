@@ -1,9 +1,0 @@
-{
-  "jsc": {
-    "target": "es2019",
-    "loose": true,
-    "parser": {
-      "syntax": "typescript"
-    }
-  }
-}

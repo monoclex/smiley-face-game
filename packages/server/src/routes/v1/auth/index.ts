@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { validateLogin } from "@smiley-face-game/api/schemas/web/auth/Login";
-import { validateRegister } from "@smiley-face-game/api/schemas/web/auth/Register";
-import { validateGuest } from "@smiley-face-game/api/schemas/web/auth/Guest";
-import schema from "@/middlewares/schema";
-import asyncHandler from "@/middlewares/asyncHandler";
-import Dependencies from "@/dependencies";
+import { validateLogin } from "@smiley-face-game/schemas/web";
+import { validateRegister } from "@smiley-face-game/schemas/web";
+import { validateGuest } from "@smiley-face-game/schemas/web";
+import schema from "../../../middlewares/schema";
+import asyncHandler from "../../../middlewares/asyncHandler";
+import Dependencies from "../../../dependencies";
 
 type UsedDependencies = Pick<
   Dependencies,

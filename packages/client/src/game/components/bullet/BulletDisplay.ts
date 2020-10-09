@@ -1,6 +1,5 @@
-import urlBullet from "@/assets/bullet.png";
-import urlShoot from "@/assets/shoot.mp3";
-import ComponentDisplay from "@/game/components/ComponentDisplay";
+import urlBullet from "../../../assets/bullet.png";
+import urlShoot from "../../../assets/shoot.mp3";
 import BulletConfig from "./BulletConfig";
 import BulletType from "./BulletType";
 
@@ -8,7 +7,7 @@ function key(bulletType: BulletType) {
   return "bullet-" + bulletType;
 }
 
-export default class BulletDisplay implements ComponentDisplay {
+export default class BulletDisplay {
   readonly sprite: Phaser.Physics.Matter.Image;
 
   static load(loader: Phaser.Loader.LoaderPlugin) {

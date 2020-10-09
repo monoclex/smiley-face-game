@@ -1,7 +1,7 @@
-import { FireBulletPacket } from "@smiley-face-game/api/packets/FireBullet";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
+import { FireBulletPacket } from "@smiley-face-game/packets/FireBullet";
+import Connection from "../../../worlds/Connection";
+import RoomLogic from "../../../worlds/logic/RoomLogic";
+import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/packets/ServerFireBullet";
 
 export default function handleFireBullet(
   packet: FireBulletPacket,
@@ -17,4 +17,6 @@ export default function handleFireBullet(
     angle: packet.angle,
     playerId: sender.playerId!,
   });
+
+  return;
 }

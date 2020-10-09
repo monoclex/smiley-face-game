@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Dependencies from "@/dependencies";
+import Dependencies from "../dependencies";
 import v1RouterFactory from "./v1";
 
 export default function (deps: Dependencies): Router {

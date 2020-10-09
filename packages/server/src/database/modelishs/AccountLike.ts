@@ -1,4 +1,4 @@
-import Account from "@/database/models/Account";
+import Account from "../../database/models/Account";
 
 type AccountLike = Omit<Account, "worlds">;
 

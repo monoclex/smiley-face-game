@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import SharedGlobal from "@/recoil/SharedGlobal";
+import SharedGlobal from "../../../recoil/SharedGlobal";
 
 interface StateLoading {
   failed: undefined;
