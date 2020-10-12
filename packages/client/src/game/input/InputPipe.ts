@@ -13,6 +13,7 @@ export class InputPipe {
   up?: number;
   left?: number;
   right?: number;
+  equip?: boolean;
 
   addJump(amount: -1 | 1) {
     assertInput(this.jump = (this.jump || 0) + amount);

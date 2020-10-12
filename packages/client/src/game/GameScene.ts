@@ -25,6 +25,8 @@ import BlockBar from "./blockbar/BlockBar";
 import Editor from "./components/editor/Editor";
 import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
+import registerKeyboard from "./input/registerKeyboard";
+import InputPipe from "./input/InputPipe";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
@@ -37,7 +39,6 @@ export default class GameScene extends Phaser.Scene {
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  _input = { up: 0, left: 0, right: 0, jump: false, equip: false }; // use numbers incase more than 1 key is activating the input
   self!: { playerId: number; username: string; role: PlayerRole };
 
   constructor() {
@@ -79,72 +80,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.defaults.debugShowBody = isDev;
     this.physics.world.defaults.debugShowStaticBody = isDev;
 
-    // hook the keyboard
-    const { UP, LEFT, RIGHT, W, A, D, SPACE, E } = Phaser.Input.Keyboard.KeyCodes;
-    [UP, W]
-      .map((key) =>
-        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
-      )
-      .map((key) => {
-        key.on("down", () => {
-          this._input.up++;
-        });
-        key.on("up", () => {
-          this._input.up = Math.max(this._input.up - 1, 0);
-        }); // TODO: figure out why bug occurs that requires Math.max
-      });
-
-    [SPACE]
-      .map((key) =>
-        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
-      )
-      .map((key) => {
-        key.on("down", () => {
-          this._input.jump = true;
-        });
-        key.on("up", () => {
-          this._input.jump = false;
-        });
-      });
-
-    [A, LEFT]
-      .map((key) =>
-        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
-      )
-      .map((key) => {
-        key.on("down", () => {
-          this._input.left++;
-        });
-        key.on("up", () => {
-          this._input.left = Math.max(this._input.left - 1, 0);
-        }); // TODO: figure out why bug occurs that requires Math.max
-      });
-
-    [D, RIGHT]
-      .map((key) =>
-        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
-      )
-      .map((key) => {
-        key.on("down", () => {
-          this._input.right++;
-        });
-        key.on("up", () => {
-          this._input.right = Math.max(this._input.right - 1, 0);
-        }); // TODO: figure out why bug occurs that requires Math.max
-      });
-
-    [E]
-      .map((key) =>
-        this.input.keyboard.addKey(key, false /* don't call preventDefault() since we want to handle the chat */)
-      )
-      .map((key) => {
-        key.on("down", () => {
-          this._input.equip = true;
-        });
-        key.on("up", () => {
-          this._input.equip = false;
-        });
-      });
+    registerKeyboard(this.input);
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
@@ -333,10 +269,10 @@ export default class GameScene extends Phaser.Scene {
     // if the chat is inactive, we'll process the keyboard as if it were inputs
     if (!chat.state.isActive) {
       let inputs = {
-        left: this._input.left > 0,
-        right: this._input.right > 0,
-        up: this._input.up > 0,
-        jump: this._input.jump,
+        left: !!InputPipe.left,
+        right: !!InputPipe.right,
+        up: !!InputPipe.up,
+        jump: !!InputPipe.jump,
       };
 
       if (
@@ -350,8 +286,8 @@ export default class GameScene extends Phaser.Scene {
       }
 
       // toggle the equpped-ness of the gun when E is pressed
-      if (this.mainPlayer.hasGun && this._input.equip) {
-        this._input.equip = false;
+      if (this.mainPlayer.hasGun && !!InputPipe.equip) {
+        InputPipe.equip = false;
         this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
         this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
       }

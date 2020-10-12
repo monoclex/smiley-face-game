@@ -19,7 +19,6 @@ export default function schema<
 ): RequestHandler {
   return (req, res, next) => {
     const [errors, body] = validator(req.body);
-    console.log("! schema schema !!!", req.body, errors);
 
     if (errors !== null || body === undefined) {
       // TODO: it may be best to not send stack traces of errors to users in the future

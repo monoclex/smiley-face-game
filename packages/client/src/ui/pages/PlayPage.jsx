@@ -20,7 +20,6 @@ import PlayerList from "../../ui/game/playerlist/PlayerList";
 import { playerListState } from "../../recoil/atoms/playerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
-import MobileControls from "../game/MobileControls";
 
 export const config = {
   pixelArt: true,
@@ -173,7 +172,7 @@ const Game = ({
               history.createGame({ name: "test", width: 50, height: 50 });
             }}
           >
-            make a new room
+            gclick here to make a a new roome
           </button>
         </Grid>
       )}
@@ -191,9 +190,6 @@ const Game = ({
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <PlayerList />
-      </Grid>
-      <Grid className={styles.uiOverlay} container justify="center">
-        <MobileControls />
       </Grid>
     </>
   );
