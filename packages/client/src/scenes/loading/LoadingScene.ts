@@ -62,8 +62,9 @@ export class LoadingScene extends Phaser.Scene {
   }
 
   create() {
+    const url = api.connection(globalVariableParkour);
     NetworkClient.connect(
-      api.connection(globalVariableParkour),
+      url,
       (client) => {
         client.events.callback = (packet) => {
           if (packet.packetId !== "SERVER_INIT") throw new Error("should've been called with server_init first");
@@ -91,7 +92,7 @@ export class LoadingScene extends Phaser.Scene {
     ).catch((err) => {
       loading.set({
         failed: true,
-        why: err,
+        why: "error creating socket connection: " + err,
       });
       console.warn("caught error", err);
       this._progressBar.clear();
