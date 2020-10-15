@@ -183,13 +183,13 @@ export default class GameScene extends Phaser.Scene {
 
         case SERVER_BLOCK_LINE_ID:
           {
-            this.world.drawLine(event.start, event.end, event, false, event.layer);
+            this.world.drawLine(event.start, event.end, event.block, false, event.layer);
           }
           return;
 
         case SERVER_BLOCK_SINGLE_ID:
           {
-            this.world.placeBlock(event.position, event, event.layer, false);
+            this.world.placeBlock(event.position, event.block, event.layer, false);
           }
           return;
 

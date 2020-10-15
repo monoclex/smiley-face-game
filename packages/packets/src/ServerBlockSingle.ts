@@ -1,4 +1,4 @@
-import Schema, { Type } from "computed-types";
+import Schema, { SchemaInput } from "computed-types";
 import { BlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
 import { TileLayerSchema } from "@smiley-face-game/schemas/TileLayer";
 import { ServerSchema } from "./Server";
@@ -12,7 +12,7 @@ export type ServerBlockSingleSchema = ReturnType<
 export type ServerBlockSingleValidator = ReturnType<
   typeof serverBlockSingle
 >["validateServerBlockSingle"];
-export type ServerBlockSinglePacket = Type<ServerBlockSingleSchema>;
+export type ServerBlockSinglePacket = SchemaInput<ServerBlockSingleSchema>;
 
 export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {
   const ServerBlockSingleSchema = Schema.merge(
@@ -21,9 +21,9 @@ export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {
       packetId: SERVER_BLOCK_SINGLE_ID as typeof SERVER_BLOCK_SINGLE_ID,
       position: blockPositionSchema,
       layer: TileLayerSchema,
+      block: BlockSchema
     },
     ServerSchema,
-    BlockSchema
   );
 
   const validateServerBlockSingle = ServerBlockSingleSchema.destruct();

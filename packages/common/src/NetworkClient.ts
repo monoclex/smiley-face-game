@@ -251,7 +251,7 @@ export class NetworkClient {
       packetId: BLOCK_SINGLE_ID,
       position: { x, y },
       layer,
-      ...id,
+      block: id,
     };
 
     this._webSocket.send(JSON.stringify(packet));
@@ -309,11 +309,11 @@ export class NetworkClient {
   ): void {
     //@ts-ignore
     const packet: BlockLinePacket = {
-      ..._activeBlock,
       packetId: BLOCK_LINE_ID,
       layer: tileLayer,
       start,
       end,
+      block: _activeBlock,
     };
 
     this._webSocket.send(JSON.stringify(packet));

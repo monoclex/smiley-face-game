@@ -20,6 +20,7 @@ import PlayerList from "../../ui/game/playerlist/PlayerList";
 import { playerListState } from "../../recoil/atoms/playerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
+import MobileControls from "../game/MobileControls";
 
 export const config = {
   pixelArt: true,
@@ -61,6 +62,11 @@ const useStyles = makeStyles({
     bottom: 0,
     margin: 0,
     padding: 0,
+  },
+  bottomLeft: {
+    width: "100px",
+    height: "100px",
+    marginLeft: 1,
   },
 });
 
@@ -190,6 +196,11 @@ const Game = ({
       </Grid>
       <Grid className={styles.uiOverlay} container justify="center">
         <PlayerList />
+      </Grid>
+      <Grid className={styles.uiOverlay} container justify="center">
+        <div className={styles.bottomLeft}>
+          <MobileControls />
+        </div>
       </Grid>
     </>
   );

@@ -9,6 +9,6 @@ export default function copyBlock(
     case TileId.Empty:
     case TileId.Gun: setDestination({ id: source.id }); break;
     case TileId.Full: setDestination({ id: source.id, color: source.color }); break;
-    case TileId.Arrow: setDestination({ id: TileId.Arrow, rotation: source.rotation }); break;
+    case TileId.Arrow: setDestination({ id: source.id, rotation: source.rotation }); break;
   }
 }

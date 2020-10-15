@@ -1,4 +1,4 @@
-import Schema, { array, Type } from "computed-types";
+import Schema, { array, SchemaInput } from "computed-types";
 import { BlockLineSchema } from "./BlockLine";
 import { BlockSingleSchema } from "./BlockSingle";
 
@@ -7,7 +7,7 @@ export const BLOCK_BUFFER_ID = "BLOCK_BUFFER";
 export type BlockBufferSchema = ReturnType<
   typeof blockBuffer
 >["BlockBufferSchema"];
-export type BlockBufferPacket = Type<BlockBufferSchema>;
+export type BlockBufferPacket = SchemaInput<BlockBufferSchema>;
 
 export function blockBuffer(blockSingleSchema: BlockSingleSchema) {
   const BlockBufferSchema = Schema({

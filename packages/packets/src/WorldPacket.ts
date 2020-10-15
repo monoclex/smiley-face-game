@@ -1,4 +1,4 @@
-import Schema, { Type } from "computed-types";
+import Schema, { SchemaInput } from "computed-types";
 import { BlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
 import { blockBuffer } from "./BlockBuffer";
 import { BlockLineSchema } from "./BlockLine";
@@ -12,7 +12,7 @@ import { ServerBlockLineSchema } from "./ServerBlockLine";
 import { serverBlockSingle } from "./ServerBlockSingle";
 import { ServerEquipGunSchema } from "./ServerEquipGun";
 import { ServerFireBulletSchema } from "./ServerFireBullet";
-import { ServerInitSchema, ServerInitPacket } from "./ServerInit";
+import { ServerInitSchema } from "./ServerInit";
 import { ServerMovementSchema } from "./ServerMovement";
 import { ServerPickupGunSchema } from "./ServerPickupGun";
 import { ServerPlayerJoinSchema } from "./ServerPlayerJoin";
@@ -28,7 +28,7 @@ export type WorldPacketSchema = ReturnType<
 export type WorldPacketValidator = ReturnType<
   typeof worldPacket
 >["validateWorldPacket"];
-export type WorldPacket = Exclude<Type<WorldPacketSchema>, { packetId: "SERVER_INIT" }> | ServerInitPacket;
+export type WorldPacket = SchemaInput<WorldPacketSchema>;
 
 export function worldPacket(blockPositionSchema: BlockPositionSchema) {
   const BlockSingleSchema = blockSingle(blockPositionSchema).BlockSingleSchema;

@@ -1,4 +1,4 @@
-import Schema, { array, Type } from "computed-types";
+import Schema, { array, SchemaInput } from "computed-types";
 import { ServerBlockLineSchema } from "./ServerBlockLine";
 import { ServerBlockSingleSchema } from "./ServerBlockSingle";
 import { ServerSchema } from "./Server";
@@ -13,7 +13,7 @@ export type ServerBlockBufferSchema = ReturnType<
 export type ServerBlockBufferValidator = ReturnType<
   typeof serverBlockBuffer
 >["validateServerBlockBuffer"];
-export type ServerBlockBufferPacket = Type<ServerBlockBufferSchema>;
+export type ServerBlockBufferPacket = SchemaInput<ServerBlockBufferSchema>;
 
 export function serverBlockBuffer(
   severBlockSingleSchema: ServerBlockSingleSchema

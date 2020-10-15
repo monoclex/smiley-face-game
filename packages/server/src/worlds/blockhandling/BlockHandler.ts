@@ -55,15 +55,12 @@ export class BlockHandler {
     const target = this.map[packet.layer][packet.position.y][packet.position.x];
 
     // packet is known good, only do updating work if necessary
-    if (!blocksEqual(packet, target)) {
+    if (!blocksEqual(packet.block, target)) {
       copyBlock(
         (v) =>
           (this.map[packet.layer][packet.position.y][packet.position.x] = v),
-        packet
+        packet.block
       );
-
-      this.map[packet.layer][packet.position.y][packet.position.x].id =
-        packet.id;
 
       // only if the packet updated any blocks do we want to queue it
       return {
@@ -93,14 +90,12 @@ export class BlockHandler {
       (x: number, y: number) => {
         // TODO: don't do bounds checking (see exploit notice in bresenhamsLine function)
         // bounds checking if the block is within bounds
-        //
-        // currently you can't place blocks above y 3 because placing blocks at (0, 1) and (1, 0) cause some really weird crud
-        // it's a TODO to fix them, but for now this is a hot-fix.
         if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-        if (didUpdate || this.map[packet.layer][y][x].id !== packet.id) {
+        if (!blocksEqual(this.map[packet.layer][y][x], packet.block)) {
           didUpdate = true;
-          this.map[packet.layer][y][x].id = packet.id;
+
+          copyBlock(v => (this.map[packet.layer][y][x] = v), packet.block);
         }
       }
     );

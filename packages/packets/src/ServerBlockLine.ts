@@ -1,4 +1,4 @@
-import Schema, { Type } from "computed-types";
+import Schema, { SchemaInput } from "computed-types";
 import { BoundlessBlockPositionSchema } from "@smiley-face-game/schemas/BlockPosition";
 import { TileLayerSchema } from "@smiley-face-game/schemas/TileLayer";
 import { ServerSchema } from "./Server";
@@ -11,9 +11,9 @@ export const ServerBlockLineSchema = Schema.merge(
     start: BoundlessBlockPositionSchema,
     end: BoundlessBlockPositionSchema,
     layer: TileLayerSchema,
+    block: BlockSchema
   },
   ServerSchema,
-  BlockSchema
 );
-export type ServerBlockLinePacket = Type<typeof ServerBlockLineSchema>;
+export type ServerBlockLinePacket = SchemaInput<typeof ServerBlockLineSchema>;
 export const validateServerBlockLine = ServerBlockLineSchema.destruct();
