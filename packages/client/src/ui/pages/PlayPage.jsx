@@ -56,13 +56,6 @@ const useStyles = makeStyles({
     bottom: 0,
     pointerEvents: "none",
   },
-  blockbar: {
-    position: "absolute",
-    width: "100%",
-    bottom: 0,
-    margin: 0,
-    padding: 0,
-  },
   bottomLeft: {
     width: "100px",
     height: "100px",
@@ -185,22 +178,28 @@ const Game = ({
       <Grid container justify="center">
         <div className={styles.game} ref={gameRef} />
       </Grid>
-      <Grid className={styles.uiOverlay} container justify="center">
-        {loading.failed === false && mainPlayer !== undefined && mainPlayer.role !== "non" ? (
-          <div className={styles.blockbar}>
-            <BlockBar loader={loader} />
-          </div>
-        ) : null}
-
-        <Chat />
-      </Grid>
-      <Grid className={styles.uiOverlay} container justify="center">
-        <PlayerList />
-      </Grid>
-      <Grid className={styles.uiOverlay} container justify="center">
-        <div className={styles.bottomLeft}>
-          <MobileControls />
-        </div>
+      <Grid className={styles.uiOverlay} container direction="column-reverse" alignItems="stretch">
+        <Grid container item direction="row" alignItems="stretch">
+          <Grid container item xs={3} justify="center">
+            <MobileControls />
+          </Grid>
+          <Grid container item xs={6} justify="flex-end">
+            {loading.failed === false && mainPlayer !== undefined && mainPlayer.role !== "non" ? (
+              <BlockBar loader={loader} />
+            ) : null}
+          </Grid>
+          <Grid item xs={3}></Grid>
+        </Grid>
+        {/* the 100% - 100px comes from the joystick which is 100px. this is awful */}
+        {/* oh, and to add to the awfulness, we subtract like 13 more pixels just incase it overflows because why not */}
+        <Grid container item direction="row" alignItems="stretch" style={{ height: "calc(100% - 100px - 13px)" }}>
+          <Grid item xs={6} container alignItems="flex-end">
+            <Chat />
+          </Grid>
+          <Grid item xs={6} container direction="column" justify="center" alignItems="flex-end">
+            <PlayerList />
+          </Grid>
+        </Grid>
       </Grid>
     </>
   );
