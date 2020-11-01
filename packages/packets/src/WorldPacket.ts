@@ -24,21 +24,15 @@ import { ServerRoleUpdateSchema } from "./ServerRoleUpdate";
 import { WorldActionSchema } from "./WorldAction";
 import { ServerWorldActionSchema } from "./ServerWorldAction";
 
-export type WorldPacketSchema = ReturnType<
-  typeof worldPacket
->["WorldPacketSchema"];
-export type WorldPacketValidator = ReturnType<
-  typeof worldPacket
->["validateWorldPacket"];
+export type WorldPacketSchema = ReturnType<typeof worldPacket>["WorldPacketSchema"];
+export type WorldPacketValidator = ReturnType<typeof worldPacket>["validateWorldPacket"];
 export type WorldPacket = SchemaInput<WorldPacketSchema>;
 
 export function worldPacket(blockPositionSchema: BlockPositionSchema) {
   const BlockSingleSchema = blockSingle(blockPositionSchema).BlockSingleSchema;
   const BlockBufferSchema = blockBuffer(BlockSingleSchema).BlockBufferSchema;
-  const ServerBlockSingleSchema = serverBlockSingle(blockPositionSchema)
-    .ServerBlockSingleSchema;
-  const ServerBlockBufferSchema = serverBlockBuffer(ServerBlockSingleSchema)
-    .ServerBlockBufferSchema;
+  const ServerBlockSingleSchema = serverBlockSingle(blockPositionSchema).ServerBlockSingleSchema;
+  const ServerBlockBufferSchema = serverBlockBuffer(ServerBlockSingleSchema).ServerBlockBufferSchema;
 
   const WorldPacketSchema = Schema.either(
     Schema.either(
@@ -82,19 +76,13 @@ export function worldPacket(blockPositionSchema: BlockPositionSchema) {
 
 // thanks @nw#3386 on the Typescript Community Discord (https://discord.gg/typescript) for this!
 // convo: #help-willow https://discordapp.com/channels/508357248330760243/740274615770677319/744126507177345055
-type PickWorldPacket<K extends WorldPacket["packetId"]> = Extract<
-  WorldPacket,
-  { packetId: K }
->;
+type PickWorldPacket<K extends WorldPacket["packetId"]> = Extract<WorldPacket, { packetId: K }>;
 
 /**
  * A type which maps every possible key of Packet to a function that accepts the packet whose packetId matches the lookup key.
  */
 export type WorldPacketLookup<TArgs, TResult> = {
-  [K in WorldPacket["packetId"]]: (
-    packet: PickWorldPacket<K>,
-    args: TArgs
-  ) => TResult;
+  [K in WorldPacket["packetId"]]: (packet: PickWorldPacket<K>, args: TArgs) => TResult;
 };
 export function invokeWorldPacketLookup<TArgs, TResult>(
   packetLookup: WorldPacketLookup<TArgs, TResult>,

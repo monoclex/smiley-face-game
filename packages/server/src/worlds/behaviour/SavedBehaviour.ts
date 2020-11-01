@@ -20,8 +20,7 @@ export default class SavedBehaviour implements Behaviour {
       connection.hasEdit = false;
       console.warn("unable to check details of world");
     } else {
-      connection.hasEdit =
-        this.#details.ownerId === connection.authTokenPayload.aud;
+      connection.hasEdit = this.#details.ownerId === connection.authTokenPayload.aud;
     }
   }
 
@@ -54,10 +53,8 @@ export default class SavedBehaviour implements Behaviour {
   async saveDetails(details: WorldDetails): Promise<void> {
     const world = await this.#repo.findById(this.id);
 
-    if (details.width !== world.width)
-      throw new Error("Can't change world width.");
-    if (details.height !== world.height)
-      throw new Error("Can't change world height.");
+    if (details.width !== world.width) throw new Error("Can't change world width.");
+    if (details.height !== world.height) throw new Error("Can't change world height.");
 
     world.name = details.name;
     await this.#repo.save(world);

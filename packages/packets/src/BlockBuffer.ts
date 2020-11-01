@@ -4,9 +4,7 @@ import { BlockSingleSchema } from "./BlockSingle";
 
 export const BLOCK_BUFFER_ID = "BLOCK_BUFFER";
 
-export type BlockBufferSchema = ReturnType<
-  typeof blockBuffer
->["BlockBufferSchema"];
+export type BlockBufferSchema = ReturnType<typeof blockBuffer>["BlockBufferSchema"];
 export type BlockBufferPacket = SchemaInput<BlockBufferSchema>;
 
 export function blockBuffer(blockSingleSchema: BlockSingleSchema) {

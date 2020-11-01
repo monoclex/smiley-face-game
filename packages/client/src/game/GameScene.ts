@@ -264,7 +264,9 @@ export default class GameScene extends Phaser.Scene {
               // TODO: get type safety working
               this.world.deserializeBlocks(event.blocks!);
               break;
-            case "save": toast.success("World saved!"); break;
+            case "save":
+              toast.success("World saved!");
+              break;
           }
           return;
       }

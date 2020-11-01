@@ -6,10 +6,7 @@ import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
 
-type UsedDependencies = Pick<
-  Dependencies,
-  "accountRepo" | "authProvider" | "worldRepo"
->;
+type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider" | "worldRepo">;
 
 export default function (deps: UsedDependencies): Router {
   const { accountRepo, worldRepo, authProvider } = deps;
@@ -37,11 +34,7 @@ export default function (deps: UsedDependencies): Router {
 
           res.json({ token, id: account.id });
         } catch (error) {
-          console.warn(
-            "Authentication attempt failed for user",
-            body.email,
-            error
-          );
+          console.warn("Authentication attempt failed for user", body.email, error);
           res.status(400).json({ error: "Login failed." });
         }
       })

@@ -1,10 +1,6 @@
 import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
 import { Block } from "@smiley-face-game/schemas/Block";
-import {
-  worldPacket,
-  WorldPacket,
-  WorldPacketValidator,
-} from "@smiley-face-game/packets/WorldPacket";
+import { worldPacket, WorldPacket, WorldPacketValidator } from "@smiley-face-game/packets/WorldPacket";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
@@ -66,10 +62,7 @@ export default class Room {
     try {
       const blocksPromise = this.getBlocks();
       const detailsPromise = this.#behaviour.loadDetails();
-      const [blocksResult, detailsResult] = await Promise.all([
-        blocksPromise,
-        detailsPromise,
-      ]);
+      const [blocksResult, detailsResult] = await Promise.all([blocksPromise, detailsPromise]);
       blocks = blocksResult;
       details = detailsResult;
     } catch (error) {
@@ -85,19 +78,10 @@ export default class Room {
     this.#width = details.width;
     this.#height = details.height;
 
-    this.#worldPacketValidator = worldPacket(
-      blockPosition(this.width - 1, this.height - 1).BlockPositionSchema
-    ).validateWorldPacket;
+    this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
 
     this.#status = "running";
-    this.#logic = new RoomLogic(
-      this.#onEmpty,
-      blocks,
-      details,
-      () => (this.#status = "stopping"),
-      this.id,
-      this.#behaviour
-    );
+    this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => (this.#status = "stopping"), this.id, this.#behaviour);
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;
@@ -120,12 +104,8 @@ export default class Room {
 
   join(connection: Connection): boolean {
     if (this.#logic === undefined) {
-      console.error(
-        "welp this hit somehow, ../worlds/Room.ts Room.join(Connection)"
-      );
-      throw new Error(
-        "this.#logic should never be undefined when calling `join`"
-      );
+      console.error("welp this hit somehow, ../worlds/Room.ts Room.join(Connection)");
+      throw new Error("this.#logic should never be undefined when calling `join`");
     }
 
     return this.#logic.handleJoin(connection);
@@ -133,12 +113,8 @@ export default class Room {
 
   leave(connection: Connection) {
     if (this.#logic === undefined) {
-      console.error(
-        "welp this hit somehow, ../worlds/Room.ts Room.leave(Connection)"
-      );
-      throw new Error(
-        "this.#logic should never be undefined when calling `leave`"
-      );
+      console.error("welp this hit somehow, ../worlds/Room.ts Room.leave(Connection)");
+      throw new Error("this.#logic should never be undefined when calling `leave`");
     }
 
     this.#logic.handleLeave(connection);

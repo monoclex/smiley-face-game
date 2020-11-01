@@ -9,9 +9,7 @@ interface FailedValidationResult {
   readonly success: false;
 }
 
-type ValidationResult<TPayload> =
-  | PassedValidationResult<TPayload>
-  | FailedValidationResult;
+type ValidationResult<TPayload> = PassedValidationResult<TPayload> | FailedValidationResult;
 
 type Validator<TPayload> = (input: unknown) => input is TPayload;
 

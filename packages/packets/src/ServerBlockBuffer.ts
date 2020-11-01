@@ -7,23 +7,15 @@ import { ServerSchema } from "./Server";
 // the reason we don't have the sender in the block buffer packet is so we can glob up all total packets
 export const SERVER_BLOCK_BUFFER_ID = "SERVER_BLOCK_BUFFER";
 
-export type ServerBlockBufferSchema = ReturnType<
-  typeof serverBlockBuffer
->["ServerBlockBufferSchema"];
-export type ServerBlockBufferValidator = ReturnType<
-  typeof serverBlockBuffer
->["validateServerBlockBuffer"];
+export type ServerBlockBufferSchema = ReturnType<typeof serverBlockBuffer>["ServerBlockBufferSchema"];
+export type ServerBlockBufferValidator = ReturnType<typeof serverBlockBuffer>["validateServerBlockBuffer"];
 export type ServerBlockBufferPacket = SchemaInput<ServerBlockBufferSchema>;
 
-export function serverBlockBuffer(
-  severBlockSingleSchema: ServerBlockSingleSchema
-) {
+export function serverBlockBuffer(severBlockSingleSchema: ServerBlockSingleSchema) {
   const ServerBlockBufferSchema = Schema.merge(
     {
       packetId: SERVER_BLOCK_BUFFER_ID as typeof SERVER_BLOCK_BUFFER_ID,
-      blocks: array.of(
-        Schema.either(severBlockSingleSchema, ServerBlockLineSchema)
-      ),
+      blocks: array.of(Schema.either(severBlockSingleSchema, ServerBlockLineSchema)),
     },
     ServerSchema
   );

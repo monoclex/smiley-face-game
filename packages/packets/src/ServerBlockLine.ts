@@ -11,9 +11,9 @@ export const ServerBlockLineSchema = Schema.merge(
     start: BoundlessBlockPositionSchema,
     end: BoundlessBlockPositionSchema,
     layer: TileLayerSchema,
-    block: BlockSchema
+    block: BlockSchema,
   },
-  ServerSchema,
+  ServerSchema
 );
 export type ServerBlockLinePacket = SchemaInput<typeof ServerBlockLineSchema>;
 export const validateServerBlockLine = ServerBlockLineSchema.destruct();

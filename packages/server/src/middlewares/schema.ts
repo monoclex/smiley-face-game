@@ -8,12 +8,7 @@ import * as core from "express-serve-static-core";
  * @param validator The validator to use to check if the body is correctly typed.
  * @param handler The request handler to call if the body is correctly typed.
  */
-export default function schema<
-  ReqBody,
-  P extends core.Params = core.ParamsDictionary,
-  ResBody = any,
-  ReqQuery = core.Query
->(
+export default function schema<ReqBody, P extends core.Params = core.ParamsDictionary, ResBody = any, ReqQuery = core.Query>(
   validator: (input: any) => [any, ReqBody?],
   handler: RequestHandler<P, ResBody, ReqBody, ReqQuery>
 ): RequestHandler {

@@ -1,11 +1,21 @@
 import InputPipe from "./InputPipe";
 
 type ValidKey =
-  | "ArrowUp" | "ArrowLeft" | "ArrowDown" | "ArrowRight"
-  | "W" | "w" | "A" | "a" | "S" | "s" | "D" | "d"
-  | "E" | "e"
-  | " "
-  ;
+  | "ArrowUp"
+  | "ArrowLeft"
+  | "ArrowDown"
+  | "ArrowRight"
+  | "W"
+  | "w"
+  | "A"
+  | "a"
+  | "S"
+  | "s"
+  | "D"
+  | "d"
+  | "E"
+  | "e"
+  | " ";
 
 interface KeyboardState {
   arrowup?: boolean;
@@ -30,16 +40,31 @@ function handleKey(state: KeyboardState, key: ValidKey | string, modifier: -1 | 
   state[keyLower] = desiredState;
 
   switch (key) {
-    case "ArrowUp": InputPipe.addJump(modifier); break;
-    case "ArrowLeft": InputPipe.addLeft(modifier); break;
+    case "ArrowUp":
+      InputPipe.addJump(modifier);
+      break;
+    case "ArrowLeft":
+      InputPipe.addLeft(modifier);
+      break;
     // case "ArrowDown": InputPipe.addDown(modifier); break;
-    case "ArrowRight": InputPipe.addRight(modifier); break;
-    case "w": InputPipe.addJump(modifier); break;
-    case "a": InputPipe.addLeft(modifier); break;
+    case "ArrowRight":
+      InputPipe.addRight(modifier);
+      break;
+    case "w":
+      InputPipe.addJump(modifier);
+      break;
+    case "a":
+      InputPipe.addLeft(modifier);
+      break;
     // case "s": InputPipe.addDown(modifier); break;
-    case "d": InputPipe.addRight(modifier); break;
-    case " ": InputPipe.addJump(modifier); break;
-    default: return;
+    case "d":
+      InputPipe.addRight(modifier);
+      break;
+    case " ":
+      InputPipe.addJump(modifier);
+      break;
+    default:
+      return;
   }
 }
 
@@ -53,5 +78,5 @@ export default function registerKeyboard(input: Phaser.Input.InputPlugin) {
       console.log("setting equip");
       InputPipe.equip = true;
     }
-  })
+  });
 }

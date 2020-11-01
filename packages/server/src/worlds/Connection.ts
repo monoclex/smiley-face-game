@@ -27,11 +27,7 @@ export default class Connection {
     return this.hasEdit && (this.hasGun ? !this.gunEquipped : true);
   }
 
-  constructor(
-    readonly webSocket: WebSocket,
-    readonly authTokenPayload: AuthPayload,
-    readonly worldTokenPayload: WorldJoinRequest
-  ) {
+  constructor(readonly webSocket: WebSocket, readonly authTokenPayload: AuthPayload, readonly worldTokenPayload: WorldJoinRequest) {
     // ping the client every 30 seconds
     let pingTimer = setInterval(() => {
       if (webSocket.readyState === webSocket.OPEN) {

@@ -14,17 +14,13 @@ import { ServerInitPacket } from "@smiley-face-game/packets/ServerInit";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
-    throw new Error(
-      "Action regarding connection connected to this world does not have a playerId assigned to it."
-    );
+    throw new Error("Action regarding connection connected to this world does not have a playerId assigned to it.");
   }
 }
 
 function ensureNotDead(shouldBeDead: boolean) {
   if (shouldBeDead) {
-    throw new Error(
-      "Received join request despite the fact that this room should be dead."
-    );
+    throw new Error("Received join request despite the fact that this room should be dead.");
   }
 }
 

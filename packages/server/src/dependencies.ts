@@ -16,7 +16,9 @@ export default class Dependencies {
     this.worldRepo = new WorldRepo(connection);
 
     //@ts-ignore
-    let validator: (input: any) => input is AuthPayload = () => { throw new Error("TODO: write this"); };
+    let validator: (input: any) => input is AuthPayload = () => {
+      throw new Error("TODO: write this");
+    };
     this.authVerifier = new JwtVerifier(ValidateAuthPayload, jwtSecret);
     this.authProvider = new AuthProvider(jwtSecret);
 

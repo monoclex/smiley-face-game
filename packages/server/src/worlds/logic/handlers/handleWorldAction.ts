@@ -3,10 +3,7 @@ import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 import { SERVER_WORLD_ACTION_ID } from "@smiley-face-game/packets/ServerWorldAction";
 
-export default async function handlePlayerlistAction(
-  packet: WorldActionPacket,
-  [sender, logic]: [Connection, RoomLogic]
-) {
+export default async function handlePlayerlistAction(packet: WorldActionPacket, [sender, logic]: [Connection, RoomLogic]) {
   if (sender.role !== "owner") {
     // must be owner to send these packets
     // you can't fake this no matter what you do, so we'll kill the client if they do this
@@ -20,7 +17,7 @@ export default async function handlePlayerlistAction(
       sender.send({
         packetId: SERVER_WORLD_ACTION_ID,
         action: "save",
-        playerId: sender.playerId
+        playerId: sender.playerId,
       });
       return;
     }
@@ -32,7 +29,7 @@ export default async function handlePlayerlistAction(
         packetId: SERVER_WORLD_ACTION_ID,
         action: "load",
         blocks: blocks,
-        playerId: sender.playerId
+        playerId: sender.playerId,
       });
       return;
     }

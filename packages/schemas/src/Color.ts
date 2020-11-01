@@ -10,7 +10,7 @@ export const ColorSchema = Schema.either(
   "yellow" as const,
   "green" as const,
   "blue" as const,
-  "purple" as const,
+  "purple" as const
 );
 export type Color = Type<typeof ColorSchema>;
 export const validateColor = ColorSchema.destruct();

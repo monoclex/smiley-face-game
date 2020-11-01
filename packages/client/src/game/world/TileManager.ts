@@ -70,28 +70,34 @@ export default class TileManager {
       context.save();
       context.translate(renderImageCanvas.width / 2, renderImageCanvas.height / 2);
       switch (block.rotation) {
-        case Rotation.Right: break; // it already faces right by default
-        case Rotation.Up: context.rotate(-Math.PI / 2); break;
-        case Rotation.Left: context.rotate(-Math.PI); break;
-        case Rotation.Down: context.rotate(-3 * Math.PI / 2); break;
+        case Rotation.Right:
+          break; // it already faces right by default
+        case Rotation.Up:
+          context.rotate(-Math.PI / 2);
+          break;
+        case Rotation.Left:
+          context.rotate(-Math.PI);
+          break;
+        case Rotation.Down:
+          context.rotate((-3 * Math.PI) / 2);
+          break;
       }
       context.drawImage(imageSource, x, y, width, height, -width / 2, -height / 2, TILE_WIDTH, TILE_HEIGHT);
       context.restore();
-    }
-    else {
+    } else {
       context.drawImage(imageSource, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
     }
-
 
     if (block.id === TileId.Full) {
       // tint the image by drawing another rectangle over it
       const data = context.getImageData(0, 0, 32, 32);
 
-      const hack = { setCollision: () => { } } as unknown as Phaser.Tilemaps.Tile;
+      const hack = ({ setCollision: () => {} } as unknown) as Phaser.Tilemaps.Tile;
       tileLookup[TileId.Full].place(hack, block);
-      const tintAsString = hack.tint.toString(16).padStart(6, '0');
-      const [r, g, b] = [tintAsString.substr(0, 2), tintAsString.substr(2, 2), tintAsString.substr(4, 2)]
-        .map(str => parseInt(str, 16) / 255);
+      const tintAsString = hack.tint.toString(16).padStart(6, "0");
+      const [r, g, b] = [tintAsString.substr(0, 2), tintAsString.substr(2, 2), tintAsString.substr(4, 2)].map(
+        (str) => parseInt(str, 16) / 255
+      );
 
       for (let offset = 0; offset < data.data.byteLength; offset += 4) {
         // RGBA order

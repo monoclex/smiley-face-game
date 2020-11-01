@@ -2,10 +2,7 @@ import { Router } from "express";
 import jwt from "../../../middlewares/jwt";
 import Dependencies from "../../../dependencies";
 
-type UsedDependencies = Pick<
-  Dependencies,
-  "authVerifier" | "accountRepo" | "roomManager"
->;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "accountRepo" | "roomManager">;
 
 export default function (deps: UsedDependencies): Router {
   const { authVerifier, accountRepo, roomManager } = deps;

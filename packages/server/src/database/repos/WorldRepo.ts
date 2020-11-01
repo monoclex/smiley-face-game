@@ -34,8 +34,7 @@ export default class WorldRepo {
     ensureValidates(validateWorldId, id);
 
     let findOptions = {};
-    if (options?.withOwner === true)
-      findOptions = { ...findOptions, relations: ["owner"] };
+    if (options?.withOwner === true) findOptions = { ...findOptions, relations: ["owner"] };
 
     return this.#repo.findOneOrFail({ id }, findOptions);
   }
@@ -53,9 +52,7 @@ export default class WorldRepo {
     // TODO: verify details given
 
     // all computed assignments are stated in plain sight before assignment
-    const blocks = !!details.blocks
-      ? JSON.stringify(details.blocks)
-      : emptyWorld(details);
+    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details);
     const name = !!details.name ? details.name : "Untitled World";
 
     let world = this.#repo.create();

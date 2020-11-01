@@ -9,7 +9,7 @@ export const BlockLineSchema = Schema({
   start: BoundlessBlockPositionSchema,
   end: BoundlessBlockPositionSchema,
   layer: TileLayerSchema,
-  block: BlockSchema
+  block: BlockSchema,
 });
 export type BlockLinePacket = SchemaInput<typeof BlockLineSchema>;
 export const validateBlockLine = BlockLineSchema.destruct();

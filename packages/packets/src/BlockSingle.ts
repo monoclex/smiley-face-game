@@ -5,9 +5,7 @@ import { BlockSchema } from "@smiley-face-game/schemas/Block";
 
 export const BLOCK_SINGLE_ID = "BLOCK_SINGLE";
 
-export type BlockSingleSchema = ReturnType<
-  typeof blockSingle
->["BlockSingleSchema"];
+export type BlockSingleSchema = ReturnType<typeof blockSingle>["BlockSingleSchema"];
 export type BlockSinglePacket = SchemaInput<BlockSingleSchema>;
 
 export function blockSingle(blockPositionSchema: BlockPositionSchema) {
@@ -15,7 +13,7 @@ export function blockSingle(blockPositionSchema: BlockPositionSchema) {
     packetId: BLOCK_SINGLE_ID as typeof BLOCK_SINGLE_ID,
     position: blockPositionSchema,
     layer: TileLayerSchema,
-    block: BlockSchema
+    block: BlockSchema,
   });
 
   const validateBlockSingle = BlockSingleSchema.destruct();

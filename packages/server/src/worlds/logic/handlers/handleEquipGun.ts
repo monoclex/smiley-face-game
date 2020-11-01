@@ -3,10 +3,7 @@ import { EquipGunPacket } from "@smiley-face-game/packets/EquipGun";
 import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 
-export default async function handleEquipGun(
-  packet: EquipGunPacket,
-  [sender, logic]: [Connection, RoomLogic]
-) {
+export default async function handleEquipGun(packet: EquipGunPacket, [sender, logic]: [Connection, RoomLogic]) {
   // must have a gun to equip it
   if (!sender.hasGun) {
     return false;

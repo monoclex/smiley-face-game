@@ -10,11 +10,7 @@ export default class Purchaser {
   }
 
   // TODO: make purchasing things have a set price counter increment or something, this is omega TODO
-  purchase<TConfig = undefined>(
-    account: AccountLike,
-    item: ShopItem<TConfig>,
-    config: TConfig
-  ): "no" | "yes" {
+  purchase<TConfig = undefined>(account: AccountLike, item: ShopItem<TConfig>, config: TConfig): "no" | "yes" {
     const price = this.price(item, config);
 
     if (account.currentEnergy < price) {
@@ -24,10 +20,7 @@ export default class Purchaser {
     }
   }
 
-  private price<TConfig = undefined>(
-    item: ShopItem<TConfig>,
-    config: TConfig
-  ): number {
+  private price<TConfig = undefined>(item: ShopItem<TConfig>, config: TConfig): number {
     if (typeof item.price === "number") {
       return item.price;
     } else {

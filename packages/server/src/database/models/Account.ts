@@ -46,19 +46,12 @@ export default class Account {
     }
 
     const millisecondsSinceUnixEpoch = Date.now();
-    const millisecondsEnergyHasBeenRegenerating =
-      millisecondsSinceUnixEpoch - this.timeEnergyWasAtAmount;
-    const amountOfRegeneratedEnergyPrecise =
-      millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
-    const amountOfRegeneratedEnergy = Math.trunc(
-      amountOfRegeneratedEnergyPrecise
-    ); // | 0 would also work here
+    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - this.timeEnergyWasAtAmount;
+    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
+    const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
 
     // cap the energy to maxEnergy
-    return Math.min(
-      this.lastEnergyAmount + amountOfRegeneratedEnergy,
-      this.maxEnergy
-    );
+    return Math.min(this.lastEnergyAmount + amountOfRegeneratedEnergy, this.maxEnergy);
   }
 
   set currentEnergy(energy: number) {

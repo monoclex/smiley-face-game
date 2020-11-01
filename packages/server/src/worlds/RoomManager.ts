@@ -120,9 +120,7 @@ export default class RoomManager {
 
       if (room === undefined) {
         // "what if the room doesn't exist?" that's handled by room's run() function
-        const newRoom = new Room(
-          new SavedBehaviour(this.#deps.worldRepo, details.id)
-        );
+        const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));
         this.#savedRooms.set(details.id, newRoom);
         return newRoom;
       } else {

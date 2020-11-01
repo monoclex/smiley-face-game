@@ -53,7 +53,7 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() { }
+  onUp() {}
 
   id(): TileState {
     if (this.pointer.rightButtonDown()) return { id: TileId.Empty };

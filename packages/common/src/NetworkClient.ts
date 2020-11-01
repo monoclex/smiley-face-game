@@ -10,57 +10,21 @@ import { FireBulletPacket, FIRE_BULLET_ID } from "@smiley-face-game/packets/Fire
 import { MovementPacket, MOVEMENT_ID } from "@smiley-face-game/packets/Movement";
 import { PickupGunPacket, PICKUP_GUN_ID } from "@smiley-face-game/packets/PickupGun";
 import { WorldActionPacket, WORLD_ACTION_ID } from "@smiley-face-game/packets/WorldAction";
-import {
-  PlayerlistActionPacket,
-  PLAYER_LIST_ACTION_ID,
-} from "@smiley-face-game/packets/PlayerlistAction";
-import {
-  ServerBlockBufferValidator,
-  SERVER_BLOCK_BUFFER_ID,
-} from "@smiley-face-game/packets/ServerBlockBuffer";
-import {
-  SERVER_BLOCK_LINE_ID,
-  validateServerBlockLine,
-} from "@smiley-face-game/packets/ServerBlockLine";
-import {
-  ServerBlockSingleValidator,
-  SERVER_BLOCK_SINGLE_ID,
-} from "@smiley-face-game/packets/ServerBlockSingle";
+import { PlayerlistActionPacket, PLAYER_LIST_ACTION_ID } from "@smiley-face-game/packets/PlayerlistAction";
+import { ServerBlockBufferValidator, SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/packets/ServerBlockBuffer";
+import { SERVER_BLOCK_LINE_ID, validateServerBlockLine } from "@smiley-face-game/packets/ServerBlockLine";
+import { ServerBlockSingleValidator, SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/packets/ServerBlockSingle";
 import { SERVER_CHAT_ID, validateServerChat } from "@smiley-face-game/packets/ServerChat";
-import {
-  SERVER_EQUIP_GUN_ID,
-  validateServerEquipGun,
-} from "@smiley-face-game/packets/ServerEquipGun";
-import {
-  SERVER_FIRE_BULLET_ID,
-  validateServerFireBullet,
-} from "@smiley-face-game/packets/ServerFireBullet";
+import { SERVER_EQUIP_GUN_ID, validateServerEquipGun } from "@smiley-face-game/packets/ServerEquipGun";
+import { SERVER_FIRE_BULLET_ID, validateServerFireBullet } from "@smiley-face-game/packets/ServerFireBullet";
 import { SERVER_INIT_ID, validateServerInit } from "@smiley-face-game/packets/ServerInit";
-import {
-  SERVER_MOVEMENT_ID,
-  validateServerMovement,
-} from "@smiley-face-game/packets/ServerMovement";
+import { SERVER_MOVEMENT_ID, validateServerMovement } from "@smiley-face-game/packets/ServerMovement";
 import { isServerPacket } from "@smiley-face-game/packets/ServerPackets";
-import {
-  SERVER_PICKUP_GUN_ID,
-  validateServerPickupGun,
-} from "@smiley-face-game/packets/ServerPickupGun";
-import {
-  SERVER_PLAYER_JOIN_ID,
-  validateServerPlayerJoin,
-} from "@smiley-face-game/packets/ServerPlayerJoin";
-import {
-  SERVER_PLAYER_LEAVE_ID,
-  validateServerPlayerLeave,
-} from "@smiley-face-game/packets/ServerPlayerLeave";
-import {
-  SERVER_ROLE_UPDATE_ID,
-  validateServerRoleUpdate,
-} from "@smiley-face-game/packets/ServerRoleUpdate";
-import {
-  SERVER_WORLD_ACTION_ID,
-  validateServerWorldAction
-} from "@smiley-face-game/packets/ServerWorldAction";
+import { SERVER_PICKUP_GUN_ID, validateServerPickupGun } from "@smiley-face-game/packets/ServerPickupGun";
+import { SERVER_PLAYER_JOIN_ID, validateServerPlayerJoin } from "@smiley-face-game/packets/ServerPlayerJoin";
+import { SERVER_PLAYER_LEAVE_ID, validateServerPlayerLeave } from "@smiley-face-game/packets/ServerPlayerLeave";
+import { SERVER_ROLE_UPDATE_ID, validateServerRoleUpdate } from "@smiley-face-game/packets/ServerRoleUpdate";
+import { SERVER_WORLD_ACTION_ID, validateServerWorldAction } from "@smiley-face-game/packets/ServerWorldAction";
 import { WorldPacket } from "@smiley-face-game/packets/WorldPacket";
 
 import type WebSocket from "ws";
@@ -70,7 +34,7 @@ class NetworkEvents {
   constructor(
     readonly validateServerBlockSingle: ServerBlockSingleValidator,
     readonly validateServerBlockBuffer: ServerBlockBufferValidator
-  ) { }
+  ) {}
 
   callback!: (packet: ServerPackets) => void | Promise<void>;
 
@@ -129,11 +93,7 @@ export class NetworkClient {
     return new Promise((resolve, reject) => {
       let resolved = false;
       const webSocket = new webSocketImpl(targetWebSocketUrl);
-      const networkClient = new NetworkClient(
-        webSocket,
-        validateServerBlockBuffer,
-        validateServerBlockSingle
-      );
+      const networkClient = new NetworkClient(webSocket, validateServerBlockBuffer, validateServerBlockSingle);
       registerCallbacks(networkClient);
 
       webSocket.addEventListener("message", (message) => {
@@ -173,20 +133,14 @@ export class NetworkClient {
     validateServerBlockBuffer: ServerBlockBufferValidator,
     validateServerBlockSingle: ServerBlockSingleValidator
   ) {
-    this.events = new NetworkEvents(
-      validateServerBlockSingle,
-      validateServerBlockBuffer
-    );
+    this.events = new NetworkEvents(validateServerBlockSingle, validateServerBlockBuffer);
     this._buffer = [];
 
     const onClose = (event: { reason: string } | { error: Error }) => {
       if (this._showClosingAlert) {
         const reason = "reason" in event ? event.reason : event.error.message;
         //@ts-ignore
-        alert(
-          "connection to server died, pls refresh" +
-          (reason || JSON.stringify(event))
-        );
+        alert("connection to server died, pls refresh" + (reason || JSON.stringify(event)));
       }
     };
     this._webSocket.addEventListener("close", onClose);
@@ -307,12 +261,7 @@ export class NetworkClient {
     this._webSocket.send(JSON.stringify(packet));
   }
 
-  placeLine(
-    tileLayer: TileLayer,
-    start: Position,
-    end: Position,
-    _activeBlock: TileState
-  ): void {
+  placeLine(tileLayer: TileLayer, start: Position, end: Position, _activeBlock: TileState): void {
     //@ts-ignore
     const packet: BlockLinePacket = {
       packetId: BLOCK_LINE_ID,
@@ -367,7 +316,7 @@ export class NetworkClient {
   save() {
     const packet: WorldActionPacket = {
       packetId: WORLD_ACTION_ID,
-      action: "save"
+      action: "save",
     };
 
     this.send(packet);
@@ -376,7 +325,7 @@ export class NetworkClient {
   load() {
     const packet: WorldActionPacket = {
       packetId: WORLD_ACTION_ID,
-      action: "load"
+      action: "load",
     };
 
     this.send(packet);

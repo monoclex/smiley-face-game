@@ -9,12 +9,12 @@ import GAME_SCENE_KEY from "../../game/GameSceneKey";
 import { loading } from "../../recoil/atoms/loading";
 
 interface GlobalVariableParkourType {
-  token: string,
-  name: string,
-  width: number,
-  height: number,
-  id: string,
-  onId: (id: string) => void,
+  token: string;
+  name: string;
+  width: number;
+  height: number;
+  id: string;
+  onId: (id: string) => void;
 }
 
 export const globalVariableParkour: GlobalVariableParkourType = {
@@ -23,7 +23,7 @@ export const globalVariableParkour: GlobalVariableParkourType = {
   width: 50,
   height: 50,
   id: "smiley-face-game",
-  onId: () => { },
+  onId: () => {},
 };
 
 // TODO: write my own code instead of borderline stealing code

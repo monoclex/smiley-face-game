@@ -9,10 +9,7 @@ import Dependencies from "./dependencies";
 getConnectionOptions()
   .then(createConnection)
   .then(async (connection) => {
-    const dependencies = new Dependencies(
-      connection,
-      process.env.ACCESS_TOKEN_SECRET!
-    );
+    const dependencies = new Dependencies(connection, process.env.ACCESS_TOKEN_SECRET!);
 
     app.use(cors());
     app.use(bodyParser.json());

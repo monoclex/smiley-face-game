@@ -3,10 +3,7 @@ import Connection from "../../../worlds/Connection";
 import RoomLogic from "../../../worlds/logic/RoomLogic";
 import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
 
-export default function handlePlayerlistAction(
-  packet: PlayerlistActionPacket,
-  [sender, logic]: [Connection, RoomLogic]
-) {
+export default function handlePlayerlistAction(packet: PlayerlistActionPacket, [sender, logic]: [Connection, RoomLogic]) {
   switch (packet.action) {
     case "give edit":
       {

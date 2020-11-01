@@ -7,10 +7,7 @@ import filterMessage from "@smiley-face-game/common/filterMessage";
 const MAX_MESSAGES_WITHIN_INTERVAL = 10;
 const INTERVAL_MS = 5 * 1000;
 
-export default async function handleChat(
-  packet: ChatPacket,
-  [sender, logic]: [Connection, RoomLogic]
-) {
+export default async function handleChat(packet: ChatPacket, [sender, logic]: [Connection, RoomLogic]) {
   // filter the message incase some bot sends weird stuff i guess
   const content = filterMessage(packet.message);
   if (!content || content.length === 0) return;

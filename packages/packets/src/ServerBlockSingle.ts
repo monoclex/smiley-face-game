@@ -6,12 +6,8 @@ import { BlockSchema } from "@smiley-face-game/schemas/Block";
 
 export const SERVER_BLOCK_SINGLE_ID = "SERVER_BLOCK_SINGLE";
 
-export type ServerBlockSingleSchema = ReturnType<
-  typeof serverBlockSingle
->["ServerBlockSingleSchema"];
-export type ServerBlockSingleValidator = ReturnType<
-  typeof serverBlockSingle
->["validateServerBlockSingle"];
+export type ServerBlockSingleSchema = ReturnType<typeof serverBlockSingle>["ServerBlockSingleSchema"];
+export type ServerBlockSingleValidator = ReturnType<typeof serverBlockSingle>["validateServerBlockSingle"];
 export type ServerBlockSinglePacket = SchemaInput<ServerBlockSingleSchema>;
 
 export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {
@@ -21,9 +17,9 @@ export function serverBlockSingle(blockPositionSchema: BlockPositionSchema) {
       packetId: SERVER_BLOCK_SINGLE_ID as typeof SERVER_BLOCK_SINGLE_ID,
       position: blockPositionSchema,
       layer: TileLayerSchema,
-      block: BlockSchema
+      block: BlockSchema,
     },
-    ServerSchema,
+    ServerSchema
   );
 
   const validateServerBlockSingle = ServerBlockSingleSchema.destruct();

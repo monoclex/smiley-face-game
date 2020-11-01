@@ -7,10 +7,7 @@ import Connection from "../../../worlds/Connection";
 import { applyTo } from "../../../expressapp";
 import Dependencies from "../../../dependencies";
 
-type UsedDependencies = Pick<
-  Dependencies,
-  "authVerifier" | "roomManager" | "accountRepo"
->;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager" | "accountRepo">;
 
 export default function (router: expressWs.Router, deps: UsedDependencies) {
   const { authVerifier, roomManager, accountRepo } = deps;
@@ -33,18 +30,12 @@ export default function (router: expressWs.Router, deps: UsedDependencies) {
           throw new Error("Missing permission to play.");
         }
 
-        const [errors, worldTokenPayload] = validateWorldJoinRequest(
-          JSON.parse(world)
-        );
+        const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
         if (errors !== null || worldTokenPayload === undefined) {
           throw new Error("Failed to validate WorldDetails payload.");
         }
 
-        const connection = new Connection(
-          ws,
-          authTokenPayload,
-          worldTokenPayload
-        );
+        const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
 
         await connection.load(accountRepo);
         const room = await roomManager.join(connection, worldTokenPayload);
