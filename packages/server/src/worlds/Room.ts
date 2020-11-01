@@ -103,7 +103,8 @@ export default class Room {
     await this.#onEmpty.promise;
 
     this.#status = "stopping";
-    await this.saveBlocks(blocks);
+    // world owners should've saved their worlds if they wanted to
+    // await this.saveBlocks(blocks);
 
     this.#status = "stopped";
     this.onStopped.resolve();
@@ -113,9 +114,9 @@ export default class Room {
     return this.#behaviour.loadBlocks();
   }
 
-  private saveBlocks(blocks: Block[][][]): Promise<void> {
-    return this.#behaviour.saveBlocks(blocks);
-  }
+  // private saveBlocks(blocks: Block[][][]): Promise<void> {
+  //   return this.#behaviour.saveBlocks(blocks);
+  // }
 
   join(connection: Connection): boolean {
     if (this.#logic === undefined) {

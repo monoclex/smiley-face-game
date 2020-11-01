@@ -25,10 +25,13 @@ export default async function handlePlayerlistAction(
       return;
     }
     case "load": {
-      sender.send({
+      const blocks = await logic.behaviour.loadBlocks();
+      logic.blockHandler.map = blocks;
+
+      logic.broadcast({
         packetId: SERVER_WORLD_ACTION_ID,
         action: "load",
-        blocks: [[[]]],
+        blocks: blocks,
         playerId: sender.playerId
       });
       return;

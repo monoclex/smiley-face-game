@@ -30,7 +30,7 @@ import WorldBlocks from "../WorldBlocks";
 
 export class BlockHandler {
   constructor(
-    readonly map: WorldBlocks,
+    public map: WorldBlocks,
     readonly width: number,
     readonly height: number
   ) {
