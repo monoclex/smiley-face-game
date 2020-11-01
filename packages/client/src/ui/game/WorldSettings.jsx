@@ -15,7 +15,8 @@ const useStyles = makeStyles({
 
 export default ({}) => {
   const classes = useStyles();
-  const mainPlayer = useRecoilValue(currentPlayer) ?? { username: "", role: "non", playerId: -1 };
+  const mainPlayer = useRecoilValue(currentPlayer);
+
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const save = () => {
@@ -27,6 +28,11 @@ export default ({}) => {
     window.gameScene.networkClient.load();
     setAnchorEl(null); // closes menu
   };
+
+  // if the player isn't the owner, they shouldn't have access to world settings
+  if (mainPlayer === undefined || mainPlayer.role !== "owner") {
+    return null;
+  }
 
   return (
     <>
