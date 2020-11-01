@@ -22,15 +22,15 @@ import {
   ServerBlockSinglePacket,
   SERVER_BLOCK_SINGLE_ID,
 } from "@smiley-face-game/packets/ServerBlockSingle";
-import { Block } from "@smiley-face-game/schemas/Block";
 import { TileId } from "@smiley-face-game/schemas/TileId";
 import Connection from "../../worlds/Connection";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 import copyBlock from "@smiley-face-game/common/tiles/copyBlock";
+import WorldBlocks from "../WorldBlocks";
 
 export class BlockHandler {
   constructor(
-    readonly map: Block[][][],
+    readonly map: WorldBlocks,
     readonly width: number,
     readonly height: number
   ) {

@@ -17,6 +17,7 @@ import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/packets/ServerPickupGun"
 import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/packets/ServerPlayerJoin";
 import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/packets/ServerPlayerLeave";
 import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
+import { SERVER_WORLD_ACTION_ID } from "@smiley-face-game/packets/ServerWorldAction";
 import PlayerRole from "@smiley-face-game/common/PlayerRole";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
@@ -27,6 +28,7 @@ import GameSceneInitializationData from "./GameSceneInitializationData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
+import toast from "../SnackbarUtils";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
@@ -250,6 +252,19 @@ export default class GameScene extends Phaser.Scene {
             });
 
             playerList.modify({ players: modified });
+          }
+          return;
+
+        case SERVER_WORLD_ACTION_ID:
+          switch (event.action) {
+            case "load":
+              toast.success("World loaded!");
+              console.time("init");
+              this.world.clear();
+              // TODO: get type safety working
+              this.world.deserializeBlocks(event.blocks!);
+              break;
+            case "save": toast.success("World saved!"); break;
           }
           return;
       }

@@ -24,6 +24,7 @@ import {
   SERVER_PLAYER_LEAVE_ID,
 } from "./ServerPlayerLeave";
 import { SERVER_CHAT_ID, ServerChatPacket } from "./ServerChat";
+import { SERVER_WORLD_ACTION_ID, ServerWorldActionPacket } from "./ServerWorldAction";
 import {
   ServerRoleUpdatePacket,
   SERVER_ROLE_UPDATE_ID,
@@ -41,7 +42,8 @@ export type ServerPackets =
   | ServerPlayerJoinPacket
   | ServerPlayerLeavePacket
   | ServerChatPacket
-  | ServerRoleUpdatePacket;
+  | ServerRoleUpdatePacket
+  | ServerWorldActionPacket;
 
 // TODO: dumb
 const lookup = {
@@ -57,6 +59,7 @@ const lookup = {
   [SERVER_PLAYER_LEAVE_ID]: true,
   [SERVER_CHAT_ID]: true,
   [SERVER_ROLE_UPDATE_ID]: true,
+  [SERVER_WORLD_ACTION_ID]: true,
 };
 
 export function isServerPacket(packet: any): packet is ServerPackets {

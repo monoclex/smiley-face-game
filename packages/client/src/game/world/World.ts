@@ -22,7 +22,7 @@ export default class World {
   readonly background: Layer;
   readonly void: Void;
 
-  constructor(scene: Phaser.Scene, size: Size, readonly networkClient: NetworkClient) {
+  constructor(scene: Phaser.Scene, readonly size: Size, readonly networkClient: NetworkClient) {
     this.tileManager = new TileManager(scene, size);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
@@ -56,6 +56,22 @@ export default class World {
     }
 
     console.timeEnd("init");
+  }
+
+  clear() {
+    // no idea if this is a performance optimization or not. but hopefully, this will be slightly GC friendly
+    let position = { x: 0, y: 0 };
+
+    for (let l = 0; l < TileLayer.Decoration; l++) {
+      for (let y = 0; y < this.size.height; y++) {
+        position.y = y;
+        for (let x = 0; x < this.size.width; x++) {
+          position.x = x;
+
+          this.placeBlock(position, { id: TileId.Empty }, l, false);
+        }
+      }
+    }
   }
 
   placeBlock(position: Position, tileState: TileState, layer: TileLayer | undefined, iPlacedIt: boolean) {

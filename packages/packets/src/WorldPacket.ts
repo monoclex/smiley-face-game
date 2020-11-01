@@ -21,6 +21,8 @@ import { ChatSchema } from "./Chat";
 import { ServerChatSchema } from "./ServerChat";
 import { PlayerlistActionSchema } from "@smiley-face-game/packets/PlayerlistAction";
 import { ServerRoleUpdateSchema } from "./ServerRoleUpdate";
+import { WorldActionSchema } from "./WorldAction";
+import { ServerWorldActionSchema } from "./ServerWorldAction";
 
 export type WorldPacketSchema = ReturnType<
   typeof worldPacket
@@ -44,7 +46,9 @@ export function worldPacket(blockPositionSchema: BlockPositionSchema) {
       MovementSchema,
       ServerMovementSchema,
       ServerPlayerJoinSchema,
-      ServerPlayerLeaveSchema
+      ServerPlayerLeaveSchema,
+      WorldActionSchema,
+      ServerWorldActionSchema
     ),
 
     // for the sake of type arguments, we have to split up packets into groups of 8 since Schema.either only accepts max 8 generic params

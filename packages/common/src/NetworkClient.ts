@@ -9,6 +9,7 @@ import { EquipGunPacket, EQUIP_GUN_ID } from "@smiley-face-game/packets/EquipGun
 import { FireBulletPacket, FIRE_BULLET_ID } from "@smiley-face-game/packets/FireBullet";
 import { MovementPacket, MOVEMENT_ID } from "@smiley-face-game/packets/Movement";
 import { PickupGunPacket, PICKUP_GUN_ID } from "@smiley-face-game/packets/PickupGun";
+import { WorldActionPacket, WORLD_ACTION_ID } from "@smiley-face-game/packets/WorldAction";
 import {
   PlayerlistActionPacket,
   PLAYER_LIST_ACTION_ID,
@@ -56,6 +57,10 @@ import {
   SERVER_ROLE_UPDATE_ID,
   validateServerRoleUpdate,
 } from "@smiley-face-game/packets/ServerRoleUpdate";
+import {
+  SERVER_WORLD_ACTION_ID,
+  validateServerWorldAction
+} from "@smiley-face-game/packets/ServerWorldAction";
 import { WorldPacket } from "@smiley-face-game/packets/WorldPacket";
 
 import type WebSocket from "ws";
@@ -89,6 +94,7 @@ class NetworkEvents {
       [SERVER_BLOCK_BUFFER_ID]: this.validateServerBlockBuffer,
       [SERVER_CHAT_ID]: validateServerChat,
       [SERVER_ROLE_UPDATE_ID]: validateServerRoleUpdate,
+      [SERVER_WORLD_ACTION_ID]: validateServerWorldAction,
     };
 
     // validate the packet (type checking stuffs)
@@ -353,6 +359,24 @@ export class NetworkClient {
       packetId: PLAYER_LIST_ACTION_ID,
       action: "kick",
       playerId,
+    };
+
+    this.send(packet);
+  }
+
+  save() {
+    const packet: WorldActionPacket = {
+      packetId: WORLD_ACTION_ID,
+      action: "save"
+    };
+
+    this.send(packet);
+  }
+
+  load() {
+    const packet: WorldActionPacket = {
+      packetId: WORLD_ACTION_ID,
+      action: "load"
     };
 
     this.send(packet);

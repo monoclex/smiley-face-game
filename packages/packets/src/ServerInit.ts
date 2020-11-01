@@ -1,5 +1,5 @@
-import Schema, { array, Type, boolean } from "computed-types";
-import { BlockSchema, Block } from "@smiley-face-game/schemas/Block";
+import Schema, { array, boolean, SchemaInput } from "computed-types";
+import { BlockSchema } from "@smiley-face-game/schemas/Block";
 import { PlayerPositionSchema } from "@smiley-face-game/schemas/PlayerPosition";
 import { SizeSchema } from "@smiley-face-game/schemas/Size";
 import { ServerSchema } from "./Server";
@@ -21,5 +21,5 @@ export const ServerInitSchema = Schema.merge(
   },
   ServerSchema
 );
-export type ServerInitPacket = Omit<Type<typeof ServerInitSchema>, "blocks"> & { blocks: Block[][][] };
+export type ServerInitPacket = SchemaInput<typeof ServerInitSchema>;
 export const validateServerInit = ServerInitSchema.destruct();

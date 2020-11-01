@@ -19,11 +19,13 @@ export default ({}) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const save = () => {
-    alert("s");
+    window.gameScene.networkClient.save();
+    setAnchorEl(null); // closes menu
   };
 
   const load = () => {
-    alert("l");
+    window.gameScene.networkClient.load();
+    setAnchorEl(null); // closes menu
   };
 
   return (

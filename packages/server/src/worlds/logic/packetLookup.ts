@@ -10,6 +10,7 @@ import handleFireBullet from "./handlers/handleFireBullet";
 import handleMovement from "./handlers/handleMovement";
 import handlePickupGun from "./handlers/handlePickupGun";
 import handlePlayerlistAction from "./handlers/handlePlayerlistAction";
+import handleWorldAction from "./handlers/handleWorldAction";
 import handleServer from "./handlers/handleServer";
 
 type MaybeAsync<T> = T | Promise<T>;
@@ -27,6 +28,7 @@ const packetLookup: WorldPacketLookup<
   PICKUP_GUN: handlePickupGun,
   CHAT: handleChat,
   PLAYER_LIST_ACTION: handlePlayerlistAction,
+  WORLD_ACTION: handleWorldAction,
 
   SERVER_INIT: handleServer,
   SERVER_BLOCK_BUFFER: handleServer,
@@ -40,6 +42,7 @@ const packetLookup: WorldPacketLookup<
   SERVER_PLAYER_LEAVE: handleServer,
   SERVER_CHAT: handleServer,
   SERVER_ROLE_UPDATE: handleServer,
+  SERVER_WORLD_ACTION: handleServer,
 };
 
 export default packetLookup;

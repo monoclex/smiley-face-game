@@ -38,7 +38,7 @@ export default class RoomLogic {
   #details: WorldDetails;
   #setStoppingStatus: () => void;
   #id: string;
-  #behaviour: Behaviour;
+  behaviour: Behaviour;
 
   get playerCount(): number {
     return this.#players.size;
@@ -61,7 +61,7 @@ export default class RoomLogic {
     this.#details = details;
     this.#setStoppingStatus = setStopping;
     this.#id = id;
-    this.#behaviour = roomBehaviour;
+    this.behaviour = roomBehaviour;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -71,7 +71,7 @@ export default class RoomLogic {
     // NOTE: code for the TODO above should primarily be in the code that generates tokens for connecting to worlds,
     // and before connecting the token should be checked if it should be invalidated.
 
-    this.#behaviour.onPlayerJoin(connection);
+    this.behaviour.onPlayerJoin(connection);
 
     let id = this.#idCounter++;
     connection.playerId = id;

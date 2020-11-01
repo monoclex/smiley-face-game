@@ -1,4 +1,2 @@
-import { Block } from "@smiley-face-game/schemas/Block";
-
-type WorldBlocks = Block[][][];
-export default WorldBlocks;
+import type { WorldBlocksType } from "@smiley-face-game/schemas/WorldBlocks";
+export default WorldBlocksType;
