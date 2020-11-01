@@ -21,6 +21,7 @@ import { playerListState } from "../../recoil/atoms/playerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
+import WorldSettings from "../game/WorldSettings";
 
 export const config = {
   pixelArt: true,
@@ -188,7 +189,9 @@ const Game = ({
               <BlockBar loader={loader} />
             ) : null}
           </Grid>
-          <Grid item xs={3}></Grid>
+          <Grid container item xs={3} alignItems="flex-end">
+            <WorldSettings />
+          </Grid>
         </Grid>
         {/* the 100% - 100px comes from the joystick which is 100px. this is awful */}
         {/* oh, and to add to the awfulness, we subtract like 13 more pixels just incase it overflows because why not */}
