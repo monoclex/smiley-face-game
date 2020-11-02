@@ -53,7 +53,8 @@ export default class TileManager {
     tileLookup[block.id].renderCanvas({
       //@ts-ignore shh it is correct
       block,
-      renderImageCanvas, context,
+      renderImageCanvas,
+      context,
       getFrame: ((index: number) => {
         const frame = this.frameOfTile(index);
         return {
@@ -67,7 +68,7 @@ export default class TileManager {
           //@ts-ignore
           height: frame.customData.frame.h as number,
         };
-      }).bind(this)
+      }).bind(this),
     });
 
     const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));

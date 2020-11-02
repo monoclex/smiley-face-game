@@ -76,7 +76,7 @@ export default class FullTile implements Tile<TileId.Basic> {
   }
 
   renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Basic>) {
-    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("basic-white"))
+    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("basic-white"));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 }

@@ -12,7 +12,7 @@ const tileLookup = {
   [TileId.Arrow]: new ArrowTile(),
 };
 
-function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) { }
+function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) {}
 ensureTypeChecked(tileLookup);
 
 export default tileLookup;

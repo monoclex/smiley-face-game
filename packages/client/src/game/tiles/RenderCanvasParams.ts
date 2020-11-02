@@ -6,7 +6,7 @@ import { TileId } from "@smiley-face-game/schemas/TileId";
  * a lot of conditional state that may or may not be used.
  */
 export default interface RenderCanvasParams<TTileId extends TileId> {
-  getFrame(index: number): { atlas: HTMLImageElement, x: number, y: number, width: number, height: number };
+  getFrame(index: number): { atlas: HTMLImageElement; x: number; y: number; width: number; height: number };
   block: Block & { id: TTileId };
   renderImageCanvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;

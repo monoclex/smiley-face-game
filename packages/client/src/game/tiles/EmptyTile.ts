@@ -14,7 +14,7 @@ export default class EmptyTile implements Tile<TileId.Empty> {
   }
 
   renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Empty>) {
-    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("empty"))
+    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("empty"));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 }

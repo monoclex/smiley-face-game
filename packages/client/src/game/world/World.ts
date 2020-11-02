@@ -90,9 +90,11 @@ export default class World {
     //@ts-ignore
     const tileIndex: TileId = tile.index;
 
-    const result: Tile<typeof tileState.id> = tileLookup[tileIndex];
-    if (result !== undefined && result.onRemove) {
-      result.onRemove(tile);
+    if (tile.tileState) {
+      const result: Tile<typeof tileState.id> = tileLookup[tile.tileState.id];
+      if (result !== undefined && result.onRemove) {
+        result.onRemove(tile);
+      }
     }
 
     tile.tileState = { ...tileState };

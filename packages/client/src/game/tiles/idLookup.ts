@@ -4,7 +4,7 @@
  * depends on its position in the atlas. Here, we import the atlas and map the name of the tile to its
  * position in the atlas, allowing us to simply write the name of the tile, and have it automatically
  * resolve to the correct ID.
- * 
+ *
  * In addition, in theory, we would get type checking whenever we supply an incorrect tile name. However,
  * typescript does not support importing json as const. https://github.com/microsoft/TypeScript/issues/32063
  */
@@ -24,7 +24,6 @@ console.log(nameToId);
  * @returns The ID of the tile to use client-side.
  */
 export default function mapTileNameToClientId(tileName: string): number {
-
   // TODO: debug assert this
   let couldFindAny = -1 !== atlasJson.frames.findIndex(({ filename }) => filename === tileName);
   if (!couldFindAny) {

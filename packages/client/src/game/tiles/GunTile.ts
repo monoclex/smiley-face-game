@@ -32,7 +32,7 @@ export default class GunTile implements Tile<TileId.Gun> {
   }
 
   renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Gun>) {
-    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("gun"))
+    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("gun"));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 }
