@@ -1,5 +1,6 @@
 import TileManager from "../../../game/world/TileManager";
 import key from "../../../game/world/key";
+import mapTileNameToClientId from "../../tiles/idLookup";
 
 export default class VoidDisplay {
   readonly sprite: Phaser.GameObjects.TileSprite;
@@ -14,7 +15,8 @@ export default class VoidDisplay {
       tilemap.heightInPixels / 2,
       tilemap.widthInPixels,
       tilemap.heightInPixels,
-      key("tiles")
+      key("tiles"),
+      "empty" // mapTileNameToClientId("empty")
     );
   }
 

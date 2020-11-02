@@ -3,6 +3,8 @@ import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import Tile from "./Tile";
 import M249LMG from "../../game/guns/models/variants/M249LMG";
 import type { SpriteEx } from "../../phaser-tile-addons";
+import mapTileNameToClientId from "./idLookup";
+import RenderCanvasParams from "./RenderCanvasParams";
 
 export default class GunTile implements Tile<TileId.Gun> {
   id: TileId.Gun = TileId.Gun;
@@ -11,7 +13,7 @@ export default class GunTile implements Tile<TileId.Gun> {
   // TODO: collision handlers
   place(tile: Phaser.Tilemaps.Tile): void {
     let yeahtile = tile;
-    tile.index = this.id;
+    tile.index = mapTileNameToClientId("gun");
     tile.setCollision(false);
     tile.setCollisionCallback((sprite: SpriteEx, tile: Phaser.Tilemaps.Tile) => {
       if (!sprite.player) {
@@ -27,5 +29,10 @@ export default class GunTile implements Tile<TileId.Gun> {
   onRemove(tile: Phaser.Tilemaps.Tile) {
     //@ts-ignore
     tile.setCollisionCallback(null, null);
+  }
+
+  renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Gun>) {
+    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("gun"))
+    context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 }

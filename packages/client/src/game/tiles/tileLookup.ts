@@ -7,12 +7,12 @@ import ArrowTile from "./ArrowTile";
 
 const tileLookup = {
   [TileId.Empty]: new EmptyTile(),
-  [TileId.Full]: new FullTile(),
+  [TileId.Basic]: new FullTile(),
   [TileId.Gun]: new GunTile(),
   [TileId.Arrow]: new ArrowTile(),
 };
 
-function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) {}
+function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) { }
 ensureTypeChecked(tileLookup);
 
 export default tileLookup;

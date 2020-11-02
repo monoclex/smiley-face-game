@@ -7,7 +7,7 @@ export default function copyBlock(setDestination: (value: Block) => void, source
     case TileId.Gun:
       setDestination({ id: source.id });
       break;
-    case TileId.Full:
+    case TileId.Basic:
       setDestination({ id: source.id, color: source.color });
       break;
     case TileId.Arrow:

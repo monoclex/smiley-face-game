@@ -41,21 +41,8 @@ export default class TileManager {
    * @param block The block to fetch an image for.
    */
   async imageOf(block: Block): Promise<HTMLImageElement> {
-    const frame = this.frameOfTile(block.id);
-    const imageSource = frame.source.source as HTMLImageElement;
-
     // so we have the original image source for the texture atlas, we'll use an offscreen canvas to render specifically just the
     // texture from the atlas that we want into a canvas, dump it into some base64, and provide that as an image
-    const { x, y, width, height } = {
-      //@ts-ignore
-      x: frame.customData.frame.x,
-      //@ts-ignore
-      y: frame.customData.frame.y,
-      //@ts-ignore
-      width: frame.customData.frame.w,
-      //@ts-ignore
-      height: frame.customData.frame.h,
-    };
 
     const renderImageCanvas = document.createElement("canvas");
     renderImageCanvas.width = TILE_WIDTH;
@@ -63,51 +50,25 @@ export default class TileManager {
 
     const context = renderImageCanvas.getContext("2d")!;
 
-    // apparently we need to rotate before drawing the image... ?????
-    // https://stackoverflow.com/a/17412387
-    if (block.id === TileId.Arrow) {
-      context.clearRect(0, 0, renderImageCanvas.width, renderImageCanvas.height);
-      context.save();
-      context.translate(renderImageCanvas.width / 2, renderImageCanvas.height / 2);
-      switch (block.rotation) {
-        case Rotation.Right:
-          break; // it already faces right by default
-        case Rotation.Up:
-          context.rotate(-Math.PI / 2);
-          break;
-        case Rotation.Left:
-          context.rotate(-Math.PI);
-          break;
-        case Rotation.Down:
-          context.rotate((-3 * Math.PI) / 2);
-          break;
-      }
-      context.drawImage(imageSource, x, y, width, height, -width / 2, -height / 2, TILE_WIDTH, TILE_HEIGHT);
-      context.restore();
-    } else {
-      context.drawImage(imageSource, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
-    }
-
-    if (block.id === TileId.Full) {
-      // tint the image by drawing another rectangle over it
-      const data = context.getImageData(0, 0, 32, 32);
-
-      const hack = ({ setCollision: () => {} } as unknown) as Phaser.Tilemaps.Tile;
-      tileLookup[TileId.Full].place(hack, block);
-      const tintAsString = hack.tint.toString(16).padStart(6, "0");
-      const [r, g, b] = [tintAsString.substr(0, 2), tintAsString.substr(2, 2), tintAsString.substr(4, 2)].map(
-        (str) => parseInt(str, 16) / 255
-      );
-
-      for (let offset = 0; offset < data.data.byteLength; offset += 4) {
-        // RGBA order
-        data.data[offset] *= r;
-        data.data[offset + 1] *= g;
-        data.data[offset + 2] *= b;
-      }
-
-      context.putImageData(data, 0, 0);
-    }
+    tileLookup[block.id].renderCanvas({
+      //@ts-ignore shh it is correct
+      block,
+      renderImageCanvas, context,
+      getFrame: ((index: number) => {
+        const frame = this.frameOfTile(index);
+        return {
+          atlas: frame.source.source as HTMLImageElement,
+          //@ts-ignore
+          x: frame.customData.frame.x as number,
+          //@ts-ignore
+          y: frame.customData.frame.y as number,
+          //@ts-ignore
+          width: frame.customData.frame.w as number,
+          //@ts-ignore
+          height: frame.customData.frame.h as number,
+        };
+      }).bind(this)
+    });
 
     const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
     const url = URL.createObjectURL(blob);

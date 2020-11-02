@@ -9,7 +9,7 @@ export const BlockSchema = Schema.either(
     id: TileId.Empty as const,
   },
   {
-    id: TileId.Full as const,
+    id: TileId.Basic as const,
     color: ColorSchema.optional(),
   },
   {

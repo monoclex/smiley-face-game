@@ -1,6 +1,8 @@
 import { TileId } from "@smiley-face-game/schemas/TileId";
 import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import Tile from "./Tile";
+import RenderCanvasParams from "./RenderCanvasParams";
+import mapTileNameToClientId from "./idLookup";
 
 export default class EmptyTile implements Tile<TileId.Empty> {
   id: TileId.Empty = TileId.Empty;
@@ -9,5 +11,10 @@ export default class EmptyTile implements Tile<TileId.Empty> {
   place(tile: Phaser.Tilemaps.Tile): void {
     tile.index = -1;
     tile.setCollision(false);
+  }
+
+  renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Empty>) {
+    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("empty"))
+    context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 }

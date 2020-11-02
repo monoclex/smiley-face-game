@@ -16,7 +16,7 @@ export const defaultBlockbarState: BlockBar = {
   loader: null,
   slots: {
     [0]: defaultFor(TileId.Empty),
-    [1]: defaultFor(TileId.Full),
+    [1]: defaultFor(TileId.Basic),
     [2]: defaultFor(TileId.Gun),
     [3]: defaultFor(TileId.Arrow),
     [4]: defaultFor(TileId.Empty),

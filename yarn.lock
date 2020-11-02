@@ -9472,17 +9472,17 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
-rust-atlas-generator-wasm@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/rust-atlas-generator-wasm/-/rust-atlas-generator-wasm-0.1.1.tgz#da43a3434cd7ae3e2e4556188e2c7c135a22a5cc"
-  integrity sha512-RO7iPTlvYx9wM+qns7fqDInH0rjQMH8PfQm3ysfEeUaNq17kWMDW+PyuQ5x7envTueoswicrN/x69ECLIPvKsA==
+rust-atlas-generator-wasm@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/rust-atlas-generator-wasm/-/rust-atlas-generator-wasm-0.1.3.tgz#81356dd0c3be68492b93ca47d53185ca7195a12a"
+  integrity sha512-HjpGCcXs5WMakrlqH1cYx26kQrlKppjxDjaLOdK1j9kysoq55bRXR4BrRGWfCb+OOt7syDxZBc/oppqcsytAlw==
 
-rust-atlas-generator-webpack-plugin@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/rust-atlas-generator-webpack-plugin/-/rust-atlas-generator-webpack-plugin-0.1.2.tgz#4f8ff1712ae4507d8cf1c09bbadfc74238e455bb"
-  integrity sha512-nNnass5UC9QPN0yddHC3r789mKC2lftPBUTjC/Ip4jzoXf/+90tkMrLknDcn1nYJ/wsQn54kuULwrjCM23i82Q==
+rust-atlas-generator-webpack-plugin@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/rust-atlas-generator-webpack-plugin/-/rust-atlas-generator-webpack-plugin-0.1.3.tgz#adc98cac41d6bd69282437a64d6ba52b7fde1db9"
+  integrity sha512-3KUwC0yhPJT97bf4hwEdht1z2xzcUr4bJmwijFoDlVvb2c8dGeAhPakxhflyTXp60WmRZmOZfEvGpTNmc5qkmg==
   dependencies:
-    rust-atlas-generator-wasm "^0.1.1"
+    rust-atlas-generator-wasm "^0.1.3"
 
 rxjs@^6.4.0:
   version "6.6.3"
