@@ -4,12 +4,19 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
 const { DefinePlugin } = require("webpack");
+const atlas = require("rust-atlas-generator-webpack-plugin");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
   const bundle = argv.bundle;
 
   let plugins = [
+    atlas({
+      sourceDir: path.resolve(__dirname, "packages", "client", "src", "assets", "tiles"),
+      targetDir: path.resolve(__dirname, "packages", "client", "src", "assets"),
+      width: 32,
+      height: 32,
+    }),
     new DefinePlugin({
       "process.env.DEV": JSON.stringify(!!argv.dev),
     }),
