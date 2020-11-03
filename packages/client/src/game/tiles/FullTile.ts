@@ -4,6 +4,7 @@ import TileState from "@smiley-face-game/common/tiles/TileState";
 import Tile from "./Tile";
 import mapTileNameToClientId from "./idLookup";
 import RenderCanvasParams from "./RenderCanvasParams";
+import { Color } from "@smiley-face-game/schemas/Color";
 
 export default class FullTile implements Tile<TileId.Basic> {
   id: TileId.Basic = TileId.Basic;
@@ -11,63 +12,10 @@ export default class FullTile implements Tile<TileId.Basic> {
 
   place(tile: Phaser.Tilemaps.Tile, tileState: TileState & { id: TileId.Basic }): void {
     tile.setCollision(true);
+    tile.index = this.index(tileState.color);
 
-    switch (tileState.color) {
-      case "white":
-      case undefined:
-        {
-          tile.index = mapTileNameToClientId("basic-white");
-        }
-        return;
-
-      case "black":
-        {
-          tile.index = mapTileNameToClientId("basic-black");
-        }
-        return;
-
-      case "brown":
-        {
-          tile.index = mapTileNameToClientId("basic-white");
-          tile.tint = 0x70_42_14;
-        }
-        return;
-
-      case "red":
-        {
-          tile.index = mapTileNameToClientId("basic-red");
-        }
-        return;
-
-      case "orange":
-        {
-          tile.index = mapTileNameToClientId("basic-orange");
-        }
-        return;
-
-      case "yellow":
-        {
-          tile.index = mapTileNameToClientId("basic-yellow");
-        }
-        return;
-
-      case "green":
-        {
-          tile.index = mapTileNameToClientId("basic-green");
-        }
-        return;
-
-      case "blue":
-        {
-          tile.index = mapTileNameToClientId("basic-blue");
-        }
-        return;
-
-      case "purple":
-        {
-          tile.index = mapTileNameToClientId("basic-purple");
-        }
-        return;
+    if (tileState.color === "brown") {
+      tile.tint = 0x70_42_14;
     }
   }
 
@@ -75,8 +23,56 @@ export default class FullTile implements Tile<TileId.Basic> {
     tile.tint = 0xff_ff_ff;
   }
 
-  renderCanvas({ getFrame, context }: RenderCanvasParams<TileId.Basic>) {
-    const { x, y, width, height, atlas } = getFrame(mapTileNameToClientId("basic-white"));
+  renderCanvas({ getFrame, context, block }: RenderCanvasParams<TileId.Basic>) {
+    const { x, y, width, height, atlas } = getFrame(this.index(block.color));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
+
+    // TODO: get brown block color
+    if (block.color === "brown") {
+      context.fillStyle = "#704214";
+      context.globalAlpha = 0.9;
+      context.fillRect(0, 0, 32, 32);
+    }
+  }
+
+  private index(color: Color | null | undefined): number {
+    switch (color) {
+      case "white":
+      case null:
+      case undefined:
+        return mapTileNameToClientId("basic-white");
+      case "black":
+        return mapTileNameToClientId("basic-black");
+
+      case "brown":
+        return mapTileNameToClientId("basic-white");
+
+      case "red":
+        return mapTileNameToClientId("basic-red");
+
+      case "orange":
+
+        return mapTileNameToClientId("basic-orange");
+
+      case "yellow":
+        {
+          return mapTileNameToClientId("basic-yellow");
+        }
+
+      case "green":
+        {
+          return mapTileNameToClientId("basic-green");
+        }
+
+      case "blue":
+        {
+          return mapTileNameToClientId("basic-blue");
+        }
+
+      case "purple":
+        {
+          return mapTileNameToClientId("basic-purple");
+        }
+    }
   }
 }
