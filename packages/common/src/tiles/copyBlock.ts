@@ -13,5 +13,8 @@ export default function copyBlock(setDestination: (value: Block) => void, source
     case TileId.Arrow:
       setDestination({ id: source.id, rotation: source.rotation });
       break;
+    case TileId.Prismarine:
+      setDestination({ id: source.id, variant: source.variant });
+      break;
   }
 }

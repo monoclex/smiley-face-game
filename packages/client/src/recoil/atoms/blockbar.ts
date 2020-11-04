@@ -19,7 +19,7 @@ export const defaultBlockbarState: BlockBar = {
     [1]: defaultFor(TileId.Basic),
     [2]: defaultFor(TileId.Gun),
     [3]: defaultFor(TileId.Arrow),
-    [4]: defaultFor(TileId.Empty),
+    [4]: defaultFor(TileId.Prismarine),
     [5]: defaultFor(TileId.Empty),
     [6]: defaultFor(TileId.Empty),
     [7]: defaultFor(TileId.Empty),

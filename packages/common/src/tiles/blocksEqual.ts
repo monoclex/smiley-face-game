@@ -7,6 +7,8 @@ export default function blocksEqual(a: Block, b: Block) {
       return a.rotation === b.rotation;
     } else if (a.id === TileId.Basic && b.id == TileId.Basic) {
       return (a.color || "white") === (b.color || "white");
+    } else if (a.id === TileId.Prismarine && b.id === TileId.Prismarine) {
+      return a.variant === b.variant;
     } else return true;
   } else return false;
 }
