@@ -17,7 +17,10 @@
     "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
   },
   "dependencies": {
-    "computed-types": "^1.4.0"
+    "computed-types": "^1.4.0",
+    "cross-fetch": "^3.0.6",
+    "isomorphic-ws": "^4.0.1",
+    "zod": "^1.11.10"
   },
   "devDependencies": {
     "ws": "^7.3.1"
