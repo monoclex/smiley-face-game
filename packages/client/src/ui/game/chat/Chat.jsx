@@ -106,7 +106,7 @@ export default () => {
 
   const onSubmit = (values) => {
     if (values.content !== "") {
-      window.gameScene.networkClient.chat(values.content);
+      window.gameScene.connection.chat(values.content);
     }
 
     reset();

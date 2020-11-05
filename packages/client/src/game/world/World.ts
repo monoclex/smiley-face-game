@@ -8,7 +8,7 @@ import TileManager from "./TileManager";
 import { bresenhamsLine } from "@smiley-face-game/common/misc";
 import tileLookup from "../../game/tiles/tileLookup";
 import Tile from "../tiles/Tile";
-import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
+import { Connection } from "@smiley-face-game/common";
 import TileState from "../../game/tiles/TileState";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 import type { TileEx } from "../../phaser-tile-addons";
@@ -22,7 +22,7 @@ export default class World {
   readonly background: Layer;
   readonly void: Void;
 
-  constructor(scene: Phaser.Scene, readonly size: Size, readonly networkClient: NetworkClient) {
+  constructor(scene: Phaser.Scene, readonly size: Size, readonly connection: Connection) {
     this.tileManager = new TileManager(scene, size);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
@@ -103,7 +103,8 @@ export default class World {
     tileBreed.place(tile, tileState);
 
     if (iPlacedIt) {
-      this.networkClient.placeBlock(position.x, position.y, tileState, actualLayer);
+      //@ts-ignore this will be fixed when i rip out schema stuff
+      this.connection.place(tileState, position, actualLayer);
     }
   }
 

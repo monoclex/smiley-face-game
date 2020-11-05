@@ -1,29 +1,18 @@
-import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
-import { api } from "../../isProduction";
-import { LoadingSceneData } from "./LoadingSceneData";
-import { serverBlockBuffer } from "@smiley-face-game/packets/ServerBlockBuffer";
-import { serverBlockSingle } from "@smiley-face-game/packets/ServerBlockSingle";
-import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
+import type { Authentication, ZJoinRequest } from "@smiley-face-game/common";
 import loadAll from "../../game/loadAll";
 import GAME_SCENE_KEY from "../../game/GameSceneKey";
 import { loading } from "../../recoil/atoms/loading";
 
 interface GlobalVariableParkourType {
-  token: string;
-  name: string;
-  width: number;
-  height: number;
-  id: string;
+  token: Authentication;
+  joinRequest: ZJoinRequest;
   onId: (id: string) => void;
 }
 
 export const globalVariableParkour: GlobalVariableParkourType = {
-  token: "",
-  name: "Smiley Face Game",
-  width: 50,
-  height: 50,
-  id: "smiley-face-game",
-  onId: () => {},
+  token: undefined as unknown as Authentication,
+  joinRequest: undefined as unknown as ZJoinRequest,
+  onId: () => { },
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -62,46 +51,26 @@ export class LoadingScene extends Phaser.Scene {
   }
 
   create() {
-    NetworkClient.connect(
-      api.connection(globalVariableParkour),
-      (client) => {
-        client.events.callback = (packet) => {
-          if (packet.packetId !== "SERVER_INIT") throw new Error("should've been called with server_init first");
-          const sender = client;
-
-          // prevent receiving any packets until the game scene changes
-          sender.pause();
-
-          const sceneData: LoadingSceneData = {
-            init: packet,
-            networkClient: sender,
-          };
-
-          globalVariableParkour.onId(packet.worldId);
-
-          console.time("init");
-          this.scene.start(GAME_SCENE_KEY, sceneData);
-        };
-      },
-      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema)
-        .validateServerBlockBuffer,
-      serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle,
-      //@ts-ignore
-      WebSocket
-    ).catch((err) => {
-      loading.set({
-        failed: true,
-        why: err,
+    globalVariableParkour.token.connect(globalVariableParkour.joinRequest)
+      .then(connection => {
+        globalVariableParkour.onId(connection.init.worldId);
+        console.time("init");
+        this.scene.start(GAME_SCENE_KEY, { connection });
+      })
+      .catch(err => {
+        loading.set({
+          failed: true,
+          why: err,
+        });
+        console.warn("caught error", err);
+        this._progressBar.clear();
+        this._progressBar.fillStyle(0x8a8a8a, 1);
+        this._progressBar.fillRect(
+          this.cameras.main.width / 4,
+          this.cameras.main.height / 2 - 16,
+          (this.cameras.main.width / 2) * -10,
+          16
+        );
       });
-      console.warn("caught error", err);
-      this._progressBar.clear();
-      this._progressBar.fillStyle(0x8a8a8a, 1);
-      this._progressBar.fillRect(
-        this.cameras.main.width / 4,
-        this.cameras.main.height / 2 - 16,
-        (this.cameras.main.width / 2) * -10,
-        16
-      );
-    });
   }
 }

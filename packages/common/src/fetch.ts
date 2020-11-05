@@ -1,6 +1,6 @@
 import * as z from "zod";
 import fetch from "cross-fetch";
-import { Endpoint } from "./endpoints";
+import { Endpoint, toUrl } from "./endpoints";
 
 /** awful method that wraps around `fetch` in an awful way, TODO: beautify */
 export default function <T, D extends z.ZodTypeDef>(
@@ -16,7 +16,7 @@ export default function <T, D extends z.ZodTypeDef>(
   method = method || "POST";
   const body = request === undefined ? undefined : JSON.stringify(request);
 
-  return fetch(endpoint.host + endpoint.path, { method, headers, body })
+  return fetch(toUrl(endpoint, false).href, { method, headers, body })
     .then(response => {
       if (!response.ok) {
         throw new Error(`Error contacting API: '${response.statusText}'`);

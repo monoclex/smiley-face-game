@@ -1,1 +1,1 @@
-declare const App: () => JSX.Element;
+declare export const App: () => JSX.Element;

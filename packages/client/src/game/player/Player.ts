@@ -115,7 +115,7 @@ export default class Player {
 
   instantiateGun(model: GunModel, doSendTile?: Phaser.Tilemaps.Tile) {
     if (doSendTile) {
-      this.game.networkClient.gotGun({ x: doSendTile.x, y: doSendTile.y });
+      this.game.connection.pickupGun({ x: doSendTile.x, y: doSendTile.y });
     }
 
     const [behaviour, gunSprite] = model.behaviourFactory(this.game, this);

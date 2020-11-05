@@ -1,6 +1,5 @@
 import TileManager from "../../../game/world/TileManager";
 import key from "../../../game/world/key";
-import mapTileNameToClientId from "../../tiles/idLookup";
 
 export default class VoidDisplay {
   readonly sprite: Phaser.GameObjects.TileSprite;

@@ -13,11 +13,9 @@ import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock
 export const zPacket = (width: number, height: number) => {
   const blockPosition = zBlockPosition(width, height);
   const blockSingle = zBlockSingle(blockPosition);
-  const blockBuffer = zBlockBuffer(blockSingle);
 
   return z.union([
     zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle, zBlockLine,
-    blockBuffer,
   ]);
 };
 
@@ -35,11 +33,10 @@ export const zsPacket = (width: number, height: number) => {
   const blockPosition = zBlockPosition(width, height);
   const blockSingle = zBlockSingle(blockPosition);
   const sBlockSingle = zsBlockSingle(blockSingle);
-  const sBlockBuffer = zsBlockBuffer(blockSingle);
 
   return z.union([
     zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave, zsRoleUpdate,
-    zsWorldAction, zsBlockLine, sBlockSingle, sBlockBuffer,
+    zsWorldAction, zsBlockLine, sBlockSingle,
   ])
 };
 
@@ -98,11 +95,6 @@ export const zBlockLine = z.object({
   block: zBlock
 });
 
-export const zBlockBuffer = (blockSingle: ReturnType<typeof zBlockSingle>) => z.object({
-  packetId: z.literal("BLOCK_BUFFER"),
-  blocks: z.array(z.union([blockSingle, zBlockLine])),
-});
-
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = z.object({
   playerId: zUserId
@@ -118,11 +110,6 @@ export const zsWorldAction = zs.merge(z.object({
 export const zsBlockSingle = (blockSingle: ReturnType<typeof zBlockSingle>) => zs.merge(blockSingle).extend({
   packetId: z.literal("SERVER_BLOCK_SINGLE")
 });
-
-export const zsBlockBuffer = (blockSingle: ReturnType<typeof zBlockSingle>) => zs.merge(z.object({
-  packetId: z.literal("SERVER_BLOCK_BUFFER"),
-  blocks: z.array(z.union([blockSingle, zBlockLine]))
-}));
 
 export const zsRoleUpdate = zs.merge(z.object({
   packetId: z.literal("SERVER_ROLE_UPDATE"),

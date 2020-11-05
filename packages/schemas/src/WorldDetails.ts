@@ -1,4 +1,4 @@
-import Schema, { Type, number, string, unknown } from "computed-types";
+import Schema, { Type, number } from "computed-types";
 import { WorldNameSchema } from "./WorldName";
 import { UsernameSchema } from "./Username";
 import { AccountIdSchema } from "./AccountId";

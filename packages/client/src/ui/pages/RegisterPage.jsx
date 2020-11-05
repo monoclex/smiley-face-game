@@ -14,6 +14,7 @@ export default () => (
       { name: "password", text: "Enter your password", type: "password" },
     ]}
     submit={({ username, email, password }) => {
+      // TODO: lol
       api
         .postRegister(username, email.toLowerCase(), password)
         .then((result) => {

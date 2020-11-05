@@ -3,6 +3,7 @@ import AccountRepo from "../database/repos/AccountRepo";
 import ShopItem from "./ShopItem";
 
 export default class Purchaser {
+  //@ts-ignore this will be used when a shop exists
   readonly #repo: AccountRepo;
 
   constructor(accountRepo: AccountRepo) {

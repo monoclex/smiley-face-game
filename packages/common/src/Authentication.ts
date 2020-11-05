@@ -3,7 +3,7 @@ import { zJoinRequest } from "./ws-api";
 import { zLobbyResp } from "./api";
 import { zPlayerResp } from "./api";
 import Connection from "./Connection";
-import { zToken } from "./misc-zs";
+import { zToken, zAccountId } from "./misc-zs";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
 import fetch from "./fetch";
 
@@ -18,14 +18,20 @@ export default class Authentication {
   public readonly token: string;
 
   /**
+   * The ID of the account, if the account is logged in as an account.
+   */
+  public readonly id?: string;
+
+  /**
    * Creates a new `Authentication`. If you don't have a token, call the `auth` method instead.
    * @param token The token to use for authenticating with Smiley Face Game
    */
-  constructor(token: string);
+  constructor(token: string, id?: string);
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  constructor(token: unknown) {
+  constructor(token: unknown, id?: unknown) {
     this.token = zToken.parse(token);
+    this.id = id && zAccountId.parse(id);
   }
 
   /**

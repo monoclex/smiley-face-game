@@ -90,9 +90,9 @@ const Player = ({ username, playerId, role: roleParam }) => {
 
   const setEdit = (shouldHaveEdit) => {
     if (shouldHaveEdit) {
-      window.gameScene.networkClient.giveEdit(playerId);
+      window.gameScene.connection.giveEdit(playerId);
     } else {
-      window.gameScene.networkClient.takeEdit(playerId);
+      window.gameScene.connection.takeEdit(playerId);
     }
 
     enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {
@@ -101,7 +101,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   };
 
   const kick = () => {
-    window.gameScene.networkClient.kick(playerId);
+    window.gameScene.connection.kick(playerId);
     enqueueSnackbar(`Kicked ${username}`, {
       variant: "success",
     });

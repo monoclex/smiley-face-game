@@ -12,9 +12,9 @@ type ZTileLayer = z.infer<typeof zTileLayer>;
 type ZBlockPosition = z.infer<ReturnType<typeof zBlockPosition>>;
 type ZBlock = z.infer<typeof zBlock>;
 
-/** A "best-effort" implementation of ensuring that the given input is a websocket. */
+/** A very simple check just to make sure that a websocket is being passed in. */
 function parseWebsocket(payload: any): Websocket {
-  if ("prototype" in payload && payload.prototype === Websocket.prototype) {
+  if ("send" in payload) {
     return payload;
   }
 
@@ -92,7 +92,15 @@ export default class Connection {
   constructor(argWebsocket: unknown, argInit: unknown) {
     const self = this;
     this.websocket = parseWebsocket(argWebsocket);
+    console.log("zsInit.parse", argInit);
+    try {
+      zsInit.parse(argInit);
+    } catch (e) {
+      console.warn("zsInit parse fail", e, zsInit.safeParse(argInit));
+    }
+
     this.init = zsInit.parse(argInit);
+
     this.messages = new AsyncQueue();
 
     const { width, height } = this.init.size;
@@ -113,7 +121,20 @@ export default class Connection {
    */
   [Symbol.asyncIterator]() {
     const self = this;
-    return { next: () => self.messages.next().then(value => ({ value, done: false })) };
+    return {
+      next: () => self.messages.next().then(value => {
+        console.log("self.messages.next() resolved", value);
+        return ({ value, done: false })
+      })
+    };
+  }
+
+  /**
+   * Kills the connection.
+   */
+  close() {
+    this.messages.end(new Error("connection closing"));
+    this.websocket.close();
   }
 
   /**

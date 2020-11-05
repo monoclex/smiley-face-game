@@ -15,9 +15,6 @@ export default class FullTile implements Tile<TileId.Basic> {
     tile.index = this.index(tileState.color);
   }
 
-  onRemove(tile: Phaser.Tilemaps.Tile) {
-  }
-
   renderCanvas({ getFrame, context, block }: RenderCanvasParams<TileId.Basic>) {
     const { x, y, width, height, atlas } = getFrame(this.index(block.color));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);

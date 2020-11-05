@@ -20,6 +20,7 @@ export default function (deps: UsedDependencies): Router {
       const account = await accountRepo.findByIdWithWorlds(req.jwt.aud);
 
       res.json({
+        isGuest: false,
         name: account.username,
         energy: account.currentEnergy,
         maxEnergy: account.maxEnergy,

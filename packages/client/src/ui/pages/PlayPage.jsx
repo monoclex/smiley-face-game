@@ -12,16 +12,15 @@ import { globalVariableParkour, LoadingScene } from "../../scenes/loading/Loadin
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../../ui/history";
-import isProduction, { isDev } from "../../isProduction";
+import { isDev } from "../../isProduction";
 import GameScene from "../../game/GameScene";
-import { chatState } from "../../recoil/atoms/chat";
 import { loadingState, loading as sharedGlobalLoading } from "../../recoil/atoms/loading";
 import PlayerList from "../../ui/game/playerlist/PlayerList";
-import { playerListState } from "../../recoil/atoms/playerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
 import WorldSettings from "../game/WorldSettings";
+import { Authentication } from "@smiley-face-game/common";
 
 export const config = {
   pixelArt: true,
@@ -104,25 +103,13 @@ const Game = ({
 
     // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
 
-    // reset the variable
-    globalVariableParkour.type = undefined;
-    globalVariableParkour.token = undefined;
-    globalVariableParkour.name = undefined;
-    globalVariableParkour.width = undefined;
-    globalVariableParkour.height = undefined;
-    globalVariableParkour.id = undefined;
-
-    globalVariableParkour.token = token;
-
-    if (state.request === "create") {
-      globalVariableParkour.type = "dynamic";
-      globalVariableParkour.name = state.name;
-      globalVariableParkour.width = state.width;
-      globalVariableParkour.height = state.height;
-    } else {
-      globalVariableParkour.type = state.type;
-      globalVariableParkour.id = state.roomId;
-    }
+    let auth = new Authentication(token);
+    globalVariableParkour.token = auth;
+    globalVariableParkour.joinRequest =
+      state.request === "create"
+        ? { type: "dynamic", name: state.name, width: state.width, height: state.height }
+        : { type: state.type, id: state.roomId };
+    console.log("joinign room w/ jr ", globalVariableParkour.joinRequest);
 
     globalVariableParkour.onId = (id) => {
       // https://stackoverflow.com/a/61596862/3780113

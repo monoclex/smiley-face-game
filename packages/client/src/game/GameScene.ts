@@ -4,8 +4,7 @@ import PlayerManager from "./player/PlayerManager";
 import World from "./world/World";
 import { isDev } from "../isProduction";
 import { chat } from "../recoil/atoms/chat";
-import { NetworkClient } from "@smiley-face-game/common/NetworkClient";
-import { SERVER_BLOCK_BUFFER_ID } from "@smiley-face-game/packets/ServerBlockBuffer";
+import type { Connection } from "@smiley-face-game/common";
 import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/packets/ServerBlockLine";
 import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/packets/ServerBlockSingle";
 import { SERVER_CHAT_ID } from "@smiley-face-game/packets/ServerChat";
@@ -18,13 +17,13 @@ import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/packets/ServerPlayerJoi
 import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/packets/ServerPlayerLeave";
 import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
 import { SERVER_WORLD_ACTION_ID } from "@smiley-face-game/packets/ServerWorldAction";
-import PlayerRole from "@smiley-face-game/common/PlayerRole";
+import type { ZRole } from "@smiley-face-game/common";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
 import { playerList } from "../recoil/atoms/playerList";
 import BlockBar from "./blockbar/BlockBar";
 import Editor from "./components/editor/Editor";
-import GameSceneInitializationData from "./GameSceneInitializationData";
+import type { LoadingSceneData } from "../scenes/loading/LoadingSceneData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
@@ -34,14 +33,14 @@ const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 
 export default class GameScene extends Phaser.Scene {
-  networkClient!: NetworkClient;
+  connection!: Connection;
   initPacket!: ServerInitPacket;
   world!: World;
   players!: PlayerManager;
   mainPlayer!: Player;
   editor!: Editor;
   blockBar!: BlockBar;
-  self!: { playerId: number; username: string; role: PlayerRole };
+  self!: { playerId: number; username: string; role: ZRole };
 
   constructor() {
     super({
@@ -50,10 +49,10 @@ export default class GameScene extends Phaser.Scene {
     window.gameScene = this;
   }
 
-  init(data: GameSceneInitializationData) {
+  init(data: LoadingSceneData) {
     this.cameras.main.roundPixels = true;
-    this.networkClient = data.networkClient;
-    this.initPacket = data.init;
+    this.connection = data.connection;
+    this.initPacket = this.connection.init;
 
     const self = {
       playerId: this.initPacket.playerId,
@@ -82,7 +81,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.defaults.debugShowBody = isDev;
     this.physics.world.defaults.debugShowStaticBody = isDev;
 
-    registerKeyboard(this.input);
+    registerKeyboard();
 
     // layers of the world (not to be confused with tile layers)
     let depth = 0;
@@ -94,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
     const layerMainPlayer = this.add.container().setDepth(depth++);
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
-    const world = new World(this, this.initPacket.size, this.networkClient);
+    const world = new World(this, this.initPacket.size, this.connection);
     layerVoid.add(world.void.display.sprite);
     layerTileLayerBackground.add(world.background.display.tilemapLayer);
     layerTileLayerAction.add(world.action.display.tilemapLayer);
@@ -129,151 +128,143 @@ export default class GameScene extends Phaser.Scene {
     camera.startFollow(mainPlayer.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
-    this.networkClient.events.callback = (event) => {
-      switch (event.packetId) {
-        case SERVER_PLAYER_JOIN_ID:
-          {
-            if (event.playerId === this.mainPlayer.id) return;
+    runConnection.bind(this)().catch((error) => console.error("error handling message", error));
+    async function runConnection(this: GameScene) {
+      for await (const event of this.connection) {
+        switch (event.packetId) {
+          case SERVER_PLAYER_JOIN_ID:
+            {
+              if (event.playerId === this.mainPlayer.id) break;
 
-            const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
-            player.setPosition(event.joinLocation.x, event.joinLocation.y);
+              const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
+              player.setPosition(event.joinLocation.x, event.joinLocation.y);
 
-            if (event.hasGun) player.instantiateGun(M249LMG);
-            if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
+              if (event.hasGun) player.instantiateGun(M249LMG);
+              if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
 
-            // UI - add player
-            let newPlayer = {
-              playerId: event.playerId,
-              username: event.username,
-              role: event.role,
-            };
+              // UI - add player
+              let newPlayer = {
+                playerId: event.playerId,
+                username: event.username,
+                role: event.role as ZRole,
+              };
 
-            playerList.modify({ players: [newPlayer, ...playerList.state.players] });
-          }
-          return;
-
-        case SERVER_PLAYER_LEAVE_ID:
-          {
-            this.players.removePlayer(event.playerId);
-
-            // UI - remove player
-            playerList.modify({
-              players: playerList.state.players.filter((player) => player.playerId !== event.playerId),
-            });
-          }
-          return;
-
-        case SERVER_MOVEMENT_ID:
-          {
-            if (event.playerId === this.mainPlayer.id) return;
-
-            const character = players.getPlayer(event.playerId);
-            character.setPosition(event.position.x, event.position.y);
-            character.setVelocity(event.velocity.x, event.velocity.y);
-
-            character.updateInputs(event.inputs);
-          }
-          return;
-
-        case SERVER_BLOCK_BUFFER_ID:
-          {
-            for (const blockEvent of event.blocks) {
-              this.networkClient.events.callback(blockEvent);
+              playerList.modify({ players: [newPlayer, ...playerList.state.players] });
             }
-          }
-          return;
+            break;
 
-        case SERVER_BLOCK_LINE_ID:
-          {
-            this.world.drawLine(event.start, event.end, event.block, false, event.layer);
-          }
-          return;
+          case SERVER_PLAYER_LEAVE_ID:
+            {
+              this.players.removePlayer(event.playerId);
 
-        case SERVER_BLOCK_SINGLE_ID:
-          {
-            this.world.placeBlock(event.position, event.block, event.layer, false);
-          }
-          return;
+              // UI - remove player
+              playerList.modify({
+                players: playerList.state.players.filter((player) => player.playerId !== event.playerId),
+              });
+            }
+            break;
 
-        case SERVER_EQUIP_GUN_ID:
-          {
-            if (event.playerId === this.initPacket.playerId) return;
+          case SERVER_MOVEMENT_ID:
+            {
+              if (event.playerId === this.mainPlayer.id) break;
 
-            this.players.onEquipGun(event.playerId, event.equipped);
-          }
-          return;
+              const character = players.getPlayer(event.playerId);
+              character.setPosition(event.position.x, event.position.y);
+              character.setVelocity(event.velocity.x, event.velocity.y);
 
-        case SERVER_FIRE_BULLET_ID:
-          {
-            if (event.playerId === this.initPacket.playerId) return;
+              character.updateInputs(event.inputs);
+            }
+            break;
 
-            this.players.onFireBullet(event.playerId, event.angle);
-          }
-          return;
+          case SERVER_BLOCK_LINE_ID:
+            {
+              this.world.drawLine(event.start, event.end, event.block, false, event.layer);
+            }
+            break;
 
-        case SERVER_PICKUP_GUN_ID:
-          {
-            if (event.playerId === this.initPacket.playerId) return;
+          case SERVER_BLOCK_SINGLE_ID:
+            {
+              this.world.placeBlock(event.position, event.block, event.layer, false);
+            }
+            break;
 
-            this.players.onPickupGun(event.playerId);
-          }
-          return;
+          case SERVER_EQUIP_GUN_ID:
+            {
+              if (event.playerId === this.initPacket.playerId) break;
 
-        case SERVER_CHAT_ID:
-          {
-            const player = this.players.getPlayer(event.playerId);
-            const newMessage: Message = {
-              id: messages.state.length,
-              timestamp: Date.now(),
-              username: player.username,
-              content: event.message,
-            };
-            messages.set([newMessage, ...messages.state]);
-          }
-          return;
+              this.players.onEquipGun(event.playerId, event.equipped);
+            }
+            break;
 
-        case SERVER_ROLE_UPDATE_ID:
-          {
-            const modified = playerList.state.players.map((player) => {
-              if (player.playerId === event.playerId) {
-                const modified = {
-                  ...player,
-                  role: event.newRole,
-                };
+          case SERVER_FIRE_BULLET_ID:
+            {
+              if (event.playerId === this.initPacket.playerId) break;
 
-                if (player.playerId === mainPlayer.id) {
-                  this.self = modified;
+              this.players.onFireBullet(event.playerId, event.angle);
+            }
+            break;
+
+          case SERVER_PICKUP_GUN_ID:
+            {
+              if (event.playerId === this.initPacket.playerId) break;
+
+              this.players.onPickupGun(event.playerId);
+            }
+            break;
+
+          case SERVER_CHAT_ID:
+            {
+              const player = this.players.getPlayer(event.playerId);
+              const newMessage: Message = {
+                id: messages.state.length,
+                timestamp: Date.now(),
+                username: player.username,
+                content: event.message,
+              };
+              messages.set([newMessage, ...messages.state]);
+            }
+            break;
+
+          case SERVER_ROLE_UPDATE_ID:
+            {
+              const modified = playerList.state.players.map((player) => {
+                if (player.playerId === event.playerId) {
+                  const modified = {
+                    ...player,
+                    role: event.newRole as ZRole,
+                  };
+
+                  if (player.playerId === mainPlayer.id) {
+                    this.self = modified;
+                  }
+                  return modified;
+                } else {
+                  return player;
                 }
+              });
 
-                return modified;
-              } else {
-                return player;
-              }
-            });
+              playerList.modify({ players: modified });
+            }
+            break;
 
-            playerList.modify({ players: modified });
-          }
-          return;
-
-        case SERVER_WORLD_ACTION_ID:
-          switch (event.action) {
-            case "load":
-              toast.success("World loaded!");
-              console.time("init");
-              this.world.clear();
-              // TODO: get type safety working
-              this.world.deserializeBlocks(event.blocks!);
-              break;
-            case "save":
-              toast.success("World saved!");
-              break;
-          }
-          return;
+          case SERVER_WORLD_ACTION_ID:
+            switch (event.action.action) {
+              case "load":
+                toast.success("World loaded!");
+                console.time("init");
+                this.world.clear();
+                this.world.deserializeBlocks(event.action.blocks);
+                break;
+              case "save":
+                toast.success("World saved!");
+                break;
+            }
+            break;
+        }
       }
-    };
+    }
 
     playerList.set({ players: [this.self] });
-    this.networkClient.continue();
     loading.set({ failed: false });
   }
 
@@ -299,14 +290,14 @@ export default class GameScene extends Phaser.Scene {
         inputs.up !== this.mainPlayer.input.up
       ) {
         this.mainPlayer.updateInputs(inputs);
-        this.networkClient.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input);
+        this.connection.move(this.mainPlayer.body, this.mainPlayer.body.body.velocity, this.mainPlayer.input);
       }
 
       // toggle the equpped-ness of the gun when E is pressed
       if (this.mainPlayer.hasGun && !!InputPipe.equip) {
         InputPipe.equip = false;
         this.mainPlayer.guaranteeGun.equipped = !this.mainPlayer.guaranteeGun.equipped;
-        this.networkClient.equipGun(this.mainPlayer.guaranteeGun.equipped);
+        this.connection.equipGun(this.mainPlayer.guaranteeGun.equipped);
       }
     }
 
@@ -334,11 +325,11 @@ export default class GameScene extends Phaser.Scene {
       this.mainPlayer.fireBullet(angle);
 
       // send the message of a bullet being fired
-      this.networkClient.fireBullet(angle);
+      this.connection.fireBullet(angle);
     }
   }
 
   destroy() {
-    this.networkClient.destroy();
+    this.connection.close();
   }
 }

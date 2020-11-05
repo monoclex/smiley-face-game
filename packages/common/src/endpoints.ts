@@ -1,19 +1,29 @@
 import * as z from "zod";
 
+const zSecure = z.boolean().optional();
+
 export type Endpoint = z.infer<typeof zEndpoint>;
 export const zEndpoint = z.object({
-  secure: z.boolean().optional(),
+  secure: zSecure,
   host: z.string().nonempty(),
   path: z.string().nonempty(),
 });
 
-const host = "api.sirjosh3917.com";
+const host = "api.sirjosh3917.com/smiley-face-game/v1";
 
-const auth: Endpoint = { host, path: "/login" };
-const ws: Endpoint = { host: "ws-" + host, path: "/smiley-face-game/v1/game/ws" };
-const lobby: Endpoint = { host, path: "/lobby" };
+const auth: Endpoint = { host, path: "/auth/login" };
+const guestAuth: Endpoint = { host, path: "/auth/guest" };
+const ws: Endpoint = { host: "ws-" + host, path: "/game/ws" };
+const lobby: Endpoint = { host, path: "/game/lobby" };
 const player: Endpoint = { host, path: "/player" };
-export const endpoints = { auth, ws, lobby, player };
+export const endpoints = { auth, guestAuth, ws, lobby, player };
+
+export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
+  for (const endpointId of Object.keys(endpoints)) {
+    //@ts-ignore
+    endpoints[endpointId] = rewriter(endpoints[endpointId]);
+  }
+}
 
 /**
  * Converts an `Endpoint` into a URL. The implementation of this method shouldn't be relied upon as it changes, but it
@@ -49,9 +59,8 @@ export function coerceSecure(secure: boolean | undefined): boolean;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
 export function coerceSecure(argSecure: unknown): boolean {
-  const secure = zSecure.parse(argSecure).secure;
+  const secure = zSecure.parse(argSecure);
   if (secure === true || secure === false) return secure;
   if (location && location.protocol === "http:") return false;
   return true;
 }
-const zSecure = zEndpoint.pick({ secure: true });

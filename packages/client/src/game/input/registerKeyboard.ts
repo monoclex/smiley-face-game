@@ -68,7 +68,7 @@ function handleKey(state: KeyboardState, key: ValidKey | string, modifier: -1 | 
   }
 }
 
-export default function registerKeyboard(input: Phaser.Input.InputPlugin) {
+export default function registerKeyboard() {
   const state: KeyboardState = {};
 
   document.addEventListener("keydown", ({ key }) => handleKey(state, key, 1));

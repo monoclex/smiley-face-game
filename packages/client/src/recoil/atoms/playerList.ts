@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import SharedGlobal from "../../recoil/SharedGlobal";
-import type PlayerRole from "@smiley-face-game/common/PlayerRole";
+import type { ZRole } from "@smiley-face-game/common";
 
 export interface PlayerListState {
   players: Player[];
@@ -9,7 +9,7 @@ export interface PlayerListState {
 export interface Player {
   playerId: number;
   username: string;
-  role: PlayerRole;
+  role: ZRole;
 }
 
 export const defaultPlayerListState: PlayerListState = {

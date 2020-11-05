@@ -83,6 +83,14 @@ export const zColor = z.enum([
   "white", "black", "brown", "red", "orange", "yellow", "green", "blue", "purple"
 ]);
 
+export enum Rotation {
+  Right = 0,
+  Up = 1,
+  Left = 2,
+  Down = 3,
+}
+export const zRotation = z.nativeEnum(Rotation);
+
 export enum PrismarineVariant {
   Basic = 0,
   Anchor = 1,
@@ -93,14 +101,15 @@ export enum PrismarineVariant {
 export const zPrismarineVariant = z.nativeEnum(PrismarineVariant);
 
 export const zBlock = z.union([z.object({
-  id: z.literal(TileId.Empty)
+  id: z.literal(TileId.Empty),
 }), z.object({
   id: z.literal(TileId.Basic),
   color: zColor.optional(),
 }), z.object({
-  id: z.literal(TileId.Gun)
+  id: z.literal(TileId.Gun),
 }), z.object({
-  id: z.literal(TileId.Arrow)
+  id: z.literal(TileId.Arrow),
+  rotation: zRotation,
 }), z.object({
   id: z.literal(TileId.Prismarine),
   variant: zPrismarineVariant,

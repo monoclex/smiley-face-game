@@ -15,9 +15,6 @@ export default class PrismarineTile implements Tile<TileId.Prismarine> {
     tile.index = this.index(tileState.variant);
   }
 
-  onRemove(tile: Phaser.Tilemaps.Tile) {
-  }
-
   renderCanvas({ getFrame, context, block }: RenderCanvasParams<TileId.Prismarine>) {
     console.log(("renderCanvas"));
     const { x, y, width, height, atlas } = getFrame(this.index(block.variant));

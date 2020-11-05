@@ -1,3 +1,4 @@
+//@ts-check
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { makeStyles } from "@material-ui/core/styles";
@@ -11,10 +12,10 @@ import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
 import history from "../../ui/history";
 import Loading from "../../ui/Loading";
-import { api } from "../../isProduction";
 import Typography from "@material-ui/core/Typography";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useSnackbar } from "notistack";
+import { Authentication } from "@smiley-face-game/common";
 
 const useStyles = makeStyles({
   input: {
@@ -38,6 +39,8 @@ export default () => {
     return null;
   }
 
+  const auth = new Authentication(token);
+
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -50,10 +53,11 @@ export default () => {
     setMyRooms(undefined);
 
     let didExit = false;
-    const exit = () => {
+    const exit = (err) => {
       if (didExit) return;
       didExit = true;
 
+      console.warn("one GET yielded error", err, err.issues);
       enqueueSnackbar("Logged out - invalid token", {
         variant: "error",
         autoHideDuration: 3000,
@@ -63,9 +67,9 @@ export default () => {
       history.push("/");
     };
 
-    api.getLobby(token).then(setRoomPreviews).catch(exit);
-    api
-      .getMyRooms(token)
+    auth.lobby().then(setRoomPreviews).catch(exit);
+    auth
+      .player()
       .then(({ ownedWorlds }) => {
         if (Array.isArray(ownedWorlds)) {
           setMyRooms(ownedWorlds);

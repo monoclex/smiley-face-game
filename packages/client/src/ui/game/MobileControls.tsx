@@ -60,8 +60,8 @@ export default () => {
             }
           }
 
-          x ||= 0;
-          y ||= 0;
+          x = x || 0;
+          y = x || 0;
 
           // then, rebuild our current movements from what's currently enabled
           // we want to let users run and jump if the joystick is held diagonally, so to do that
