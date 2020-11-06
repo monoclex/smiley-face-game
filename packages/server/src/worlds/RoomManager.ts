@@ -1,5 +1,3 @@
-import { validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import MPSC from "../concurrency/MPSC";
 import Connection from "../worlds/Connection";
@@ -9,10 +7,12 @@ import Room from "./Room";
 import ensureValidates from "../ensureValidates";
 import SavedBehaviour from "./behaviour/SavedBehaviour";
 import DynamicBehaviour from "./behaviour/DynamicBehaviour";
+import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
+import { zJoinRequest } from "@smiley-face-game/common/ws-api";
 
 interface JoinRoomRequest {
   connection: Connection;
-  roomDetails: WorldJoinRequest;
+  roomDetails: ZJoinRequest;
   completion: PromiseCompletionSource<Room>;
 }
 
@@ -51,7 +51,7 @@ export default class RoomManager {
     }
   }
 
-  join(connection: Connection, roomDetails: WorldJoinRequest): Promise<Room> {
+  join(connection: Connection, roomDetails: ZJoinRequest): Promise<Room> {
     const completion = new PromiseCompletionSource<Room>();
 
     this.#queue.send({ connection, roomDetails, completion });
@@ -111,8 +111,8 @@ export default class RoomManager {
     }
   }
 
-  private roomFor(details: WorldJoinRequest): Room | undefined {
-    ensureValidates(validateWorldJoinRequest, details);
+  private roomFor(details: ZJoinRequest): Room | undefined {
+    ensureValidates(zJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
 
     if (details.type === "saved") {

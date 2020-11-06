@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Block } from "@smiley-face-game/schemas/Block";
+import type { ZBlock } from "@smiley-face-game/common/types";
 import Account from "./Account";
 
 @Entity()
@@ -22,11 +22,11 @@ export default class World {
   @Column({ type: "text" })
   rawWorldData!: string;
 
-  get worldData(): Block[][][] {
+  get worldData(): ZBlock[][][] {
     return JSON.parse(this.rawWorldData);
   }
 
-  set worldData(value: Block[][][]) {
+  set worldData(value: ZBlock[][][]) {
     this.rawWorldData = JSON.stringify(value);
   }
 }

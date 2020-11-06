@@ -1,11 +1,9 @@
-import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/packets/ServerPickupGun";
-import { PickupGunPacket } from "@smiley-face-game/packets/PickupGun";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import Connection from "../../../worlds/Connection";
-import RoomLogic from "../../../worlds/logic/RoomLogic";
+import type { ZPickupGun } from "@smiley-face-game/common/packets";
+import type Connection from "../../../worlds/Connection";
+import type RoomLogic from "../../../worlds/logic/RoomLogic";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
 
-export default function handlePickupGun(packet: PickupGunPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default function handlePickupGun(packet: ZPickupGun, [sender, logic]: [Connection, RoomLogic]) {
   // only allow collection of gun if it exists at specified location
   if (logic.blockHandler.map[TileLayer.Action][packet.position.y][packet.position.x].id !== TileId.Gun) {
     // we don't want to say this was invalid, because someone could've broke the gun block while someone else was trying to collect it.
@@ -16,7 +14,7 @@ export default function handlePickupGun(packet: PickupGunPacket, [sender, logic]
   sender.gunEquipped = true;
 
   logic.broadcast({
-    packetId: SERVER_PICKUP_GUN_ID,
+    packetId: "SERVER_PICKUP_GUN",
     playerId: sender.playerId!,
   });
 }

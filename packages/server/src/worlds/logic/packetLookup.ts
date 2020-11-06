@@ -1,7 +1,6 @@
-import { WorldPacketLookup } from "@smiley-face-game/packets/WorldPacket";
+import type { ZPacketLookup } from "@smiley-face-game/common";
 import RoomLogic from "../../worlds/logic/RoomLogic";
 import Connection from "../../worlds/Connection";
-import handleBlockBuffer from "./handlers/handleBlockBuffer";
 import handleBlockLine from "./handlers/handleBlockLine";
 import handleBlockSingle from "./handlers/handleBlockSingle";
 import handleChat from "./handlers/handleChat";
@@ -11,12 +10,10 @@ import handleMovement from "./handlers/handleMovement";
 import handlePickupGun from "./handlers/handlePickupGun";
 import handlePlayerlistAction from "./handlers/handlePlayerlistAction";
 import handleWorldAction from "./handlers/handleWorldAction";
-import handleServer from "./handlers/handleServer";
 
 type MaybeAsync<T> = T | Promise<T>;
 
-const packetLookup: WorldPacketLookup<[Connection, RoomLogic], MaybeAsync<void | boolean>> = {
-  BLOCK_BUFFER: handleBlockBuffer,
+const packetLookup: ZPacketLookup<[Connection, RoomLogic], MaybeAsync<void | boolean>> = {
   BLOCK_LINE: handleBlockLine,
   BLOCK_SINGLE: handleBlockSingle,
   EQUIP_GUN: handleEquipGun,
@@ -26,20 +23,6 @@ const packetLookup: WorldPacketLookup<[Connection, RoomLogic], MaybeAsync<void |
   CHAT: handleChat,
   PLAYER_LIST_ACTION: handlePlayerlistAction,
   WORLD_ACTION: handleWorldAction,
-
-  SERVER_INIT: handleServer,
-  SERVER_BLOCK_BUFFER: handleServer,
-  SERVER_BLOCK_LINE: handleServer,
-  SERVER_BLOCK_SINGLE: handleServer,
-  SERVER_EQUIP_GUN: handleServer,
-  SERVER_FIRE_BULLET: handleServer,
-  SERVER_MOVEMENT: handleServer,
-  SERVER_PICKUP_GUN: handleServer,
-  SERVER_PLAYER_JOIN: handleServer,
-  SERVER_PLAYER_LEAVE: handleServer,
-  SERVER_CHAT: handleServer,
-  SERVER_ROLE_UPDATE: handleServer,
-  SERVER_WORLD_ACTION: handleServer,
 };
 
 export default packetLookup;

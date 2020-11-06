@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { zWorldId, zWorldName, zDynWidth, zDynHeight } from "./misc-zs";
+import { zWorldId, zWorldName, zDynWidth, zDynHeight } from "./types";
 
 export const zJoinRequest = z.union([
   z.object({
@@ -19,3 +19,4 @@ export const zJoinRequest = z.union([
     id: zWorldId
   }),
 ]);
+export type ZJoinRequest = z.infer<typeof zJoinRequest>;

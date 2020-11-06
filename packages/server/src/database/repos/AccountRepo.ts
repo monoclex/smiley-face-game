@@ -1,13 +1,10 @@
 import { Connection, Repository } from "typeorm";
 import bcrypt from "bcrypt";
-import { validateUsername } from "@smiley-face-game/schemas/Username";
-import { validateEmail } from "@smiley-face-game/schemas/Email";
-import { validatePassword } from "@smiley-face-game/schemas/Password";
-import { validateAccountId } from "@smiley-face-game/schemas/AccountId";
 import Account from "../../database/models/Account";
 import World from "../../database/models/World";
 import AccountLike from "../../database/modelishs/AccountLike";
 import ensureValidates from "../../ensureValidates";
+import { zAccountId, zEmail, zPassword, zUsername } from "@smiley-face-game/common/types";
 
 // TODO: should this be made a Schema?
 interface AccountDetails {
@@ -27,32 +24,32 @@ export default class AccountRepo {
   /* === queries === */
 
   findById(id: string): Promise<AccountLike> {
-    ensureValidates(validateAccountId, id);
+    ensureValidates(zAccountId, id);
     return this.#repo.findOneOrFail({ id }, {});
   }
 
   // TODO: do this better
   findByIdWithWorlds(id: string): Promise<Account> {
-    ensureValidates(validateAccountId, id);
+    ensureValidates(zAccountId, id);
     return this.#repo.findOneOrFail({ id }, { relations: ["worlds"] });
   }
 
   findByUsername(username: string): Promise<AccountLike> {
-    ensureValidates(validateUsername, username);
+    ensureValidates(zUsername, username);
     return this.#repo.findOneOrFail({ username });
   }
 
   findByEmail(email: string): Promise<AccountLike> {
-    ensureValidates(validateEmail, email);
+    ensureValidates(zEmail, email);
     return this.#repo.findOneOrFail({ email });
   }
 
   /* === creation === */
 
   async create(details: AccountDetails): Promise<Account> {
-    ensureValidates(validateUsername, details.username);
-    ensureValidates(validateEmail, details.email);
-    ensureValidates(validatePassword, details.password);
+    ensureValidates(zUsername, details.username);
+    ensureValidates(zEmail, details.email);
+    ensureValidates(zPassword, details.password);
 
     // all computed assignments are stated in plain sight before assignment
     const password = await bcrypt.hash(details.password, 10);

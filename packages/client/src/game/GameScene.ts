@@ -5,18 +5,6 @@ import World from "./world/World";
 import { isDev } from "../isProduction";
 import { chat } from "../recoil/atoms/chat";
 import type { Connection } from "@smiley-face-game/common";
-import { SERVER_BLOCK_LINE_ID } from "@smiley-face-game/packets/ServerBlockLine";
-import { SERVER_BLOCK_SINGLE_ID } from "@smiley-face-game/packets/ServerBlockSingle";
-import { SERVER_CHAT_ID } from "@smiley-face-game/packets/ServerChat";
-import { SERVER_EQUIP_GUN_ID } from "@smiley-face-game/packets/ServerEquipGun";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/packets/ServerFireBullet";
-import { ServerInitPacket } from "@smiley-face-game/packets/ServerInit";
-import { SERVER_MOVEMENT_ID } from "@smiley-face-game/packets/ServerMovement";
-import { SERVER_PICKUP_GUN_ID } from "@smiley-face-game/packets/ServerPickupGun";
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/packets/ServerPlayerLeave";
-import { SERVER_ROLE_UPDATE_ID } from "@smiley-face-game/packets/ServerRoleUpdate";
-import { SERVER_WORLD_ACTION_ID } from "@smiley-face-game/packets/ServerWorldAction";
 import type { ZRole } from "@smiley-face-game/common";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
@@ -132,7 +120,7 @@ export default class GameScene extends Phaser.Scene {
     async function runConnection(this: GameScene) {
       for await (const event of this.connection) {
         switch (event.packetId) {
-          case SERVER_PLAYER_JOIN_ID:
+          case "SERVER_PLAYER_JOIN":
             {
               if (event.playerId === this.mainPlayer.id) break;
 
@@ -153,7 +141,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_PLAYER_LEAVE_ID:
+          case "SERVER_PLAYER_LEAVE":
             {
               this.players.removePlayer(event.playerId);
 
@@ -164,7 +152,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_MOVEMENT_ID:
+          case "SERVER_MOVEMENT":
             {
               if (event.playerId === this.mainPlayer.id) break;
 
@@ -176,19 +164,19 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_BLOCK_LINE_ID:
+          case "SERVER_BLOCK_LINE":
             {
               this.world.drawLine(event.start, event.end, event.block, false, event.layer);
             }
             break;
 
-          case SERVER_BLOCK_SINGLE_ID:
+          case "SERVER_BLOCK_SINGLE":
             {
               this.world.placeBlock(event.position, event.block, event.layer, false);
             }
             break;
 
-          case SERVER_EQUIP_GUN_ID:
+          case "SERVER_EQUIP_GUN":
             {
               if (event.playerId === this.initPacket.playerId) break;
 
@@ -196,7 +184,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_FIRE_BULLET_ID:
+          case "SERVER_FIRE_BULLET":
             {
               if (event.playerId === this.initPacket.playerId) break;
 
@@ -204,7 +192,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_PICKUP_GUN_ID:
+          case "SERVER_PICKUP_GUN":
             {
               if (event.playerId === this.initPacket.playerId) break;
 
@@ -212,7 +200,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_CHAT_ID:
+          case "SERVER_CHAT":
             {
               const player = this.players.getPlayer(event.playerId);
               const newMessage: Message = {
@@ -225,7 +213,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_ROLE_UPDATE_ID:
+          case "SERVER_ROLE_UPDATE":
             {
               const modified = playerList.state.players.map((player) => {
                 if (player.playerId === event.playerId) {
@@ -247,7 +235,7 @@ export default class GameScene extends Phaser.Scene {
             }
             break;
 
-          case SERVER_WORLD_ACTION_ID:
+          case "SERVER_WORLD_ACTION":
             switch (event.action.action) {
               case "load":
                 toast.success("World loaded!");

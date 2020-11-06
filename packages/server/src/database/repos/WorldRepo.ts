@@ -1,7 +1,6 @@
 import { Connection, Repository } from "typeorm";
-import { validateAccountId } from "@smiley-face-game/schemas/AccountId";
-import { validateWorldId } from "@smiley-face-game/schemas/WorldId";
-import { Block } from "@smiley-face-game/schemas/Block";
+import type { ZBlock } from "@smiley-face-game/common/types";
+import { zAccountId, zWorldId } from "@smiley-face-game/common/types";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
 import World from "../../database/models/World";
@@ -16,7 +15,7 @@ interface WorldDetails {
   readonly name?: string;
   readonly width: number;
   readonly height: number;
-  readonly blocks?: Block[][][];
+  readonly blocks?: ZBlock[][][];
 }
 
 export default class WorldRepo {
@@ -31,7 +30,7 @@ export default class WorldRepo {
   findById(id: string, options: { withOwner: true }): Promise<World>;
   findById(id: string, options?: { withOwner: false }): Promise<WorldLike>;
   findById(id: string, options?: QueryOptions): Promise<World | WorldLike> {
-    ensureValidates(validateWorldId, id);
+    ensureValidates(zWorldId, id);
 
     let findOptions = {};
     if (options?.withOwner === true) findOptions = { ...findOptions, relations: ["owner"] };
@@ -41,7 +40,7 @@ export default class WorldRepo {
 
   /** Finds all the worlds owned by a given Account (based on the Account's Id). */
   findOwnedBy(accountId: string): Promise<World[]> {
-    ensureValidates(validateAccountId, accountId);
+    ensureValidates(zAccountId, accountId);
 
     return this.#repo.find({ where: { owner: { id: accountId } } });
   }

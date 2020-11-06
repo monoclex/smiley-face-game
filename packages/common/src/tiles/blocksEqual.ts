@@ -1,7 +1,7 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import Block from "@smiley-face-game/common/tiles/TileState";
+import { TileId } from "@smiley-face-game/common/types";
+import type { ZBlock } from "@smiley-face-game/common/types";
 
-export default function blocksEqual(a: Block, b: Block) {
+export default function blocksEqual(a: ZBlock, b: ZBlock) {
   if (a.id === b.id) {
     if (a.id === TileId.Arrow && b.id === TileId.Arrow) {
       return a.rotation === b.rotation;

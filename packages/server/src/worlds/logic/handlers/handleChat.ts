@@ -1,13 +1,12 @@
-import { SERVER_CHAT_ID } from "@smiley-face-game/packets/ServerChat";
-import { ChatPacket } from "@smiley-face-game/packets/Chat";
-import Connection from "../../../worlds/Connection";
-import RoomLogic from "../../../worlds/logic/RoomLogic";
+import type { ZChat } from "@smiley-face-game/common/packets";
+import type Connection from "../../../worlds/Connection";
+import type RoomLogic from "../../../worlds/logic/RoomLogic";
 import filterMessage from "@smiley-face-game/common/filterMessage";
 
 const MAX_MESSAGES_WITHIN_INTERVAL = 10;
 const INTERVAL_MS = 5 * 1000;
 
-export default async function handleChat(packet: ChatPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default async function handleChat(packet: ZChat, [sender, logic]: [Connection, RoomLogic]) {
   // filter the message incase some bot sends weird stuff i guess
   const content = filterMessage(packet.message);
   if (!content || content.length === 0) return;
@@ -30,7 +29,7 @@ export default async function handleChat(packet: ChatPacket, [sender, logic]: [C
   if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) return;
 
   logic.broadcast({
-    packetId: SERVER_CHAT_ID,
+    packetId: "SERVER_CHAT",
     playerId: sender.playerId!,
     message: packet.message,
   });

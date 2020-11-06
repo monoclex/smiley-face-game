@@ -1,10 +1,10 @@
-import { WorldJoinRequest, validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
-import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
-import WorldBlocks from "../../worlds/WorldBlocks";
 import ensureValidates from "../../ensureValidates";
 import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
 import Connection from "../../worlds/Connection";
+import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
+import { zJoinRequest } from "@smiley-face-game/common/ws-api";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;
@@ -13,8 +13,8 @@ export default class DynamicBehaviour implements Behaviour {
 
   readonly id: string;
 
-  constructor(joinRequest: Exclude<Extract<WorldJoinRequest, { type: "dynamic" }>, { id: string }>, id: string) {
-    ensureValidates(validateWorldJoinRequest, joinRequest);
+  constructor(joinRequest: Exclude<Extract<ZJoinRequest, { type: "dynamic" }>, { id: string }>, id: string) {
+    ensureValidates(zJoinRequest, joinRequest);
 
     this.id = id;
     this.#name = joinRequest.name;
@@ -26,7 +26,7 @@ export default class DynamicBehaviour implements Behaviour {
     connection.hasEdit = true;
   }
 
-  loadDetails(): Promise<WorldDetails> {
+  loadDetails(): Promise<ZWorldDetails> {
     return Promise.resolve({
       name: this.#name,
       width: this.#width,
@@ -36,7 +36,7 @@ export default class DynamicBehaviour implements Behaviour {
     });
   }
 
-  saveDetails(details: WorldDetails): Promise<void> {
+  saveDetails(details: ZWorldDetails): Promise<void> {
     if (this.#width !== details.width) throw new Error("Can't change world size.");
     if (this.#height !== details.height) throw new Error("Can't change world size.");
 
@@ -45,7 +45,7 @@ export default class DynamicBehaviour implements Behaviour {
     return Promise.resolve();
   }
 
-  loadBlocks(): Promise<WorldBlocks> {
+  loadBlocks(): Promise<ZWorldBlocks> {
     return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height)));
   }
 

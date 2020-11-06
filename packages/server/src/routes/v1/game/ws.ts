@@ -1,5 +1,5 @@
 import expressWs from "express-ws";
-import { validateWorldJoinRequest } from "@smiley-face-game/schemas/web/game/ws/WorldJoinRequest";
+import { zJoinRequest } from "@smiley-face-game/common/ws-api";
 import canJoinWorld from "../../../jwt/permissions/canJoinWorld";
 import extractJwt from "../../../jwt/extractJwt";
 import asyncHandler from "../../../middlewares/asyncHandler";
@@ -30,10 +30,11 @@ export default function (router: expressWs.Router, deps: UsedDependencies) {
           throw new Error("Missing permission to play.");
         }
 
-        const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
-        if (errors !== null || worldTokenPayload === undefined) {
-          throw new Error("Failed to validate WorldDetails payload.");
-        }
+        const worldTokenPayload = zJoinRequest.parse(JSON.parse(world));
+        // const [errors, worldTokenPayload] = validateWorldJoinRequest(JSON.parse(world));
+        // if (errors !== null || worldTokenPayload === undefined) {
+        //   throw new Error("Failed to validate WorldDetails payload.");
+        // }
 
         const connection = new Connection(ws, authTokenPayload, worldTokenPayload);
 

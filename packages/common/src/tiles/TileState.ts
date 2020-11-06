@@ -1,12 +1,7 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { Rotation } from "@smiley-face-game/schemas/Rotation";
-import { Block } from "@smiley-face-game/schemas/Block";
-import { PrismarineVariant } from "@smiley-face-game/schemas/PrismarineVariantSchema";
+import type { ZBlock } from "@smiley-face-game/common/types";
+import { TileId, Rotation, PrismarineVariant } from "@smiley-face-game/common/types";
 
-type TileState = Block;
-
-export default TileState;
-export function defaultFor(id: TileId): TileState {
+export function defaultFor(id: TileId): ZBlock {
   switch (id) {
     case TileId.Arrow:
       return { id, rotation: Rotation.Up };

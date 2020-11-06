@@ -3,7 +3,7 @@ import { zJoinRequest } from "./ws-api";
 import { zLobbyResp } from "./api";
 import { zPlayerResp } from "./api";
 import Connection from "./Connection";
-import { zToken, zAccountId } from "./misc-zs";
+import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
 import fetch from "./fetch";
 

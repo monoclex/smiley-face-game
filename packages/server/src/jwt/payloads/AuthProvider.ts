@@ -1,6 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { validateAccountId } from "@smiley-face-game/schemas/AccountId";
-import { validateUsername } from "@smiley-face-game/schemas/Username";
+import { zAccountId, zUsername } from "@smiley-face-game/common/types";
 import ensureValidates from "../../ensureValidates";
 import AuthPayload from "./AuthPayload";
 
@@ -16,7 +15,7 @@ export default class AuthProvider {
    * @param accountId The Account's Id to generate an authentication token for.
    */
   allowAuthentication(accountId: string): string {
-    ensureValidates(validateAccountId, accountId);
+    ensureValidates(zAccountId, accountId);
 
     const payload: AuthPayload = {
       ver: 1,
@@ -32,7 +31,7 @@ export default class AuthProvider {
    * @param name The name for the Guest.
    */
   allowGuestAuthentication(name: string) {
-    ensureValidates(validateUsername, name);
+    ensureValidates(zUsername, name);
 
     const payload: AuthPayload = {
       ver: 1,

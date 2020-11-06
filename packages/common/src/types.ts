@@ -31,6 +31,7 @@ export const zSize = z.object({
 })
 
 export const zRole = z.enum(["non", "edit", "owner", "staff"]);
+export type ZRole = z.infer<typeof zRole>;
 
 // TODO: way to constrain maximum number?
 export const zPlayerPosition = z.object({
@@ -119,6 +120,7 @@ export const zBlock = z.union([z.object({
   id: z.literal(TileId.Prismarine),
   variant: zPrismarineVariant,
 })]);
+export type ZBlock = z.infer<typeof zBlock>;
 
 // TODO: move this into a helpers file?
 // ^^^^^ it'd actually be better to have this be a part of the configuration on a per-block basis or something
@@ -154,6 +156,7 @@ export const zWorldActionKind = z.union([z.object({
 })]);
 
 export const zWorldBlocks = z.array(z.array(z.array(zBlock)));
+export type ZWorldBlocks = z.infer<typeof zWorldBlocks>;
 
 export const zWorldActionKindReply = z.union([z.object({
   action: z.literal("save"),
@@ -161,3 +164,13 @@ export const zWorldActionKindReply = z.union([z.object({
   action: z.literal("load"),
   blocks: zWorldBlocks,
 })]);
+
+// TODO: this looks like it needs to be re-done. direct port of WorldDetails schema
+export const zWorldDetails = z.object({
+  name: zWorldName,
+  owner: zUsername.optional(),
+  ownerId: zAccountId.optional(),
+  width: z.number().min(3).max(100).int(),
+  height: z.number().min(3).max(100).int(),
+});
+export type ZWorldDetails = z.infer<typeof zWorldDetails>;

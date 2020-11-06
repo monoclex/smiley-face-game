@@ -1,7 +1,5 @@
 import { Router } from "express";
-import { validateLogin } from "@smiley-face-game/schemas/web";
-import { validateRegister } from "@smiley-face-game/schemas/web";
-import { validateGuest } from "@smiley-face-game/schemas/web";
+import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/common/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
@@ -18,7 +16,7 @@ export default function (deps: UsedDependencies): Router {
   router.post(
     "/login",
     schema(
-      validateLogin,
+      zLoginReq,
       asyncHandler(async (req, res) => {
         const body = req.body;
 
@@ -44,7 +42,7 @@ export default function (deps: UsedDependencies): Router {
   router.post(
     "/register",
     schema(
-      validateRegister,
+      zRegisterReq,
       asyncHandler(async (req, res) => {
         const body = req.body;
 
@@ -91,7 +89,7 @@ export default function (deps: UsedDependencies): Router {
   router.post(
     "/guest",
     schema(
-      validateGuest,
+      zGuestReq,
       asyncHandler(async (req, res) => {
         const body = req.body;
 

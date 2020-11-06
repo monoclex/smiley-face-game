@@ -1,6 +1,5 @@
-import { Block } from "@smiley-face-game/schemas/Block";
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
+import type { ZBlock } from "@smiley-face-game/common/types";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
 
 export default function generateWorld(width: number, height: number): string {
   // by using this one block, every single block in this array shares the same reference
@@ -8,16 +7,16 @@ export default function generateWorld(width: number, height: number): string {
   const solid = { id: TileId.Basic } as const;
 
   const layers = [];
-  const foreground: Block[][] = [];
+  const foreground: ZBlock[][] = [];
   layers[TileLayer.Foreground] = foreground;
 
-  const solidLineAcrossX: Block[] = [];
+  const solidLineAcrossX: ZBlock[] = [];
 
   for (let x = 0; x < width; x++) {
     solidLineAcrossX.push(solid);
   }
 
-  const sidelines: Block[] = [];
+  const sidelines: ZBlock[] = [];
   sidelines[0] = solid;
   sidelines[width - 1] = solid;
 

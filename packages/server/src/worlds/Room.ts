@@ -1,10 +1,10 @@
-import { blockPosition } from "@smiley-face-game/schemas/BlockPosition";
-import { Block } from "@smiley-face-game/schemas/Block";
-import { worldPacket, WorldPacket, WorldPacketValidator } from "@smiley-face-game/packets/WorldPacket";
+import type { ZPacket, ZPacketValidator } from "@smiley-face-game/common";
+import { zPacket } from "@smiley-face-game/common";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
+import type { ZWorldBlocks } from "@smiley-face-game/common/types";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
@@ -25,7 +25,7 @@ export default class Room {
   get height(): number {
     return this.#height;
   }
-  get validateWorldPacket(): WorldPacketValidator {
+  get validateWorldPacket(): ZPacketValidator {
     return this.#worldPacketValidator;
   }
   get playerCount() {
@@ -42,7 +42,7 @@ export default class Room {
   #status!: RoomStatus;
   #onEmpty: PromiseCompletionSource<void>;
   #logic!: RoomLogic;
-  #worldPacketValidator!: WorldPacketValidator;
+  #worldPacketValidator!: ZPacketValidator;
 
   constructor(behaviour: Behaviour) {
     this.#behaviour = behaviour;
@@ -78,7 +78,7 @@ export default class Room {
     this.#width = details.width;
     this.#height = details.height;
 
-    this.#worldPacketValidator = worldPacket(blockPosition(this.width - 1, this.height - 1).BlockPositionSchema).validateWorldPacket;
+    this.#worldPacketValidator = zPacket(this.width - 1, this.height - 1);
 
     this.#status = "running";
     this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => (this.#status = "stopping"), this.id, this.#behaviour);
@@ -94,7 +94,7 @@ export default class Room {
     this.onStopped.resolve();
   }
 
-  private getBlocks(): Promise<Block[][][]> {
+  private getBlocks(): Promise<ZWorldBlocks> {
     return this.#behaviour.loadBlocks();
   }
 
@@ -120,7 +120,7 @@ export default class Room {
     this.#logic.handleLeave(connection);
   }
 
-  onMessage(connection: Connection, packet: WorldPacket) {
+  onMessage(connection: Connection, packet: ZPacket) {
     return this.#logic.handleMessage(connection, packet);
   }
 }

@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zMessage, zEmail } from "./misc-zs";
+import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail } from "./types";
 
 // TODO: fill this in
 export const zLobbyResp = z.array(z.object({

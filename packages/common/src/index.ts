@@ -27,6 +27,14 @@ export { endpoints } from "./endpoints";
 import Connection from "./Connection";
 export { Connection };
 
+/**
+ * The types of packets are needed for type checking. In addition, the validators for a client and serverside packet
+ * are needed by the server.w
+ */
+import type { ZPacket, ZSPacket, ZPacketValidator, ZPacketLookup } from "./packets";
+export type { ZPacket, ZSPacket, ZPacketValidator, ZPacketLookup };
+import { zPacket, zsPacket } from "./packets";
+export { zPacket, zsPacket };
 
 /**
  * There are a handful of things that we don't actually want exported, but want available for typing reasons.
@@ -37,5 +45,5 @@ export { Connection };
 import type * as z from "zod";
 import type { zJoinRequest } from "./ws-api";
 export type ZJoinRequest = z.infer<typeof zJoinRequest>;
-import type { zRole } from "./misc-zs";
+import type { zRole } from "./types";
 export type ZRole = z.infer<typeof zRole>;

@@ -9,17 +9,18 @@ import * as core from "express-serve-static-core";
  * @param handler The request handler to call if the body is correctly typed.
  */
 export default function schema<ReqBody, P extends core.Params = core.ParamsDictionary, ResBody = any, ReqQuery = core.Query>(
-  validator: (input: any) => [any, ReqBody?],
+  validator: { parse: (input: any) => ReqBody },
   handler: RequestHandler<P, ResBody, ReqBody, ReqQuery>
 ): RequestHandler {
   return (req, res, next) => {
-    const [errors, body] = validator(req.body);
+    const body = validator.parse(req.body);
+    // const [errors, body] = validator(req.body);
 
-    if (errors !== null || body === undefined) {
-      // TODO: it may be best to not send stack traces of errors to users in the future
-      res.status(422).send(errors);
-      return;
-    }
+    // if (errors !== null || body === undefined) {
+    //   // TODO: it may be best to not send stack traces of errors to users in the future
+    //   res.status(422).send(errors);
+    //   return;
+    // }
 
     req.body = body;
 

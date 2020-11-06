@@ -1,23 +1,22 @@
-import { WorldActionPacket } from "@smiley-face-game/packets/WorldAction";
-import Connection from "../../../worlds/Connection";
-import RoomLogic from "../../../worlds/logic/RoomLogic";
-import { SERVER_WORLD_ACTION_ID } from "@smiley-face-game/packets/ServerWorldAction";
+import type { ZWorldAction } from "@smiley-face-game/common/packets";
+import type Connection from "../../../worlds/Connection";
+import type RoomLogic from "../../../worlds/logic/RoomLogic";
 
-export default async function handlePlayerlistAction(packet: WorldActionPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default async function handlePlayerlistAction(packet: ZWorldAction, [sender, logic]: [Connection, RoomLogic]) {
   if (sender.role !== "owner") {
     // must be owner to send these packets
     // you can't fake this no matter what you do, so we'll kill the client if they do this
     return false;
   }
 
-  switch (packet.action) {
+  switch (packet.action.action) {
     case "save": {
       await logic.behaviour.saveBlocks(logic.blockHandler.map);
 
       sender.send({
-        packetId: SERVER_WORLD_ACTION_ID,
-        action: "save",
-        playerId: sender.playerId,
+        packetId: "SERVER_WORLD_ACTION",
+        action: { action: "save" },
+        playerId: sender.playerId
       });
       return;
     }
@@ -26,9 +25,8 @@ export default async function handlePlayerlistAction(packet: WorldActionPacket, 
       logic.blockHandler.map = blocks;
 
       logic.broadcast({
-        packetId: SERVER_WORLD_ACTION_ID,
-        action: "load",
-        blocks: blocks,
+        packetId: "SERVER_WORLD_ACTION",
+        action: { action: "load", blocks: blocks },
         playerId: sender.playerId,
       });
       return;

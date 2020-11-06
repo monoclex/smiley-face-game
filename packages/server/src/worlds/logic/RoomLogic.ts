@@ -1,16 +1,11 @@
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/packets/ServerPlayerLeave";
-import { SERVER_INIT_ID } from "@smiley-face-game/packets/ServerInit";
-import { WorldPacket } from "@smiley-face-game/packets/WorldPacket";
-import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
 import PromiseCompletionSource from "../../concurrency/PromiseCompletionSource";
 import Connection from "../../worlds/Connection";
 import { BlockHandler } from "../../worlds/blockhandling/BlockHandler";
-import WorldBlocks from "../../worlds/WorldBlocks";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
 import Behaviour from "../../worlds/behaviour/Behavior";
-import { ServerInitPacket } from "@smiley-face-game/packets/ServerInit";
+import type { ZPacket, ZSPacket } from "@smiley-face-game/common";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -31,7 +26,7 @@ export default class RoomLogic {
   #shouldBeDead: boolean = false;
   #players: Map<number, Connection>;
   #idCounter: number = 0;
-  #details: WorldDetails;
+  #details: ZWorldDetails;
   #setStoppingStatus: () => void;
   #id: string;
   behaviour: Behaviour;
@@ -45,8 +40,8 @@ export default class RoomLogic {
 
   constructor(
     onEmpty: PromiseCompletionSource<void>,
-    blocks: WorldBlocks,
-    details: WorldDetails,
+    blocks: ZWorldBlocks,
+    details: ZWorldDetails,
     setStopping: () => void,
     id: string,
     roomBehaviour: Behaviour
@@ -82,7 +77,7 @@ export default class RoomLogic {
 
     // at this point, broadcasting will send it to everyone EXCEPT the one who's joining
     this.broadcast({
-      packetId: SERVER_PLAYER_JOIN_ID,
+      packetId: "SERVER_PLAYER_JOIN",
       playerId: connection.playerId!,
       username: connection.username,
       role: connection.role,
@@ -92,8 +87,8 @@ export default class RoomLogic {
       gunEquipped: connection.gunEquipped,
     });
 
-    const initPacket: ServerInitPacket = {
-      packetId: SERVER_INIT_ID,
+    const initPacket: ZSPacket = {
+      packetId: "SERVER_INIT",
       worldId: this.#id,
       playerId: connection.playerId!,
       role: connection.role,
@@ -108,7 +103,7 @@ export default class RoomLogic {
 
     for (const otherUser of this.#players.values()) {
       connection.send({
-        packetId: SERVER_PLAYER_JOIN_ID,
+        packetId: "SERVER_PLAYER_JOIN",
         playerId: otherUser.playerId!,
         username: otherUser.username,
         role: otherUser.role,
@@ -138,19 +133,19 @@ export default class RoomLogic {
     }
 
     this.broadcast({
-      packetId: SERVER_PLAYER_LEAVE_ID,
+      packetId: "SERVER_PLAYER_LEAVE",
       playerId: connection.playerId!,
     });
   }
 
-  handleMessage(sender: Connection, packet: WorldPacket) {
+  handleMessage(sender: Connection, packet: ZPacket) {
     const handler = packetLookup[packet.packetId];
 
     //@ts-expect-error
     return handler(packet, [sender, this]);
   }
 
-  broadcast(packet: WorldPacket) {
+  broadcast(packet: ZSPacket) {
     // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 
@@ -161,7 +156,7 @@ export default class RoomLogic {
     }
   }
 
-  broadcastExcept(excludePlayerId: number, packet: WorldPacket) {
+  broadcastExcept(excludePlayerId: number, packet: ZSPacket) {
     // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 

@@ -1,12 +1,12 @@
-import { WorldDetails } from "@smiley-face-game/schemas/WorldDetails";
+import type { ZWorldDetails } from "@smiley-face-game/common/types";
 import WorldRepo from "../../database/repos/WorldRepo";
-import WorldBlocks from "../../worlds/WorldBlocks";
+import type { ZWorldBlocks } from "@smiley-face-game/common/types";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
-  #details: WorldDetails | undefined;
+  #details: ZWorldDetails | undefined;
 
   readonly id: string;
 
@@ -24,18 +24,18 @@ export default class SavedBehaviour implements Behaviour {
     }
   }
 
-  async loadBlocks(): Promise<WorldBlocks> {
+  async loadBlocks(): Promise<ZWorldBlocks> {
     const world = await this.#repo.findById(this.id);
     return world.worldData;
   }
 
-  async saveBlocks(blocks: WorldBlocks): Promise<void> {
+  async saveBlocks(blocks: ZWorldBlocks): Promise<void> {
     const world = await this.#repo.findById(this.id);
     world.worldData = blocks;
     await this.#repo.save(world);
   }
 
-  async loadDetails(): Promise<WorldDetails> {
+  async loadDetails(): Promise<ZWorldDetails> {
     const world = await this.#repo.findById(this.id, { withOwner: true });
 
     const details = {
@@ -50,7 +50,7 @@ export default class SavedBehaviour implements Behaviour {
     return details;
   }
 
-  async saveDetails(details: WorldDetails): Promise<void> {
+  async saveDetails(details: ZWorldDetails): Promise<void> {
     const world = await this.#repo.findById(this.id);
 
     if (details.width !== world.width) throw new Error("Can't change world width.");

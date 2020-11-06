@@ -1,7 +1,7 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import Block from "@smiley-face-game/common/tiles/TileState";
+import { TileId } from "@smiley-face-game/common/types";
+import type { ZBlock } from "@smiley-face-game/common/types";
 
-export default function copyBlock(setDestination: (value: Block) => void, source: Block) {
+export default function copyBlock(setDestination: (value: ZBlock) => void, source: ZBlock) {
   switch (source.id) {
     case TileId.Empty:
     case TileId.Gun:

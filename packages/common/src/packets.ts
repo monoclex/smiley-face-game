@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage } from "./misc-zs";
+import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
 
@@ -21,6 +21,18 @@ export const zPacket = (width: number, height: number) => {
 
 export type ZPacket = z.infer<ReturnType<typeof zPacket>>;
 export type ZPacketId = Pick<ZPacket, "packetId">;
+export type ZPacketValidator = ReturnType<typeof zPacket>;
+
+// thanks @nw#3386 on the Typescript Community Discord (https://discord.gg/typescript) for this!
+// convo: #help-willow https://discordapp.com/channels/508357248330760243/740274615770677319/744126507177345055
+type PickZPacket<K extends ZPacket["packetId"]> = Extract<ZPacket, { packetId: K }>;
+
+/**
+ * A type which maps every possible key of Packet to a function that accepts the packet whose packetId matches the lookup key.
+ */
+export type ZPacketLookup<TArgs, TResult> = {
+  [K in ZPacket["packetId"]]: (packet: PickZPacket<K>, args: TArgs) => TResult;
+};
 
 /**
  * Constructs a `zod` validator that will validate any packet that a server would send. When developers are adding new
@@ -47,6 +59,7 @@ export const zPickupGun = z.object({
   packetId: z.literal("PICKUP_GUN"),
   position: zPlayerPosition,
 });
+export type ZPickupGun = z.infer<typeof zPickupGun>;
 
 export const zMovement = z.object({
   packetId: z.literal("MOVEMENT"),
@@ -54,31 +67,37 @@ export const zMovement = z.object({
   velocity: zVelocity,
   inputs: zInputs,
 });
+export type ZMovement = z.infer<typeof zMovement>;
 
 export const zFireBullet = z.object({
   packetId: z.literal("FIRE_BULLET"),
   angle: zAngle,
 });
+export type ZFireBullet = z.infer<typeof zFireBullet>;
 
 export const zEquipGun = z.object({
   packetId: z.literal("EQUIP_GUN"),
   equipped: z.boolean(),
 });
+export type ZEquipGun = z.infer<typeof zEquipGun>;
 
 export const zChat = z.object({
   packetId: z.literal("CHAT"),
   message: zMessage,
 });
+export type ZChat = z.infer<typeof zChat>;
 
 export const zWorldAction = z.object({
   packetId: z.literal("WORLD_ACTION"),
   action: zWorldActionKind,
 });
+export type ZWorldAction = z.infer<typeof zWorldAction>;
 
 export const zPlayerListAction = z.object({
   packetId: z.literal("PLAYER_LIST_ACTION"),
   action: zPlayerListActionKind,
 });
+export type ZPlayerListAction = z.infer<typeof zPlayerListAction>;
 
 export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) => z.object({
   packetId: z.literal("BLOCK_SINGLE"),
@@ -86,6 +105,7 @@ export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =
   layer: zTileLayer,
   block: zBlock,
 });
+export type ZBlockSingle = z.infer<ReturnType<typeof zBlockSingle>>;
 
 export const zBlockLine = z.object({
   packetId: z.literal("BLOCK_LINE"),
@@ -94,6 +114,7 @@ export const zBlockLine = z.object({
   layer: zTileLayer,
   block: zBlock
 });
+export type ZBlockLine = z.infer<typeof zBlockLine>;
 
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = z.object({
@@ -101,6 +122,7 @@ export const zs = z.object({
 });
 
 export const zsBlockLine = zs.merge(zBlockLine).extend({ packetId: z.literal("SERVER_BLOCK_LINE") });
+export type ZSBlockLine = z.infer<typeof zsBlockLine>;
 
 export const zsWorldAction = zs.merge(z.object({
   packetId: z.literal("SERVER_WORLD_ACTION"),
@@ -110,6 +132,7 @@ export const zsWorldAction = zs.merge(z.object({
 export const zsBlockSingle = (blockSingle: ReturnType<typeof zBlockSingle>) => zs.merge(blockSingle).extend({
   packetId: z.literal("SERVER_BLOCK_SINGLE")
 });
+export type ZSBlockSingle = z.infer<ReturnType<typeof zsBlockSingle>>;
 
 export const zsRoleUpdate = zs.merge(z.object({
   packetId: z.literal("SERVER_ROLE_UPDATE"),

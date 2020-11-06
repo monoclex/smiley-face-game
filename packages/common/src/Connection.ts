@@ -2,7 +2,7 @@ import * as z from "zod";
 import Websocket from "isomorphic-ws";
 import { Endpoint, zEndpoint, toUrl } from "./endpoints";
 import { zJoinRequest } from "./ws-api";
-import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, inferLayer, zMessage, zUserId } from "./misc-zs";
+import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, inferLayer, zMessage, zUserId } from "./types";
 import type { ZSPacket, ZPacket } from "./packets";
 import { zsInit, zPacket, zsPacket } from "./packets";
 import AsyncQueue from "./AsyncQueue";
