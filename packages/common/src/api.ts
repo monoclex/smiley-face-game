@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { zUsername, zWorldId, zWorldName, zAccountId, zToken } from "./misc-zs";
+import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zMessage, zEmail } from "./misc-zs";
 
 // TODO: fill this in
 export const zLobbyResp = z.array(z.object({
@@ -15,6 +15,17 @@ export const zLoginReq = z.object({
 });
 
 export const zLoginResp = z.object({
+  token: zToken,
+  id: zAccountId,
+});
+
+export const zRegisterReq = z.object({
+  username: zUsername,
+  email: zEmail,
+  password: zPassword,
+});
+
+export const zRegisterResp = z.object({
   token: zToken,
   id: zAccountId,
 });

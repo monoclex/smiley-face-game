@@ -16,7 +16,6 @@ export default class PrismarineTile implements Tile<TileId.Prismarine> {
   }
 
   renderCanvas({ getFrame, context, block }: RenderCanvasParams<TileId.Prismarine>) {
-    console.log(("renderCanvas"));
     const { x, y, width, height, atlas } = getFrame(this.index(block.variant));
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }

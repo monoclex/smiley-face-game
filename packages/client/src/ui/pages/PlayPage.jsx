@@ -109,7 +109,6 @@ const Game = ({
       state.request === "create"
         ? { type: "dynamic", name: state.name, width: state.width, height: state.height }
         : { type: state.type, id: state.roomId };
-    console.log("joinign room w/ jr ", globalVariableParkour.joinRequest);
 
     globalVariableParkour.onId = (id) => {
       // https://stackoverflow.com/a/61596862/3780113

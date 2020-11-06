@@ -41,7 +41,6 @@ export default class AsyncQueue<T> {
   }
 
   push(value: T): void {
-    console.log("push()", this);
     if (this._prepared) {
       // `_next` is already prepared for a call to `next()`, we can't call `_resolve`
       this._buffer.push(value);
@@ -62,20 +61,16 @@ export default class AsyncQueue<T> {
   }
 
   next(): Promise<T> {
-    console.log("next()", this);
     const self = this;
     return this._next.then(value => {
-      console.log("next consuming buffer");
       // once we consume the next value, we want to prepare `_next` again for the next iteration
       if (self._buffer.length > 0) {
-        console.log("next resolving to buffer next time");
         // if there's stuff in the buffer, we'll prepare an already resolve `_next` with stuff in the buffer.
         self._prepared = true;
         self._next = Promise.resolve(self._buffer[0]);
         self._buffer.shift();
       }
       else {
-        console.log("next resolving to next push");
         // otherwise, prepare a `_next` to be resolved on the next `push`
         self._prepared = false;
         self._next = new Promise<T>((resolve, reject) => {

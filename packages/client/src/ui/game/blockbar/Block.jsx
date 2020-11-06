@@ -39,9 +39,7 @@ const Block = (props) => {
   useEffect(() => {
     if (!props.loader) return;
 
-    console.log("getting new block");
     props.loader(props.block).then((image) => {
-      console.log("new");
       setImageSource(image.src);
     });
   }, [props.loader, props.block.id, props.block.color, props.block.rotation, props.block.variant]);

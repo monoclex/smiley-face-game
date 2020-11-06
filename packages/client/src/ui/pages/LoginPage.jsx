@@ -14,8 +14,8 @@ export default () => (
       { name: "password", text: "Enter your password", type: "password" },
     ]}
     submit={({ email, password }) => {
-      auth({ email: email.toLowerCase(), password }).then((authentication) => {
-        localStorage.setItem("token", authentication.token);
+      auth({ email: email.toLowerCase(), password }).then(({ token }) => {
+        localStorage.setItem("token", token);
         history.push("/lobby");
       });
     }}

@@ -15,7 +15,6 @@ const nameToId: { [name: string]: number } = {};
 for (let i = 0; i < atlasJson.frames.length; i++) {
   nameToId[atlasJson.frames[i].filename] = i;
 }
-console.log(nameToId);
 
 /**
  * Maps the string name of the tile (found in key `filename` of `atlas_atlas.json`) to the ID of the

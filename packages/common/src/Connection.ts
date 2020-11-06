@@ -92,14 +92,8 @@ export default class Connection {
   constructor(argWebsocket: unknown, argInit: unknown) {
     const self = this;
     this.websocket = parseWebsocket(argWebsocket);
-    console.log("zsInit.parse", argInit);
-    try {
-      zsInit.parse(argInit);
-    } catch (e) {
-      console.warn("zsInit parse fail", e, zsInit.safeParse(argInit));
-    }
-
-    this.init = zsInit.parse(argInit);
+    // TODO: `zod` is ***really slow***. it takes upwards of a second to parse init
+    this.init = argInit as z.infer<typeof zsInit>;
 
     this.messages = new AsyncQueue();
 
@@ -121,12 +115,7 @@ export default class Connection {
    */
   [Symbol.asyncIterator]() {
     const self = this;
-    return {
-      next: () => self.messages.next().then(value => {
-        console.log("self.messages.next() resolved", value);
-        return ({ value, done: false })
-      })
-    };
+    return { next: () => self.messages.next().then(value => ({ value, done: false })) };
   }
 
   /**

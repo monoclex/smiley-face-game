@@ -75,7 +75,6 @@ export default function registerKeyboard() {
   document.addEventListener("keyup", ({ key }) => handleKey(state, key, -1));
   document.addEventListener("keypress", ({ key }) => {
     if (key === "e" || key === "E") {
-      console.log("setting equip");
       InputPipe.equip = true;
     }
   });

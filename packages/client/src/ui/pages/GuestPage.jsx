@@ -10,8 +10,8 @@ export default () => (
     smileyUrl={urlPlayer}
     inputs={[{ name: "username", text: (value) => (!value ? "Enter your preferred username" : `Hello, ${value}!`) }]}
     submit={({ username }) => {
-      auth({ username }).then((authentication) => {
-        localStorage.setItem("token", authentication.token);
+      auth({ username }).then(({ token }) => {
+        localStorage.setItem("token", token);
         history.push("/lobby");
       });
     }}

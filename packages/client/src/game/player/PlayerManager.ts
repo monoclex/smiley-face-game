@@ -5,13 +5,13 @@ import M249LMG from "../../game/guns/models/variants/M249LMG";
 export default class PlayerManager {
   readonly players: Map<number, Player> = new Map();
 
-  constructor(readonly game: GameScene) {}
+  constructor(readonly game: GameScene) { }
 
   getPlayer(id: number): Player {
     const player = this.players.get(id);
 
     if (player === undefined) {
-      console.warn("Attempt to retreive player", id, "is undefined.");
+      console.warn("Attempt to retrieve player", id, "is undefined.");
       throw new Error("Undefined player id " + id);
     }
 

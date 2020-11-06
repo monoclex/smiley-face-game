@@ -3,9 +3,10 @@
  */
 
 /**
- * `auth` is used to authenticate with the game.
+ * `auth` is used to authenticate with the game. It is the primary entry point for all SFG actions.
+ * `register` is used to register an account. Whilst not being a primary entry point, it is useful to the client.
  */
-export { auth } from "./auth";
+export { auth, register } from "./auth";
 
 /**
  * `Authentication` is the class that `auth` creates. If a user already has a token, they'd want to construct one of these.

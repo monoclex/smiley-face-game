@@ -23,9 +23,6 @@ export default class OneBulletFixedFireRate extends GunBehaviour {
     if (time - this._lastFire < this.fireRate) return;
 
     this._lastFire = time;
-
-    // TODO: spawn bullet
-    console.log("pew");
   }
 
   destroy() {

@@ -13,10 +13,11 @@ const host = "api.sirjosh3917.com/smiley-face-game/v1";
 
 const auth: Endpoint = { host, path: "/auth/login" };
 const guestAuth: Endpoint = { host, path: "/auth/guest" };
+const register: Endpoint = { host, path: "/auth/register" };
 const ws: Endpoint = { host: "ws-" + host, path: "/game/ws" };
 const lobby: Endpoint = { host, path: "/game/lobby" };
 const player: Endpoint = { host, path: "/player" };
-export const endpoints = { auth, guestAuth, ws, lobby, player };
+export const endpoints = { auth, guestAuth, ws, lobby, player, register };
 
 export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
   for (const endpointId of Object.keys(endpoints)) {

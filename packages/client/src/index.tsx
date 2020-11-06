@@ -5,7 +5,6 @@ import { App } from "./ui/App";
 import { rewriteHost } from "@smiley-face-game/common/endpoints";
 import isProduction, { isDev } from "./isProduction";
 
-console.log("isProduction", isProduction, "isDev", isDev);
 if (isProduction) {
   rewriteHost((endpoint) =>
     endpoint.host.startsWith("ws")
