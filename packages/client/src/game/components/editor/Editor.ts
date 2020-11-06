@@ -1,11 +1,9 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileId, TileLayer, ZBlock } from "@smiley-face-game/common/types";
 import Position from "../../../math/Position";
 import World from "../../../game/world/World";
 import EditorDisplay from "./EditorDisplay";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
 import BlockBar from "../../blockbar/BlockBar";
 import iteratePointers from "../../../game/iteratePointers";
-import TileState from "@smiley-face-game/common/tiles/TileState";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.
@@ -53,9 +51,9 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() {}
+  onUp() { }
 
-  id(): TileState {
+  id(): ZBlock {
     if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
     else return this.blockBar.selectedBlock;
   }

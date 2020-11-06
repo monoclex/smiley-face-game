@@ -1,16 +1,14 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
-import TileState from "@smiley-face-game/common/tiles/TileState";
+import { TileId, TileLayer, PrismarineVariant } from "@smiley-face-game/common/types";
+import type { ZBlock } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import mapTileNameToClientId from "./idLookup";
 import RenderCanvasParams from "./RenderCanvasParams";
-import { PrismarineVariant } from "@smiley-face-game/schemas/PrismarineVariantSchema";
 
 export default class PrismarineTile implements Tile<TileId.Prismarine> {
   id: TileId.Prismarine = TileId.Prismarine;
   layer: TileLayer = TileLayer.Foreground;
 
-  place(tile: Phaser.Tilemaps.Tile, tileState: TileState & { id: TileId.Prismarine }): void {
+  place(tile: Phaser.Tilemaps.Tile, tileState: ZBlock & { id: TileId.Prismarine }): void {
     tile.setCollision(true);
     tile.index = this.index(tileState.variant);
   }

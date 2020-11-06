@@ -1,6 +1,5 @@
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { Size } from "@smiley-face-game/schemas/Size";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
+import type { ZBlock, ZSize, ZWorldBlocks } from "@smiley-face-game/common/types";
 import Position from "../../math/Position";
 import Layer from "../../game/components/layer/Layer";
 import Void from "../../game/components/void/Void";
@@ -9,7 +8,6 @@ import { bresenhamsLine } from "@smiley-face-game/common/misc";
 import tileLookup from "../../game/tiles/tileLookup";
 import Tile from "../tiles/Tile";
 import { Connection } from "@smiley-face-game/common";
-import TileState from "../../game/tiles/TileState";
 import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 import type { TileEx } from "../../phaser-tile-addons";
 
@@ -22,7 +20,7 @@ export default class World {
   readonly background: Layer;
   readonly void: Void;
 
-  constructor(scene: Phaser.Scene, readonly size: Size, readonly connection: Connection) {
+  constructor(scene: Phaser.Scene, readonly size: ZSize, readonly connection: Connection) {
     this.tileManager = new TileManager(scene, size);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
@@ -40,7 +38,7 @@ export default class World {
     throw new Error("ok?");
   }
 
-  deserializeBlocks(blocks: TileState[][][]) {
+  deserializeBlocks(blocks: ZWorldBlocks) {
     for (let l = 0; l < blocks.length; l++) {
       const layer = blocks[l];
 
@@ -74,7 +72,7 @@ export default class World {
     }
   }
 
-  placeBlock(position: Position, tileState: TileState, layer: TileLayer | undefined, iPlacedIt: boolean) {
+  placeBlock(position: Position, tileState: ZBlock, layer: TileLayer | undefined, iPlacedIt: boolean) {
     const { x, y } = position;
 
     const tileBreed = tileLookup[tileState.id];

@@ -1,9 +1,8 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { Size } from "@smiley-face-game/schemas/Size";
+import { TileId } from "@smiley-face-game/common/types";
+import type { ZBlock, ZSize } from "@smiley-face-game/common/types";
 import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
 import key from "./key";
-import { Block } from "@smiley-face-game/schemas/Block";
 import tileLookup from "../../game/tiles/tileLookup";
 
 const TILE_WIDTH = 32;
@@ -21,7 +20,7 @@ export default class TileManager {
     });
   }
 
-  constructor(readonly scene: Phaser.Scene, worldSize: Size) {
+  constructor(readonly scene: Phaser.Scene, worldSize: ZSize) {
     this.tilemap = scene.make.tilemap({
       width: worldSize.width,
       height: worldSize.height,
@@ -39,7 +38,7 @@ export default class TileManager {
    * it works and I'm not gonna touch it.
    * @param block The block to fetch an image for.
    */
-  async imageOf(block: Block): Promise<HTMLImageElement> {
+  async imageOf(block: ZBlock): Promise<HTMLImageElement> {
     // so we have the original image source for the texture atlas, we'll use an offscreen canvas to render specifically just the
     // texture from the atlas that we want into a canvas, dump it into some base64, and provide that as an image
 

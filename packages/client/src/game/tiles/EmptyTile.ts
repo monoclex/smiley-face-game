@@ -1,5 +1,4 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import RenderCanvasParams from "./RenderCanvasParams";
 import mapTileNameToClientId from "./idLookup";

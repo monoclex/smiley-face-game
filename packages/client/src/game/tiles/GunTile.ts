@@ -1,5 +1,4 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import M249LMG from "../../game/guns/models/variants/M249LMG";
 import type { SpriteEx } from "../../phaser-tile-addons";

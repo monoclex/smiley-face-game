@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { Rotation } from "@smiley-face-game/schemas/Rotation";
+import { TileId, Rotation } from "@smiley-face-game/common/types";
 
 const useStyles = makeStyles({
   selected: {

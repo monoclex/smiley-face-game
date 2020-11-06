@@ -1,16 +1,14 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
-import TileState from "@smiley-face-game/common/tiles/TileState";
+import { TileId, TileLayer } from "@smiley-face-game/common/types";
+import type { ZBlock, ZColor } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import mapTileNameToClientId from "./idLookup";
 import RenderCanvasParams from "./RenderCanvasParams";
-import { Color } from "@smiley-face-game/schemas/Color";
 
 export default class FullTile implements Tile<TileId.Basic> {
   id: TileId.Basic = TileId.Basic;
   layer: TileLayer = TileLayer.Foreground;
 
-  place(tile: Phaser.Tilemaps.Tile, tileState: TileState & { id: TileId.Basic }): void {
+  place(tile: Phaser.Tilemaps.Tile, tileState: ZBlock & { id: TileId.Basic }): void {
     tile.setCollision(true);
     tile.index = this.index(tileState.color);
   }
@@ -20,7 +18,7 @@ export default class FullTile implements Tile<TileId.Basic> {
     context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
   }
 
-  private index(color: Color | null | undefined): number {
+  private index(color: ZColor | null | undefined): number {
     switch (color) {
       case "white":
       case null:

@@ -1,6 +1,6 @@
-import { Color } from "@smiley-face-game/schemas/Color";
+import type { ZColor } from "@smiley-face-game/common/types";
 
-export default function nextColor(current: Color | undefined): Color {
+export default function nextColor(current: ZColor | undefined): ZColor {
   switch (current) {
     case undefined:
     case "white":

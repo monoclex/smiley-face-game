@@ -1,4 +1,4 @@
-import { PrismarineVariant } from "@smiley-face-game/schemas/PrismarineVariantSchema";
+import { PrismarineVariant } from "@smiley-face-game/common/types";
 
 export default function next(current: PrismarineVariant): PrismarineVariant {
   switch (current) {

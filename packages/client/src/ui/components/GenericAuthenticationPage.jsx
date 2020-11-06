@@ -5,9 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
-import { validateUsername } from "@smiley-face-game/schemas/Username";
-import { validateEmail } from "@smiley-face-game/schemas/Email";
-import { validatePassword } from "@smiley-face-game/schemas/Password";
+import { zUsername, zPassword, zEmail } from "@smiley-face-game/common/types";
 
 const useStyles = makeStyles({
   bigSmileyFace: {
@@ -31,16 +29,18 @@ const useStyles = makeStyles({
 });
 
 const wrapValidator = (validator) => (input) => {
-  const result = validator(input)[0];
-  if (result === null) return undefined;
-  return result.toString();
+  const result = validator.safeParse(input);
+  if (!result.success) {
+    return result.error.toString();
+  }
+  return undefined;
 };
 
 const validators = {
   // hacky way to do this and not pass in props, but idk i don't feel like properly architecturing my code
-  username: wrapValidator(validateUsername),
-  email: (input) => wrapValidator(validateEmail)(input.toLowerCase()),
-  password: wrapValidator(validatePassword),
+  username: wrapValidator(zUsername),
+  email: (input) => wrapValidator(zEmail)(input.toLowerCase()),
+  password: wrapValidator(zPassword),
 };
 
 export default ({ smileyUrl, inputs, submit }) => {

@@ -1,5 +1,5 @@
 import TileState from "./TileState";
-import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileId } from "@smiley-face-game/common/types";
 import nextRotation from "./nextRotation";
 import nextPrismarineVariant from "./nextPrismarineVariant";
 import nextColor from "@smiley-face-game/common/tiles/nextColor";

@@ -1,8 +1,6 @@
 import Player from "../../game/player/Player";
-import { Rotation } from "@smiley-face-game/schemas/Rotation";
-import { TileId } from "@smiley-face-game/schemas/TileId";
-import { TileLayer } from "@smiley-face-game/schemas/TileLayer";
-import TileState from "@smiley-face-game/common/tiles/TileState";
+import { Rotation, TileId, TileLayer } from "@smiley-face-game/common/types";
+import type { ZBlock } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import type { SpriteEx } from "../../phaser-tile-addons";
 import mapTileNameToClientId from "./idLookup";
@@ -12,7 +10,7 @@ export default class ArrowTile implements Tile<TileId.Arrow> {
   id: TileId.Arrow = TileId.Arrow;
   layer: TileLayer = TileLayer.Action;
 
-  place(tile: Phaser.Tilemaps.Tile, tileState: TileState & { id: TileId.Arrow }): void {
+  place(tile: Phaser.Tilemaps.Tile, tileState: ZBlock & { id: TileId.Arrow }): void {
     tile.index = mapTileNameToClientId("arrow");
     tile.setCollision(false);
     tile.rotation = tileState.rotation * -(Math.PI / 2); // `-` to combat phaser weirdness :v

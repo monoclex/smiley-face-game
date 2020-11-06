@@ -28,7 +28,8 @@ export const zDynHeight = zDynSize;
 export const zSize = z.object({
   width: z.number().int().min(3),
   height: z.number().int().min(3),
-})
+});
+export type ZSize = z.infer<typeof zSize>;
 
 export const zRole = z.enum(["non", "edit", "owner", "staff"]);
 export type ZRole = z.infer<typeof zRole>;
@@ -88,6 +89,7 @@ export function swapLayer(layer: TileLayer): TileLayer {
 export const zColor = z.enum([
   "white", "black", "brown", "red", "orange", "yellow", "green", "blue", "purple"
 ]);
+export type ZColor = z.infer<typeof zColor>;
 
 export enum Rotation {
   Right = 0,

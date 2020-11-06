@@ -1,4 +1,4 @@
-import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileId } from "@smiley-face-game/common/types";
 import Tile from "./Tile";
 import EmptyTile from "./EmptyTile";
 import FullTile from "./FullTile";

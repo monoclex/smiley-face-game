@@ -1,5 +1,5 @@
-import { Block } from "@smiley-face-game/schemas/Block";
-import { TileId } from "@smiley-face-game/schemas/TileId";
+import { TileId } from "@smiley-face-game/common/types";
+import type { ZBlock } from "@smiley-face-game/common/types";
 
 /**
  * The argument in the `renderCanvas` function. This is put as an object because there's
@@ -7,7 +7,7 @@ import { TileId } from "@smiley-face-game/schemas/TileId";
  */
 export default interface RenderCanvasParams<TTileId extends TileId> {
   getFrame(index: number): { atlas: HTMLImageElement; x: number; y: number; width: number; height: number };
-  block: Block & { id: TTileId };
+  block: ZBlock & { id: TTileId };
   renderImageCanvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
 }
