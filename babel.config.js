@@ -13,8 +13,6 @@ module.exports = {
       {
         root: ["./"],
         alias: {
-          "@smiley-face-game/packets": "./packages/packets/src",
-          "@smiley-face-game/schemas": "./packages/schemas/src",
           "@smiley-face-game/common": "./packages/common/src",
         },
       },
