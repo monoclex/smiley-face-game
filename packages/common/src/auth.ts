@@ -1,11 +1,11 @@
-import * as z from "zod";
+import type { SchemaInput } from "computed-types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
 import { zLoginReq, zLoginResp, zGuestReq, zGuestResp, zRegisterReq } from "./api";
 import fetch from "./fetch";
 import Authentication from "./Authentication";
 
-export type AccountCredentials = z.infer<typeof zLoginReq>;
-export type GuestCredentials = z.infer<typeof zGuestReq>;
+export type AccountCredentials = SchemaInput<typeof zLoginReq>;
+export type GuestCredentials = SchemaInput<typeof zGuestReq>;
 export type Credentials = AccountCredentials | GuestCredentials;
 
 /**
@@ -40,7 +40,7 @@ export function auth(argPayload: any, argEndpoint?: unknown): Promise<Authentica
  * @param endpoint An optional custom endpoint to use during authentication.
  * @returns {Promise<Authentication>} A promise that resolves to an object that can be used to interface with SFG.
  */
-export function register(payload: z.infer<typeof zRegisterReq>, endpoint?: Endpoint): Promise<Authentication>;
+export function register(payload: SchemaInput<typeof zRegisterReq>, endpoint?: Endpoint): Promise<Authentication>;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
 export function register(argPayload: unknown, argEndpoint?: unknown): Promise<Authentication> {

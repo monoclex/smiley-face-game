@@ -57,8 +57,8 @@ module.exports = (env, argv) => {
       splitChunks: {
         chunks: "all",
       },
-      minimize: mode === "production",
-      minimizer: mode === "production" ? [new TerserPlugin()] : undefined,
+      minimize: false, // mode === "production",
+      minimizer: undefined, // mode === "production" ? [new TerserPlugin()] : undefined,
     },
   };
 };

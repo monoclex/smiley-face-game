@@ -19,8 +19,7 @@
   "dependencies": {
     "computed-types": "^1.4.0",
     "cross-fetch": "^3.0.6",
-    "isomorphic-ws": "^4.0.1",
-    "zod": "^2.0.0-beta.20"
+    "isomorphic-ws": "^4.0.1"
   },
   "devDependencies": {
     "ws": "^7.3.1"

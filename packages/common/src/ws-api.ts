@@ -1,22 +1,18 @@
-import * as z from "zod";
+import Schema, { addParse, SchemaInput } from "./computed-types-wrapper";
 import { zWorldId, zWorldName, zDynWidth, zDynHeight } from "./types";
 
-export const zJoinRequest = z.union([
-  z.object({
-    // "dynamic" worlds are ones that can be created *on demand*, without an account. They aren't saved.
-    type: z.literal("dynamic"),
-    name: zWorldName,
-    width: zDynWidth,
-    height: zDynHeight,
-  }),
-  z.object({
-    type: z.literal("dynamic"),
-    id: zWorldId,
-  }),
-  z.object({
-    // "saved" worlds are ones that must be loaded from the database. They are owned by players.
-    type: z.literal("saved"),
-    id: zWorldId
-  }),
-]);
-export type ZJoinRequest = z.infer<typeof zJoinRequest>;
+export const zJoinRequest = addParse(Schema.either({
+  // "dynamic" worlds are ones that can be created *on demand*, without an account. They aren't saved.
+  type: "dynamic" as const,
+  name: zWorldName,
+  width: zDynWidth,
+  height: zDynHeight,
+}, {
+  type: "dynamic" as const,
+  id: zWorldId,
+}, {
+  // "saved" worlds are ones that must be loaded from the database. They are owned by players.
+  type: "saved" as const,
+  id: zWorldId
+}));
+export type ZJoinRequest = SchemaInput<typeof zJoinRequest>;

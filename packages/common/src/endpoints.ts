@@ -1,13 +1,13 @@
-import * as z from "zod";
+import Schema, { boolean, string, SchemaInput, addParse } from "./computed-types-wrapper";
 
-const zSecure = z.boolean().optional();
+const zSecure = addParse(boolean.optional());
 
-export type Endpoint = z.infer<typeof zEndpoint>;
-export const zEndpoint = z.object({
+export type Endpoint = SchemaInput<typeof zEndpoint>;
+export const zEndpoint = addParse(Schema({
   secure: zSecure,
-  host: z.string().nonempty(),
-  path: z.string().nonempty(),
-});
+  host: string.min(1),
+  path: string.min(1),
+}));
 
 const host = "api.sirjosh3917.com/smiley-face-game/v1";
 
@@ -44,7 +44,7 @@ export function toUrl(argEndpoint: unknown, argWebsocket: unknown): URL {
   const base = (websocket ? "ws" : "http") + (secure ? "s" : "") + "://";
   return new URL(base + endpoint.host + endpoint.path);
 }
-const zWebsocket = z.boolean();
+const zWebsocket = addParse(boolean);
 
 /**
  * The algorithm used when coercing `secure` in `Endpoint` to a value. The algorithm is as follows:
@@ -56,7 +56,7 @@ const zWebsocket = z.boolean();
  * @package
  * @param secure The value of `secure`
  */
-export function coerceSecure(secure: boolean | undefined): boolean;
+export function coerceSecure(secure: boolean | null | undefined): boolean;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
 export function coerceSecure(argSecure: unknown): boolean {

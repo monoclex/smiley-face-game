@@ -42,8 +42,8 @@ export { zPacket, zsPacket };
  * tree shaking too), but it's still possible for typescript to remain well types. These will be added on a case by
  * case basis.
  */
-import type * as z from "zod";
+import type { SchemaInput } from "./computed-types-wrapper";
 import type { zJoinRequest } from "./ws-api";
-export type ZJoinRequest = z.infer<typeof zJoinRequest>;
+export type ZJoinRequest = SchemaInput<typeof zJoinRequest>;
 import type { zRole } from "./types";
-export type ZRole = z.infer<typeof zRole>;
+export type ZRole = SchemaInput<typeof zRole>;

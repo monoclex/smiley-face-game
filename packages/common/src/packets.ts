@@ -1,4 +1,4 @@
-import * as z from "zod";
+import Schema, { SchemaInput, boolean, addParse } from "./computed-types-wrapper";
 import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -14,12 +14,13 @@ export const zPacket = (width: number, height: number) => {
   const blockPosition = zBlockPosition(width, height);
   const blockSingle = zBlockSingle(blockPosition);
 
-  return z.union([
-    zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle, zBlockLine,
-  ]);
+  return addParse(Schema.either(
+    Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
+    zBlockLine,
+  ));
 };
 
-export type ZPacket = z.infer<ReturnType<typeof zPacket>>;
+export type ZPacket = SchemaInput<ReturnType<typeof zPacket>>;
 export type ZPacketId = Pick<ZPacket, "packetId">;
 export type ZPacketValidator = ReturnType<typeof zPacket>;
 
@@ -43,133 +44,158 @@ export type ZPacketLookup<TArgs, TResult> = {
  */
 export const zsPacket = (width: number, height: number) => {
   const blockPosition = zBlockPosition(width, height);
-  const blockSingle = zBlockSingle(blockPosition);
-  const sBlockSingle = zsBlockSingle(blockSingle);
+  const sBlockSingle = zsBlockSingle(blockPosition);
 
-  return z.union([
-    zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave, zsRoleUpdate,
-    zsWorldAction, zsBlockLine, sBlockSingle,
-  ])
+  return addParse(Schema.either(
+    Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
+    Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle),
+  ));
 };
 
-export type ZSPacket = z.infer<ReturnType<typeof zsPacket>>;
+export type ZSPacket = SchemaInput<ReturnType<typeof zsPacket>>;
 export type ZSPacketId = Pick<ZSPacket, "packetId">;
 
-export const zPickupGun = z.object({
-  packetId: z.literal("PICKUP_GUN"),
+export const zPickupGun = addParse(Schema({
+  packetId: "PICKUP_GUN" as const,
   position: zPlayerPosition,
-});
-export type ZPickupGun = z.infer<typeof zPickupGun>;
+}));
+export type ZPickupGun = SchemaInput<typeof zPickupGun>;
 
-export const zMovement = z.object({
-  packetId: z.literal("MOVEMENT"),
+export const zMovement = addParse(Schema({
+  packetId: "MOVEMENT" as const,
   position: zPlayerPosition,
   velocity: zVelocity,
   inputs: zInputs,
-});
-export type ZMovement = z.infer<typeof zMovement>;
+}));
+export type ZMovement = SchemaInput<typeof zMovement>;
 
-export const zFireBullet = z.object({
-  packetId: z.literal("FIRE_BULLET"),
+export const zFireBullet = addParse(Schema({
+  packetId: "FIRE_BULLET" as const,
   angle: zAngle,
-});
-export type ZFireBullet = z.infer<typeof zFireBullet>;
+}));
+export type ZFireBullet = SchemaInput<typeof zFireBullet>;
 
-export const zEquipGun = z.object({
-  packetId: z.literal("EQUIP_GUN"),
-  equipped: z.boolean(),
-});
-export type ZEquipGun = z.infer<typeof zEquipGun>;
+export const zEquipGun = addParse(Schema({
+  packetId: "EQUIP_GUN" as const,
+  equipped: boolean,
+}));
+export type ZEquipGun = SchemaInput<typeof zEquipGun>;
 
-export const zChat = z.object({
-  packetId: z.literal("CHAT"),
+export const zChat = addParse(Schema({
+  packetId: "CHAT" as const,
   message: zMessage,
-});
-export type ZChat = z.infer<typeof zChat>;
+}));
+export type ZChat = SchemaInput<typeof zChat>;
 
-export const zWorldAction = z.object({
-  packetId: z.literal("WORLD_ACTION"),
+export const zWorldAction = addParse(Schema({
+  packetId: "WORLD_ACTION" as const,
   action: zWorldActionKind,
-});
-export type ZWorldAction = z.infer<typeof zWorldAction>;
+}));
+export type ZWorldAction = SchemaInput<typeof zWorldAction>;
 
-export const zPlayerListAction = z.object({
-  packetId: z.literal("PLAYER_LIST_ACTION"),
+export const zPlayerListAction = addParse(Schema({
+  packetId: "PLAYER_LIST_ACTION" as const,
   action: zPlayerListActionKind,
-});
-export type ZPlayerListAction = z.infer<typeof zPlayerListAction>;
+}));
+export type ZPlayerListAction = SchemaInput<typeof zPlayerListAction>;
 
-export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) => z.object({
-  packetId: z.literal("BLOCK_SINGLE"),
+export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) => Schema({
+  packetId: "BLOCK_SINGLE" as const,
   position: blockPosition,
   layer: zTileLayer,
   block: zBlock,
 });
-export type ZBlockSingle = z.infer<ReturnType<typeof zBlockSingle>>;
+export type ZBlockSingle = SchemaInput<ReturnType<typeof zBlockSingle>>;
 
-export const zBlockLine = z.object({
-  packetId: z.literal("BLOCK_LINE"),
+export const zBlockLine = addParse(Schema({
+  packetId: "BLOCK_LINE" as const,
   start: zBoundlessBlockPosition,
   end: zBoundlessBlockPosition,
   layer: zTileLayer,
   block: zBlock
-});
-export type ZBlockLine = z.infer<typeof zBlockLine>;
+}));
+export type ZBlockLine = SchemaInput<typeof zBlockLine>;
 
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
-export const zs = z.object({
+export const zs = addParse(Schema({
   playerId: zUserId
-});
+}));
 
-export const zsBlockLine = zs.merge(zBlockLine).extend({ packetId: z.literal("SERVER_BLOCK_LINE") });
-export type ZSBlockLine = z.infer<typeof zsBlockLine>;
+export const zsBlockLine = addParse(Schema.merge(zs, {
+  packetId: "SERVER_BLOCK_LINE" as const,
+  start: zBoundlessBlockPosition,
+  end: zBoundlessBlockPosition,
+  layer: zTileLayer,
+  block: zBlock
+}));
+export type ZSBlockLine = SchemaInput<typeof zsBlockLine>;
 
-export const zsWorldAction = zs.merge(z.object({
-  packetId: z.literal("SERVER_WORLD_ACTION"),
+export const zsWorldAction = addParse(Schema.merge(zs, {
+  packetId: "SERVER_WORLD_ACTION" as const,
   action: zWorldActionKindReply,
 }));
 
-export const zsBlockSingle = (blockSingle: ReturnType<typeof zBlockSingle>) => zs.merge(blockSingle).extend({
-  packetId: z.literal("SERVER_BLOCK_SINGLE")
+export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) => Schema.merge(zs, {
+  packetId: "SERVER_BLOCK_SINGLE" as const,
+  position: blockPosition,
+  layer: zTileLayer,
+  block: zBlock,
 });
-export type ZSBlockSingle = z.infer<ReturnType<typeof zsBlockSingle>>;
+export type ZSBlockSingle = SchemaInput<ReturnType<typeof zsBlockSingle>>;
 
-export const zsRoleUpdate = zs.merge(z.object({
-  packetId: z.literal("SERVER_ROLE_UPDATE"),
+export const zsRoleUpdate = addParse(Schema.merge(zs, {
+  packetId: "SERVER_ROLE_UPDATE" as const,
   newRole: zRole,
 }));
 
-export const zsPlayerLeave = zs.merge(z.object({
-  packetId: z.literal("SERVER_PLAYER_LEAVE"),
+export const zsPlayerLeave = addParse(Schema.merge(zs, {
+  packetId: "SERVER_PLAYER_LEAVE" as const,
 }));
 
-export const zsPlayerJoin = zs.merge(z.object({
-  packetId: z.literal("SERVER_PLAYER_JOIN"),
+export const zsPlayerJoin = addParse(Schema.merge(zs, {
+  packetId: "SERVER_PLAYER_JOIN" as const,
   username: zUsername,
   role: zRole,
-  isGuest: z.boolean(),
+  isGuest: boolean,
   joinLocation: zPlayerPosition,
-  hasGun: z.boolean(),
-  gunEquipped: z.boolean(),
+  hasGun: boolean,
+  gunEquipped: boolean,
 }));
 
-export const zsPickupGun = zs.merge(z.object({
-  packetId: z.literal("SERVER_PICKUP_GUN"),
+export const zsPickupGun = addParse(Schema.merge(zs, {
+  packetId: "SERVER_PICKUP_GUN" as const,
 }));
 
-export const zsMovement = zs.merge(zMovement).extend({ packetId: z.literal("SERVER_MOVEMENT") });
+export const zsMovement = addParse(Schema.merge(zs, {
+  packetId: "SERVER_MOVEMENT" as const,
+  position: zPlayerPosition,
+  velocity: zVelocity,
+  inputs: zInputs,
+}));
 
-export const zsInit = zs.merge(z.object({
-  packetId: z.literal("SERVER_INIT"),
+export const zsInit = addParse(Schema.merge(zs, {
+  packetId: "SERVER_INIT" as const,
   role: zRole,
   worldId: zWorldId,
   size: zSize,
   spawnPosition: zPlayerPosition,
   blocks: zWorldBlocks,
   username: zUsername,
-  isGuest: z.boolean(),
+  isGuest: boolean,
+}));
+export type ZSInit = SchemaInput<typeof zsInit>;
+
+export const zsFireBullet = addParse(Schema.merge(zs, {
+  packetId: "SERVER_FIRE_BULLET" as const,
+  angle: zAngle,
 }));
 
-export const zsFireBullet = zs.merge(zFireBullet).extend({ packetId: z.literal("SERVER_FIRE_BULLET") });
-export const zsEquipGun = zs.merge(zEquipGun).extend({ packetId: z.literal("SERVER_EQUIP_GUN") });
-export const zsChat = zs.merge(zChat).extend({ packetId: z.literal("SERVER_CHAT") });
+export const zsEquipGun = addParse(Schema.merge(zs, {
+  packetId: "SERVER_EQUIP_GUN" as const,
+  equipped: boolean,
+}));
+
+export const zsChat = addParse(Schema.merge(zs, {
+  packetId: "SERVER_CHAT" as const,
+  message: zMessage,
+}));

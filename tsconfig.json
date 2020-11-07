@@ -18,9 +18,9 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "baseUrl": "./packages/",
+    "baseUrl": "./",
     "paths": {
-      "@smiley-face-game/common/*": ["./common/src/*"],
+      "@smiley-face-game/common/*": ["./packages/common/src/*"],
     }
   },
   "exclude": ["node_modules/**/*"]

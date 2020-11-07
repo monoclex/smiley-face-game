@@ -1,15 +1,15 @@
-import * as z from "zod";
+import type { SchemaInput } from "./computed-types-wrapper";
 import fetch from "cross-fetch";
 import { Endpoint, toUrl } from "./endpoints";
 
 /** awful method that wraps around `fetch` in an awful way, TODO: beautify */
-export default function <T, D extends z.ZodTypeDef>(
+export default function <D extends { parse: (input: unknown) => SchemaInput<D> }>(
   endpoint: Endpoint,
   request: unknown | undefined,
-  zResponse: z.ZodType<T, D>,
+  zResponse: D,
   token?: string,
   method?: string,
-): Promise<z.infer<z.ZodType<T, D>>> {
+): Promise<SchemaInput<D>> {
   /* awful patching to the parameters */
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers.Authorization = token;

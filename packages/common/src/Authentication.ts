@@ -1,4 +1,4 @@
-import * as z from "zod";
+
 import { zJoinRequest } from "./ws-api";
 import { zLobbyResp } from "./api";
 import { zPlayerResp } from "./api";
@@ -6,6 +6,7 @@ import Connection from "./Connection";
 import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
 import fetch from "./fetch";
+import type { SchemaInput } from "./computed-types-wrapper";
 
 /**
  * The `Authentication` class represents an authenticated user. It provides methods that query the game for
@@ -40,7 +41,7 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for connecting.
    * @returns A promise that resolves to a `Connection`, which can be used to control your in game player.
    */
-  connect(joinRequest: z.infer<typeof zJoinRequest>, endpoint?: Endpoint): Promise<Connection>
+  connect(joinRequest: SchemaInput<typeof zJoinRequest>, endpoint?: Endpoint): Promise<Connection>
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   connect(argJoinRequest: unknown, argEndpoint?: unknown): Promise<Connection> {
@@ -54,10 +55,10 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a lobby request.
    */
-  lobby(endpoint?: Endpoint): Promise<z.infer<typeof zLobbyResp>>;
+  lobby(endpoint?: Endpoint): Promise<SchemaInput<typeof zLobbyResp>>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  lobby(argEndpoint?: unknown): Promise<z.infer<typeof zLobbyResp>> {
+  lobby(argEndpoint?: unknown): Promise<SchemaInput<typeof zLobbyResp>> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.lobby);
     return fetch(endpoint, undefined, zLobbyResp, this.token, "GET");
   }
@@ -67,10 +68,10 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a request for the current player.
    */
-  player(endpoint?: Endpoint): Promise<z.infer<typeof zPlayerResp>>;
+  player(endpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  player(argEndpoint?: Endpoint): Promise<z.infer<typeof zPlayerResp>> {
+  player(argEndpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.player);
     return fetch(endpoint, undefined, zPlayerResp, this.token, "GET");
   }

@@ -1,16 +1,15 @@
-import * as z from "zod";
 import Websocket from "isomorphic-ws";
 import { Endpoint, zEndpoint, toUrl } from "./endpoints";
+import type { ZJoinRequest } from "./ws-api";
 import { zJoinRequest } from "./ws-api";
+import type { ZTileLayer, ZBlockPosition, ZBlock, ZUserId, ZPlayerPosition, ZVelocity, ZInputs, ZAngle } from "./types";
 import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, inferLayer, zMessage, zUserId } from "./types";
-import type { ZSPacket, ZPacket } from "./packets";
+import type { ZSPacket, ZPacket, ZSInit } from "./packets";
 import { zsInit, zPacket, zsPacket } from "./packets";
 import AsyncQueue from "./AsyncQueue";
+import { boolean, addParse } from "./computed-types-wrapper";
 
-// types for some things that are frequently used
-type ZTileLayer = z.infer<typeof zTileLayer>;
-type ZBlockPosition = z.infer<ReturnType<typeof zBlockPosition>>;
-type ZBlock = z.infer<typeof zBlock>;
+const zEquipped = addParse(boolean);
 
 /** A very simple check just to make sure that a websocket is being passed in. */
 function parseWebsocket(payload: any): Websocket {
@@ -28,7 +27,7 @@ export default class Connection {
    * @param token The token to use when connecting.
    * @param joinRequest The join request to supply when making the connection.
    */
-  static establish(endpoint: Endpoint, token: string, joinRequest: z.infer<typeof zJoinRequest>): Promise<Connection>;
+  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
@@ -74,7 +73,7 @@ export default class Connection {
   /**
    * The `init` packet sent to the server. `Connection` guarantees that you will have received `init` by the time
    */
-  readonly init: z.infer<typeof zsInit>;
+  readonly init: ZSInit;
 
   /**
    * A data structure used to convert the callback nature of a websocket into an easy `for await` loop for the user.
@@ -86,14 +85,13 @@ export default class Connection {
    * @param websocket The websocket that the connection is on.
    * @param init The payload of the `init` message.
    */
-  constructor(websocket: Websocket, init: z.infer<typeof zsInit>);
+  constructor(websocket: Websocket, init: ZSInit);
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   constructor(argWebsocket: unknown, argInit: unknown) {
     const self = this;
     this.websocket = parseWebsocket(argWebsocket);
-    // TODO: `zod` is ***really slow***. it takes upwards of a second to parse init
-    this.init = argInit as z.infer<typeof zsInit>;
+    this.init = zsInit.parse(argInit);
 
     this.messages = new AsyncQueue();
 
@@ -158,7 +156,7 @@ export default class Connection {
    * @param velocity The current velocity of the player.
    * @param inputs The inputs the player is pressing.
    */
-  move(position: z.infer<typeof zPlayerPosition>, velocity: z.infer<typeof zVelocity>, inputs: z.infer<typeof zInputs>): void;
+  move(position: ZPlayerPosition, velocity: ZVelocity, inputs: ZInputs): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   move(argPosition: unknown, argVelocity: unknown, argInputs: unknown) {
@@ -178,7 +176,7 @@ export default class Connection {
    * and can go back to editing, or can re-equip it by pressing `E` again.
    * @param position The position of the gun block to pickup.
    */
-  pickupGun(position: z.infer<ReturnType<typeof zBlockPosition>>): void;
+  pickupGun(position: ZBlockPosition): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   pickupGun(argPosition: unknown) {
@@ -199,7 +197,7 @@ export default class Connection {
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   equipGun(argEquipped: unknown) {
-    const equipped = z.boolean().parse(argEquipped);
+    const equipped = zEquipped.parse(argEquipped);
 
     this._send({
       packetId: "EQUIP_GUN",
@@ -211,7 +209,7 @@ export default class Connection {
    * Fires a bullet. If the player doesn't have a gun equipped, you may get disconnected.
    * @param angle The angle to fire the bullet at.
    */
-  fireBullet(angle: z.infer<typeof zAngle>): void;
+  fireBullet(angle: ZAngle): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   fireBullet(argAngle: unknown) {
@@ -283,7 +281,7 @@ export default class Connection {
    * Gives edit to a player. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to give edit to.
    */
-  giveEdit(playerId: z.infer<typeof zUserId>): void;
+  giveEdit(playerId: ZUserId): void;
 
   giveEdit(argPlayerId: unknown) {
     const playerId = zUserId.parse(argPlayerId);
@@ -298,7 +296,7 @@ export default class Connection {
    * Takes edit from a player. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to take edit from.
    */
-  takeEdit(playerId: z.infer<typeof zUserId>): void;
+  takeEdit(playerId: ZUserId): void;
 
   takeEdit(argPlayerId: unknown) {
     const playerId = zUserId.parse(argPlayerId);
@@ -313,7 +311,7 @@ export default class Connection {
    * Kicks a player from your world. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to kick.
    */
-  kick(playerId: z.infer<typeof zUserId>): void;
+  kick(playerId: ZUserId): void;
 
   kick(argPlayerId: unknown) {
     const playerId = zUserId.parse(argPlayerId);
