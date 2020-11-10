@@ -4,7 +4,7 @@
   "host": "localhost",
   "port": "5432",
   "username": "sfg",
-  "password": "local-postgresql-dev-this-is-fine",
+  "password": "dev",
   "database": "sfg",
   "synchronize": false,
   "logging": true,
