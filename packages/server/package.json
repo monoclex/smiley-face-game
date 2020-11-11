@@ -5,7 +5,7 @@
   "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "nodemon -r tsconfig-paths/register src/index.ts",
+    "dev": "nodemon",
     "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
   },
   "dependencies": {
