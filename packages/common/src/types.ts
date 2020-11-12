@@ -67,16 +67,6 @@ export const zBoundlessBlockPosition = addParse(Schema({
   y: number.integer().min(0),
 }));
 
-export enum TileId {
-  Empty = 0,
-  Basic = 1,
-  Gun = 2,
-  Arrow = 3,
-  Prismarine = 4,
-}
-export const zTileId = addParse(Schema.enum(TileId));
-export type ZTileId = SchemaInput<typeof zTileId>;
-
 export enum TileLayer {
   // TODO: order this to make logical sense?
   Foreground = 0,
@@ -93,13 +83,6 @@ export function swapLayer(layer: TileLayer): TileLayer {
   return layer === TileLayer.Foreground ? TileLayer.Background : TileLayer.Foreground;
 }
 
-export const zColor = addParse(Schema.either(
-  Schema.either("white" as const, "black" as const, "brown" as const, "red" as const, "orange" as const, "yellow" as const,
-    "green" as const, "blue" as const),
-  "purple" as const
-));
-export type ZColor = SchemaInput<typeof zColor>;
-
 export enum Rotation {
   Right = 0,
   Up = 1,
@@ -108,43 +91,10 @@ export enum Rotation {
 }
 export const zRotation = addParse(Schema.enum(Rotation));
 
-export enum PrismarineVariant {
-  Basic = 0,
-  Anchor = 1,
-  Brick = 2,
-  Slab = 3,
-  Crystal = 4,
-}
-export const zPrismarineVariant = addParse(Schema.enum(PrismarineVariant));
-
-export const zBlock = addParse(Schema.either({
-  id: TileId.Empty as const,
-}, {
-  id: TileId.Basic as const,
-  color: zColor.optional(),
-}, {
-  id: TileId.Gun as const,
-}, {
-  id: TileId.Arrow as const,
-  rotation: zRotation,
-}, {
-  id: TileId.Prismarine as const,
-  variant: zPrismarineVariant,
-}));
+// because blocks are only numeric ids, we can just use numbers
+// in the future, when we have portals, it'll be important to have something like { id: x, target: x, } etc
+export const zBlock = addParse(Schema.either(number));
 export type ZBlock = SchemaInput<typeof zBlock>;
-
-// TODO: move this into a helpers file?
-// ^^^^^ it'd actually be better to have this be a part of the configuration on a per-block basis or something
-export function inferLayer(block: SchemaInput<typeof zBlock>): TileLayer {
-  switch (block.id) {
-    // just make a best guess
-    case TileId.Empty: return TileLayer.Foreground;
-    case TileId.Basic: return TileLayer.Foreground;
-    case TileId.Gun: return TileLayer.Action;
-    case TileId.Arrow: return TileLayer.Action;
-    case TileId.Prismarine: return TileLayer.Foreground;
-  }
-}
 
 export const zPlayerListActionKind = addParse(Schema.either({
   action: "give edit" as const,
@@ -185,3 +135,43 @@ export const zWorldDetails = addParse(Schema({
   height: number.min(3).max(100).integer(),
 }));
 export type ZWorldDetails = SchemaInput<typeof zWorldDetails>;
+
+export const zTileBehavior = addParse(Schema.either(
+  // !!! HAVE TO KEEP IN SYNC WITH zTileJson `behavior` key !!!
+  "solid" as const,
+  "gun" as const,
+  "arrow" as const
+));
+export type ZTileBehavior = SchemaInput<typeof zTileBehavior>;
+
+// TODO: when adding more behaviors, should add any additional data the behavior needs
+// for now, each behavior doesn't require anything else new so it's fine
+export const zTileJson = addParse(Schema.either({
+  behavior: "solid" as const,
+  /** The name of each tile pack. Typically this will prefix each tile in the pack, e.g. basic-red, basic-green */
+  name: string,
+  /**
+   * Multi-purpose array of tiles. Each string corresponds to its tile name, e.g. `red`, `blue`, and will get
+   * appended to `name` to get its texture (e.g. `basic`-`red`). The order the tiles are in also serve to determine
+   * the numeric order (unless overridden in `numerics`)
+   */
+  tiles: array.of(string),
+  /**
+   * Used in serialization for solid behavior. The index a tile is in represents its numeric position. If not specified,
+   * `tiles` can be used for the same thing, but in the future if `tiles` is reordered, it'd be necessary to update
+   * `numerics` so that worlds stored in the DB maintain backwards compatibility.
+   *
+   * Because, in the future, it may be desirable to remove blocks and replace them with others, this supports the syntax
+   * `numerics: ["a", "b", ["c", "d"]] where `c` and `d` would map onto the same id. Because `c` is first, that would be
+   * the texture/tile used and everything would map onto it.
+   */
+  numerics: array.of(Schema.either(string, array.of(string))).optional(),
+}, {
+  behavior: "gun" as const,
+}, {
+  behavior: "arrow" as const,
+}));
+export type ZTileJson = SchemaInput<typeof zTileJson>;
+
+export const zTileJsonFile = addParse(array.of(zTileJson));
+export type ZTileJsonFile = SchemaInput<typeof zTileJsonFile>;
