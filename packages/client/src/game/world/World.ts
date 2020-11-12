@@ -1,4 +1,4 @@
-import { TileId, TileLayer } from "@smiley-face-game/common/types";
+import { TileLayer } from "@smiley-face-game/common/types";
 import type { ZBlock, ZSize, ZWorldBlocks } from "@smiley-face-game/common/types";
 import Position from "../../math/Position";
 import Layer from "../../game/components/layer/Layer";
@@ -6,10 +6,9 @@ import Void from "../../game/components/void/Void";
 import TileManager from "./TileManager";
 import { bresenhamsLine } from "@smiley-face-game/common/misc";
 import tileLookup from "../../game/tiles/tileLookup";
-import Tile from "../tiles/Tile";
 import { Connection } from "@smiley-face-game/common";
-import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
 import type { TileEx } from "../../phaser-tile-addons";
+import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
 
 export default class World {
   readonly tileManager: TileManager;
@@ -19,9 +18,11 @@ export default class World {
   readonly action: Layer;
   readonly background: Layer;
   readonly void: Void;
+  tileJson: TileRegistration;
 
   constructor(scene: Phaser.Scene, readonly size: ZSize, readonly connection: Connection) {
-    this.tileManager = new TileManager(scene, size);
+    this.tileJson = connection.tileJson;
+    this.tileManager = new TileManager(scene, size, this.tileJson);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
     this.action = new Layer(this.tileManager, "action");
@@ -66,7 +67,7 @@ export default class World {
         for (let x = 0; x < this.size.width; x++) {
           position.x = x;
 
-          this.placeBlock(position, { id: TileId.Empty }, l, false);
+          this.placeBlock(position, 0, l, false);
         }
       }
     }
@@ -75,39 +76,39 @@ export default class World {
   placeBlock(position: Position, tileState: ZBlock, layer: TileLayer | undefined, iPlacedIt: boolean) {
     const { x, y } = position;
 
-    const tileBreed = tileLookup[tileState.id];
-    const actualLayer = layer ?? tileBreed.layer;
+    const behavior = this.tileJson.for(tileState);
+    const tileBreed = tileLookup[behavior.behavior];
+    const actualLayer = layer ?? behavior.layer;
     const tile: TileEx = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
 
     // don't do anything as they are the same
-    if (tile.tileState && blocksEqual(tileState, tile.tileState)) {
+    if (tile.tileState && tileState === tile.tileState) {
       return;
     }
-    if (tileState.id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
+    if (tileState === 0 && tile.index === -1) return; // special case for empty tiles
 
     //@ts-ignore
     const tileIndex: TileId = tile.index;
 
     if (tile.tileState) {
-      const result: Tile<typeof tileState.id> = tileLookup[tile.tileState.id];
-      if (result !== undefined && result.onRemove) {
-        result.onRemove(tile);
+      const result = tileLookup[this.tileJson.for(tile.tileState).behavior];
+      if (result !== undefined && result.remove) {
+        result.remove(this.tileJson, tile);
       }
     }
 
-    tile.tileState = { ...tileState };
-    // TODO: fix this somehow?
-    //@ts-expect-error
-    tileBreed.place(tile, tileState);
+    // TODO: if this turns into a reference, make sure to copy the value (not the reference)
+    tile.tileState = tileState;
+
+    tileBreed.place(this.tileJson, tile, tileState);
 
     if (iPlacedIt) {
-      //@ts-ignore this will be fixed when i rip out schema stuff
       this.connection.place(tileState, position, actualLayer);
     }
   }
 
   // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tile: TileState, iPlacedIt: boolean, layer?: TileLayer) {
+  drawLine(start: Position, end: Position, tile: ZBlock, iPlacedIt: boolean, layer?: TileLayer) {
     bresenhamsLine(start.x, start.y, end.x, end.y, (x: number, y: number) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
       this.placeBlock({ x, y }, tile, layer, iPlacedIt);

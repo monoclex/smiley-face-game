@@ -3,6 +3,7 @@ import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/common/api
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
+import TileJson from "packages/server/src/worlds/TileJson";
 
 type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider" | "worldRepo">;
 
@@ -74,7 +75,7 @@ export default function (deps: UsedDependencies): Router {
           owner: account,
           width: 50,
           height: 50,
-        });
+        }, TileJson);
 
         account.worlds.push(world);
         await accountRepo.save(account);

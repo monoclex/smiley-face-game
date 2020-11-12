@@ -1,9 +1,9 @@
-import { TileId } from "@smiley-face-game/common/types";
 import type { ZBlock, ZSize } from "@smiley-face-game/common/types";
 import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
 import key from "./key";
-import tileLookup from "../../game/tiles/tileLookup";
+import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
+import mapTileNameToClientId from "../tiles/idLookup";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32;
@@ -20,7 +20,7 @@ export default class TileManager {
     });
   }
 
-  constructor(readonly scene: Phaser.Scene, worldSize: ZSize) {
+  constructor(readonly scene: Phaser.Scene, worldSize: ZSize, readonly tileJson: TileRegistration) {
     this.tilemap = scene.make.tilemap({
       width: worldSize.width,
       height: worldSize.height,
@@ -48,26 +48,21 @@ export default class TileManager {
 
     const context = renderImageCanvas.getContext("2d")!;
 
-    tileLookup[block.id].renderCanvas({
-      //@ts-ignore shh it is correct
-      block,
-      renderImageCanvas,
-      context,
-      getFrame: ((index: number) => {
-        const frame = this.frameOfTile(index);
-        return {
-          atlas: frame.source.source as HTMLImageElement,
-          //@ts-ignore
-          x: frame.customData.frame.x as number,
-          //@ts-ignore
-          y: frame.customData.frame.y as number,
-          //@ts-ignore
-          width: frame.customData.frame.w as number,
-          //@ts-ignore
-          height: frame.customData.frame.h as number,
-        };
-      }).bind(this),
-    });
+    const texture = this.tileJson.texture(block);
+    const index = mapTileNameToClientId(texture);
+    const frame = this.frameOfTile(index);
+    const { atlas, x, y, width, height } = {
+      atlas: frame.source.source as HTMLImageElement,
+      //@ts-ignore
+      x: frame.customData.frame.x as number,
+      //@ts-ignore
+      y: frame.customData.frame.y as number,
+      //@ts-ignore
+      width: frame.customData.frame.w as number,
+      //@ts-ignore
+      height: frame.customData.frame.h as number,
+    };
+    context.drawImage(atlas, x, y, width, height, 0, 0, 32, 32);
 
     const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
     const url = URL.createObjectURL(blob);
@@ -77,7 +72,7 @@ export default class TileManager {
     return tileTexture;
   }
 
-  private frameOfTile(tileId: TileId): Phaser.Textures.Frame {
+  private frameOfTile(tileId: number): Phaser.Textures.Frame {
     let start = this.tileset.image.firstFrame;
     let findId = -1;
     let foundKey = null;

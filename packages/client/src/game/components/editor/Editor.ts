@@ -1,4 +1,4 @@
-import { TileId, TileLayer, ZBlock } from "@smiley-face-game/common/types";
+import { TileLayer, ZBlock } from "@smiley-face-game/common/types";
 import Position from "../../../math/Position";
 import World from "../../../game/world/World";
 import EditorDisplay from "./EditorDisplay";
@@ -17,11 +17,11 @@ class DrawingPointer {
 
   onDown() {
     if (!this.editor.enabled) return;
-    const { id } = this.id();
+    const id = this.id();
     this.lastLayer = undefined;
 
     // if we're placing an empty block, try to pick a block at that position
-    if (id === TileId.Empty) {
+    if (id === 0) {
       // TODO: depend on the world for this picking behaviour"?
       let { x, y } = this.lastPosition;
       let fg = this.editor.world.foreground.display.tilemapLayer.getTileAt(x, y);
@@ -54,7 +54,7 @@ class DrawingPointer {
   onUp() { }
 
   id(): ZBlock {
-    if (this.pointer.rightButtonDown()) return { id: TileId.Empty };
+    if (this.pointer.rightButtonDown()) return 0;
     else return this.blockBar.selectedBlock;
   }
 

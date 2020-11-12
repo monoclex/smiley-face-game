@@ -1,10 +1,11 @@
-import type { ZTileJson } from "../types";
+import { TileLayer, ZTileJson } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
 
 export default class EmptyBehavior extends Behavior<[]> {
   constructor(_: ZTileJson, registration: TileRegistration) {
-    super(_);
+    // saying "foreground" doesn't really matter here for empty
+    super(_, "empty", TileLayer.Foreground);
 
     const id = registration.register(this, 0);
     if (id !== 0) throw new Error("empty tile gets id 0");

@@ -5,8 +5,8 @@ export default class TileRegistration {
   _map: Map<number, Behavior<unknown>> = new Map();
   _sources: Map<number, Behavior<unknown>> = new Map();
 
-  register(instance: Behavior<unknown>, argId?: number): number {
-    const id = !!argId ? argId : this._current++;
+  register(instance: Behavior<unknown>, argId?: number | undefined): number {
+    const id = argId !== undefined ? argId : this._current++;
     this._map.set(id, instance);
     return id;
   }

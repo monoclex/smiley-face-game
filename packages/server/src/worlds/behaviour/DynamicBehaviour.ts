@@ -5,6 +5,7 @@ import Connection from "../../worlds/Connection";
 import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
 import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
 import { zJoinRequest } from "@smiley-face-game/common/ws-api";
+import TileJson from "packages/server/src/worlds/TileJson";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;
@@ -46,7 +47,7 @@ export default class DynamicBehaviour implements Behaviour {
   }
 
   loadBlocks(): Promise<ZWorldBlocks> {
-    return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height)));
+    return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height, TileJson)));
   }
 
   saveBlocks(): Promise<void> {

@@ -1,6 +1,7 @@
 import type { ZTileJson } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
+import { TileLayer } from "../types";
 
 export default class SolidBehavior<S extends number> extends Behavior<[S, number]> {
   private _idToName: Map<number, string> = new Map();
@@ -9,7 +10,7 @@ export default class SolidBehavior<S extends number> extends Behavior<[S, number
   private _end?: number;
 
   constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
-    super(tileJson);
+    super(tileJson, "solid", TileLayer.Foreground);
     if (tileJson.behavior !== "solid") throw new Error("passed non-solid tile json to solid behavior");
 
     if (tileJson.numerics) throw new Error("`numerics` isn't supported at this time, i haven't coded support for 'em yet");

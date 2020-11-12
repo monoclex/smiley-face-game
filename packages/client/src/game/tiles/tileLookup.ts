@@ -1,20 +1,13 @@
-import { TileId } from "@smiley-face-game/common/types";
-import Tile from "./Tile";
-import EmptyTile from "./EmptyTile";
-import FullTile from "./FullTile";
-import GunTile from "./GunTile";
-import ArrowTile from "./ArrowTile";
-import PrismarineTile from "./PrismarineTile";
+import EmptyTiles from "./EmptyTiles";
+import SolidTiles from "./SolidTiles";
+import GunTiles from "./GunTiles";
+import ArrowTiles from "./ArrowTiles";
 
 const tileLookup = {
-  [TileId.Empty]: new EmptyTile(),
-  [TileId.Basic]: new FullTile(),
-  [TileId.Gun]: new GunTile(),
-  [TileId.Arrow]: new ArrowTile(),
-  [TileId.Prismarine]: new PrismarineTile(),
+  ["empty"]: new EmptyTiles(),
+  ["solid"]: new SolidTiles(),
+  ["gun"]: new GunTiles(),
+  ["arrow"]: new ArrowTiles(),
 };
-
-function ensureTypeChecked(_: { [key in TileId]: Tile<key> }) { }
-ensureTypeChecked(tileLookup);
 
 export default tileLookup;

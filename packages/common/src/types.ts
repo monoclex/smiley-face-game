@@ -138,9 +138,10 @@ export type ZWorldDetails = SchemaInput<typeof zWorldDetails>;
 
 export const zTileBehavior = addParse(Schema.either(
   // !!! HAVE TO KEEP IN SYNC WITH zTileJson `behavior` key !!!
+  "empty" as const,
   "solid" as const,
   "gun" as const,
-  "arrow" as const
+  "arrow" as const,
 ));
 export type ZTileBehavior = SchemaInput<typeof zTileBehavior>;
 
@@ -170,6 +171,8 @@ export const zTileJson = addParse(Schema.either({
   behavior: "gun" as const,
 }, {
   behavior: "arrow" as const,
+}, {
+  behavior: "empty" as const,
 }));
 export type ZTileJson = SchemaInput<typeof zTileJson>;
 

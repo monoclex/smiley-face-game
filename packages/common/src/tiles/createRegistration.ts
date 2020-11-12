@@ -2,6 +2,7 @@ import type { ZTileJsonFile } from "../types";
 import { zTileJsonFile } from "../types";
 import tileBehaviorMap from "./behaviors";
 import TileRegistration from "./TileRegistration";
+import EmptyBehavior from "./EmptyBehavior";
 
 /**
  * Goes over a tile json file, and registers all tiles as necessary.
@@ -24,6 +25,8 @@ export default function createRegistration(argTileJsonFile: unknown): TileRegist
     //@ts-ignore
     const behavior = new behaviorCtor(tileJson, sourceId++, registration);
   }
+
+  new EmptyBehavior({ behavior: "empty" }, registration);
 
   return registration;
 }

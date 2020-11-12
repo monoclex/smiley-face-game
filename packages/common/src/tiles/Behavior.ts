@@ -1,10 +1,10 @@
-import type { ZTileJson } from "../types";
+import type { ZTileBehavior, ZTileJson, TileLayer } from "../types";
 import { zTileJson } from "../types";
 
 export default abstract class Behavior<T> {
   readonly texture: Map<number, string> = new Map();
 
-  constructor(tileJson: ZTileJson) {
+  constructor(tileJson: ZTileJson, readonly behavior: ZTileBehavior, readonly layer: TileLayer) {
     // children will call `super()` so we can catch last minute invalid payloads if we want here
     zTileJson.parse(tileJson);
   }

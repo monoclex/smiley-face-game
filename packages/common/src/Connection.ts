@@ -10,7 +10,7 @@ import { zsInit, zPacket, zsPacket } from "./packets";
 import AsyncQueue from "./AsyncQueue";
 import { boolean, addParse } from "./computed-types-wrapper";
 import TileRegistration from "./tiles/TileRegistration";
-import createRegistration from "./tiles/TileManager";
+import createRegistration from "./tiles/createRegistration";
 
 const zEquipped = addParse(boolean);
 

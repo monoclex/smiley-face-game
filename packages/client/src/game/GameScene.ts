@@ -16,13 +16,14 @@ import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
 import toast from "../SnackbarUtils";
+import type { ZSInit } from "@smiley-face-game/common/src/packets";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
 
 export default class GameScene extends Phaser.Scene {
   connection!: Connection;
-  initPacket!: ServerInitPacket;
+  initPacket!: ZSInit;
   world!: World;
   players!: PlayerManager;
   mainPlayer!: Player;
@@ -250,6 +251,25 @@ export default class GameScene extends Phaser.Scene {
             break;
         }
       }
+    }
+
+    for (const event of this.initPacket.players) {
+      if (event.playerId === this.mainPlayer.id) break;
+
+      const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
+      player.setPosition(event.joinLocation.x, event.joinLocation.y);
+
+      if (event.hasGun) player.instantiateGun(M249LMG);
+      if (event.gunEquipped) player.guaranteeGun.equipped = event.gunEquipped;
+
+      // UI - add player
+      let newPlayer = {
+        playerId: event.playerId,
+        username: event.username,
+        role: event.role as ZRole,
+      };
+
+      playerList.modify({ players: [newPlayer, ...playerList.state.players] });
     }
 
     playerList.set({ players: [this.self] });

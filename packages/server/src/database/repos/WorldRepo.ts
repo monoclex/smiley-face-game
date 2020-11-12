@@ -1,3 +1,4 @@
+import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
 import { Connection, Repository } from "typeorm";
 import type { ZBlock } from "@smiley-face-game/common/types";
 import { zAccountId, zWorldId } from "@smiley-face-game/common/types";
@@ -47,11 +48,11 @@ export default class WorldRepo {
 
   /* === creation === */
 
-  create(details: WorldDetails): Promise<World> {
+  create(details: WorldDetails, tileJson: TileRegistration): Promise<World> {
     // TODO: verify details given
 
     // all computed assignments are stated in plain sight before assignment
-    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details);
+    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details, tileJson);
     const name = !!details.name ? details.name : "Untitled World";
 
     let world = this.#repo.create();
@@ -76,6 +77,6 @@ export default class WorldRepo {
   }
 }
 
-function emptyWorld(details: WorldDetails): string {
-  return generateWorld(details.width, details.height);
+function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
+  return generateWorld(details.width, details.height, tileJson);
 }
