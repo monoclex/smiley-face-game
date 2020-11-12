@@ -17,6 +17,7 @@ import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
 import toast from "../SnackbarUtils";
 import type { ZSInit } from "@smiley-face-game/common/src/packets";
+import { blockbar as recoilBlockbar } from "../recoil/atoms/blockbar";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32; // import { TILE_WIDTH, TILE_HEIGHT } from "../scenes/world/Config";
@@ -271,6 +272,23 @@ export default class GameScene extends Phaser.Scene {
 
       playerList.modify({ players: [newPlayer, ...playerList.state.players] });
     }
+
+    // setup the block bar with blocks so players can place stuff
+    recoilBlockbar.modify({
+      loader: world.tileManager.imageOf.bind(world.tileManager),
+      slots: {
+        ...recoilBlockbar.state.slots,
+        [0]: this.connection.tileJson.id("empty"),
+        [1]: this.connection.tileJson.id("basic-white"),
+        [2]: this.connection.tileJson.id("gun"),
+        [3]: this.connection.tileJson.id("arrow-up"),
+        [4]: this.connection.tileJson.id("prismarine-basic"),
+        [5]: this.connection.tileJson.id("gemstone-red"),
+        [6]: this.connection.tileJson.id("tshell-white"),
+        [7]: this.connection.tileJson.id("pyramid-white"),
+        [8]: this.connection.tileJson.id("choc-l0"),
+      }
+    });
 
     playerList.set({ players: [this.self] });
     loading.set({ failed: false });

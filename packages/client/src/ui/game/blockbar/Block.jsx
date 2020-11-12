@@ -41,7 +41,7 @@ const Block = (props) => {
     props.loader(props.block).then((image) => {
       setImageSource(image.src);
     });
-  }, [props.loader, props.block.id, props.block.color, props.block.rotation, props.block.variant]);
+  }, [props.loader, props.block]);
 
   if (!props.loader || !imageSource) {
     return null;

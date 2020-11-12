@@ -49,8 +49,7 @@ export default class TileManager {
     const context = renderImageCanvas.getContext("2d")!;
 
     const texture = this.tileJson.texture(block);
-    const index = mapTileNameToClientId(texture);
-    const frame = this.frameOfTile(index);
+    const frame = this.frameOfTile(texture);
     const { atlas, x, y, width, height } = {
       atlas: frame.source.source as HTMLImageElement,
       //@ts-ignore
@@ -72,29 +71,7 @@ export default class TileManager {
     return tileTexture;
   }
 
-  private frameOfTile(tileId: number): Phaser.Textures.Frame {
-    let start = this.tileset.image.firstFrame;
-    let findId = -1;
-    let foundKey = null;
-
-    // TODO: rewrite this to be a bit more sane
-    for (const key in this.tileset.image.frames) {
-      if (findId !== -1) {
-        findId++;
-      }
-
-      if (findId === -1 && start === key) {
-        findId = 0;
-      }
-
-      if (findId === tileId) {
-        foundKey = key;
-        break;
-      }
-    }
-
-    //@ts-ignore
-    const frame: Phaser.Textures.Frame = this.tileset.image.frames[!foundKey ? start : foundKey];
-    return frame;
+  private frameOfTile(textureName: string): Phaser.Textures.Frame {
+    return this.tileset.image.get(textureName);
   }
 }
