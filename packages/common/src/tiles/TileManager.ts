@@ -16,11 +16,13 @@ export default function createRegistration(argTileJsonFile: unknown): TileRegist
   const tileJsonFile = zTileJsonFile.parse(argTileJsonFile);
   const registration = new TileRegistration();
 
+  let sourceId = 0;
   for (const tileJson of tileJsonFile) {
     const behaviorCtor = tileBehaviorMap[tileJson.behavior];
 
     // constructing this should register the tiles as necessary. a bit weird to read yeah, but w/e
-    const behavior = new behaviorCtor(tileJson, registration);
+    //@ts-ignore
+    const behavior = new behaviorCtor(tileJson, sourceId++, registration);
   }
 
   return registration;

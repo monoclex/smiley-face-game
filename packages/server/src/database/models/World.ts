@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import type { ZBlock } from "@smiley-face-game/common/types";
 import Account from "./Account";
 
 @Entity()
@@ -19,14 +18,18 @@ export default class World {
   @Column({ nullable: false })
   height!: number;
 
+  /** Because it's possible to have */
+  @Column({ nullable: false })
+  worldDataVersion!: number;
+
   @Column({ type: "text" })
   rawWorldData!: string;
 
-  get worldData(): ZBlock[][][] {
+  get worldData(): unknown {
     return JSON.parse(this.rawWorldData);
   }
 
-  set worldData(value: ZBlock[][][]) {
+  set worldData(value: unknown) {
     this.rawWorldData = JSON.stringify(value);
   }
 }

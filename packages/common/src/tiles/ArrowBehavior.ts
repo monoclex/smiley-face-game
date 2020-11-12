@@ -3,10 +3,10 @@ import { Rotation } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
 
-export default class ArrowBehavior extends Behavior<[2, Rotation]> {
+export default class ArrowBehavior<S> extends Behavior<[S, Rotation]> {
   readonly arrows: [number, number, number, number];
 
-  constructor(tileJson: ZTileJson, registration: TileRegistration) {
+  constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
     super(tileJson);
     if (tileJson.behavior !== "arrow") throw new Error("passed non-gun tile json to gun behavior");
 
@@ -35,15 +35,16 @@ export default class ArrowBehavior extends Behavior<[2, Rotation]> {
     return current + 1;
   }
 
-  serialize(id: number): [2, Rotation] {
-    if (id === this.arrows[0]) return [2, Rotation.Up];
-    if (id === this.arrows[1]) return [2, Rotation.Right];
-    if (id === this.arrows[2]) return [2, Rotation.Down];
-    if (id === this.arrows[3]) return [2, Rotation.Left];
+  serialize(id: number): [S, Rotation] {
+    if (id === this.arrows[0]) return [this.sourceId, Rotation.Up];
+    if (id === this.arrows[1]) return [this.sourceId, Rotation.Right];
+    if (id === this.arrows[2]) return [this.sourceId, Rotation.Down];
+    if (id === this.arrows[3]) return [this.sourceId, Rotation.Left];
     throw new Error("invalid id");
   }
 
-  deserialize([_, rotation]: [2, Rotation]): number {
+  deserialize([mainId, rotation]: [S, Rotation]): number {
+    if (mainId !== this.sourceId) throw new Error("mainId isn't right");
     if (rotation === Rotation.Up) return this.arrows[0];
     if (rotation === Rotation.Right) return this.arrows[1];
     if (rotation === Rotation.Down) return this.arrows[2];

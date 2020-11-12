@@ -3,11 +3,14 @@ import { Endpoint, zEndpoint, toUrl } from "./endpoints";
 import type { ZJoinRequest } from "./ws-api";
 import { zJoinRequest } from "./ws-api";
 import type { ZTileLayer, ZBlockPosition, ZBlock, ZUserId, ZPlayerPosition, ZVelocity, ZInputs, ZAngle } from "./types";
-import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, inferLayer, zMessage, zUserId } from "./types";
+import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, zMessage, zUserId } from "./types";
+import inferLayer from "./inferLayer";
 import type { ZSPacket, ZPacket, ZSInit } from "./packets";
 import { zsInit, zPacket, zsPacket } from "./packets";
 import AsyncQueue from "./AsyncQueue";
 import { boolean, addParse } from "./computed-types-wrapper";
+import TileRegistration from "./tiles/TileRegistration";
+import createRegistration from "./tiles/TileManager";
 
 const zEquipped = addParse(boolean);
 
@@ -81,6 +84,11 @@ export default class Connection {
   readonly messages: AsyncQueue<ZSPacket>;
 
   /**
+   * The state for registered tiles.
+   */
+  readonly tileJson: TileRegistration;
+
+  /**
    * Constructs a new `Connection`, given a `websocket` and an `init` message.
    * @param websocket The websocket that the connection is on.
    * @param init The payload of the `init` message.
@@ -92,6 +100,7 @@ export default class Connection {
     const self = this;
     this.websocket = parseWebsocket(argWebsocket);
     this.init = zsInit.parse(argInit);
+    this.tileJson = createRegistration(this.init.tiles);
 
     this.messages = new AsyncQueue();
 
@@ -233,7 +242,7 @@ export default class Connection {
   place(argBlock: unknown, argPosition: unknown, argLayer?: unknown) {
     const block = zBlock.parse(argBlock);
     const position = this.zBlockPosition.parse(argPosition);
-    const layer = zTileLayer.parse(argLayer || inferLayer(block));
+    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson.for(block)));
 
     this._send({
       packetId: "BLOCK_SINGLE",
@@ -254,7 +263,7 @@ export default class Connection {
     const block = zBlock.parse(argBlock);
     const start = this.zBlockPosition.parse(argStart);
     const end = this.zBlockPosition.parse(argEnd);
-    const layer = zTileLayer.parse(argLayer || inferLayer(block));
+    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson.for(block)));
 
     this._send({
       packetId: "BLOCK_LINE",

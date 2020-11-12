@@ -2,13 +2,13 @@ import type { ZTileJson } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
 
-export default class SolidBehavior extends Behavior<[0, number]> {
+export default class SolidBehavior<S extends number> extends Behavior<[S, number]> {
   private _idToName: Map<number, string> = new Map();
   private _numerics: Map<number, number> = new Map();
   private _start?: number;
   private _end?: number;
 
-  constructor(tileJson: ZTileJson, registration: TileRegistration) {
+  constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
     super(tileJson);
     if (tileJson.behavior !== "solid") throw new Error("passed non-solid tile json to solid behavior");
 
@@ -43,11 +43,12 @@ export default class SolidBehavior extends Behavior<[0, number]> {
     return next;
   }
 
-  serialize(id: number): [0, number] {
-    return [0, this._numerics.get(id)!];
+  serialize(id: number): [S, number] {
+    return [this.sourceId, this._numerics.get(id)!];
   }
 
-  deserialize([_, tile]: [0, number]): number {
+  deserialize([mainId, tile]: [S, number]): number {
+    if (mainId !== this.sourceId) throw new Error("mainId isn't right");
     for (const [id, numeric] of this._numerics.entries()) {
       if (numeric === tile) return id;
     }

@@ -2,10 +2,7 @@
 
 import { bresenhamsLine } from "@smiley-face-game/common/misc";
 import type { ZBlockSingle, ZSBlockSingle, ZBlockLine, ZSBlockLine } from "@smiley-face-game/common/packets"
-import { TileId } from "@smiley-face-game/common/types";
 import Connection from "../../worlds/Connection";
-import blocksEqual from "@smiley-face-game/common/tiles/blocksEqual";
-import copyBlock from "@smiley-face-game/common/tiles/copyBlock";
 import type { ZWorldBlocks } from "@smiley-face-game/common/types";
 
 export class BlockHandler {
@@ -18,7 +15,7 @@ export class BlockHandler {
         const yMap = layerMap[y] ?? (layerMap[y] = []);
 
         for (let x = 0; x < this.width; x++) {
-          yMap[x] ?? (yMap[x] = { id: TileId.Empty });
+          yMap[x] ?? (yMap[x] = 0);
         }
       }
     }
@@ -28,8 +25,9 @@ export class BlockHandler {
     const target = this.map[packet.layer][packet.position.y][packet.position.x];
 
     // packet is known good, only do updating work if necessary
-    if (!blocksEqual(packet.block, target)) {
-      copyBlock((v) => (this.map[packet.layer][packet.position.y][packet.position.x] = v), packet.block);
+    if (packet.block !== target) {
+      // NOTE: if switching to reference types, make sure to copy the value
+      this.map[packet.layer][packet.position.y][packet.position.x] = packet.block;
 
       // only if the packet updated any blocks do we want to queue it
       return {
@@ -53,10 +51,11 @@ export class BlockHandler {
       // bounds checking if the block is within bounds
       if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-      if (!blocksEqual(this.map[packet.layer][y][x], packet.block)) {
+      if (this.map[packet.layer][y][x] !== packet.block) {
         didUpdate = true;
 
-        copyBlock((v) => (this.map[packet.layer][y][x] = v), packet.block);
+        // NOTE: if switching to reference types, make sure to copy value
+        this.map[packet.layer][y][x] = packet.block;
       }
     });
 

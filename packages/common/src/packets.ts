@@ -1,5 +1,5 @@
-import Schema, { SchemaInput, boolean, addParse } from "./computed-types-wrapper";
-import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage } from "./types";
+import Schema, { SchemaInput, boolean, addParse, array } from "./computed-types-wrapper";
+import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage, zTileJsonFile } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
 
@@ -182,6 +182,8 @@ export const zsInit = addParse(Schema.merge(zs, {
   blocks: zWorldBlocks,
   username: zUsername,
   isGuest: boolean,
+  tiles: zTileJsonFile,
+  players: array.of(zsPlayerJoin),
 }));
 export type ZSInit = SchemaInput<typeof zsInit>;
 

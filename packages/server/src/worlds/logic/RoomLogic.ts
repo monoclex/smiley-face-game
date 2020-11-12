@@ -6,6 +6,9 @@ import WebSocket from "ws";
 import Behaviour from "../../worlds/behaviour/Behavior";
 import type { ZPacket, ZSPacket } from "@smiley-face-game/common";
 import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
+import tileJson from "@smiley-face-game/common/tiles/tiles.json";
+import { zTileJsonFile } from "@smiley-face-game/common/src/types";
+const tileJsonFile = zTileJsonFile.parse(tileJson);
 
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -97,12 +100,8 @@ export default class RoomLogic {
       blocks: this.blockHandler.map,
       username: connection.username,
       isGuest: connection.isGuest,
-    };
-
-    connection.send(initPacket);
-
-    for (const otherUser of this.#players.values()) {
-      connection.send({
+      tiles: tileJsonFile,
+      players: Array.from(this.#players.values()).map(otherUser => ({
         packetId: "SERVER_PLAYER_JOIN",
         playerId: otherUser.playerId!,
         username: otherUser.username,
@@ -111,8 +110,10 @@ export default class RoomLogic {
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
         gunEquipped: otherUser.gunEquipped,
-      });
-    }
+      }))
+    };
+
+    connection.send(initPacket);
 
     this.#players.set(id, connection);
     return true;

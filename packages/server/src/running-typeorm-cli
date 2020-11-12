@@ -1,0 +1,8 @@
+uhh not sure why `typeorm` doesn't run just fine but if you're tryna run a migration or something, do this:
+
+1. copy typeorm.json from ./typeorm.json to ./packages/server/typeorm.json
+2. use ``npx ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js` instead of `typeorm`
+
+making migrations:
+1. apply them `npx ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:run`
+2. generate them `npx ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:generate -n CoolMigration`

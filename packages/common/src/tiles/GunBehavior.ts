@@ -2,10 +2,10 @@ import type { ZTileJson } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
 
-export default class GunBehavior extends Behavior<[1, number]> {
+export default class GunBehavior<S extends number> extends Behavior<[S, number]> {
   readonly gunId: number;
 
-  constructor(tileJson: ZTileJson, registration: TileRegistration) {
+  constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
     super(tileJson);
     if (tileJson.behavior !== "gun") throw new Error("passed non-gun tile json to gun behavior");
 
@@ -21,12 +21,13 @@ export default class GunBehavior extends Behavior<[1, number]> {
     return this.gunId;
   }
 
-  serialize(): [1, number] {
+  serialize(): [S, number] {
     // TODO: when there are more gun types, add them as additional variants
-    return [1, 0];
+    return [this.sourceId, 0];
   }
 
-  deserialize([_, gunType]: [1, number]): number {
+  deserialize([mainId, gunType]: [S, number]): number {
+    if (mainId as unknown !== this.sourceId) throw new Error("mainId isn't right");
     if (gunType !== 0) throw new Error("multiple gun variants aren't supported at this time");
     return this.gunId;
   }
