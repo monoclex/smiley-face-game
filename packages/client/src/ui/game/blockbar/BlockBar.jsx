@@ -69,7 +69,7 @@ const BlockBar = () => {
           slotId={i}
           block={blockbar.slots[i]}
           nextState={() => {
-            const newTileState = nextTileState(blockbar.slots[i]);
+            const newTileState = window.gameScene.world.tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
             setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}

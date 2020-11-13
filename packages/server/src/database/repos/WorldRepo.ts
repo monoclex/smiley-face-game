@@ -1,6 +1,6 @@
 import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
 import { Connection, Repository } from "typeorm";
-import type { ZBlock } from "@smiley-face-game/common/types";
+import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/common/types";
 import { zAccountId, zWorldId } from "@smiley-face-game/common/types";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
@@ -52,7 +52,7 @@ export default class WorldRepo {
     // TODO: verify details given
 
     // all computed assignments are stated in plain sight before assignment
-    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details, tileJson);
+    const blocks = JSON.stringify(serialize(!!details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)), tileJson));
     const name = !!details.name ? details.name : "Untitled World";
 
     let world = this.#repo.create();
@@ -62,6 +62,7 @@ export default class WorldRepo {
     world.width = details.width;
     world.height = details.height;
     world.rawWorldData = blocks;
+    world.worldDataVersion = 1;
 
     return this.#repo.save(world);
   }
@@ -79,4 +80,28 @@ export default class WorldRepo {
 
 function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
   return generateWorld(details.width, details.height, tileJson);
+}
+
+export function serialize(blocks: ZWorldBlocks, tileJson: TileRegistration) {
+  const newBlocks = [];
+
+  for (let l = 0; l < blocks.length; l++) {
+    const layers = blocks[l];
+    const newL = [];
+
+    for (let y = 0; y < layers.length; y++) {
+      const yMap = layers[y];
+      const newY = [];
+
+      for (let x = 0; x < yMap.length; x++) {
+        newY.push(tileJson.for(yMap[x]).serialize(yMap[x]));
+      }
+
+      newL.push(newY);
+    }
+
+    newBlocks.push(newL);
+  }
+
+  return newBlocks;
 }

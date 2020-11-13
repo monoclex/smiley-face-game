@@ -1,9 +1,9 @@
 import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/common/types";
 import type Behavior from "@smiley-face-game/common/src/tiles/Behavior";
-import WorldRepo from "../../database/repos/WorldRepo";
+import WorldRepo, { serialize } from "../../database/repos/WorldRepo";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";
-import TileJson from "packages/server/src/worlds/TileJson";
+import TileJson from "../TileJson";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
@@ -160,7 +160,8 @@ export default class SavedBehaviour implements Behaviour {
 
   async saveBlocks(blocks: ZWorldBlocks): Promise<void> {
     const world = await this.#repo.findById(this.id);
-    world.worldData = blocks;
+    world.worldData = serialize(blocks, TileJson);
+    world.worldDataVersion = 1;
     await this.#repo.save(world);
   }
 

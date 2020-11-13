@@ -23,7 +23,10 @@ export default function createRegistration(argTileJsonFile: unknown): TileRegist
 
     // constructing this should register the tiles as necessary. a bit weird to read yeah, but w/e
     //@ts-ignore
-    const behavior = new behaviorCtor(tileJson, sourceId++, registration);
+    const behavior = new behaviorCtor(tileJson, sourceId, registration);
+    registration.registerSrc(behavior, sourceId);
+
+    sourceId += 1;
   }
 
   new EmptyBehavior({ behavior: "empty" }, registration);

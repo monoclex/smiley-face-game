@@ -28,7 +28,7 @@
   {
     "behavior": "solid",
     "name": "pyramid",
-    "tiles": ["white", "gray", "black", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink"]
+    "tiles": ["white", "gray", "black", "red", "orange", "yellow", "green", "cyan", "blue", "purple"]
   },
   {
     "behavior": "solid",
