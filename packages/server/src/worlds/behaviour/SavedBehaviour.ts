@@ -116,8 +116,6 @@ export default class SavedBehaviour implements Behaviour {
         newData.push(newLayer);
       }
 
-      console.log("pre", oldData);
-      console.log("post", newData);
       world.worldDataVersion = 1;
       world.worldData = newData;
       // await this.#repo.save(world);
