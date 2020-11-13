@@ -336,7 +336,12 @@ export default class GameScene extends Phaser.Scene {
     // when the user presses to fire, it doesn't place/destroy a block
     //
     // we also want to prevent the user from editing if they don't have edit
-    this.editor.setEnabled((!this.mainPlayer.gunEquipped && this.self.role === "edit") || this.self.role === "owner");
+    if (this.mainPlayer.gunEquipped) {
+      this.editor.setEnabled(false);
+    }
+    else if (this.self.role === "edit" || this.self.role === "owner") {
+      this.editor.setEnabled(true);
+    }
 
     let now = Date.now();
     if (
