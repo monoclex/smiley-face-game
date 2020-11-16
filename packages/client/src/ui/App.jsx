@@ -17,6 +17,7 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const LobbyPage = lazy(() => import("./pages/LobbyPage"));
 const PlayPage = lazy(() => import("./pages/PlayPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
+const ShopPage = lazy(() => import("./pages/ShopPage"));
 
 export const App = () => {
   const prefersDarkMode = true;
@@ -49,6 +50,7 @@ export const App = () => {
               <Route exact path="/lobby" component={LobbyPage} />
               <Route exact path="/games/:roomId" component={PlayPage} />
               <Route exact path="/games/" component={PlayPage} />
+              <Route exact path="/shop" component={ShopPage} />
             </Suspense>
           </ThemeProvider>
         </SnackbarProvider>
