@@ -72,7 +72,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
-  /** @type {import("@smiley-face-game/common/PlayerRole").default} */
+  /** @type {import("@smiley-face-game/common/types").ZRole} */
   const role = roleParam;
 
   // https://material-ui.com/components/menus/#SimpleMenu.js
@@ -86,16 +86,20 @@ const Player = ({ username, playerId, role: roleParam }) => {
   // make sure that when you add things to `actions` you can guarantee a static order
   // so that the `key` prop can be set to the index it's at in the array
   if (mainPlayer.role === "owner") {
-    actions.push(
-      <ToggleButton
-        value="edit"
-        aria-label="edit"
-        selected={role === "edit"}
-        onChange={() => setEdit(!(role === "edit"))}
-      >
-        <Pencil />
-      </ToggleButton>
-    );
+    // TODO: when better role/permission handling, have this be set to where it shows up if they can't edit,
+    // doing things based on role is hacky and weird
+    if (role !== "owner") {
+      actions.push(
+        <ToggleButton
+          value="edit"
+          aria-label="edit"
+          selected={role === "edit"}
+          onChange={() => setEdit(!(role === "edit"))}
+        >
+          <Pencil />
+        </ToggleButton>
+      );
+    }
 
     actions.push(
       <MenuItem onClick={kick}>
