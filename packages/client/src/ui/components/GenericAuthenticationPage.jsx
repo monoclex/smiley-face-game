@@ -31,7 +31,7 @@ const useStyles = makeStyles({
 const wrapValidator = (validator) => (input) => {
   const result = validator.safeParse(input);
   if (!result.success) {
-    return result.error.toString();
+    return result.errors.toString();
   }
   return undefined;
 };
