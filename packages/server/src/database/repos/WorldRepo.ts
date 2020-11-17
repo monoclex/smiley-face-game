@@ -53,7 +53,7 @@ export default class WorldRepo {
 
     // all computed assignments are stated in plain sight before assignment
     const blocks = JSON.stringify(serialize(!!details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)), tileJson));
-    const name = !!details.name ? details.name : "Untitled World";
+    const name = !!details.name ? details.name : `${details.owner.username}'s World`;
 
     let world = this.#repo.create();
     // @ts-expect-error
@@ -94,7 +94,7 @@ export function serialize(blocks: ZWorldBlocks, tileJson: TileRegistration) {
       const newY = [];
 
       for (let x = 0; x < yMap.length; x++) {
-        newY.push(tileJson.for(yMap[x]).serialize(yMap[x]));
+        newY.push(tileJson.for(yMap[x] /* a 'null' block is empty */ || 0).serialize(yMap[x]));
       }
 
       newL.push(newY);
