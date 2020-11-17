@@ -83,26 +83,26 @@ export default ({ smileyUrl, inputs, submit }) => {
           </Grid>
         </Grid>
       )}
-      {!isWorking && (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {inputs.map((input, index) => (
-            <TextField
-              key={index}
-              type={input?.type}
-              fullWidth
-              id={input.name}
-              name={input.name}
-              label={typeof input.text === "function" ? input.text(watch(input.name)) : input.text}
-              error={!!(errors && errors[input.name])}
-              helperText={errors && errors[input.name]?.message}
-              inputRef={register({ required: true, validate: validators[input.name] })}
-            />
-          ))}
-          <Button fullWidth type="submit">
-            Go!
-          </Button>
-        </form>
-      )}
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {inputs.map((input, index) => (
+          <TextField
+            disabled={isWorking}
+            key={index}
+            type={input?.type}
+            fullWidth
+            id={input.name}
+            name={input.name}
+            label={typeof input.text === "function" ? input.text(watch(input.name)) : input.text}
+            error={!!(errors && errors[input.name])}
+            helperText={errors && errors[input.name]?.message}
+            inputRef={register({ required: true, validate: validators[input.name] })}
+          />
+        ))}
+        <Button disabled={isWorking} fullWidth type="submit">
+          Go!
+        </Button>
+      </form>
     </Container>
   );
 };
