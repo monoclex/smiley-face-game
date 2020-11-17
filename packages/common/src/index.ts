@@ -17,8 +17,9 @@ export { Authentication };
 /**
  * `endpoints` contains some default endpoints. The client will automatically rewrite the host of all of them to
  * localhost or development if need be, so we should expose the endpoints for that very purpose.
+ * `useDev` is so people can easily set the endpoints being used for the sfg dev server.
  */
-export { endpoints } from "./endpoints";
+export { endpoints, useDev } from "./endpoints";
 
 /**
  * `Connection` is the connection that will be used and created by `Authentication` (and is subsequently made from `auth`).
