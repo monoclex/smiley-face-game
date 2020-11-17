@@ -254,8 +254,9 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    playerList.set({ players: [this.self] });
     for (const event of this.initPacket.players) {
-      if (event.playerId === this.mainPlayer.id) break;
+      if (event.playerId === this.mainPlayer.id) continue;
 
       const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
       player.setPosition(event.joinLocation.x, event.joinLocation.y);
@@ -267,7 +268,7 @@ export default class GameScene extends Phaser.Scene {
       let newPlayer = {
         playerId: event.playerId,
         username: event.username,
-        role: event.role as ZRole,
+        role: event.role,
       };
 
       playerList.modify({ players: [newPlayer, ...playerList.state.players] });
@@ -290,7 +291,6 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    playerList.set({ players: [this.self] });
     loading.set({ failed: false });
   }
 
