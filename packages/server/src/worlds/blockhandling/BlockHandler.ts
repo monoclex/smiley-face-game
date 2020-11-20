@@ -1,9 +1,9 @@
 // TODO: clean this file up later
 
-import { bresenhamsLine } from "@smiley-face-game/common/misc";
-import type { ZBlockSingle, ZSBlockSingle, ZBlockLine, ZSBlockLine } from "@smiley-face-game/common/packets"
+import { bresenhamsLine } from "@smiley-face-game/api/misc";
+import type { ZBlockSingle, ZSBlockSingle, ZBlockLine, ZSBlockLine } from "@smiley-face-game/api/packets"
 import Connection from "../../worlds/Connection";
-import type { ZWorldBlocks } from "@smiley-face-game/common/types";
+import type { ZWorldBlocks } from "@smiley-face-game/api/types";
 
 export class BlockHandler {
   constructor(public map: ZWorldBlocks, readonly width: number, readonly height: number) {

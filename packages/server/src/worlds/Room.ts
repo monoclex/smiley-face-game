@@ -1,10 +1,10 @@
-import type { ZPacket, ZPacketValidator } from "@smiley-face-game/common";
-import { zPacket } from "@smiley-face-game/common";
+import type { ZPacket, ZPacketValidator } from "@smiley-face-game/api";
+import { zPacket } from "@smiley-face-game/api";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
-import type { ZWorldBlocks } from "@smiley-face-game/common/types";
+import type { ZWorldBlocks } from "@smiley-face-game/api/types";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 

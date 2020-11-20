@@ -3,7 +3,7 @@ import GenericAuthenticationPage from "../../ui/components/GenericAuthentication
 import urlPlayer from "../../assets/mmmnop.png";
 import history from "../../ui/history";
 import SnackbarUtils from "../../SnackbarUtils";
-import { register } from "@smiley-face-game/common";
+import { register } from "@smiley-face-game/api";
 
 export default () => (
   <GenericAuthenticationPage

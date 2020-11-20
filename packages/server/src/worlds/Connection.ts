@@ -1,11 +1,11 @@
 import * as WebSocket from "ws";
-import type { ZSPacket } from "@smiley-face-game/common";
-import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
+import type { ZSPacket } from "@smiley-face-game/api";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
 import AccountRepo from "../database/repos/AccountRepo";
 import AuthPayload from "../jwt/payloads/AuthPayload";
 import Room from "../worlds/Room";
 import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
-import type { ZRole } from "@smiley-face-game/common/types";
+import type { ZRole } from "@smiley-face-game/api/types";
 
 export default class Connection {
   playerId!: number;

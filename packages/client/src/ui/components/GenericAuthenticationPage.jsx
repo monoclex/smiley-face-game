@@ -8,7 +8,7 @@ import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
-import { zUsername, zPassword, zEmail } from "@smiley-face-game/common/types";
+import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
   bigSmileyFace: {

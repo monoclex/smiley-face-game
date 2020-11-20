@@ -1,6 +1,6 @@
-import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
-import type { ZBlock } from "@smiley-face-game/common/types";
-import { TileLayer } from "@smiley-face-game/common/types";
+import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
+import type { ZBlock } from "@smiley-face-game/api/types";
+import { TileLayer } from "@smiley-face-game/api/types";
 
 export default function generateWorld(width: number, height: number, tileJson: TileRegistration): string {
   // by using this one block, every single block in this array shares the same reference

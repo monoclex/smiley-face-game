@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/common/api";
+import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/api/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
