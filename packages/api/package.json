@@ -1,6 +1,6 @@
 {
   "name": "@smiley-face-game/api",
-  "version": "0.0.0",
+  "version": "0.0.0-beta1",
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "license": "MIT",
   "main": "src/index.ts",
@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "mocha --require @swc-node/register 'src/**/*.test.ts'",
-    "build": "pika build && npx rollup -c rollup.config.js"
+    "build": "pika build"
   },
   "dependencies": {
     "computed-types": "^1.4.0",
@@ -60,6 +60,9 @@
       ],
       [
         "./pika-plugin-minify.js"
+      ],
+      [
+        "./pika-plugin-invoke-rollup.js"
       ]
     ]
   }
