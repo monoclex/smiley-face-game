@@ -1,6 +1,6 @@
 {
   "name": "@smiley-face-game/api",
-  "version": "0.0.0-beta2",
+  "version": "0.0.0-beta3",
   "license": "MIT",
   "files": [
     "src"
@@ -66,13 +66,14 @@
             "+dist.umd.min.js",
             "-bin/"
           ],
+          "+umd:main": "dist.umd.min.js",
           "+unpkg": "dist.umd.min.js",
           "+exports": {
+            "umd": "./dist.umd.min.js",
+            "browser": "./dist-web/index.js",
+            "import": "./dist-web/index.js",
             "require": "./dist-node/index.js",
-            "import": "./dist-src/index.js",
-            "default": "./dist-src/index.js",
-            "node": "./dist-node/index.js",
-            "browser": "./dist.umd.min.js"
+            "default": "./dist-src/index.js"
           }
         }
       ],
