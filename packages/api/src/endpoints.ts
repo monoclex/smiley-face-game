@@ -69,6 +69,9 @@ export function coerceSecure(secure: boolean | null | undefined): boolean;
 export function coerceSecure(argSecure: unknown): boolean {
   const secure = zSecure.parse(argSecure);
   if (secure === true || secure === false) return secure;
-  if (location && location.protocol === "http:") return false;
+
+  // in node, just referencing `location` will throw an error
+  // so we use `globalThis["location"]` instead which will just return `undefined`, and not throw
+  if (globalThis["location"] && location.protocol === "http:") return false;
   return true;
 }

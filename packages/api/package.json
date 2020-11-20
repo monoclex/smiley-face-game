@@ -1,26 +1,27 @@
 {
   "name": "@smiley-face-game/api",
-  "version": "0.0.0-beta1",
-  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
+  "version": "0.0.0-beta2",
   "license": "MIT",
-  "main": "src/index.ts",
-  "directories": {
-    "src": "src"
-  },
   "files": [
     "src"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "test": "mocha --require @swc-node/register 'src/**/*.test.ts'",
-    "build": "pika build"
+  "sideEffects": false,
+  "keywords": [
+    "sfg",
+    "api",
+    "game"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SirJosh3917/smiley-face-game"
   },
   "dependencies": {
     "computed-types": "^1.4.0",
     "cross-fetch": "^3.0.6",
     "isomorphic-ws": "^4.0.1"
+  },
+  "optionalDependencies": {
+    "ws": "^4.0.1"
   },
   "devDependencies": {
     "@pika/pack": "^0.5.0",
@@ -32,11 +33,20 @@
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@rollup/plugin-typescript": "^6.1.0",
-    "rollup": "^2.33.3",
+    "@skypack/package-check": "^0.2.2",
     "pika-plugin-minify": "^0.1.0",
     "pika-plugin-package.json": "^1.0.2",
+    "rollup": "^2.33.3",
     "rollup-plugin-terser": "^7.0.2",
     "terser": "^5.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "mocha --require @swc-node/register 'src/**/*.test.ts'",
+    "build": "pika build"
   },
   "@pika/pack": {
     "pipeline": [
@@ -53,13 +63,18 @@
         "pika-plugin-package.json",
         {
           "*files": [
-            "+dist.umd.min.js"
+            "+dist.umd.min.js",
+            "-bin/"
           ],
-          "+unpkg": "dist.umd.min.js"
+          "+unpkg": "dist.umd.min.js",
+          "+exports": {
+            "require": "./dist-node/index.js",
+            "import": "./dist-src/index.js",
+            "default": "./dist-src/index.js",
+            "node": "./dist-node/index.js",
+            "browser": "./dist.umd.min.js"
+          }
         }
-      ],
-      [
-        "./pika-plugin-minify.js"
       ],
       [
         "./pika-plugin-invoke-rollup.js"
