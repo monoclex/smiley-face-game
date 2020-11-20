@@ -1,4 +1,4 @@
-import TileRegistration from "@smiley-face-game/common/src/tiles/TileRegistration";
+import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 
 export default class EmptyTiles {
   place(_tileJson: TileRegistration, tile: Phaser.Tilemaps.Tile) {

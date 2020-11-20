@@ -1,5 +1,5 @@
 import expressWs from "express-ws";
-import { zJoinRequest } from "@smiley-face-game/common/ws-api";
+import { zJoinRequest } from "@smiley-face-game/api/ws-api";
 import canJoinWorld from "../../../jwt/permissions/canJoinWorld";
 import extractJwt from "../../../jwt/extractJwt";
 import asyncHandler from "../../../middlewares/asyncHandler";

@@ -20,7 +20,8 @@
     "experimentalDecorators": true,
     "baseUrl": "./",
     "paths": {
-      "@smiley-face-game/common/*": ["./packages/common/src/*"],
+      "@smiley-face-game/api": ["./packages/api/src"],
+      "@smiley-face-game/api/*": ["./packages/api/src/*"],
     }
   },
   "exclude": ["node_modules/**/*"]

@@ -3,7 +3,7 @@ import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmyep.png";
 import history from "../../ui/history";
-import { auth } from "@smiley-face-game/common";
+import { auth } from "@smiley-face-game/api";
 
 export default () => (
   <GenericAuthenticationPage

@@ -1,4 +1,4 @@
-import type { ZBlockLine } from "@smiley-face-game/common/packets";
+import type { ZBlockLine } from "@smiley-face-game/api/packets";
 import type Connection from "../../../worlds/Connection";
 import type RoomLogic from "../../../worlds/logic/RoomLogic";
 

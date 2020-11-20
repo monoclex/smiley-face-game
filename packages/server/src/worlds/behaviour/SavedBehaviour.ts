@@ -1,5 +1,5 @@
-import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/common/types";
-import type Behavior from "@smiley-face-game/common/src/tiles/Behavior";
+import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
+import type Behavior from "@smiley-face-game/api/tiles/Behavior";
 import WorldRepo, { serialize } from "../../database/repos/WorldRepo";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";

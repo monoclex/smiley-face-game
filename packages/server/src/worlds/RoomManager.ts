@@ -7,8 +7,8 @@ import Room from "./Room";
 import ensureValidates from "../ensureValidates";
 import SavedBehaviour from "./behaviour/SavedBehaviour";
 import DynamicBehaviour from "./behaviour/DynamicBehaviour";
-import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
-import { zJoinRequest } from "@smiley-face-game/common/ws-api";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
+import { zJoinRequest } from "@smiley-face-game/api/ws-api";
 
 interface JoinRoomRequest {
   connection: Connection;

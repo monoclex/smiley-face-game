@@ -1,7 +1,7 @@
-import type { ZPickupGun } from "@smiley-face-game/common/packets";
+import type { ZPickupGun } from "@smiley-face-game/api/packets";
 import type Connection from "../../../worlds/Connection";
 import type RoomLogic from "../../../worlds/logic/RoomLogic";
-import { TileLayer } from "@smiley-face-game/common/types";
+import { TileLayer } from "@smiley-face-game/api/types";
 import TileJson from "packages/server/src/worlds/TileJson";
 
 export default function handlePickupGun(packet: ZPickupGun, [sender, logic]: [Connection, RoomLogic]) {

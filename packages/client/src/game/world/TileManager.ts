@@ -1,8 +1,8 @@
-import type { ZBlock, ZSize } from "@smiley-face-game/common/types";
+import type { ZBlock, ZSize } from "@smiley-face-game/api/types";
 import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
 import key from "./key";
-import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
+import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import mapTileNameToClientId from "../tiles/idLookup";
 
 const TILE_WIDTH = 32;

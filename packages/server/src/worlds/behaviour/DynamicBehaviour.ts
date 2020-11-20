@@ -2,9 +2,9 @@ import ensureValidates from "../../ensureValidates";
 import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
 import Connection from "../../worlds/Connection";
-import type { ZJoinRequest } from "@smiley-face-game/common/ws-api";
-import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
-import { zJoinRequest } from "@smiley-face-game/common/ws-api";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import { zJoinRequest } from "@smiley-face-game/api/ws-api";
 import TileJson from "packages/server/src/worlds/TileJson";
 
 export default class DynamicBehaviour implements Behaviour {

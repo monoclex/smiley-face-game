@@ -1,4 +1,4 @@
-import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/common/types";
+import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
 import type Connection from "../../worlds/Connection";
 
 export default interface Behaviour {
