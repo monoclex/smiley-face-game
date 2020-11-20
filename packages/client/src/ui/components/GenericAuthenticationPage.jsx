@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSnackbar } from "notistack";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Grid from "@material-ui/core/Grid";
 import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
@@ -31,7 +34,7 @@ const useStyles = makeStyles({
 const wrapValidator = (validator) => (input) => {
   const result = validator.safeParse(input);
   if (!result.success) {
-    return result.error.toString();
+    return result.errors.toString();
   }
   return undefined;
 };
@@ -46,6 +49,21 @@ const validators = {
 export default ({ smileyUrl, inputs, submit }) => {
   const styles = useStyles();
   const { handleSubmit, register, errors, watch } = useForm();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isWorking, setWorking] = useState(false);
+
+  const onSubmit = (payload) => {
+    setWorking(true);
+    submit(payload)
+      .catch((error) => {
+        enqueueSnackbar(error.toString(), {
+          variant: "error",
+        });
+      })
+      .finally(() => {
+        setWorking(false);
+      });
+  };
 
   return (
     <Container component="main" maxWidth="sm">
@@ -58,9 +76,18 @@ export default ({ smileyUrl, inputs, submit }) => {
         )}
         src={smileyUrl}
       />
-      <form onSubmit={handleSubmit(submit)}>
+      {isWorking && (
+        <Grid container direction="row" justify="center" alignItems="center">
+          <Grid item>
+            <CircularProgress />
+          </Grid>
+        </Grid>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)}>
         {inputs.map((input, index) => (
           <TextField
+            disabled={isWorking}
             key={index}
             type={input?.type}
             fullWidth
@@ -72,7 +99,7 @@ export default ({ smileyUrl, inputs, submit }) => {
             inputRef={register({ required: true, validate: validators[input.name] })}
           />
         ))}
-        <Button fullWidth type="submit">
+        <Button disabled={isWorking} fullWidth type="submit">
           Go!
         </Button>
       </form>

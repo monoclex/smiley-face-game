@@ -13,11 +13,11 @@ export default () => (
       { name: "email", text: "Enter your email" },
       { name: "password", text: "Enter your password", type: "password" },
     ]}
-    submit={({ email, password }) => {
+    submit={({ email, password }) =>
       auth({ email: email.toLowerCase(), password }).then(({ token }) => {
         localStorage.setItem("token", token);
         history.push("/lobby");
-      });
-    }}
+      })
+    }
   />
 );
