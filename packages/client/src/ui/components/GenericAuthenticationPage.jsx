@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
-import { zUsername, zPassword, zEmail } from "@smiley-face-game/common/types";
+import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
   bigSmileyFace: {

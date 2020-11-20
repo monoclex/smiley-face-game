@@ -72,7 +72,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
-  /** @type {import("@smiley-face-game/common/PlayerRole").default} */
+  /** @type {import("@smiley-face-game/api/PlayerRole").default} */
   const role = roleParam;
 
   // https://material-ui.com/components/menus/#SimpleMenu.js

@@ -1,7 +1,7 @@
-import type TileRegistration from "@smiley-face-game/common/tiles/TileRegistration";
+import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { Connection, Repository } from "typeorm";
-import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/common/types";
-import { zAccountId, zWorldId } from "@smiley-face-game/common/types";
+import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/api/types";
+import { zAccountId, zWorldId } from "@smiley-face-game/api/types";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
 import World from "../../database/models/World";

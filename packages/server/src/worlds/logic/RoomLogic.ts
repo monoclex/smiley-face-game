@@ -4,12 +4,13 @@ import { BlockHandler } from "../../worlds/blockhandling/BlockHandler";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
 import Behaviour from "../../worlds/behaviour/Behavior";
-import type { ZPacket, ZSPacket } from "@smiley-face-game/common";
-import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/common/types";
-import tileJson from "@smiley-face-game/common/tiles/tiles.json";
-import { zTileJsonFile } from "@smiley-face-game/common/src/types";
+import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
+import { useDev } from "@smiley-face-game/api";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import tileJson from "@smiley-face-game/api/tiles/tiles.json";
+import { zTileJsonFile } from "@smiley-face-game/api/types";
 const tileJsonFile = zTileJsonFile.parse(tileJson);
-
+useDev();
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
     throw new Error("Action regarding connection connected to this world does not have a playerId assigned to it.");
