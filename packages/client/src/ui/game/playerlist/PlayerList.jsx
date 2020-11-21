@@ -123,6 +123,9 @@ const Player = ({ username, playerId, role: roleParam }) => {
   };
 
   const setEdit = (shouldHaveEdit) => {
+    // can't change edit if not owner
+    if (mainPlayer.role !== "owner") return;
+
     if (shouldHaveEdit) {
       window.gameScene.connection.giveEdit(playerId);
     } else {
