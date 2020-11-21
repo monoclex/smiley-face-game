@@ -27,7 +27,7 @@ module.exports = (env, argv) => {
     }),
   ];
 
-  if (bundle) plugins.push(new BundleAnalyzerPlugin());
+  // if (bundle) plugins.push(new BundleAnalyzerPlugin());
 
   return {
     mode,

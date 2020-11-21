@@ -351,6 +351,9 @@ export default class GameScene extends Phaser.Scene {
     else if (this.self.role === "edit" || this.self.role === "owner") {
       this.editor.setEnabled(true);
     }
+    else {
+      this.editor.setEnabled(false);
+    }
 
     let now = Date.now();
     if (
