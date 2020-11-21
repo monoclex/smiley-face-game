@@ -9,7 +9,7 @@ import { format } from "date-fns/fp";
 
 import { messagesState, chatState } from "../../../recoil/atoms/chat";
 import commonUIStyles from "../commonUIStyles";
-import SpringScrollbars from "../../../ui/components/SpingScrollbars";
+import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 
 const useStyles = makeStyles((theme) => ({
   container: {

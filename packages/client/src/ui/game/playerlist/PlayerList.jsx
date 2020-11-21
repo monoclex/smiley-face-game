@@ -8,7 +8,7 @@ import { playerListState } from "../../../recoil/atoms/playerList";
 import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
 import commonUIStyles from "../commonUIStyles";
-import SpringScrollbars from "../../../ui/components/SpingScrollbars";
+import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
 import currentPlayer from "../../../recoil/selectors/currentPlayer";
