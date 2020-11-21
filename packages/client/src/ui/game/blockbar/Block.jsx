@@ -1,9 +1,9 @@
-//@ts-check
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
+import { TileId, Rotation } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
   selected: {
@@ -38,14 +38,23 @@ const Block = (props) => {
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.slotId).then((image) => {
+    props.loader(props.block).then((image) => {
       setImageSource(image.src);
     });
-  }, [props.loader]);
+  }, [props.loader, props.block]);
 
   if (!props.loader || !imageSource) {
     return null;
   }
+
+  const handleClick = () => {
+    if (!props.selected) {
+      props.onClick();
+    } else {
+      // this is for rotating a block in the hotbar
+      props.nextState();
+    }
+  };
 
   return (
     <Grid
@@ -57,13 +66,7 @@ const Block = (props) => {
         <span>{props.slot}</span>
       </Grid>
       <Grid item className={classes.removeLineHeight}>
-        <img
-          className={clsx(classes.image, {
-            [classes.hover]: !props.selected,
-          })}
-          onClick={props.onClick}
-          src={imageSource}
-        />
+        <img className={clsx(classes.image, props.selected && classes.hover)} onClick={handleClick} src={imageSource} />
       </Grid>
     </Grid>
   );

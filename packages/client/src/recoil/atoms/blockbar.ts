@@ -1,32 +1,32 @@
 import { atom } from "recoil";
-import SharedGlobal from "@/recoil/SharedGlobal";
-import { SlotId, SelectedSlotId } from "@/client/Slot";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
+import SharedGlobal from "../../recoil/SharedGlobal";
+import { SelectedSlotId } from "../../client/Slot";
+import type { ZBlock } from "@smiley-face-game/api/types";
 
 export interface BlockBar {
-  selected: SlotId;
-  slots: {[key in SelectedSlotId]: TileId};
-  loader: null | ((tileId: TileId) => Promise<HTMLImageElement>);
+  selected: SelectedSlotId;
+  slots: { [key in SelectedSlotId]: ZBlock };
+  loader: null | ((tileState: ZBlock) => Promise<HTMLImageElement>);
 }
 
 export const defaultBlockbarState: BlockBar = {
   selected: 1,
   loader: null,
   slots: {
-    [ 0]: TileId.Empty,
-    [ 1]: TileId.Full,
-    [ 2]: TileId.Gun,
-    [ 3]: TileId.Empty,
-    [ 4]: TileId.Empty,
-    [ 5]: TileId.Empty,
-    [ 6]: TileId.Empty,
-    [ 7]: TileId.Empty,
-    [ 8]: TileId.Empty,
-    [ 9]: TileId.Empty,
-    [10]: TileId.Empty,
-    [11]: TileId.Empty,
-    [12]: TileId.Empty,
-  }
+    [0]: 0,
+    [1]: 0,
+    [2]: 0,
+    [3]: 0,
+    [4]: 0,
+    [5]: 0,
+    [6]: 0,
+    [7]: 0,
+    [8]: 0,
+    [9]: 0,
+    [10]: 0,
+    [11]: 0,
+    [12]: 0,
+  },
 };
 export const blockbar = new SharedGlobal<BlockBar>(defaultBlockbarState);
 export const blockbarState = atom<BlockBar>({

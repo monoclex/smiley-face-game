@@ -8,7 +8,7 @@ export default function extractJwt<TPayload>(verifier: JwtVerifier<TPayload>, to
   const validationResult = verifier.isValid(token);
 
   if (!validationResult.success) {
-    throw new Error("The JWT token is invalid.")
+    throw new Error("The JWT token is invalid.");
   }
 
   return validationResult.payload;

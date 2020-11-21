@@ -1,21 +1,18 @@
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
-import { api } from "@/isProduction";
-import { LoadingSceneData } from "./LoadingSceneData";
-import { serverBlockBuffer } from "@smiley-face-game/api/packets/ServerBlockBuffer";
-import { serverBlockSingle } from "@smiley-face-game/api/packets/ServerBlockSingle";
-import { blockPosition } from "@smiley-face-game/api/schemas/BlockPosition";
-import loadAll from "@/game/loadAll";
-import GAME_SCENE_KEY from "@/game/GameSceneKey";
+import type { Authentication, ZJoinRequest } from "@smiley-face-game/api";
+import loadAll from "../../game/loadAll";
+import GAME_SCENE_KEY from "../../game/GameSceneKey";
+import { loading } from "../../recoil/atoms/loading";
 
-export const globalVariableParkour = {
-  token: "",
-  name: "Smiley Face Game",
-  width: 50,
-  height: 50,
-  id: "smiley-face-game",
-  onId: (a: string) => {
-    return
-  },
+interface GlobalVariableParkourType {
+  token: Authentication;
+  joinRequest: ZJoinRequest;
+  onId: (id: string) => void;
+}
+
+export const globalVariableParkour: GlobalVariableParkourType = {
+  token: undefined as unknown as Authentication,
+  joinRequest: undefined as unknown as ZJoinRequest,
+  onId: () => { },
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -26,7 +23,7 @@ export class LoadingScene extends Phaser.Scene {
 
   constructor() {
     super({
-      key: "LoadingScene"
+      key: "LoadingScene",
     });
   }
 
@@ -54,34 +51,16 @@ export class LoadingScene extends Phaser.Scene {
   }
 
   create() {
-    NetworkClient.connect(
-      api.connection(globalVariableParkour),
-      (client) => {
-        client.events.callback = (packet) => {
-          const sender = client;
-
-          // prevent receiving any packets until the game scene changes
-          sender.pause();
-
-          const sceneData: LoadingSceneData = {
-            init: packet,
-            networkClient: sender,
-          };
-
-          console.log('init', packet, sender);
-          globalVariableParkour.onId(packet.worldId);
-
-          console.time("init");
-          this.scene.start(GAME_SCENE_KEY, sceneData);
-        };
-      },
-      serverBlockBuffer(serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).ServerBlockSingleSchema).validateServerBlockBuffer,
-      serverBlockSingle(blockPosition(50 - 1, 50 - 1).BlockPositionSchema).validateServerBlockSingle
-    )
-      .catch((err) => {
-        window.recoil.loading.setState!({
+    globalVariableParkour.token.connect(globalVariableParkour.joinRequest)
+      .then(connection => {
+        globalVariableParkour.onId(connection.init.worldId);
+        console.time("init");
+        this.scene.start(GAME_SCENE_KEY, { connection });
+      })
+      .catch(err => {
+        loading.set({
           failed: true,
-          why: err
+          why: err,
         });
         console.warn("caught error", err);
         this._progressBar.clear();

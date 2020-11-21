@@ -1,14 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Block } from '@smiley-face-game/api/schemas/Block';
-import Account from './Account';
+import Account from "./Account";
 
 @Entity()
 export default class World {
-
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @ManyToOne(type => Account, author => author.worlds)
+  @ManyToOne(() => Account, (author) => author.worlds)
   owner!: Account;
 
   @Column({ nullable: false, length: 64 })
@@ -20,14 +18,18 @@ export default class World {
   @Column({ nullable: false })
   height!: number;
 
+  /** Because it's possible to have */
+  @Column({ nullable: false })
+  worldDataVersion!: number;
+
   @Column({ type: "text" })
   rawWorldData!: string;
 
-  get worldData(): Block[][][] {
+  get worldData(): unknown {
     return JSON.parse(this.rawWorldData);
   }
 
-  set worldData(value: Block[][][]) {
+  set worldData(value: unknown) {
     this.rawWorldData = JSON.stringify(value);
   }
 }

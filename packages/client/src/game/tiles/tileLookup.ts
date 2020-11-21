@@ -1,13 +1,13 @@
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import Tile from "./Tile";
-import EmptyTile from "./EmptyTile";
-import FullTile from "./FullTile";
-import GunTile from "./GunTile";
+import EmptyTiles from "./EmptyTiles";
+import SolidTiles from "./SolidTiles";
+import GunTiles from "./GunTiles";
+import ArrowTiles from "./ArrowTiles";
 
-const tileLookup: { [key in TileId]: Tile } = {
-  [TileId.Empty]: new EmptyTile,
-  [TileId.Full]: new FullTile,
-  [TileId.Gun]: new GunTile,
+const tileLookup = {
+  ["empty"]: new EmptyTiles(),
+  ["solid"]: new SolidTiles(),
+  ["gun"]: new GunTiles(),
+  ["arrow"]: new ArrowTiles(),
 };
 
 export default tileLookup;

@@ -1,23 +1,12 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["DOM", "ESNext"],
-    "jsx": "react",
-    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM"],
     "allowJs": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "baseUrl": "./",
-    "paths": {
-      "@smiley-face-game/api/*": ["../api/src/*"],
-      "@/*": ["./src/*"]
-    },
-    "rootDirs": ["src"],
-  }
+    "jsx": "react"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules/**/*", "../../node_modules/**/*"]
 }

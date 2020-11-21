@@ -1,13 +1,12 @@
+import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { Connection, Repository } from "typeorm";
-import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
-import { validateWorldId } from "@smiley-face-game/api/schemas/WorldId";
-import { Block } from "@smiley-face-game/api/schemas/Block";
-import AccountLike from "@/database/modelishs/AccountLike";
-import WorldLike from "@/database/modelishs/WorldLike";
-import Account from "@/database/models/Account";
-import World from "@/database/models/World";
-import generateWorld from "@/worlds/generateWorld";
-import ensureValidates from "@/ensureValidates";
+import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/api/types";
+import { zAccountId, zWorldId } from "@smiley-face-game/api/types";
+import AccountLike from "../../database/modelishs/AccountLike";
+import WorldLike from "../../database/modelishs/WorldLike";
+import World from "../../database/models/World";
+import generateWorld from "../../worlds/generateWorld";
+import ensureValidates from "../../ensureValidates";
 
 type QueryOptions = { withOwner: boolean };
 
@@ -17,7 +16,7 @@ interface WorldDetails {
   readonly name?: string;
   readonly width: number;
   readonly height: number;
-  readonly blocks?: Block[][][];
+  readonly blocks?: ZBlock[][][];
 }
 
 export default class WorldRepo {
@@ -32,7 +31,7 @@ export default class WorldRepo {
   findById(id: string, options: { withOwner: true }): Promise<World>;
   findById(id: string, options?: { withOwner: false }): Promise<WorldLike>;
   findById(id: string, options?: QueryOptions): Promise<World | WorldLike> {
-    ensureValidates(validateWorldId, id);
+    ensureValidates(zWorldId, id);
 
     let findOptions = {};
     if (options?.withOwner === true) findOptions = { ...findOptions, relations: ["owner"] };
@@ -42,19 +41,19 @@ export default class WorldRepo {
 
   /** Finds all the worlds owned by a given Account (based on the Account's Id). */
   findOwnedBy(accountId: string): Promise<World[]> {
-    ensureValidates(validateAccountId, accountId);
+    ensureValidates(zAccountId, accountId);
 
-    return this.#repo.find({ where: { owner: { id: accountId } }});
+    return this.#repo.find({ where: { owner: { id: accountId } } });
   }
 
   /* === creation === */
 
-  create(details: WorldDetails): Promise<World> {
+  create(details: WorldDetails, tileJson: TileRegistration): Promise<World> {
     // TODO: verify details given
-    
+
     // all computed assignments are stated in plain sight before assignment
-    const blocks = !!details.blocks ? JSON.stringify(details.blocks) : emptyWorld(details);
-    const name = !!details.name ? details.name : "Untitled World";
+    const blocks = JSON.stringify(serialize(!!details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)), tileJson));
+    const name = !!details.name ? details.name : `${details.owner.username}'s World`;
 
     let world = this.#repo.create();
     // @ts-expect-error
@@ -63,6 +62,7 @@ export default class WorldRepo {
     world.width = details.width;
     world.height = details.height;
     world.rawWorldData = blocks;
+    world.worldDataVersion = 1;
 
     return this.#repo.save(world);
   }
@@ -78,6 +78,30 @@ export default class WorldRepo {
   }
 }
 
-function emptyWorld(details: WorldDetails): string {
-  return generateWorld(details.width, details.height);
+function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
+  return generateWorld(details.width, details.height, tileJson);
+}
+
+export function serialize(blocks: ZWorldBlocks, tileJson: TileRegistration) {
+  const newBlocks = [];
+
+  for (let l = 0; l < blocks.length; l++) {
+    const layers = blocks[l];
+    const newL = [];
+
+    for (let y = 0; y < layers.length; y++) {
+      const yMap = layers[y];
+      const newY = [];
+
+      for (let x = 0; x < yMap.length; x++) {
+        newY.push(tileJson.for(yMap[x] /* a 'null' block is empty */ || 0).serialize(yMap[x]));
+      }
+
+      newL.push(newY);
+    }
+
+    newBlocks.push(newL);
+  }
+
+  return newBlocks;
 }

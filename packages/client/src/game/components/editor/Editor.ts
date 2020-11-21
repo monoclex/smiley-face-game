@@ -1,11 +1,9 @@
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import Position from "@/math/Position";
-import Component from "@/game/components/Component";
-import World from "@/game/world/World";
+import { TileLayer, ZBlock } from "@smiley-face-game/api/types";
+import Position from "../../../math/Position";
+import World from "../../../game/world/World";
 import EditorDisplay from "./EditorDisplay";
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
 import BlockBar from "../../blockbar/BlockBar";
-import iteratePointers from "@/game/iteratePointers";
+import iteratePointers from "../../../game/iteratePointers";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.
@@ -13,11 +11,7 @@ class DrawingPointer {
   lastPosition: Position;
   lastLayer?: TileLayer;
 
-  constructor(
-    readonly pointer: Phaser.Input.Pointer,
-    readonly editor: Editor,
-    readonly blockBar: BlockBar,
-  ) {
+  constructor(readonly pointer: Phaser.Input.Pointer, readonly editor: Editor, readonly blockBar: BlockBar) {
     this.lastPosition = this.position(pointer);
   }
 
@@ -27,7 +21,7 @@ class DrawingPointer {
     this.lastLayer = undefined;
 
     // if we're placing an empty block, try to pick a block at that position
-    if (id === TileId.Empty) {
+    if (id === 0) {
       // TODO: depend on the world for this picking behaviour"?
       let { x, y } = this.lastPosition;
       let fg = this.editor.world.foreground.display.tilemapLayer.getTileAt(x, y);
@@ -36,14 +30,11 @@ class DrawingPointer {
 
       if (fg) {
         this.lastLayer = TileLayer.Foreground;
-      }
-      else if (action) {
+      } else if (action) {
         this.lastLayer = TileLayer.Action;
-      }
-      else if (bg) {
+      } else if (bg) {
         this.lastLayer = TileLayer.Background;
-      }
-      else {
+      } else {
         // by default, try to erase stuff on the foregrounnd
         // TODO: start erasing stuff as soon as a block is picked on the right layer?
         this.lastLayer = TileLayer.Foreground;
@@ -60,11 +51,10 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() {
-  }
+  onUp() { }
 
-  id() {
-    if (this.pointer.rightButtonDown()) return TileId.Empty;
+  id(): ZBlock {
+    if (this.pointer.rightButtonDown()) return 0;
     else return this.blockBar.selectedBlock;
   }
 
@@ -74,19 +64,17 @@ class DrawingPointer {
   }
 }
 
-export default class Editor implements Component {
+export default class Editor {
   readonly display: EditorDisplay;
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
 
   private _enabled: boolean = false;
-  get enabled(): boolean { return this._enabled; }
+  get enabled(): boolean {
+    return this._enabled;
+  }
 
-  constructor(
-    readonly scene: Phaser.Scene,
-    readonly world: World,
-    readonly blockBar: BlockBar,
-  ) {
+  constructor(readonly scene: Phaser.Scene, readonly world: World, readonly blockBar: BlockBar) {
     this.display = new EditorDisplay();
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
@@ -124,7 +112,7 @@ export default class Editor implements Component {
       }
     }
   }
-  
+
   setEnabled(status: boolean) {
     if (status === this._enabled) return;
     this._enabled = status;
@@ -132,7 +120,6 @@ export default class Editor implements Component {
     if (this.enabled) {
       // if we enabled this component, we want to start re-tracking every pointer that was down
       for (const pointer of iteratePointers(this.scene.input)) {
-
         // if the pointer is down, we want to begin tracking it again
         if (!pointer.isDown) continue;
 
@@ -140,8 +127,7 @@ export default class Editor implements Component {
         this.drawingPointers.set(pointer.pointerId, drawingPointer);
         drawingPointer.onDown();
       }
-    }
-    else {
+    } else {
       // if we disabled this component, we want to stop drawing completely
       const keys = Array.from(this.drawingPointers.keys());
 

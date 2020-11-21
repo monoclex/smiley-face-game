@@ -1,8 +1,9 @@
-import AccountLike from "@/database/modelishs/AccountLike";
-import AccountRepo from "@/database/repos/AccountRepo";
+import AccountLike from "../database/modelishs/AccountLike";
+import AccountRepo from "../database/repos/AccountRepo";
 import ShopItem from "./ShopItem";
 
 export default class Purchaser {
+  //@ts-ignore this will be used when a shop exists
   readonly #repo: AccountRepo;
 
   constructor(accountRepo: AccountRepo) {
@@ -15,8 +16,7 @@ export default class Purchaser {
 
     if (account.currentEnergy < price) {
       return "no";
-    }
-    else {
+    } else {
       return "yes";
     }
   }
@@ -24,8 +24,7 @@ export default class Purchaser {
   private price<TConfig = undefined>(item: ShopItem<TConfig>, config: TConfig): number {
     if (typeof item.price === "number") {
       return item.price;
-    }
-    else {
+    } else {
       return item.price(config);
     }
   }

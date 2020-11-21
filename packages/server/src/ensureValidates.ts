@@ -5,12 +5,13 @@
  */
 export default function ensureValidates<TData>(
   // really, a ValidatorProxy in "computed-types", but we've simplified the signature here.
-  validator: (data: TData) => [TypeError | null, unknown?],
+  validator: { parse: (data: any) => TData },
   data: TData
 ) {
-  const [errors, _] = validator(data);
+  validator.parse(data);
+  // const [errors] = validator.parse(data);
 
-  if (errors !== null) {
-    throw new Error(`Failed to validate "${data}" as valid data.`);
-  }
+  // if (errors !== null) {
+  //   throw new Error(`Failed to validate "${data}" as valid data.`);
+  // }
 }

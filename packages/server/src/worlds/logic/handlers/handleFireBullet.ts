@@ -1,17 +1,18 @@
-import { FireBulletPacket } from "@smiley-face-game/api/packets/FireBullet";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
-import { SERVER_FIRE_BULLET_ID } from "@smiley-face-game/api/packets/ServerFireBullet";
+import type { ZFireBullet } from "@smiley-face-game/api/packets";
+import type Connection from "../../../worlds/Connection";
+import type RoomLogic from "../../../worlds/logic/RoomLogic";
 
-export default function handleFireBullet(packet: FireBulletPacket, [sender, logic]: [Connection, RoomLogic]) {
+export default function handleFireBullet(packet: ZFireBullet, [sender, logic]: [Connection, RoomLogic]) {
   // need to have a gun to shoot
   if (!sender.hasGun || !sender.gunEquipped) {
     return false;
   }
 
   logic.broadcast({
-    packetId: SERVER_FIRE_BULLET_ID,
+    packetId: "SERVER_FIRE_BULLET",
     angle: packet.angle,
     playerId: sender.playerId!,
   });
+
+  return;
 }

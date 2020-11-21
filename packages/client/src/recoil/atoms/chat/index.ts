@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import SharedGlobal from "@/recoil/SharedGlobal";
+import SharedGlobal from "../../../recoil/SharedGlobal";
 
 export interface Message {
   id: number;
@@ -27,5 +27,5 @@ export const chatState = atom<ChatState>({
   key: "chatState",
   default: defaultChatState,
   //@ts-ignore
-  effects_UNSTABLE: [chat.initialize]
+  effects_UNSTABLE: [chat.initialize],
 });

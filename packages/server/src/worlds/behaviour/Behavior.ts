@@ -1,12 +1,14 @@
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import WorldBlocks from "@/worlds/WorldBlocks";
+import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
+import type Connection from "../../worlds/Connection";
 
 export default interface Behaviour {
   readonly id: string;
 
-  loadBlocks(): Promise<WorldBlocks>;
-  saveBlocks(blocks: WorldBlocks): Promise<void>;
+  onPlayerJoin(connection: Connection): void;
 
-  loadDetails(): Promise<WorldDetails>;
-  saveDetails(details: WorldDetails): Promise<void>;
+  loadBlocks(): Promise<ZWorldBlocks>;
+  saveBlocks(blocks: ZWorldBlocks): Promise<void>;
+
+  loadDetails(): Promise<ZWorldDetails>;
+  saveDetails(details: ZWorldDetails): Promise<void>;
 }

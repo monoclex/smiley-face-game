@@ -7,15 +7,15 @@ import IconButton from "@material-ui/core/IconButton";
 import SvgIcon from "@material-ui/core/SvgIcon";
 import RefreshIcon from "mdi-material-ui/Refresh";
 import PlusIcon from "mdi-material-ui/Plus";
-//@ts-ignore
-import DiscordLogo from "@/assets/discord.svg";
-import CreateRoomDialog from "@/ui/components/CreateRoomDialog";
-import { Room } from "@/ui/lobby/Room";
-import history from "@/ui/history";
-import Loading from "@/ui/Loading";
-import { api } from "@/isProduction";
+import DiscordLogo from "../../assets/discord.svg";
+import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
+import { Room } from "../../ui/lobby/Room";
+import history from "../../ui/history";
+import Loading from "../../ui/Loading";
 import Typography from "@material-ui/core/Typography";
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { useSnackbar } from "notistack";
+import { Authentication } from "@smiley-face-game/api";
 
 const useStyles = makeStyles({
   input: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles({
   rotate180: {
     // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
     transform: "rotate(180deg)",
-  }
+  },
 });
 
 export default () => {
@@ -39,7 +39,10 @@ export default () => {
     return null;
   }
 
+  const auth = new Authentication(token);
+
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [roomPreviews, setRoomPreviews] = useState(undefined);
   const [myRooms, setMyRooms] = useState(undefined);
@@ -48,8 +51,31 @@ export default () => {
   const refresh = () => {
     setRoomPreviews(undefined);
     setMyRooms(undefined);
-    api.getLobby(token).then(setRoomPreviews);
-    api.getMyRooms(token).then(({ ownedWorlds }) => { if (Array.isArray(ownedWorlds)) { setMyRooms(ownedWorlds); } });
+
+    let didExit = false;
+    const exit = (err) => {
+      if (didExit) return;
+      didExit = true;
+
+      console.warn("one GET yielded error", err, err.issues);
+      enqueueSnackbar("Logged out - invalid token", {
+        variant: "error",
+        autoHideDuration: 3000,
+      });
+
+      localStorage.removeItem("token");
+      history.push("/");
+    };
+
+    auth.lobby().then(setRoomPreviews).catch(exit);
+    auth
+      .player()
+      .then(({ ownedWorlds }) => {
+        if (Array.isArray(ownedWorlds)) {
+          setMyRooms(ownedWorlds);
+        }
+      })
+      .catch(exit);
   };
 
   const logout = () => {
@@ -84,26 +110,31 @@ export default () => {
       <div className={classes.paddingStyle}>
         <Grid container spacing={3} justify="center" alignItems="flex-start">
           {!roomPreviews && <Loading message={"Loading rooms..."} />}
-          {!!roomPreviews && roomPreviews.map((room) => (
-            <Grid item key={room.id}>
-              <Room room={room} />
-            </Grid>
-          ))}
-
+          {!!roomPreviews &&
+            roomPreviews.map((room) => (
+              <Grid item key={room.id}>
+                <Room room={room} />
+              </Grid>
+            ))}
         </Grid>
 
-{myRooms && <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
-  Your Rooms
-</Typography>}
+        {myRooms && (
+          <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
+            Your Rooms
+          </Typography>
+        )}
 
-        {myRooms && <Grid container spacing={3} justify="center" alignItems="flex-start">
-          {!myRooms && <Loading message={"Loading your rooms..."} />}
-          {!!myRooms && myRooms.map((room) => (
-            <Grid item key={room.id}>
-              <Room room={room} />
-            </Grid>
-          ))}
-        </Grid>}
+        {myRooms && (
+          <Grid container spacing={3} justify="center" alignItems="flex-start">
+            {!myRooms && <Loading message={"Loading your rooms..."} />}
+            {!!myRooms &&
+              myRooms.map((room) => (
+                <Grid item key={room.id}>
+                  <Room room={room} />
+                </Grid>
+              ))}
+          </Grid>
+        )}
       </div>
 
       <CreateRoomDialog

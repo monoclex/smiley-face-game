@@ -1,8 +1,5 @@
 {
   "signal": "SIGHUP",
-  "watch": [
-    "src/"
-  ],
   "ext": "ts",
-  "exec": "ttsc && node src/index.js"
+  "exec": "ts-node -r tsconfig-paths/register ./src/index.ts"
 }

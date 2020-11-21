@@ -1,26 +1,28 @@
-import { TileLayer } from "@smiley-face-game/api/schemas/TileLayer";
-import { TileId } from "@smiley-face-game/api/schemas/TileId";
-import { Size } from "@smiley-face-game/api/schemas/Size";
-import Position from "@/math/Position";
-import Layer from "@/game/components/layer/Layer";
-import Void from "@/game/components/void/Void";
+import { TileLayer } from "@smiley-face-game/api/types";
+import type { ZBlock, ZSize, ZWorldBlocks } from "@smiley-face-game/api/types";
+import Position from "../../math/Position";
+import Layer from "../../game/components/layer/Layer";
+import Void from "../../game/components/void/Void";
 import TileManager from "./TileManager";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import tileLookup from "@/game/tiles/tileLookup";
-import Tile from "../tiles/Tile";
-import { NetworkClient } from "@smiley-face-game/api/NetworkClient";
+import tileLookup from "../../game/tiles/tileLookup";
+import { Connection } from "@smiley-face-game/api";
+import type { TileEx } from "../../phaser-tile-addons";
+import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 
 export default class World {
   readonly tileManager: TileManager;
-  
+
   readonly decoration: Layer;
   readonly foreground: Layer;
   readonly action: Layer;
   readonly background: Layer;
   readonly void: Void;
+  tileJson: TileRegistration;
 
-  constructor(scene: Phaser.Scene, size: Size, readonly networkClient: NetworkClient) {
-    this.tileManager = new TileManager(scene, size);
+  constructor(scene: Phaser.Scene, readonly size: ZSize, readonly connection: Connection) {
+    this.tileJson = connection.tileJson;
+    this.tileManager = new TileManager(scene, size, this.tileJson);
     this.decoration = new Layer(this.tileManager, "decoration");
     this.foreground = new Layer(this.tileManager, "foreground");
     this.action = new Layer(this.tileManager, "action");
@@ -37,10 +39,9 @@ export default class World {
     throw new Error("ok?");
   }
 
-  deserializeBlocks(blocks: { id: TileId; }[][][]) {
+  deserializeBlocks(blocks: ZWorldBlocks) {
     for (let l = 0; l < blocks.length; l++) {
       const layer = blocks[l];
-      const worldLayer = l === TileLayer.Decoration ? this.decoration : l === TileLayer.Foreground ? this.foreground : l === TileLayer.Action ? this.action : this.background;
 
       for (let y = 0; y < layer.length; y++) {
         const yLayer = layer[y];
@@ -48,7 +49,7 @@ export default class World {
         for (let x = 0; x < yLayer.length; x++) {
           const block = yLayer[x];
 
-          this.placeBlock({ x, y }, block.id, l, false);
+          this.placeBlock({ x, y }, block, l, false);
         }
       }
     }
@@ -56,34 +57,61 @@ export default class World {
     console.timeEnd("init");
   }
 
-  placeBlock(position: Position, id: TileId, layer: TileLayer | undefined, iPlacedIt: boolean) {
+  clear() {
+    // no idea if this is a performance optimization or not. but hopefully, this will be slightly GC friendly
+    let position = { x: 0, y: 0 };
+
+    for (let l = 0; l < TileLayer.Decoration; l++) {
+      for (let y = 0; y < this.size.height; y++) {
+        position.y = y;
+        for (let x = 0; x < this.size.width; x++) {
+          position.x = x;
+
+          this.placeBlock(position, 0, l, false);
+        }
+      }
+    }
+  }
+
+  placeBlock(position: Position, tileState: ZBlock, layer: TileLayer | undefined, iPlacedIt: boolean) {
     const { x, y } = position;
 
-    const tileBreed = tileLookup[id];
-    const tile = this.layerFor(layer ?? tileBreed.layer).display.tilemapLayer.getTileAt(x, y, true);
-    
-    // don't do anything as they are the same
-    if (tile.index === id) return;
-    if (id === TileId.Empty && tile.index === -1) return; // special case for empty tiles
+    const behavior = this.tileJson.for(tileState);
+    const tileBreed = tileLookup[behavior.behavior];
+    const actualLayer = layer ?? behavior.layer;
+    const tile: TileEx = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
 
-    // @ts-ignore
-    const result: Tile = tileLookup[tile.index];
-    if (result !== undefined && result.onRemove) {
-      result.onRemove(tile);
+    // don't do anything as they are the same
+    if (tile.tileState && tileState === tile.tileState) {
+      return;
+    }
+    if (tileState === 0 && tile.index === -1) return; // special case for empty tiles
+
+    //@ts-ignore
+    const tileIndex: TileId = tile.index;
+
+    if (tile.tileState) {
+      const result = tileLookup[this.tileJson.for(tile.tileState).behavior];
+      if (result !== undefined && result.remove) {
+        result.remove(this.tileJson, tile);
+      }
     }
 
-    tileBreed.place(tile);
+    // TODO: if this turns into a reference, make sure to copy the value (not the reference)
+    tile.tileState = tileState;
+
+    tileBreed.place(this.tileJson, tile, tileState);
 
     if (iPlacedIt) {
-      this.networkClient.placeBlock(position.x, position.y, id, tileBreed.layer);
+      this.connection.place(tileState, position, actualLayer);
     }
   }
 
   // TODO: put this in something that handles tile layers
-  drawLine(start: Position, end: Position, tileId: TileId, iPlacedIt: boolean, layer?: TileLayer) {
-    bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
+  drawLine(start: Position, end: Position, tile: ZBlock, iPlacedIt: boolean, layer?: TileLayer) {
+    bresenhamsLine(start.x, start.y, end.x, end.y, (x: number, y: number) => {
       if (x < 0 || y < 0 || x >= this.tileManager.tilemap.width || y >= this.tileManager.tilemap.height) return;
-      this.placeBlock({ x, y }, tileId, layer, iPlacedIt);
+      this.placeBlock({ x, y }, tile, layer, iPlacedIt);
     });
   }
 }

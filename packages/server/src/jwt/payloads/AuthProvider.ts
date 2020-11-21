@@ -1,7 +1,6 @@
 import * as jwt from "jsonwebtoken";
-import { validateAccountId } from "@smiley-face-game/api/schemas/AccountId";
-import { validateUsername } from "@smiley-face-game/api/schemas/Username";
-import ensureValidates from "@/ensureValidates";
+import { zAccountId, zUsername } from "@smiley-face-game/api/types";
+import ensureValidates from "../../ensureValidates";
 import AuthPayload from "./AuthPayload";
 
 export default class AuthProvider {
@@ -16,7 +15,7 @@ export default class AuthProvider {
    * @param accountId The Account's Id to generate an authentication token for.
    */
   allowAuthentication(accountId: string): string {
-    ensureValidates(validateAccountId, accountId);
+    ensureValidates(zAccountId, accountId);
 
     const payload: AuthPayload = {
       ver: 1,
@@ -26,19 +25,19 @@ export default class AuthProvider {
 
     return jwt.sign(payload, this.#secret, { expiresIn: "1 hour" });
   }
-  
+
   /**
    * Generates a JWT that only authenticates a Guest to play the game.
    * @param name The name for the Guest.
    */
   allowGuestAuthentication(name: string) {
-    ensureValidates(validateUsername, name);
+    ensureValidates(zUsername, name);
 
     const payload: AuthPayload = {
       ver: 1,
       aud: "",
       name,
-      can: ["play"]
+      can: ["play"],
     };
 
     // generate a token that never expires

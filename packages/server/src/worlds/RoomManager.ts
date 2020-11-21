@@ -1,18 +1,18 @@
-import { validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import MPSC from "@/concurrency/MPSC";
-import Connection from "@/worlds/Connection";
-import Dependencies from "@/dependencies";
-import UuidGenerator from "@/UuidGenerator";
+import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
+import MPSC from "../concurrency/MPSC";
+import Connection from "../worlds/Connection";
+import Dependencies from "../dependencies";
+import UuidGenerator from "../UuidGenerator";
 import Room from "./Room";
 import ensureValidates from "../ensureValidates";
 import SavedBehaviour from "./behaviour/SavedBehaviour";
 import DynamicBehaviour from "./behaviour/DynamicBehaviour";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
+import { zJoinRequest } from "@smiley-face-game/api/ws-api";
 
 interface JoinRoomRequest {
   connection: Connection;
-  roomDetails: WorldJoinRequest;
+  roomDetails: ZJoinRequest;
   completion: PromiseCompletionSource<Room>;
 }
 
@@ -43,7 +43,7 @@ export default class RoomManager {
         yield { room, type: "saved" as const };
       }
     }
-    
+
     for (const room of this.#dynamicRooms.values()) {
       if (room.status === "starting" || room.status === "running") {
         yield { room, type: "dynamic" as const };
@@ -51,7 +51,7 @@ export default class RoomManager {
     }
   }
 
-  join(connection: Connection, roomDetails: WorldJoinRequest): Promise<Room> {
+  join(connection: Connection, roomDetails: ZJoinRequest): Promise<Room> {
     const completion = new PromiseCompletionSource<Room>();
 
     this.#queue.send({ connection, roomDetails, completion });
@@ -79,7 +79,7 @@ export default class RoomManager {
         message.completion.resolve(room);
         continue;
       }
-      
+
       if (room.status === "stopping") {
         // have to wait for the room to stop before we can instantiate a new room in the map
         await room.onStopped.promise;
@@ -100,22 +100,21 @@ export default class RoomManager {
 
         // TODO: should we reuse the code in the "running" case?
         if (newRoom.status === "running") {
-          message.completion.resolve(room);
-        }
-        else {
+          message.completion.resolve(newRoom);
+        } else {
           message.completion.reject(new Error("Room failed to start."));
         }
         continue;
       }
 
-      console.warn('possibly unhandled message', message);
+      console.warn("possibly unhandled message", message);
     }
   }
 
-  private roomFor(details: WorldJoinRequest): Room | undefined {
-    ensureValidates(validateWorldJoinRequest, details);
+  private roomFor(details: ZJoinRequest): Room | undefined {
+    ensureValidates(zJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
-    
+
     if (details.type === "saved") {
       const room = this.#savedRooms.get(details.id);
 
@@ -124,30 +123,25 @@ export default class RoomManager {
         const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));
         this.#savedRooms.set(details.id, newRoom);
         return newRoom;
-      }
-      else {
+      } else {
         return room;
       }
-    }
-    else if (details.type === "dynamic") {
-
+    } else if (details.type === "dynamic") {
       if ("id" in details) {
         const room = this.#dynamicRooms.get(details.id);
-  
+
         if (room === undefined) {
           return undefined;
         }
-  
+
         return room;
-      }
-      else {
+      } else {
         const id = this.#generator.genIdForDynamicWorld();
         const newRoom = new Room(new DynamicBehaviour(details, id));
         this.#dynamicRooms.set(id, newRoom);
         return newRoom;
       }
-    }
-    else {
+    } else {
       // unexpected path
       return undefined;
     }

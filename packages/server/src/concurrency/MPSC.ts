@@ -15,7 +15,7 @@ export default class MPSC<T> {
   }
 
   /**
-   * 
+   *
    * @param message The message to append to the queue.
    */
   send(message: T): void {
@@ -27,7 +27,7 @@ export default class MPSC<T> {
    * Asynchronously fetches the next message. If there is no next message, this will wait until there is one.
    */
   async next(): Promise<T> {
-    while(true) {
+    while (true) {
       await this.#completionSource.promise;
       // because we're on the event loop, we can have a new completion source without worrying about another thread triggering the old one.
       this.#completionSource = new PromiseCompletionSource<void>();

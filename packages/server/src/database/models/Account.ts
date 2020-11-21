@@ -1,9 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import World from './World';
+import World from "./World";
 
 @Entity()
 export default class Account {
-
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -31,7 +30,7 @@ export default class Account {
   /**
    * The amount of milliseconds since the Unix epoch, that points to the point in time of which lastEnergyAmount was set.
    */
-  @Column()
+  @Column({ type: "bigint" })
   timeEnergyWasAtAmount!: number;
 
   /**
@@ -57,11 +56,11 @@ export default class Account {
 
   set currentEnergy(energy: number) {
     this.lastEnergyAmount = energy;
-    
+
     const millisecondsSinceUnixEpoch = Date.now();
     this.timeEnergyWasAtAmount = millisecondsSinceUnixEpoch;
   }
 
-  @OneToMany(type => World, world => world.owner)
+  @OneToMany(() => World, (world) => world.owner)
   worlds!: World[];
 }

@@ -1,7 +1,5 @@
-import { NetworkClient } from '@smiley-face-game/api/NetworkClient';
-import { ServerInitPacket } from '@smiley-face-game/api/packets/ServerInit';
+import type { Connection } from "@smiley-face-game/api";
 
 export interface LoadingSceneData {
-  readonly init: ServerInitPacket;
-  readonly networkClient: NetworkClient;
+  readonly connection: Connection;
 }

@@ -1,9 +1,11 @@
-import { WorldJoinRequest, validateWorldJoinRequest } from "@smiley-face-game/api/schemas/web/game/ws/WorldJoinRequest";
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import WorldBlocks from "@/worlds/WorldBlocks";
-import ensureValidates from "@/ensureValidates";
+import ensureValidates from "../../ensureValidates";
 import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
+import Connection from "../../worlds/Connection";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import { zJoinRequest } from "@smiley-face-game/api/ws-api";
+import TileJson from "packages/server/src/worlds/TileJson";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;
@@ -12,8 +14,8 @@ export default class DynamicBehaviour implements Behaviour {
 
   readonly id: string;
 
-  constructor(joinRequest: Exclude<Extract<WorldJoinRequest, { type: "dynamic" }>, { id: string }>, id: string) {
-    ensureValidates(validateWorldJoinRequest, joinRequest);
+  constructor(joinRequest: Exclude<Extract<ZJoinRequest, { type: "dynamic" }>, { id: string }>, id: string) {
+    ensureValidates(zJoinRequest, joinRequest);
 
     this.id = id;
     this.#name = joinRequest.name;
@@ -21,24 +23,34 @@ export default class DynamicBehaviour implements Behaviour {
     this.#height = joinRequest.height;
   }
 
-  loadDetails(): Promise<WorldDetails> {
-    return Promise.resolve({ name: this.#name, width: this.#width, height: this.#height });
+  onPlayerJoin(connection: Connection) {
+    connection.hasEdit = true;
   }
 
-  saveDetails(details: WorldDetails): Promise<void> {
+  loadDetails(): Promise<ZWorldDetails> {
+    return Promise.resolve({
+      name: this.#name,
+      width: this.#width,
+      height: this.#height,
+      owner: undefined,
+      ownerId: undefined,
+    });
+  }
+
+  saveDetails(details: ZWorldDetails): Promise<void> {
     if (this.#width !== details.width) throw new Error("Can't change world size.");
     if (this.#height !== details.height) throw new Error("Can't change world size.");
-    
+
     this.#name = details.name;
 
     return Promise.resolve();
   }
 
-  loadBlocks(): Promise<WorldBlocks> {
-    return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height)));
+  loadBlocks(): Promise<ZWorldBlocks> {
+    return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height, TileJson)));
   }
 
-  saveBlocks(blocks: WorldBlocks): Promise<void> {
+  saveBlocks(): Promise<void> {
     return Promise.resolve();
   }
 }

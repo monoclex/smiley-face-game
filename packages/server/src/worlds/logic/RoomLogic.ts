@@ -1,15 +1,16 @@
-import { SERVER_PLAYER_JOIN_ID } from "@smiley-face-game/api/packets/ServerPlayerJoin";
-import { SERVER_PLAYER_LEAVE_ID } from "@smiley-face-game/api/packets/ServerPlayerLeave";
-import { SERVER_INIT_ID } from "@smiley-face-game/api/packets/ServerInit";
-import { WorldPacket } from "@smiley-face-game/api/packets/WorldPacket";
-import { WorldDetails } from "@smiley-face-game/api/schemas/WorldDetails";
-import PromiseCompletionSource from "@/concurrency/PromiseCompletionSource";
-import Connection from "@/worlds/Connection";
-import { BlockHandler } from "@/worlds/blockhandling/BlockHandler";
-import WorldBlocks from "@/worlds/WorldBlocks";
+import PromiseCompletionSource from "../../concurrency/PromiseCompletionSource";
+import Connection from "../../worlds/Connection";
+import { BlockHandler } from "../../worlds/blockhandling/BlockHandler";
 import packetLookup from "./packetLookup";
 import WebSocket from "ws";
-
+import Behaviour from "../../worlds/behaviour/Behavior";
+import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
+import { useDev } from "@smiley-face-game/api";
+import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import tileJson from "@smiley-face-game/api/tiles/tiles.json";
+import { zTileJsonFile } from "@smiley-face-game/api/types";
+const tileJsonFile = zTileJsonFile.parse(tileJson);
+useDev();
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
     throw new Error("Action regarding connection connected to this world does not have a playerId assigned to it.");
@@ -29,19 +30,33 @@ export default class RoomLogic {
   #shouldBeDead: boolean = false;
   #players: Map<number, Connection>;
   #idCounter: number = 0;
-  #details: WorldDetails;
+  #details: ZWorldDetails;
   #setStoppingStatus: () => void;
   #id: string;
+  behaviour: Behaviour;
 
-  get playerCount(): number { return this.#players.size; };
+  get playerCount(): number {
+    return this.#players.size;
+  }
+  player(id: number): Connection | undefined {
+    return this.#players.get(id);
+  }
 
-  constructor(onEmpty: PromiseCompletionSource<void>, blocks: WorldBlocks, details: WorldDetails, setStopping: () => void, id: string) {
+  constructor(
+    onEmpty: PromiseCompletionSource<void>,
+    blocks: ZWorldBlocks,
+    details: ZWorldDetails,
+    setStopping: () => void,
+    id: string,
+    roomBehaviour: Behaviour
+  ) {
     this.blockHandler = new BlockHandler(blocks, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
     this.#setStoppingStatus = setStopping;
     this.#id = id;
+    this.behaviour = roomBehaviour;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -50,43 +65,56 @@ export default class RoomLogic {
     // TODO: based off of room settings, allow this connection or not (debug only)
     // NOTE: code for the TODO above should primarily be in the code that generates tokens for connecting to worlds,
     // and before connecting the token should be checked if it should be invalidated.
-    
+
+    this.behaviour.onPlayerJoin(connection);
+
     let id = this.#idCounter++;
     connection.playerId = id;
-    
+
+    if (connection.authTokenPayload.aud === this.#details.ownerId) {
+      connection.role = "owner";
+    } else if (connection.hasEdit) {
+      connection.role = "edit";
+    }
+
+    // TODO: role if they're a friend or not
+
     // at this point, broadcasting will send it to everyone EXCEPT the one who's joining
     this.broadcast({
-      packetId: SERVER_PLAYER_JOIN_ID,
+      packetId: "SERVER_PLAYER_JOIN",
       playerId: connection.playerId!,
       username: connection.username,
+      role: connection.role,
       isGuest: connection.isGuest,
       joinLocation: connection.lastPosition,
       hasGun: connection.hasGun,
       gunEquipped: connection.gunEquipped,
     });
 
-    connection.send({
-      packetId: SERVER_INIT_ID,
+    const initPacket: ZSPacket = {
+      packetId: "SERVER_INIT",
       worldId: this.#id,
       playerId: connection.playerId!,
+      role: connection.role,
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },
       blocks: this.blockHandler.map,
       username: connection.username,
       isGuest: connection.isGuest,
-    });
-
-    for (const otherUser of this.#players.values()) {
-      connection.send({
-        packetId: SERVER_PLAYER_JOIN_ID,
+      tiles: tileJsonFile,
+      players: Array.from(this.#players.values()).map(otherUser => ({
+        packetId: "SERVER_PLAYER_JOIN",
         playerId: otherUser.playerId!,
         username: otherUser.username,
+        role: otherUser.role,
         isGuest: otherUser.isGuest,
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
-        gunEquipped: otherUser.gunEquipped
-      });
-    }
+        gunEquipped: otherUser.gunEquipped,
+      }))
+    };
+
+    connection.send(initPacket);
 
     this.#players.set(id, connection);
     return true;
@@ -95,7 +123,7 @@ export default class RoomLogic {
   handleLeave(connection: Connection) {
     ensureHasId(connection);
     ensureNotDead(this.#shouldBeDead);
-    
+
     this.#players.delete(connection.playerId!);
 
     if (this.#players.size === 0) {
@@ -107,19 +135,19 @@ export default class RoomLogic {
     }
 
     this.broadcast({
-      packetId: SERVER_PLAYER_LEAVE_ID,
-      playerId: connection.playerId!
+      packetId: "SERVER_PLAYER_LEAVE",
+      playerId: connection.playerId!,
     });
   }
 
-  handleMessage(sender: Connection, packet: WorldPacket) {
+  handleMessage(sender: Connection, packet: ZPacket) {
     const handler = packetLookup[packet.packetId];
 
     //@ts-expect-error
     return handler(packet, [sender, this]);
   }
 
-  broadcast(packet: WorldPacket) {
+  broadcast(packet: ZSPacket) {
     // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 
@@ -130,7 +158,7 @@ export default class RoomLogic {
     }
   }
 
-  broadcastExcept(excludePlayerId: number, packet: WorldPacket) {
+  broadcastExcept(excludePlayerId: number, packet: ZSPacket) {
     // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 

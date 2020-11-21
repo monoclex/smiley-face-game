@@ -1,14 +1,12 @@
-import { SERVER_CHAT_ID } from "@smiley-face-game/api/packets/ServerChat";
-import { ChatPacket } from "@smiley-face-game/api/packets/Chat";
-import Connection from "@/worlds/Connection";
-import RoomLogic from "@/worlds/logic/RoomLogic";
+import type { ZChat } from "@smiley-face-game/api/packets";
+import type Connection from "../../../worlds/Connection";
+import type RoomLogic from "../../../worlds/logic/RoomLogic";
 import filterMessage from "@smiley-face-game/api/filterMessage";
 
 const MAX_MESSAGES_WITHIN_INTERVAL = 10;
 const INTERVAL_MS = 5 * 1000;
 
-export default async function handleChat(packet: ChatPacket, [sender, logic]: [Connection, RoomLogic]) {
-
+export default async function handleChat(packet: ZChat, [sender, logic]: [Connection, RoomLogic]) {
   // filter the message incase some bot sends weird stuff i guess
   const content = filterMessage(packet.message);
   if (!content || content.length === 0) return;
@@ -20,8 +18,7 @@ export default async function handleChat(packet: ChatPacket, [sender, logic]: [C
   if (sender.lastMessage.getTime() > now.getTime() - INTERVAL_MS) {
     // count it against them
     sender.messagesCounter++;
-  }
-  else {
+  } else {
     // reset the counter
     sender.messagesCounter = 1;
   }
@@ -29,10 +26,20 @@ export default async function handleChat(packet: ChatPacket, [sender, logic]: [C
   sender.lastMessage = now;
 
   // if they've sent messages too fast, don't let them send the message
-  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) return;
+  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) {
+    sender.send({
+      packetId: "SERVER_EVENT",
+      playerId: sender.playerId,
+      event: {
+        type: "chat rate limited",
+        duration: INTERVAL_MS
+      }
+    });
+    return;
+  }
 
   logic.broadcast({
-    packetId: SERVER_CHAT_ID,
+    packetId: "SERVER_CHAT",
     playerId: sender.playerId!,
     message: packet.message,
   });

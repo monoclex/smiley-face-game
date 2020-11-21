@@ -1,6 +1,6 @@
-import urlSmile from "@/assets/smile.png";
-import CosmeticModel from "@/game/characters/cosmetics/CosmeticModel";
-import key from "@/game/characters/cosmetics/key";
+import urlSmile from "../../../../assets/smile.png";
+import CosmeticModel from "../../../../game/characters/cosmetics/CosmeticModel";
+import key from "../../../../game/characters/cosmetics/key";
 
 class Model implements CosmeticModel {
   readonly type = "smile";
@@ -10,4 +10,4 @@ class Model implements CosmeticModel {
   }
 }
 
-export default new Model;
+export default new Model();

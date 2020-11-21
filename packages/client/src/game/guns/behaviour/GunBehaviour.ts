@@ -1,23 +1,21 @@
-import distanceAway from "@/math/distanceAway";
+import distanceAway from "../../../math/distanceAway";
 
 export default abstract class GunBehaviour {
-  constructor(
-    readonly player: Phaser.GameObjects.Sprite,
-    readonly gun: Phaser.GameObjects.Sprite,
-  ) {}
+  constructor(readonly player: Phaser.GameObjects.Sprite, readonly gun: Phaser.GameObjects.Sprite) {}
 
   equipped: boolean = true;
   angle: number = 0.0;
 
   setLookingAt(x: number, y: number) {
     this.angle = Phaser.Math.Angle.Between(
-      this.player.x + this.player.width / 2, this.player.y + this.player.height / 2,
-      x, y
+      this.player.x + this.player.width / 2,
+      this.player.y + this.player.height / 2,
+      x,
+      y
     );
   }
 
-  update(time: number, delta: number): void {
-    
+  update(_time: number, _delta: number): void {
     if (!this.equipped) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
       this.gun.setPosition(this.player.x + 16 - 6, this.player.y + 16 - 6);
@@ -27,7 +25,7 @@ export default abstract class GunBehaviour {
     }
 
     // gun is equipped, have it go around the player
-    
+
     // given the angle the user is holding it at, place the gun 20 units away from the player
     const heldGunPosition = distanceAway({ x: this.player.x + 16, y: this.player.y + 16 }, this.angle, 20);
     this.gun.setPosition(heldGunPosition.x, heldGunPosition.y);
@@ -50,8 +48,7 @@ export default abstract class GunBehaviour {
     if (Math.abs(this.angle) > Math.PI / 2) {
       if (this.angle < 0) {
         displayAngle += Math.PI;
-      }
-      else {
+      } else {
         displayAngle -= Math.PI;
       }
 

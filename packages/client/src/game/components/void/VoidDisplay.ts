@@ -1,8 +1,7 @@
-import ComponentDisplay from "@/game/components/ComponentDisplay";
-import TileManager from "@/game/world/TileManager";
-import key from "@/game/world/key";
+import TileManager from "../../../game/world/TileManager";
+import key from "../../../game/world/key";
 
-export default class VoidDisplay implements ComponentDisplay {
+export default class VoidDisplay {
   readonly sprite: Phaser.GameObjects.TileSprite;
 
   constructor(scene: Phaser.Scene, tileManager: TileManager) {
@@ -11,9 +10,12 @@ export default class VoidDisplay implements ComponentDisplay {
     // the void is just the empty tile repeating
     // TODO: figure out how to make 'atlas' not default to tile `0`, as the implicit requirement may be bad
     this.sprite = scene.add.tileSprite(
-      tilemap.widthInPixels / 2, tilemap.heightInPixels / 2,
-      tilemap.widthInPixels, tilemap.heightInPixels,
-      key("tiles")
+      tilemap.widthInPixels / 2,
+      tilemap.heightInPixels / 2,
+      tilemap.widthInPixels,
+      tilemap.heightInPixels,
+      key("tiles"),
+      "empty" // mapTileNameToClientId("empty")
     );
   }
 
