@@ -4,6 +4,8 @@ import { Box, Grid, makeStyles, Paper, Tab, Toolbar, Typography } from "@materia
 import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 
+import { Category, CategoryType } from "@smiley-face-game/api/enums";
+
 import ShopCarousel from "./carousel/ShopCarousel";
 import ShopGroup from "./ShopGroup";
 import ShopItem from "./ShopItem";
@@ -30,7 +32,6 @@ const Shop = () => {
 
   // TODO:
   //  Give featured items a title bar (done, but not sure how i feel about it...)
-  //  Make the tab panels also generic? (loaded from api)
   //  Grab shop content from API
   //  Send request to API when buying an item
 
@@ -40,7 +41,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "smiley",
+      category: Category.World,
+      categoryType: CategoryType.Owned,
       cost: 420,
     },
     {
@@ -48,7 +50,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "world",
+      category: Category.Character,
+      categoryType: CategoryType.None,
       cost: 421,
     },
     {
@@ -56,7 +59,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "smiley",
+      category: Category.Character,
+      categoryType: CategoryType.None,
       cost: 422,
     },
     {
@@ -64,7 +68,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "smiley",
+      category: Category.Character,
+      categoryType: CategoryType.Owned,
       cost: 423,
     },
     {
@@ -72,7 +77,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "world",
+      category: Category.World,
+      categoryType: CategoryType.None,
       cost: 424,
     },
     {
@@ -80,7 +86,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "world",
+      category: Category.World,
+      categoryType: CategoryType.None,
       cost: 425,
     },
     {
@@ -88,7 +95,8 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "world",
+      category: Category.World,
+      categoryType: CategoryType.None,
       cost: 425,
     },
   ];
@@ -117,13 +125,13 @@ const Shop = () => {
             </Paper>
 
             <TabPanel value="1">
-              <ShopGroup items={items} category="world" />
+              <ShopGroup items={items} category={Category.World} />
             </TabPanel>
             <TabPanel value="2">
-              <ShopGroup items={items} category="smiley" />
+              <ShopGroup items={items} category={Category.Character} />
             </TabPanel>
             <TabPanel value="3">
-              <ShopGroup items={items} category="owned" />
+              <ShopGroup items={items.filter((item) => (item.categoryType & CategoryType.Owned) !== 0)} />
             </TabPanel>
           </TabContext>
         </Paper>

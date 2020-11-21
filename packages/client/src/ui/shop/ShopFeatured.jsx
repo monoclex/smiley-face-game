@@ -2,6 +2,8 @@ import React from "react";
 
 import { Grid, makeStyles, Paper, Typography } from "@material-ui/core";
 
+import { Category, CategoryType } from "@smiley-face-game/api/enums";
+
 import ShopCarousel from "./carousel/ShopCarousel";
 
 const useStyles = makeStyles({
@@ -22,7 +24,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured | CategoryType.Owned,
       cost: 420,
     },
     {
@@ -30,7 +33,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured,
       cost: 421,
     },
     {
@@ -38,7 +42,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured,
       cost: 422,
     },
     {
@@ -46,7 +51,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured | CategoryType.Owned,
       cost: 423,
     },
     {
@@ -54,7 +60,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured,
       cost: 424,
     },
     {
@@ -62,7 +69,8 @@ export default () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: Category.World,
+      categoryType: CategoryType.Featured,
       cost: 425,
     },
   ];
@@ -77,7 +85,7 @@ export default () => {
         </Paper>
       </Grid>
       <div className={classes.carousel}>
-        <ShopCarousel items={items.filter((item) => item.category === "featured")} />
+        <ShopCarousel items={items} />
       </div>
     </Grid>
   );
