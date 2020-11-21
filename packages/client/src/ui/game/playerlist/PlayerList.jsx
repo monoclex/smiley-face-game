@@ -86,6 +86,10 @@ const Player = ({ username, playerId, role: roleParam }) => {
   // make sure that when you add things to `actions` you can guarantee a static order
   // so that the `key` prop can be set to the index it's at in the array
   if (mainPlayer.role === "owner") {
+    // !!! SCARY JAVASCRIPT WARNING !!!
+    // you CANNOT do `onClick={kick}` because `kick` is defined *later*.
+    // HOWEVER, doing `() => kick()` works... fudging hell
+
     // TODO: when better role/permission handling, have this be set to where it shows up if they can't edit,
     // doing things based on role is hacky and weird
     if (role !== "owner") {
@@ -102,7 +106,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
     }
 
     actions.push(
-      <MenuItem onClick={kick}>
+      <MenuItem onClick={() => kick()}>
         <ShoeCleat />
       </MenuItem>
     );

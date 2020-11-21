@@ -259,6 +259,8 @@ export default class GameScene extends Phaser.Scene {
             }
         }
       }
+
+      toast.error("Disconnected!", true);
     }
 
     playerList.set({ players: [this.self] });

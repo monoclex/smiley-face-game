@@ -30,10 +30,10 @@ export default {
   info(msg: string) {
     this.toast(msg, "info");
   },
-  error(msg: string) {
-    this.toast(msg, "error");
+  error(msg: string, persist?: boolean) {
+    this.toast(msg, "error", persist);
   },
-  toast(msg: string, variant: VariantType = "default") {
-    useSnackbarRef.enqueueSnackbar(msg, { variant });
+  toast(msg: string, variant: VariantType = "default", persist?: boolean) {
+    useSnackbarRef.enqueueSnackbar(msg, { variant, persist });
   },
 };
