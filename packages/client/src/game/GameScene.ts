@@ -250,6 +250,13 @@ export default class GameScene extends Phaser.Scene {
                 break;
             }
             break;
+
+          case "SERVER_EVENT":
+            switch (event.event.type) {
+              case "chat rate limited": {
+                toast.warning("You're chatting too fast! Wait " + (event.event.duration / 1000) + " seconds.");
+              } break;
+            }
         }
       }
     }

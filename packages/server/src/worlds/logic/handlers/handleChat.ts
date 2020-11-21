@@ -26,7 +26,17 @@ export default async function handleChat(packet: ZChat, [sender, logic]: [Connec
   sender.lastMessage = now;
 
   // if they've sent messages too fast, don't let them send the message
-  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) return;
+  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) {
+    sender.send({
+      packetId: "SERVER_EVENT",
+      playerId: sender.playerId,
+      event: {
+        type: "chat rate limited",
+        duration: INTERVAL_MS
+      }
+    });
+    return;
+  }
 
   logic.broadcast({
     packetId: "SERVER_CHAT",

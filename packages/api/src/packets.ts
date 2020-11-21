@@ -1,4 +1,4 @@
-import Schema, { SchemaInput, boolean, addParse, array } from "./computed-types-wrapper";
+import Schema, { SchemaInput, boolean, addParse, array, number } from "./computed-types-wrapper";
 import { zInputs, zPlayerPosition, zVelocity, zBlockPosition, zTileLayer, zBlock, zPlayerListActionKind, zWorldActionKind, zBoundlessBlockPosition, zUserId, zWorldActionKindReply, zRole, zUsername, zWorldId, zSize, zWorldBlocks, zAngle, zMessage, zTileJsonFile } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -48,7 +48,7 @@ export const zsPacket = (width: number, height: number) => {
 
   return addParse(Schema.either(
     Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
-    Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle),
+    Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent),
   ));
 };
 
@@ -200,4 +200,12 @@ export const zsEquipGun = addParse(Schema.merge(zs, {
 export const zsChat = addParse(Schema.merge(zs, {
   packetId: "SERVER_CHAT" as const,
   message: zMessage,
+}));
+
+export const zsEvent = addParse(Schema.merge(zs, {
+  packetId: "SERVER_EVENT" as const,
+  event: Schema.either({
+    type: "chat rate limited" as const,
+    duration: number.integer().gte(0)
+  })
 }));
