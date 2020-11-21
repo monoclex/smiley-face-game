@@ -16,6 +16,7 @@ import {
 const useStyles = makeStyles({
   root: {
     width: 256,
+    height: 384,
   },
   buyButton: {
     marginLeft: "auto !important",
@@ -49,6 +50,7 @@ export default ({ image, title, description, owned, cost }) => {
     <motion.div whileHover={{ scale: 1.05 }}>
       <Card className={classes.root}>
         <CardMedia component="img" image={image} title={title} width={256} height={196} />
+
         <CardContent>
           <Typography gutterBottom variant="h6" component="h6">
             {title}

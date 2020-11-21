@@ -1,23 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { Grid, makeStyles } from "@material-ui/core";
+import { Button, Grid, makeStyles, Slide } from "@material-ui/core";
 
 import ShopItem from "../ShopItem";
-
-const useStyles = makeStyles({
-  //
-});
+import ShopItemSkeleton from "../ShopItemSkeleton";
+import Carousel from "../../components/Carousel";
 
 export default ({ items }) => {
-  const classes = useStyles();
+  if (!Array.isArray(items)) {
+    return items;
+  }
 
   return (
-    <Grid container spacing={3}>
+    <Carousel visibleItems={3}>
       {items.map((item) => (
-        <Grid item key={item.id}>
-          <ShopItem {...item} />
-        </Grid>
+        <ShopItem {...item} key={item.id} />
       ))}
-    </Grid>
+    </Carousel>
   );
 };

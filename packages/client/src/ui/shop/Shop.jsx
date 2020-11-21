@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 
-import { AppBar, Box, Grid, makeStyles, Paper, Tab, Toolbar, Typography } from "@material-ui/core";
+import { Box, Grid, makeStyles, Paper, Tab, Toolbar, Typography } from "@material-ui/core";
 import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 
 import ShopCarousel from "./carousel/ShopCarousel";
 import ShopGroup from "./ShopGroup";
 import ShopItem from "./ShopItem";
+import ShopFeatured from "./ShopFeatured";
 
 const useStyles = makeStyles({
-  // this paper class should probably be removed when everything's done
-  // the parent should decide how much margin etc
   paper: {
     margin: 20,
     marginBottom: 0,
-  },
-  carousel: {
-    padding: 10,
   },
 });
 
@@ -33,9 +29,8 @@ const Shop = () => {
   const classes = useStyles();
 
   // TODO:
-  //  Make selected tab more obvious
-  //  Give featured items a title bar
-  //  Make the shop carousel actually work
+  //  Give featured items a title bar (done, but not sure how i feel about it...)
+  //  Make the tab panels also generic? (loaded from api)
   //  Grab shop content from API
   //  Send request to API when buying an item
 
@@ -45,7 +40,7 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "world",
+      category: "smiley",
       cost: 420,
     },
     {
@@ -62,7 +57,6 @@ const Shop = () => {
       description: "You should totally buy it!",
       image: "",
       category: "smiley",
-      owned: true,
       cost: 422,
     },
     {
@@ -70,7 +64,7 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: "smiley",
       cost: 423,
     },
     {
@@ -78,7 +72,7 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: "world",
       cost: 424,
     },
     {
@@ -86,7 +80,15 @@ const Shop = () => {
       title: "This new item is so good...",
       description: "You should totally buy it!",
       image: "",
-      category: "featured",
+      category: "world",
+      cost: 425,
+    },
+    {
+      id: 13,
+      title: "This new item is so good...",
+      description: "You should totally buy it!",
+      image: "",
+      category: "world",
       cost: 425,
     },
   ];
@@ -95,25 +97,24 @@ const Shop = () => {
 
   return (
     <Grid container>
-      <Grid item xs={12}>
-        <Paper className={classes.paper}>
-          <div className={classes.carousel}>
-            featured items...
-            <ShopCarousel items={items.filter((item) => item.category === "featured")} />
-          </div>
-        </Paper>
+      <Grid item container justify="center">
+        <Grid item>
+          <Paper className={classes.paper}>
+            <ShopFeatured />
+          </Paper>
+        </Grid>
       </Grid>
 
       <Grid item xs={12}>
         <Paper className={classes.paper}>
           <TabContext value={value}>
-            <AppBar position="static">
+            <Paper square>
               <TabList onChange={(e, newValue) => setValue(newValue)} centered>
                 <Tab label={<Icon icon={WorldIcon} text="Worlds" />} value="1" />
                 <Tab label={<Icon icon={SmileyIcon} text="Smilies" />} value="2" />
                 <Tab label="Owned" value="3" />
               </TabList>
-            </AppBar>
+            </Paper>
 
             <TabPanel value="1">
               <ShopGroup items={items} category="world" />
@@ -122,7 +123,7 @@ const Shop = () => {
               <ShopGroup items={items} category="smiley" />
             </TabPanel>
             <TabPanel value="3">
-              <ShopGroup items={items.filter((x) => x.owned)} />
+              <ShopGroup items={items} category="owned" />
             </TabPanel>
           </TabContext>
         </Paper>
