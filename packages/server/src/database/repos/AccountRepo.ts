@@ -4,7 +4,7 @@ import Account from "../../database/models/Account";
 import World from "../../database/models/World";
 import AccountLike from "../../database/modelishs/AccountLike";
 import ensureValidates from "../../ensureValidates";
-import { zAccountId, zEmail, zPassword, zUsername } from "@smiley-face-game/common/types";
+import { zAccountId, zEmail, zPassword, zUsername } from "@smiley-face-game/api/types";
 
 // TODO: should this be made a Schema?
 interface AccountDetails {

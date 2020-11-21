@@ -15,7 +15,7 @@ import Loading from "../../ui/Loading";
 import Typography from "@material-ui/core/Typography";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useSnackbar } from "notistack";
-import { Authentication } from "@smiley-face-game/common";
+import { Authentication } from "@smiley-face-game/api";
 
 const useStyles = makeStyles({
   input: {

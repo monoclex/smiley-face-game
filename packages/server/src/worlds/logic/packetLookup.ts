@@ -1,4 +1,4 @@
-import type { ZPacketLookup } from "@smiley-face-game/common";
+import type { ZPacketLookup } from "@smiley-face-game/api";
 import RoomLogic from "../../worlds/logic/RoomLogic";
 import Connection from "../../worlds/Connection";
 import handleBlockLine from "./handlers/handleBlockLine";

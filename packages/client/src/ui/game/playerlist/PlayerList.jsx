@@ -8,7 +8,7 @@ import { playerListState } from "../../../recoil/atoms/playerList";
 import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
 import commonUIStyles from "../commonUIStyles";
-import SpringScrollbars from "../../../ui/components/SpingScrollbars";
+import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
 import currentPlayer from "../../../recoil/selectors/currentPlayer";
@@ -72,7 +72,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
-  /** @type {import("@smiley-face-game/common/PlayerRole").default} */
+  /** @type {import("@smiley-face-game/api/types").ZRole} */
   const role = roleParam;
 
   // https://material-ui.com/components/menus/#SimpleMenu.js
@@ -80,7 +80,41 @@ const Player = ({ username, playerId, role: roleParam }) => {
 
   const mainPlayer = useRecoilValue(currentPlayer) ?? { username: "", role: "non", playerId: -1 };
 
+  /** @type {JSX.Element[]} */
+  const actions = [];
+
+  // make sure that when you add things to `actions` you can guarantee a static order
+  // so that the `key` prop can be set to the index it's at in the array
+  if (mainPlayer.role === "owner") {
+    // !!! SCARY JAVASCRIPT WARNING !!!
+    // you CANNOT do `onClick={kick}` because `kick` is defined *later*.
+    // HOWEVER, doing `() => kick()` works... fudging hell
+
+    // TODO: when better role/permission handling, have this be set to where it shows up if they can't edit,
+    // doing things based on role is hacky and weird
+    if (role !== "owner") {
+      actions.push(
+        <ToggleButton
+          value="edit"
+          aria-label="edit"
+          selected={role === "edit"}
+          onChange={() => setEdit(!(role === "edit"))}
+        >
+          <Pencil />
+        </ToggleButton>
+      );
+    }
+
+    actions.push(
+      <MenuItem onClick={() => kick()}>
+        <ShoeCleat />
+      </MenuItem>
+    );
+  }
+
   const handleClick = (event) => {
+    // don't show menu if there are no actions to perform
+    if (actions.length === 0) return;
     setAnchorElement(event.currentTarget);
   };
 
@@ -127,21 +161,8 @@ const Player = ({ username, playerId, role: roleParam }) => {
         onClose={handleClose}
       >
         <Grid container justify="center" direction="column">
-          {mainPlayer.role === "owner" && (
-            <>
-              <ToggleButton
-                value="edit"
-                aria-label="edit"
-                selected={role === "edit"}
-                onChange={() => setEdit(!(role === "edit"))}
-              >
-                <Pencil />
-              </ToggleButton>
-              <MenuItem onClick={kick}>
-                <ShoeCleat />
-              </MenuItem>
-            </>
-          )}
+          {/* it's fine to have the key be the index because we can guarantee that we add `actions` in a static order */}
+          <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>
       </Menu>
     </>

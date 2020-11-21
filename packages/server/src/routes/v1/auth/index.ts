@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/common/api";
+import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/api/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
-import TileJson from "packages/server/src/worlds/TileJson";
+import TileJson from "../../../worlds/TileJson";
 
 type UsedDependencies = Pick<Dependencies, "accountRepo" | "authProvider" | "worldRepo">;
 

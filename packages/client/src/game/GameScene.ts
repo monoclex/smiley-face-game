@@ -4,8 +4,8 @@ import PlayerManager from "./player/PlayerManager";
 import World from "./world/World";
 import { isDev } from "../isProduction";
 import { chat } from "../recoil/atoms/chat";
-import type { Connection } from "@smiley-face-game/common";
-import type { ZRole } from "@smiley-face-game/common";
+import type { Connection } from "@smiley-face-game/api";
+import type { ZRole } from "@smiley-face-game/api";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
 import { playerList } from "../recoil/atoms/playerList";
@@ -16,7 +16,7 @@ import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
 import toast from "../SnackbarUtils";
-import type { ZSInit } from "@smiley-face-game/common/src/packets";
+import type { ZSInit } from "@smiley-face-game/api/packets";
 import { blockbar as recoilBlockbar } from "../recoil/atoms/blockbar";
 
 const TILE_WIDTH = 32;
@@ -250,12 +250,22 @@ export default class GameScene extends Phaser.Scene {
                 break;
             }
             break;
+
+          case "SERVER_EVENT":
+            switch (event.event.type) {
+              case "chat rate limited": {
+                toast.warning("You're chatting too fast! Wait " + (event.event.duration / 1000) + " seconds.");
+              } break;
+            }
         }
       }
+
+      toast.error("Disconnected!", true);
     }
 
+    playerList.set({ players: [this.self] });
     for (const event of this.initPacket.players) {
-      if (event.playerId === this.mainPlayer.id) break;
+      if (event.playerId === this.mainPlayer.id) continue;
 
       const player = this.players.addPlayer(event.playerId, event.username, layerPlayers);
       player.setPosition(event.joinLocation.x, event.joinLocation.y);
@@ -267,7 +277,7 @@ export default class GameScene extends Phaser.Scene {
       let newPlayer = {
         playerId: event.playerId,
         username: event.username,
-        role: event.role as ZRole,
+        role: event.role,
       };
 
       playerList.modify({ players: [newPlayer, ...playerList.state.players] });
@@ -290,7 +300,6 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-    playerList.set({ players: [this.self] });
     loading.set({ failed: false });
   }
 

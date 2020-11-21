@@ -1,4 +1,4 @@
-import type { Authentication, ZJoinRequest } from "@smiley-face-game/common";
+import type { Authentication, ZJoinRequest } from "@smiley-face-game/api";
 import loadAll from "../../game/loadAll";
 import GAME_SCENE_KEY from "../../game/GameSceneKey";
 import { loading } from "../../recoil/atoms/loading";

@@ -4,7 +4,7 @@ import urlPlayer from "../../assets/mmmnop.png";
 import history from "../../ui/history";
 import { api } from "../../isProduction";
 import SnackbarUtils from "../../SnackbarUtils";
-import { auth } from "@smiley-face-game/common";
+import { auth } from "@smiley-face-game/api";
 
 export default () => (
   <GenericAuthenticationPage
@@ -13,11 +13,11 @@ export default () => (
       { name: "email", text: "Enter your email" },
       { name: "password", text: "Enter your password", type: "password" },
     ]}
-    submit={({ email, password }) => {
+    submit={({ email, password }) =>
       auth({ email: email.toLowerCase(), password }).then(({ token }) => {
         localStorage.setItem("token", token);
         history.push("/lobby");
-      });
-    }}
+      })
+    }
   />
 );

@@ -34,6 +34,6 @@
     "tsconfig-paths": "^3.9.0"
   },
   "peerDependencies": {
-    "@smiley-face-game/common": "0.0.0"
+    "@smiley-face-game/api": "0.0.0"
   }
 }

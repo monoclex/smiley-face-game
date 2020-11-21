@@ -1,7 +1,7 @@
-import type { ZChat } from "@smiley-face-game/common/packets";
+import type { ZChat } from "@smiley-face-game/api/packets";
 import type Connection from "../../../worlds/Connection";
 import type RoomLogic from "../../../worlds/logic/RoomLogic";
-import filterMessage from "@smiley-face-game/common/filterMessage";
+import filterMessage from "@smiley-face-game/api/filterMessage";
 
 const MAX_MESSAGES_WITHIN_INTERVAL = 10;
 const INTERVAL_MS = 5 * 1000;
@@ -26,7 +26,17 @@ export default async function handleChat(packet: ZChat, [sender, logic]: [Connec
   sender.lastMessage = now;
 
   // if they've sent messages too fast, don't let them send the message
-  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) return;
+  if (sender.messagesCounter > MAX_MESSAGES_WITHIN_INTERVAL) {
+    sender.send({
+      packetId: "SERVER_EVENT",
+      playerId: sender.playerId,
+      event: {
+        type: "chat rate limited",
+        duration: INTERVAL_MS
+      }
+    });
+    return;
+  }
 
   logic.broadcast({
     packetId: "SERVER_CHAT",

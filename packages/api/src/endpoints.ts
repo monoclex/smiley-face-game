@@ -26,6 +26,13 @@ export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
   }
 }
 
+export function useDev() {
+  rewriteHost((endpoint) =>
+    endpoint.host.startsWith("ws")
+      ? { ...endpoint, host: "dev-ws-api.sirjosh3917.com/smiley-face-game/v1" }
+      : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/dev/v1" });
+}
+
 /**
  * Converts an `Endpoint` into a URL. The implementation of this method shouldn't be relied upon as it changes, but it
  * will use `coerceSecure` to convert the optional `secure` into `true` or `false`. Then, it'll concatenate the host
@@ -62,6 +69,9 @@ export function coerceSecure(secure: boolean | null | undefined): boolean;
 export function coerceSecure(argSecure: unknown): boolean {
   const secure = zSecure.parse(argSecure);
   if (secure === true || secure === false) return secure;
-  if (location && location.protocol === "http:") return false;
+
+  // in node, just referencing `location` will throw an error
+  // so we use `globalThis["location"]` instead which will just return `undefined`, and not throw
+  if (globalThis["location"] && location.protocol === "http:") return false;
   return true;
 }

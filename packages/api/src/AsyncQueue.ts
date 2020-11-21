@@ -60,7 +60,7 @@ export default class AsyncQueue<T> {
     this._reject = () => { };
   }
 
-  next(): Promise<T> {
+  next(): Promise<T | undefined> {
     const self = this;
     return this._next.then(value => {
       // once we consume the next value, we want to prepare `_next` again for the next iteration
@@ -79,6 +79,8 @@ export default class AsyncQueue<T> {
         });
       }
       return value;
-    });
+    })
+      // when we get an error (`end` being called), we want to stop producing values
+      .catch(() => undefined);
   }
 }

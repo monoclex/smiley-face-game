@@ -3,7 +3,7 @@ import GenericAuthenticationPage from "../../ui/components/GenericAuthentication
 import urlPlayer from "../../assets/mmmnop.png";
 import history from "../../ui/history";
 import SnackbarUtils from "../../SnackbarUtils";
-import { register } from "@smiley-face-game/common";
+import { register } from "@smiley-face-game/api";
 
 export default () => (
   <GenericAuthenticationPage
@@ -13,11 +13,11 @@ export default () => (
       { name: "email", text: "Enter your email" },
       { name: "password", text: "Enter your password", type: "password" },
     ]}
-    submit={({ username, email, password }) => {
+    submit={({ username, email, password }) =>
       register({ username, email, password }).then(({ token }) => {
         localStorage.setItem("token", token);
         history.push("/lobby");
-      });
-    }}
+      })
+    }
   />
 );

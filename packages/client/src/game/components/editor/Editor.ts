@@ -1,4 +1,4 @@
-import { TileLayer, ZBlock } from "@smiley-face-game/common/types";
+import { TileLayer, ZBlock } from "@smiley-face-game/api/types";
 import Position from "../../../math/Position";
 import World from "../../../game/world/World";
 import EditorDisplay from "./EditorDisplay";

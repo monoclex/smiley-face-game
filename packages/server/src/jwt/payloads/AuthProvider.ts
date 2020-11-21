@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { zAccountId, zUsername } from "@smiley-face-game/common/types";
+import { zAccountId, zUsername } from "@smiley-face-game/api/types";
 import ensureValidates from "../../ensureValidates";
 import AuthPayload from "./AuthPayload";
 

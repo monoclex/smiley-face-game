@@ -1,4 +1,4 @@
-import TileRegistration from "@smiley-face-game/common/src/tiles/TileRegistration";
+import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import mapTileNameToClientId from "./idLookup";
 import { SpriteEx } from "../../phaser-tile-addons";
 import Player from "../player/Player";

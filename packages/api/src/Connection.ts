@@ -122,7 +122,7 @@ export default class Connection {
    */
   [Symbol.asyncIterator]() {
     const self = this;
-    return { next: () => self.messages.next().then(value => ({ value, done: false })) };
+    return { next: () => self.messages.next().then(value => !!value ? ({ value, done: false }) : ({ done: true })) };
   }
 
   /**

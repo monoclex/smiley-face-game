@@ -67,6 +67,6 @@
     "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
-    "@smiley-face-game/common": "0.0.0"
+    "@smiley-face-game/api": "0.0.0"
   }
 }

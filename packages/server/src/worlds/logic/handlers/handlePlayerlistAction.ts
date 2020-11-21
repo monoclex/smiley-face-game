@@ -1,4 +1,4 @@
-import type { ZPlayerListAction } from "@smiley-face-game/common/packets";
+import type { ZPlayerListAction } from "@smiley-face-game/api/packets";
 import type Connection from "../../../worlds/Connection";
 import type RoomLogic from "../../../worlds/logic/RoomLogic";
 
@@ -12,6 +12,7 @@ export default function handlePlayerlistAction(packet: ZPlayerListAction, [sende
         // TODO: wrap this outside or something
         const target = logic.player(packet.action.playerId);
         if (target === undefined) return;
+        if (target.role === "owner") return; // TODO: when permissions aren't role-based, check if they already have edit
 
         target.role = "edit";
         target.hasEdit = true;
@@ -29,6 +30,7 @@ export default function handlePlayerlistAction(packet: ZPlayerListAction, [sende
 
         const target = logic.player(packet.action.playerId);
         if (target === undefined) return;
+        if (target.role === "owner") return; // TODO: when permissions aren't role-based, remove this check and remove edit from owner
 
         target.role = "non";
         target.hasEdit = false;

@@ -20,7 +20,7 @@ import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
 import WorldSettings from "../game/WorldSettings";
-import { Authentication } from "@smiley-face-game/common";
+import { Authentication } from "@smiley-face-game/api";
 
 export const config = {
   pixelArt: true,
