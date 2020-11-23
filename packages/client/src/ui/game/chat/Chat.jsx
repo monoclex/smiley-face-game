@@ -70,7 +70,7 @@ const Message = ({ id }) => {
   );
 };
 
-export default () => {
+const Chat = () => {
   const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
@@ -156,3 +156,5 @@ export default () => {
     </Grid>
   );
 };
+
+export default Chat;

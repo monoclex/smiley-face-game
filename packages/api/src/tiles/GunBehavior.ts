@@ -27,7 +27,7 @@ export default class GunBehavior<S extends number> extends Behavior<[S, number]>
   }
 
   deserialize([mainId, gunType]: [S, number]): number {
-    if (mainId as unknown !== this.sourceId) throw new Error("mainId isn't right");
+    if ((mainId as unknown) !== this.sourceId) throw new Error("mainId isn't right");
     if (gunType !== 0) throw new Error("multiple gun variants aren't supported at this time");
     return this.gunId;
   }

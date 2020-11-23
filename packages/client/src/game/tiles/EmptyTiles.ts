@@ -5,6 +5,5 @@ export default class EmptyTiles {
     tile.setCollision(false);
   }
 
-  remove(_tileJson: TileRegistration, _tile: Phaser.Tilemaps.Tile) {
-  }
+  remove(_tileJson: TileRegistration, _tile: Phaser.Tilemaps.Tile) {}
 }

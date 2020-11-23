@@ -6,7 +6,7 @@ import { api } from "../../isProduction";
 import SnackbarUtils from "../../SnackbarUtils";
 import { auth } from "@smiley-face-game/api";
 
-export default () => (
+const LoginPage = () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
     inputs={[
@@ -21,3 +21,5 @@ export default () => (
     }
   />
 );
+
+export default LoginPage;

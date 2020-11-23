@@ -47,8 +47,8 @@ export default class Connection {
 
       // we've created a websocket, but did we really join?
       // listen for either 'init' or an error
-      websocket.onclose = e => reject(e.reason);
-      websocket.onmessage = e => resolve(new Connection(websocket, JSON.parse(e.data as string)));
+      websocket.onclose = (e) => reject(e.reason);
+      websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
     });
   }
 
@@ -122,7 +122,7 @@ export default class Connection {
    */
   [Symbol.asyncIterator]() {
     const self = this;
-    return { next: () => self.messages.next().then(value => !!value ? ({ value, done: false }) : ({ done: true })) };
+    return { next: () => self.messages.next().then((value) => (!!value ? { value, done: false } : { done: true })) };
   }
 
   /**
@@ -175,7 +175,9 @@ export default class Connection {
 
     this._send({
       packetId: "MOVEMENT",
-      position, velocity, inputs
+      position,
+      velocity,
+      inputs,
     });
   }
 
@@ -210,7 +212,7 @@ export default class Connection {
 
     this._send({
       packetId: "EQUIP_GUN",
-      equipped
+      equipped,
     });
   }
 
@@ -226,7 +228,7 @@ export default class Connection {
 
     this._send({
       packetId: "FIRE_BULLET",
-      angle
+      angle,
     });
   }
 
@@ -246,7 +248,9 @@ export default class Connection {
 
     this._send({
       packetId: "BLOCK_SINGLE",
-      position, layer, block,
+      position,
+      layer,
+      block,
     });
   }
 
@@ -267,7 +271,10 @@ export default class Connection {
 
     this._send({
       packetId: "BLOCK_LINE",
-      block, start, end, layer
+      block,
+      start,
+      end,
+      layer,
     });
   }
 
@@ -282,7 +289,7 @@ export default class Connection {
 
     this._send({
       packetId: "CHAT",
-      message
+      message,
     });
   }
 
@@ -297,7 +304,7 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "give edit", playerId }
+      action: { action: "give edit", playerId },
     });
   }
 
@@ -312,7 +319,7 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "remove edit", playerId }
+      action: { action: "remove edit", playerId },
     });
   }
 
@@ -327,7 +334,7 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "kick", playerId }
+      action: { action: "kick", playerId },
     });
   }
 
@@ -337,7 +344,7 @@ export default class Connection {
   save() {
     this._send({
       packetId: "WORLD_ACTION",
-      action: { action: "save" }
+      action: { action: "save" },
     });
   }
 
@@ -347,7 +354,7 @@ export default class Connection {
   load() {
     this._send({
       packetId: "WORLD_ACTION",
-      action: { action: "load" }
+      action: { action: "load" },
     });
   }
 }

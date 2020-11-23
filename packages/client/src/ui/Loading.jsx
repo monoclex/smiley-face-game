@@ -12,7 +12,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default ({ message = "Loading..." }) => {
+const Loading = ({ message = "Loading..." }) => {
   const styles = useStyles();
 
   return (
@@ -26,3 +26,5 @@ export default ({ message = "Loading..." }) => {
     </Grid>
   );
 };
+
+export default Loading;

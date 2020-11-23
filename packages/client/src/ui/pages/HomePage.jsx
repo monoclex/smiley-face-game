@@ -1,5 +1,3 @@
-//@ts-check
-
 import React from "react";
 import { Link } from "react-router-dom";
 import Button from "@material-ui/core/Button";
@@ -13,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default () => {
+const HomePage = () => {
   const classes = useStyles();
 
   // if they have a token, they should go straight to the lobby
@@ -55,3 +53,5 @@ export default () => {
     </Container>
   );
 };
+
+export default HomePage;

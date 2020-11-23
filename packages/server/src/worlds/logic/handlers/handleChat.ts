@@ -32,8 +32,8 @@ export default async function handleChat(packet: ZChat, [sender, logic]: [Connec
       playerId: sender.playerId,
       event: {
         type: "chat rate limited",
-        duration: INTERVAL_MS
-      }
+        duration: INTERVAL_MS,
+      },
     });
     return;
   }

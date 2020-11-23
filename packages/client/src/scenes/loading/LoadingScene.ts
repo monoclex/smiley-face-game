@@ -10,9 +10,9 @@ interface GlobalVariableParkourType {
 }
 
 export const globalVariableParkour: GlobalVariableParkourType = {
-  token: undefined as unknown as Authentication,
-  joinRequest: undefined as unknown as ZJoinRequest,
-  onId: () => { },
+  token: (undefined as unknown) as Authentication,
+  joinRequest: (undefined as unknown) as ZJoinRequest,
+  onId: () => {},
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -51,13 +51,14 @@ export class LoadingScene extends Phaser.Scene {
   }
 
   create() {
-    globalVariableParkour.token.connect(globalVariableParkour.joinRequest)
-      .then(connection => {
+    globalVariableParkour.token
+      .connect(globalVariableParkour.joinRequest)
+      .then((connection) => {
         globalVariableParkour.onId(connection.init.worldId);
         console.time("init");
         this.scene.start(GAME_SCENE_KEY, { connection });
       })
-      .catch(err => {
+      .catch((err) => {
         loading.set({
           failed: true,
           why: err,

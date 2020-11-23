@@ -46,7 +46,7 @@ const validators = {
   password: wrapValidator(zPassword),
 };
 
-export default ({ smileyUrl, inputs, submit }) => {
+const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
   const styles = useStyles();
   const { handleSubmit, register, errors, watch } = useForm();
   const { enqueueSnackbar } = useSnackbar();
@@ -106,3 +106,5 @@ export default ({ smileyUrl, inputs, submit }) => {
     </Container>
   );
 };
+
+export default GenericAuthenticationPage;

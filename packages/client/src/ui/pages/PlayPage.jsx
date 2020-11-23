@@ -11,7 +11,7 @@ import { Grid } from "@material-ui/core";
 import { globalVariableParkour, LoadingScene } from "../../scenes/loading/LoadingScene";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
-import history from "../../ui/history";
+import history from "ui/history";
 import { isDev } from "../../isProduction";
 import GameScene from "../../game/GameScene";
 import { loadingState, loading as sharedGlobalLoading } from "../../recoil/atoms/loading";
@@ -63,7 +63,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Game = ({
+const PlayPage = ({
   selectedSlot,
   loader,
   location: { search, state },
@@ -194,4 +194,4 @@ const Game = ({
   );
 };
 
-export default Game;
+export default PlayPage;

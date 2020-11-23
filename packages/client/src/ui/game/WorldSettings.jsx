@@ -13,7 +13,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default ({}) => {
+const WorldSettings = ({}) => {
   const classes = useStyles();
   const mainPlayer = useRecoilValue(currentPlayer);
 
@@ -54,3 +54,5 @@ export default ({}) => {
     </>
   );
 };
+
+export default WorldSettings;
