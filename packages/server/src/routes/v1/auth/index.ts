@@ -71,11 +71,14 @@ export default function (deps: UsedDependencies): Router {
         });
 
         // give registered users a world to save/load/play
-        const world = await worldRepo.create({
-          owner: account,
-          width: 50,
-          height: 50,
-        }, TileJson);
+        const world = await worldRepo.create(
+          {
+            owner: account,
+            width: 50,
+            height: 50,
+          },
+          TileJson
+        );
 
         account.worlds.push(world);
         await accountRepo.save(account);

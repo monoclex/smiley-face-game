@@ -172,7 +172,7 @@ const Player = ({ username, playerId, role: roleParam }) => {
   );
 };
 
-export default ({}) => {
+const PlayerList = ({}) => {
   const classes = useStyles();
   const [duration, setDuration] = useState(0);
 
@@ -230,3 +230,5 @@ export default ({}) => {
     </Grid>
   );
 };
+
+export default PlayerList;

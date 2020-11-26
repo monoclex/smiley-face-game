@@ -1,4 +1,3 @@
-//@ts-check
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { makeStyles } from "@material-ui/core/styles";
@@ -31,7 +30,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default () => {
+const LobbyPage = () => {
   const token = localStorage.getItem("token");
 
   if (token === null) {
@@ -148,3 +147,5 @@ export default () => {
     </>
   );
 };
+
+export default LobbyPage;

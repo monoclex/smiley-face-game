@@ -3,18 +3,23 @@ import Schema, { boolean, string, SchemaInput, addParse } from "./computed-types
 const zSecure = addParse(boolean.optional());
 
 export type Endpoint = SchemaInput<typeof zEndpoint>;
-export const zEndpoint = addParse(Schema({
-  secure: zSecure,
-  host: string.min(1),
-  path: string.min(1),
-}));
+export const zEndpoint = addParse(
+  Schema({
+    secure: zSecure,
+    host: string.min(1),
+    path: string.min(1),
+  })
+);
 
 const host = "api.sirjosh3917.com/smiley-face-game/v1";
 
 const auth: Endpoint = { host, path: "/auth/login" };
 const guestAuth: Endpoint = { host, path: "/auth/guest" };
 const register: Endpoint = { host, path: "/auth/register" };
-const ws: Endpoint = { host: "ws-" + host, path: "/game/ws/" /* THIS BETTER HAVE A TRAILING SLASH. THE NGINX CONFIG IS SCREWED AND THIS COSTED ME SEVERAL HORUS OF PAIN. */ };
+const ws: Endpoint = {
+  host: "ws-" + host,
+  path: "/game/ws/" /* THIS BETTER HAVE A TRAILING SLASH. THE NGINX CONFIG IS SCREWED AND THIS COSTED ME SEVERAL HORUS OF PAIN. */,
+};
 const lobby: Endpoint = { host, path: "/game/lobby" };
 const player: Endpoint = { host, path: "/player" };
 export const endpoints = { auth, guestAuth, ws, lobby, player, register };
@@ -30,7 +35,8 @@ export function useDev() {
   rewriteHost((endpoint) =>
     endpoint.host.startsWith("ws")
       ? { ...endpoint, host: "dev-ws-api.sirjosh3917.com/smiley-face-game/v1" }
-      : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/dev/v1" });
+      : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/dev/v1" }
+  );
 }
 
 /**
@@ -55,11 +61,11 @@ const zWebsocket = addParse(boolean);
 
 /**
  * The algorithm used when coercing `secure` in `Endpoint` to a value. The algorithm is as follows:
- * 
+ *
  * 1. If explicitly specified, use the value.
  * 2. If `location` is defined and if `location.protocol` is insecure, return `false`.
  * 3. Otherwise, return `true`.
- * 
+ *
  * @package
  * @param secure The value of `secure`
  */

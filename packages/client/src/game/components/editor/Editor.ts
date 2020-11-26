@@ -51,7 +51,7 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() { }
+  onUp() {}
 
   id(): ZBlock {
     if (this.pointer.rightButtonDown()) return 0;

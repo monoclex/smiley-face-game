@@ -8,7 +8,7 @@ export default function <D extends { parse: (input: unknown) => SchemaInput<D> }
   request: unknown | undefined,
   zResponse: D,
   token?: string,
-  method?: string,
+  method?: string
 ): Promise<SchemaInput<D>> {
   /* awful patching to the parameters */
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -17,7 +17,7 @@ export default function <D extends { parse: (input: unknown) => SchemaInput<D> }
   const body = request === undefined ? undefined : JSON.stringify(request);
 
   return fetch(toUrl(endpoint, false).href, { method, headers, body })
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(`Error contacting API: '${response.statusText}'`);
       }

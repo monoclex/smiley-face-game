@@ -22,16 +22,17 @@ export function auth(argPayload: any, argEndpoint?: unknown): Promise<Authentica
     const payload = zLoginReq.parse(argPayload);
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.auth);
 
-    return fetch(endpoint, payload, zLoginResp).then(payload => new Authentication(payload.token, payload.id));
-  }
-  else if ("username" in argPayload) {
+    return fetch(endpoint, payload, zLoginResp).then((payload) => new Authentication(payload.token, payload.id));
+  } else if ("username" in argPayload) {
     const payload = zGuestReq.parse(argPayload);
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.guestAuth);
 
-    return fetch(endpoint, payload, zGuestResp).then(payload => new Authentication(payload.token));
-  }
-  else throw new Error("Couldn't determine if `auth` payload was a guest or user login request."
-    + " Do you have `email` or `username` as one of the keys in `payload`?");
+    return fetch(endpoint, payload, zGuestResp).then((payload) => new Authentication(payload.token));
+  } else
+    throw new Error(
+      "Couldn't determine if `auth` payload was a guest or user login request." +
+        " Do you have `email` or `username` as one of the keys in `payload`?"
+    );
 }
 
 /**
@@ -47,5 +48,5 @@ export function register(argPayload: unknown, argEndpoint?: unknown): Promise<Au
   const payload = zRegisterReq.parse(argPayload);
   const endpoint = zEndpoint.parse(argEndpoint || endpoints.register);
 
-  return fetch(endpoint, payload, zLoginResp).then(payload => new Authentication(payload.token, payload.id));
+  return fetch(endpoint, payload, zLoginResp).then((payload) => new Authentication(payload.token, payload.id));
 }

@@ -16,7 +16,7 @@ export default async function handlePlayerlistAction(packet: ZWorldAction, [send
       sender.send({
         packetId: "SERVER_WORLD_ACTION",
         action: { action: "save" },
-        playerId: sender.playerId
+        playerId: sender.playerId,
       });
       return;
     }

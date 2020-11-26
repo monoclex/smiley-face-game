@@ -5,7 +5,7 @@ import history from "../../ui/history";
 import SnackbarUtils from "../../SnackbarUtils";
 import { register } from "@smiley-face-game/api";
 
-export default () => (
+const RegisterPage = () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
     inputs={[
@@ -21,3 +21,5 @@ export default () => (
     }
   />
 );
+
+export default RegisterPage;

@@ -118,7 +118,9 @@ export default class GameScene extends Phaser.Scene {
     camera.startFollow(mainPlayer.body, false, 0.05, 0.05, -16, -16);
     camera.setZoom(1);
 
-    runConnection.bind(this)().catch((error) => console.error("error handling message", error));
+    runConnection
+      .bind(this)()
+      .catch((error) => console.error("error handling message", error));
     async function runConnection(this: GameScene) {
       for await (const event of this.connection) {
         switch (event.packetId) {
@@ -253,9 +255,11 @@ export default class GameScene extends Phaser.Scene {
 
           case "SERVER_EVENT":
             switch (event.event.type) {
-              case "chat rate limited": {
-                toast.warning("You're chatting too fast! Wait " + (event.event.duration / 1000) + " seconds.");
-              } break;
+              case "chat rate limited":
+                {
+                  toast.warning("You're chatting too fast! Wait " + event.event.duration / 1000 + " seconds.");
+                }
+                break;
             }
         }
       }
@@ -297,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
         [6]: this.connection.tileJson.id("tshell-white"),
         [7]: this.connection.tileJson.id("pyramid-white"),
         [8]: this.connection.tileJson.id("choc-l0"),
-      }
+      },
     });
 
     loading.set({ failed: false });
@@ -347,11 +351,9 @@ export default class GameScene extends Phaser.Scene {
     // we also want to prevent the user from editing if they don't have edit
     if (this.mainPlayer.gunEquipped) {
       this.editor.setEnabled(false);
-    }
-    else if (this.self.role === "edit" || this.self.role === "owner") {
+    } else if (this.self.role === "edit" || this.self.role === "owner") {
       this.editor.setEnabled(true);
-    }
-    else {
+    } else {
       this.editor.setEnabled(false);
     }
 

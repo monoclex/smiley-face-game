@@ -10,12 +10,7 @@ export default class ArrowBehavior<S> extends Behavior<[S, Rotation]> {
     super(tileJson, "arrow", TileLayer.Action);
     if (tileJson.behavior !== "arrow") throw new Error("passed non-gun tile json to gun behavior");
 
-    this.arrows = [
-      registration.register(this),
-      registration.register(this),
-      registration.register(this),
-      registration.register(this)
-    ];
+    this.arrows = [registration.register(this), registration.register(this), registration.register(this), registration.register(this)];
 
     this.texture.set(this.arrows[0], "arrow-up");
     this.texture.set(this.arrows[1], "arrow-right");
