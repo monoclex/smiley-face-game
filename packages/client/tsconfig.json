@@ -6,7 +6,10 @@
     "lib": ["ESNext", "DOM"],
     "allowJs": true,
     "jsx": "react",
-    "baseUrl": "./src/"
+    "baseUrl": "./src/",
+    "paths": {
+      "@smiley-face-game/api/*": ["../../api/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }
