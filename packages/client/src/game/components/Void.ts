@@ -1,5 +1,4 @@
 import TileManager from "../world/TileManager";
-import key from "../world/key";
 
 export default class Void {
   readonly sprite: Phaser.GameObjects.TileSprite;
@@ -14,7 +13,7 @@ export default class Void {
       tilemap.heightInPixels / 2,
       tilemap.widthInPixels,
       tilemap.heightInPixels,
-      key("tiles"),
+      "atlas-tiles",
       "empty" // mapTileNameToClientId("empty")
     );
   }

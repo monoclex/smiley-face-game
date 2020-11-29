@@ -1,7 +1,6 @@
 import type { ZBlock, ZSize } from "@smiley-face-game/api/types";
 import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
-import key from "./key";
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 
 const TILE_WIDTH = 32;
@@ -13,7 +12,7 @@ export default class TileManager {
 
   static load(loader: Phaser.Loader.LoaderPlugin) {
     loader.atlas({
-      key: key("tiles"),
+      key: "atlas-tiles",
       textureURL: urlAtlas,
       atlasURL: atlasJson, // it's not a url (despite prop being atlasURL)
     });
@@ -29,7 +28,7 @@ export default class TileManager {
 
     // i have to add this offset bullcrud smh
     // margin is 1px and spacing is 1px from gammafp's tool
-    this.tileset = this.tilemap.addTilesetImage("tilemap", key("tiles"), 32, 32, 2, 3);
+    this.tileset = this.tilemap.addTilesetImage("tilemap", "atlas-tiles", 32, 32, 2, 3);
   }
 
   /**

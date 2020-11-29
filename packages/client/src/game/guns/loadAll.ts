@@ -1,8 +1,5 @@
-import gunLookup from "../../game/guns/models/gunLookup";
+import M247LMG from "./models/M249LMG";
 
 export default function loadAll(loader: Phaser.Loader.LoaderPlugin) {
-  for (const modelKey in gunLookup) {
-    //@ts-ignore
-    gunLookup[modelKey].load(loader);
-  }
+  M247LMG.load(loader);
 }

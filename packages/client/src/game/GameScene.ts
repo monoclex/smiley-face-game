@@ -1,4 +1,4 @@
-import M249LMG from "./guns/models/variants/M249LMG";
+import M249LMG from "./guns/models/M249LMG";
 import Player from "./player/Player";
 import PlayerManager from "./player/PlayerManager";
 import World from "./world/World";
