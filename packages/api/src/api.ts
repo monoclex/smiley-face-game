@@ -1,4 +1,4 @@
-import Schema, { array, boolean, number, string, addParse } from "./computed-types-wrapper";
+import Schema, { SchemaInput, array, boolean, number, string, addParse } from "./computed-types-wrapper";
 import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail } from "./types";
 
 // TODO: fill this in
@@ -10,6 +10,7 @@ export const zLobbyResp = addParse(
     playerCount: number.integer().min(0),
   })
 );
+export type ZLobbyResp = SchemaInput<typeof zLobbyResp>;
 
 export const zLoginReq = addParse(
   Schema({
@@ -24,6 +25,7 @@ export const zLoginResp = addParse(
     id: zAccountId,
   })
 );
+export type ZLoginResp = SchemaInput<typeof zLoginResp>;
 
 export const zRegisterReq = addParse(
   Schema({
@@ -39,6 +41,7 @@ export const zRegisterResp = addParse(
     id: zAccountId,
   })
 );
+export type ZRegisterResp = SchemaInput<typeof zRegisterResp>;
 
 export const zGuestReq = addParse(
   Schema({
@@ -51,6 +54,7 @@ export const zGuestResp = addParse(
     token: zToken,
   })
 );
+export type ZGuestResp = SchemaInput<typeof zGuestResp>;
 
 // TODO: fill this in
 export const zPlayerResp = addParse(
@@ -72,3 +76,4 @@ export const zPlayerResp = addParse(
       .optional(),
   })
 );
+export type ZPlayerResp = SchemaInput<typeof zPlayerResp>;
