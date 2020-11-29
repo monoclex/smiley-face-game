@@ -1,7 +1,6 @@
-import TileManager from "../../../game/world/TileManager";
-import key from "../../../game/world/key";
+import TileManager from "../world/TileManager";
 
-export default class VoidDisplay {
+export default class Void {
   readonly sprite: Phaser.GameObjects.TileSprite;
 
   constructor(scene: Phaser.Scene, tileManager: TileManager) {
@@ -14,16 +13,8 @@ export default class VoidDisplay {
       tilemap.heightInPixels / 2,
       tilemap.widthInPixels,
       tilemap.heightInPixels,
-      key("tiles"),
+      "atlas-tiles",
       "empty" // mapTileNameToClientId("empty")
     );
-  }
-
-  get depth() {
-    return this.sprite.depth;
-  }
-
-  set depth(value) {
-    this.sprite.depth = value;
   }
 }

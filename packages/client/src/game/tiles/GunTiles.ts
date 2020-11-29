@@ -1,5 +1,5 @@
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import M249LMG from "../guns/models/variants/M249LMG";
+import M249LMG from "../guns/models/M249LMG";
 import { SpriteEx } from "packages/client/src/phaser-tile-addons";
 import mapTileNameToClientId from "./idLookup";
 

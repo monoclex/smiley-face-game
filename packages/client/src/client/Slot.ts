@@ -25,5 +25,3 @@ export type SelectedSlotId =
   | 11
   /** = */
   | 12;
-
-export type SlotId = SelectedSlotId | /** No slot selected */ null;

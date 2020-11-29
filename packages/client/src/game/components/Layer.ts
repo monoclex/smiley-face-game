@@ -1,7 +1,7 @@
-import TileManager from "../../../game/world/TileManager";
-import LayerType from "./LayerType";
+import TileManager from "../world/TileManager";
+type LayerType = "decoration" | "foreground" | "action" | "background";
 
-export default class LayerDisplay {
+export default class Layer {
   readonly tilemapLayer: Phaser.Tilemaps.DynamicTilemapLayer;
 
   constructor(tileManager: TileManager, layer: LayerType) {
@@ -9,13 +9,5 @@ export default class LayerDisplay {
     this.tilemapLayer = tilemap.createBlankDynamicLayer(layer, tileset);
     this.tilemapLayer.setCollisionBetween(0, 100);
     this.tilemapLayer.setCollisionByProperty({ collides: true });
-  }
-
-  get depth() {
-    return this.tilemapLayer.depth;
-  }
-
-  set depth(value) {
-    this.tilemapLayer.depth = value;
   }
 }

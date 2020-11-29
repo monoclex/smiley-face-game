@@ -1,4 +1,4 @@
-import M249LMG from "./guns/models/variants/M249LMG";
+import M249LMG from "./guns/models/M249LMG";
 import Player from "./player/Player";
 import PlayerManager from "./player/PlayerManager";
 import World from "./world/World";
@@ -9,9 +9,8 @@ import type { ZRole } from "@smiley-face-game/api";
 import { Message, messages } from "../recoil/atoms/chat/index";
 import { loading } from "../recoil/atoms/loading/index";
 import { playerList } from "../recoil/atoms/playerList";
-import BlockBar from "./blockbar/BlockBar";
-import Editor from "./components/editor/Editor";
-import type { LoadingSceneData } from "../scenes/loading/LoadingSceneData";
+import BlockBar from "./BlockBar";
+import Editor from "./components/Editor";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
@@ -39,9 +38,9 @@ export default class GameScene extends Phaser.Scene {
     window.gameScene = this;
   }
 
-  init(data: LoadingSceneData) {
+  init(connection: Connection) {
     this.cameras.main.roundPixels = true;
-    this.connection = data.connection;
+    this.connection = connection;
     this.initPacket = this.connection.init;
 
     const self = {
@@ -84,11 +83,11 @@ export default class GameScene extends Phaser.Scene {
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
     const world = new World(this, this.initPacket.size, this.connection);
-    layerVoid.add(world.void.display.sprite);
-    layerTileLayerBackground.add(world.background.display.tilemapLayer);
-    layerTileLayerAction.add(world.action.display.tilemapLayer);
-    layerTileLayerForeground.add(world.foreground.display.tilemapLayer);
-    layerTileLayerDecoration.add(world.decoration.display.tilemapLayer);
+    layerVoid.add(world.void.sprite);
+    layerTileLayerBackground.add(world.background.tilemapLayer);
+    layerTileLayerAction.add(world.action.tilemapLayer);
+    layerTileLayerForeground.add(world.foreground.tilemapLayer);
+    layerTileLayerDecoration.add(world.decoration.tilemapLayer);
 
     world.deserializeBlocks(this.initPacket.blocks);
     this.world = world;

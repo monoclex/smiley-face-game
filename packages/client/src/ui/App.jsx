@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useMemo } from "react";
 import { Router, Route } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import { CssBaseline, Snackbar } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
 import { deepPurple, indigo } from "@material-ui/core/colors";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";

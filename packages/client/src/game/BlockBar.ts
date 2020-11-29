@@ -1,5 +1,5 @@
-import World from "../../game/world/World";
-import { blockbar } from "../../recoil/atoms/blockbar";
+import World from "./world/World";
+import { blockbar } from "../recoil/atoms/blockbar";
 import type { ZBlock } from "@smiley-face-game/api/types";
 
 export default class BlockBar {
