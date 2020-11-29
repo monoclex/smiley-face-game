@@ -1,4 +1,5 @@
-import loadAllCharacters from "../game/characters/loadAll";
+// import urlGlasses from "../assets/glasses.png";
+import urlSmile from "../assets/smile.png";
 import loadAllGuns from "../game/guns/loadAll";
 import urlOriginal from "../assets/base.png";
 
@@ -10,6 +11,7 @@ export default function loadAll(loader: Phaser.Loader.LoaderPlugin) {
   TileManager.load(loader);
 
   loader.image("base-original", urlOriginal);
-  loadAllCharacters(loader);
+  loader.image("cosmetic-smile", urlSmile);
+  // loader.image("cosmetic-glasses", urlGlasses);
   loadAllGuns(loader);
 }
