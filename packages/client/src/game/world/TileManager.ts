@@ -3,7 +3,6 @@ import urlAtlas from "../../assets/atlas.png";
 import atlasJson from "../../assets/atlas_atlas.json";
 import key from "./key";
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import mapTileNameToClientId from "../tiles/idLookup";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32;

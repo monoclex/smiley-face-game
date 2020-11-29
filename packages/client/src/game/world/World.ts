@@ -79,7 +79,7 @@ export default class World {
     const behavior = this.tileJson.for(tileState);
     const tileBreed = tileLookup[behavior.behavior];
     const actualLayer = layer ?? behavior.layer;
-    const tile: TileEx = this.layerFor(actualLayer).display.tilemapLayer.getTileAt(x, y, true);
+    const tile: TileEx = this.layerFor(actualLayer).tilemapLayer.getTileAt(x, y, true);
 
     // don't do anything as they are the same
     if (tile.tileState && tileState === tile.tileState) {

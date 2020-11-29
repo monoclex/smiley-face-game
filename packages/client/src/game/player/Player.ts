@@ -147,8 +147,8 @@ export default class Player {
     this.game.events.on(
       "update",
       () => {
-        this.game.physics.collide(bullet, this.game.world.foreground.display.tilemapLayer);
-        this.game.physics.collide(bullet, this.game.world.action.display.tilemapLayer);
+        this.game.physics.collide(bullet, this.game.world.foreground.tilemapLayer);
+        this.game.physics.collide(bullet, this.game.world.action.tilemapLayer);
         for (const [_, player] of this.game.players.players) {
           this.game.physics.collide(player.body, bullet);
         }
@@ -180,8 +180,8 @@ export default class Player {
       }
     }
 
-    this.game.physics.collide(this.body, this.game.world.foreground.display.tilemapLayer);
-    this.game.physics.collide(this.body, this.game.world.action.display.tilemapLayer);
+    this.game.physics.collide(this.body, this.game.world.foreground.tilemapLayer);
+    this.game.physics.collide(this.body, this.game.world.action.tilemapLayer);
 
     const sprite = this.body;
     const acceleration = 10000;

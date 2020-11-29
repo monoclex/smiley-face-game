@@ -1,11 +1,13 @@
 import TileManager from "../../../game/world/TileManager";
-import LayerDisplay from "./LayerDisplay";
 import LayerType from "./LayerType";
 
 export default class Layer {
-  readonly display: LayerDisplay;
+  readonly tilemapLayer: Phaser.Tilemaps.DynamicTilemapLayer;
 
   constructor(tileManager: TileManager, layer: LayerType) {
-    this.display = new LayerDisplay(tileManager, layer);
+    const { tileset, tilemap } = tileManager;
+    this.tilemapLayer = tilemap.createBlankDynamicLayer(layer, tileset);
+    this.tilemapLayer.setCollisionBetween(0, 100);
+    this.tilemapLayer.setCollisionByProperty({ collides: true });
   }
 }

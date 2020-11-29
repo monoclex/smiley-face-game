@@ -90,19 +90,12 @@ export enum TileLayer {
 export const zTileLayer = addParse(Schema.enum(TileLayer));
 export type ZTileLayer = SchemaInput<typeof zTileLayer>;
 
-// TODO: move this into a helpers file?
-export function swapLayer(layer: TileLayer): TileLayer {
-  if (layer === TileLayer.Action) return layer;
-  return layer === TileLayer.Foreground ? TileLayer.Background : TileLayer.Foreground;
-}
-
 export enum Rotation {
   Right = 0,
   Up = 1,
   Left = 2,
   Down = 3,
 }
-export const zRotation = addParse(Schema.enum(Rotation));
 
 // because blocks are only numeric ids, we can just use numbers
 // in the future, when we have portals, it'll be important to have something like { id: x, target: x, } etc

@@ -84,11 +84,11 @@ export default class GameScene extends Phaser.Scene {
     const layerTileLayerDecoration = this.add.container().setDepth(depth++);
 
     const world = new World(this, this.initPacket.size, this.connection);
-    layerVoid.add(world.void.display.sprite);
-    layerTileLayerBackground.add(world.background.display.tilemapLayer);
-    layerTileLayerAction.add(world.action.display.tilemapLayer);
-    layerTileLayerForeground.add(world.foreground.display.tilemapLayer);
-    layerTileLayerDecoration.add(world.decoration.display.tilemapLayer);
+    layerVoid.add(world.void.sprite);
+    layerTileLayerBackground.add(world.background.tilemapLayer);
+    layerTileLayerAction.add(world.action.tilemapLayer);
+    layerTileLayerForeground.add(world.foreground.tilemapLayer);
+    layerTileLayerDecoration.add(world.decoration.tilemapLayer);
 
     world.deserializeBlocks(this.initPacket.blocks);
     this.world = world;

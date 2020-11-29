@@ -1,7 +1,6 @@
 import { TileLayer, ZBlock } from "@smiley-face-game/api/types";
 import Position from "../../../math/Position";
 import World from "../../../game/world/World";
-import EditorDisplay from "./EditorDisplay";
 import BlockBar from "../../blockbar/BlockBar";
 import iteratePointers from "../../../game/iteratePointers";
 
@@ -24,9 +23,9 @@ class DrawingPointer {
     if (id === 0) {
       // TODO: depend on the world for this picking behaviour"?
       let { x, y } = this.lastPosition;
-      let fg = this.editor.world.foreground.display.tilemapLayer.getTileAt(x, y);
-      let action = this.editor.world.action.display.tilemapLayer.getTileAt(x, y);
-      let bg = this.editor.world.background.display.tilemapLayer.getTileAt(x, y);
+      let fg = this.editor.world.foreground.tilemapLayer.getTileAt(x, y);
+      let action = this.editor.world.action.tilemapLayer.getTileAt(x, y);
+      let bg = this.editor.world.background.tilemapLayer.getTileAt(x, y);
 
       if (fg) {
         this.lastLayer = TileLayer.Foreground;
@@ -51,7 +50,7 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() {}
+  onUp() { }
 
   id(): ZBlock {
     if (this.pointer.rightButtonDown()) return 0;
@@ -65,7 +64,6 @@ class DrawingPointer {
 }
 
 export default class Editor {
-  readonly display: EditorDisplay;
   readonly drawingPointers: Map<number, DrawingPointer>;
   readonly mainCamera: Phaser.Cameras.Scene2D.Camera;
 
@@ -75,7 +73,6 @@ export default class Editor {
   }
 
   constructor(readonly scene: Phaser.Scene, readonly world: World, readonly blockBar: BlockBar) {
-    this.display = new EditorDisplay();
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
     scene.events.on("update", this.update, this);
