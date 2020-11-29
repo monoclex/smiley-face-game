@@ -1,7 +1,7 @@
 import type { Authentication, ZJoinRequest } from "@smiley-face-game/api";
-import loadAll from "../../game/loadAll";
-import GAME_SCENE_KEY from "../../game/GameSceneKey";
-import { loading } from "../../recoil/atoms/loading";
+import loadAll from "./loadAll";
+import GAME_SCENE_KEY from "./GameSceneKey";
+import { loading } from "../recoil/atoms/loading";
 
 interface GlobalVariableParkourType {
   token: Authentication;
@@ -12,7 +12,7 @@ interface GlobalVariableParkourType {
 export const globalVariableParkour: GlobalVariableParkourType = {
   token: (undefined as unknown) as Authentication,
   joinRequest: (undefined as unknown) as ZJoinRequest,
-  onId: () => {},
+  onId: () => { },
 };
 
 // TODO: write my own code instead of borderline stealing code
@@ -56,7 +56,7 @@ export class LoadingScene extends Phaser.Scene {
       .then((connection) => {
         globalVariableParkour.onId(connection.init.worldId);
         console.time("init");
-        this.scene.start(GAME_SCENE_KEY, { connection });
+        this.scene.start(GAME_SCENE_KEY, connection);
       })
       .catch((err) => {
         loading.set({

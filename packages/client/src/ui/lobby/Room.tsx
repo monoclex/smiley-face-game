@@ -5,7 +5,6 @@ import ThumbUpIcon from "mdi-material-ui/ThumbUp";
 import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
-//@ts-ignore
 import minimapImage from "./minimap.png";
 import history from "../../ui/history";
 

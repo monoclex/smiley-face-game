@@ -1,5 +1,3 @@
-//@ts-ignore
-
 import React, { useRef, useEffect } from "react";
 import { Grid, Input } from "@material-ui/core";
 import { makeStyles, fade } from "@material-ui/core/styles";
@@ -102,7 +100,6 @@ const Chat = () => {
   }, [currentChatState.isActive]);
 
   const messages = useRecoilValue(messagesState);
-  const setMessages = useSetRecoilState(messagesState);
 
   const onSubmit = (values) => {
     if (values.content !== "") {

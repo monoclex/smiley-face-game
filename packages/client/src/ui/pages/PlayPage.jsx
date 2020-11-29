@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
-import { globalVariableParkour, LoadingScene } from "../../scenes/loading/LoadingScene";
+import { globalVariableParkour, LoadingScene } from "../../game/LoadingScene";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../history";

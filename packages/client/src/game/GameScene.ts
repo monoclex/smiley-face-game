@@ -11,7 +11,6 @@ import { loading } from "../recoil/atoms/loading/index";
 import { playerList } from "../recoil/atoms/playerList";
 import BlockBar from "./BlockBar";
 import Editor from "./components/Editor";
-import type { LoadingSceneData } from "../scenes/loading/LoadingSceneData";
 import GAME_SCENE_KEY from "./GameSceneKey";
 import registerKeyboard from "./input/registerKeyboard";
 import InputPipe from "./input/InputPipe";
@@ -39,9 +38,9 @@ export default class GameScene extends Phaser.Scene {
     window.gameScene = this;
   }
 
-  init(data: LoadingSceneData) {
+  init(connection: Connection) {
     this.cameras.main.roundPixels = true;
-    this.connection = data.connection;
+    this.connection = connection;
     this.initPacket = this.connection.init;
 
     const self = {
