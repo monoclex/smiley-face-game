@@ -1,8 +1,8 @@
 import { TileLayer } from "@smiley-face-game/api/types";
 import type { ZBlock, ZSize, ZWorldBlocks } from "@smiley-face-game/api/types";
 import Position from "../../math/Position";
-import Layer from "../../game/components/layer/Layer";
-import Void from "../../game/components/void/Void";
+import Layer from "../components/Layer";
+import Void from "../components/Void";
 import TileManager from "./TileManager";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
 import tileLookup from "../../game/tiles/tileLookup";

@@ -2,12 +2,13 @@
 import urlSmile from "../assets/smile.png";
 import loadAllGuns from "../game/guns/loadAll";
 import urlOriginal from "../assets/base.png";
-
-import BulletDisplay from "../game/components/bullet/BulletDisplay";
+import urlBullet from "../assets/bullet.png";
+import urlShoot from "../assets/shoot.mp3";
 import TileManager from "../game/world/TileManager";
 
 export default function loadAll(loader: Phaser.Loader.LoaderPlugin) {
-  BulletDisplay.load(loader);
+  loader.image("bullet-bullet", urlBullet);
+  loader.audio("shoot", urlShoot);
   TileManager.load(loader);
 
   loader.image("base-original", urlOriginal);

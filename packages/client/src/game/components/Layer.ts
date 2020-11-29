@@ -1,5 +1,5 @@
-import TileManager from "../../../game/world/TileManager";
-import LayerType from "./LayerType";
+import TileManager from "../world/TileManager";
+type LayerType = "decoration" | "foreground" | "action" | "background";
 
 export default class Layer {
   readonly tilemapLayer: Phaser.Tilemaps.DynamicTilemapLayer;

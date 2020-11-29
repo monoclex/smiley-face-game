@@ -40,10 +40,6 @@ export default class Player {
   gunSprite?: Phaser.GameObjects.Sprite;
   physicsState: PlayerPhysicsState = { arrows: { up: false, left: false, right: false, down: false } };
 
-  get canEdit(): boolean {
-    return true;
-  }
-
   get hasGun(): boolean {
     return !!this.gun;
   }

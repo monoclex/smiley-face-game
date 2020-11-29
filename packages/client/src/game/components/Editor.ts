@@ -1,8 +1,8 @@
 import { TileLayer, ZBlock } from "@smiley-face-game/api/types";
-import Position from "../../../math/Position";
-import World from "../../../game/world/World";
-import BlockBar from "../../blockbar/BlockBar";
-import iteratePointers from "../../../game/iteratePointers";
+import Position from "../../math/Position";
+import World from "../world/World";
+import BlockBar from "../BlockBar";
+import iteratePointers from "../iteratePointers";
 
 // we'll have a map of active pointers so that if the user is on mobile and draws multiple lines, we can safely calculate the distances
 // for all the blocks simultaneously.

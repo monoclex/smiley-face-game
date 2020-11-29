@@ -1,5 +1,5 @@
-import TileManager from "../../../game/world/TileManager";
-import key from "../../world/key";
+import TileManager from "../world/TileManager";
+import key from "../world/key";
 
 export default class Void {
   readonly sprite: Phaser.GameObjects.TileSprite;
