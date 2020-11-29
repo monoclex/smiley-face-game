@@ -2,8 +2,6 @@ import GunBehaviour from "../../game/guns/behaviour/GunBehaviour";
 import GunModel from "../../game/guns/models/GunModel";
 import GameScene from "../../game/GameScene";
 import distanceAway from "../../math/distanceAway";
-import BaseType from "../../game/characters/bases/BaseType";
-import baseKey from "../../game/characters/bases/key";
 import CosmeticType from "../../game/characters/cosmetics/CosmeticType";
 import cosmeticKey from "../../game/characters/cosmetics/key";
 import MovementInput from "../../game/input/MovementInput";
@@ -68,13 +66,12 @@ export default class Player {
     readonly id: number,
     readonly game: GameScene,
     readonly username: string,
-    readonly base: BaseType = "original",
     readonly cosmetics: CosmeticType[] = ["smile"]
   ) {
     this.container = game.add.container();
 
     this.body = this.game.physics.add
-      .sprite(0, 0, baseKey(base))
+      .sprite(0, 0, "base-original")
       .setMaxVelocity(300, 500)
       .setDrag(3000, 0)
       .setOrigin(0, 0)
