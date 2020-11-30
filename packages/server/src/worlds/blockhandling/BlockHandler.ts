@@ -21,8 +21,28 @@ export class BlockHandler {
     }
   }
 
+  getMap(layer: number, y: number, x: number): number {
+    let wLayer = this.map[layer];
+    if (wLayer === undefined) {
+      this.map[layer] = wLayer = [];
+    }
+
+    let wY = wLayer[y];
+    if (wY === undefined) {
+      this.map[layer][y] = wY = [];
+    }
+
+    let wX = wY[x];
+    if (wX === undefined) {
+      wY[x] = 0;
+      return 0;
+    }
+
+    return wX;
+  }
+
   handleSingle(packet: ZBlockSingle, sender: Connection): ZSBlockSingle | void {
-    const target = this.map[packet.layer][packet.position.y][packet.position.x];
+    const target = this.getMap(packet.layer, packet.position.y, packet.position.x);
 
     // packet is known good, only do updating work if necessary
     if (packet.block !== target) {
@@ -51,7 +71,7 @@ export class BlockHandler {
       // bounds checking if the block is within bounds
       if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-      if (this.map[packet.layer][y][x] !== packet.block) {
+      if (this.getMap(packet.layer, y, x) !== packet.block) {
         didUpdate = true;
 
         // NOTE: if switching to reference types, make sure to copy value
