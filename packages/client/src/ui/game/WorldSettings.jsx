@@ -19,6 +19,11 @@ const WorldSettings = ({}) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
+  const clear = () => {
+    window.gameScene.connection.clear();
+    setAnchorEl(null); // closes menu
+  };
+
   const save = () => {
     window.gameScene.connection.save();
     setAnchorEl(null); // closes menu
@@ -48,6 +53,7 @@ const WorldSettings = ({}) => {
         <Cog />
       </IconButton>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+        <MenuItem onClick={clear}>Clear</MenuItem>
         <MenuItem onClick={save}>Save</MenuItem>
         <MenuItem onClick={load}>Load</MenuItem>
       </Menu>

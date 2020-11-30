@@ -31,5 +31,14 @@ export default async function handlePlayerlistAction(packet: ZWorldAction, [send
       });
       return;
     }
+    case "clear": {
+      logic.broadcast({
+        packetId: "SERVER_WORLD_ACTION",
+        action: { action: "clear" },
+        playerId: sender.playerId,
+      });
+
+      throw new Error("clear not implemented");
+    }
   }
 }

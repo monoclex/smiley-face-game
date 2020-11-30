@@ -341,6 +341,16 @@ export default class Connection {
   }
 
   /**
+   * Clears the world. This may cause you to disconnect if you are not the owner.
+   */
+  clear() {
+    this._send({
+      packetId: "WORLD_ACTION",
+      action: { action: "clear" },
+    });
+  }
+
+  /**
    * Saves the world. This may cause you to disconnect if you are not the owner.
    */
   save() {
