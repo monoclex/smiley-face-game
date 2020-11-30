@@ -8,7 +8,7 @@ const atlas = require("rust-atlas-generator-webpack-plugin");
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
-  const bundle = argv.bundle;
+  const bundle = env.bundle;
 
   let plugins = [
     atlas({
@@ -18,7 +18,7 @@ module.exports = (env, argv) => {
       height: 32,
     }),
     new DefinePlugin({
-      "process.env.DEV": JSON.stringify(!!argv.dev),
+      "process.env.DEV": JSON.stringify(!!env.dev),
     }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -45,7 +45,6 @@ module.exports = (env, argv) => {
     },
     plugins,
     output: {
-      filename: "[name].[hash].js",
       path: path.resolve(__dirname, "packages/client/dist"),
     },
     devServer: {
