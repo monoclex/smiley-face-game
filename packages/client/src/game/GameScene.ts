@@ -250,7 +250,8 @@ export default class GameScene extends Phaser.Scene {
                 toast.success("World saved!");
                 break;
               case "clear":
-                alert("clear not implemented");
+                this.world.clear(true);
+                toast.success("World cleared!");
                 break;
             }
             break;

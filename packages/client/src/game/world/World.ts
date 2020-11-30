@@ -57,9 +57,10 @@ export default class World {
     console.timeEnd("init");
   }
 
-  clear() {
+  clear(border?: boolean) {
     // no idea if this is a performance optimization or not. but hopefully, this will be slightly GC friendly
     let position = { x: 0, y: 0 };
+    let fg = this.tileJson.id("basic-white");
 
     for (let l = 0; l < TileLayer.Decoration; l++) {
       for (let y = 0; y < this.size.height; y++) {
@@ -67,7 +68,11 @@ export default class World {
         for (let x = 0; x < this.size.width; x++) {
           position.x = x;
 
-          this.placeBlock(position, 0, l, false);
+          if (border && (x == 0 || y == 0 || x == this.size.width - 1 || y == this.size.height - 1)) {
+            this.placeBlock(position, fg, l, false);
+          } else {
+            this.placeBlock(position, 0, l, false);
+          }
         }
       }
     }
