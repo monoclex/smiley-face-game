@@ -1,6 +1,8 @@
 import type { ZWorldAction } from "@smiley-face-game/api/packets";
 import type Connection from "../../../worlds/Connection";
 import type RoomLogic from "../../../worlds/logic/RoomLogic";
+import generateWorld from "../../generateWorld";
+import TileJson from "../../TileJson";
 
 export default async function handlePlayerlistAction(packet: ZWorldAction, [sender, logic]: [Connection, RoomLogic]) {
   if (sender.role !== "owner") {
@@ -32,13 +34,14 @@ export default async function handlePlayerlistAction(packet: ZWorldAction, [send
       return;
     }
     case "clear": {
+      logic.blockHandler.map = JSON.parse(generateWorld(logic.blockHandler.width, logic.blockHandler.height, TileJson));
+
       logic.broadcast({
         packetId: "SERVER_WORLD_ACTION",
         action: { action: "clear" },
         playerId: sender.playerId,
       });
-
-      throw new Error("clear not implemented");
+      return;
     }
   }
 }
