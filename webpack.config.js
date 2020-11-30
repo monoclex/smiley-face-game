@@ -33,7 +33,11 @@ module.exports = (env, argv) => {
     },
     module: {
       rules: [
-        { test: /\.(j|t)sx?$/, use: { loader: "babel-loader", options: require("./babel.config.js") } },
+        {
+          test: /\.(j|t)sx?$/,
+          include: path.resolve(__dirname, "./packages"),
+          use: { loader: "babel-loader", options: require("./babel.config.js") },
+        },
         { test: /\.(png|mp3)$/, use: "file-loader" },
         { test: /\.svg$/, use: "@svgr/webpack" },
       ],
