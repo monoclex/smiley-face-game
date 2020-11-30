@@ -126,9 +126,9 @@ export const zWorldActionKind = addParse(
     },
     {
       action: "load" as const,
-      // TODO: enforce that the **server** will send this, and that the client **wont**.
-      // for now, saying that this is optional and calling it a day is me being lazy
-      // blocks: WorldBlocksSchema.optional(),
+    },
+    {
+      action: "clear" as const,
     }
   )
 );
@@ -143,6 +143,9 @@ export const zWorldActionKindReply = Schema.either(
   {
     action: "load" as const,
     blocks: zWorldBlocks,
+  },
+  {
+    action: "clear" as const,
   }
 );
 
