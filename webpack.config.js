@@ -1,14 +1,11 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 const path = require("path");
 const { DefinePlugin } = require("webpack");
 const atlas = require("rust-atlas-generator-webpack-plugin");
 
 module.exports = (env, argv) => {
-  const mode = argv.mode;
-  const bundle = env.bundle;
+  const mode = env.mode;
 
   let plugins = [
     atlas({
@@ -26,8 +23,6 @@ module.exports = (env, argv) => {
       hash: true,
     }),
   ];
-
-  // if (bundle) plugins.push(new BundleAnalyzerPlugin());
 
   return {
     mode,
@@ -53,11 +48,7 @@ module.exports = (env, argv) => {
       hot: true,
     },
     optimization: {
-      splitChunks: {
-        chunks: "all",
-      },
       minimize: mode === "production",
-      minimizer: mode === "production" ? [new TerserPlugin()] : undefined,
     },
   };
 };
