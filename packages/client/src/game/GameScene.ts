@@ -375,6 +375,12 @@ export default class GameScene extends Phaser.Scene {
       // send the message of a bullet being fired
       this.connection.fireBullet(angle);
     }
+
+    // update editor
+    this.editor.update();
+
+    // update players
+    this.players.tickPlayers();
   }
 
   destroy() {

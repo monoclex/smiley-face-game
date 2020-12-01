@@ -7,6 +7,16 @@ export default class PlayerManager {
 
   constructor(readonly game: GameScene) { }
 
+  tickPlayers() {
+    for (const player of this.players.values()) {
+      player.update();
+    }
+
+    for (const player of this.players.values()) {
+      player.postUpdate();
+    }
+  }
+
   getPlayer(id: number): Player {
     const player = this.players.get(id);
 

@@ -50,8 +50,6 @@ class DrawingPointer {
     this.lastPosition = currentPosition;
   }
 
-  onUp() { }
-
   id(): ZBlock {
     if (this.pointer.rightButtonDown()) return 0;
     else return this.blockBar.selectedBlock;
@@ -75,7 +73,6 @@ export default class Editor {
   constructor(readonly scene: Phaser.Scene, readonly world: World, readonly blockBar: BlockBar) {
     this.drawingPointers = new Map();
     this.mainCamera = scene.cameras.main;
-    scene.events.on("update", this.update, this);
 
     scene.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       const drawingPointer = new DrawingPointer(pointer, this, blockBar);
@@ -93,7 +90,7 @@ export default class Editor {
     scene.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
       const drawingPointer = this.drawingPointers.get(pointer.pointerId);
       if (drawingPointer) {
-        drawingPointer.onUp();
+        // drawingPointer.onUp();
         this.drawingPointers.delete(pointer.pointerId);
       }
     });
@@ -130,7 +127,7 @@ export default class Editor {
 
       for (const key of keys) {
         const drawingPointer = this.drawingPointers.get(key)!;
-        drawingPointer.onUp();
+        // drawingPointer.onUp();
         this.drawingPointers.delete(key);
       }
     }

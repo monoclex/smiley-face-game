@@ -35,10 +35,12 @@ export default class Player {
   readonly usernameText: Phaser.GameObjects.Text;
   readonly cosmeticSprites: Phaser.GameObjects.Image[];
   readonly input: MovementValues = { left: false, right: false, jump: false, up: false };
+  readonly bullets: Phaser.GameObjects.Sprite[] = [];
 
   gun?: GunBehaviour;
   gunSprite?: Phaser.GameObjects.Sprite;
   physicsState: PlayerPhysicsState = { arrows: { up: false, left: false, right: false, down: false } };
+  alive: boolean = true;
 
   get hasGun(): boolean {
     return !!this.gun;
@@ -73,9 +75,6 @@ export default class Player {
 
     this.usernameText = this.game.add.text(0, 0, username).setOrigin(0.5, 0).setDepth(USERNAME_DEPTH);
     this.container.add(this.usernameText);
-
-    this.game.events.on("update", this.update, this);
-    this.game.events.on("postupdate", this.postUpdate, this);
 
     // this is a hacky workaround for GunTile to be able to access this `Player` from the `body` sprite
     this.body.player = this;
@@ -126,18 +125,7 @@ export default class Player {
       // .setFriction(0, 0).setGravity(0, 0) // bullets should have "no gravity" so that they go in a straight line
       .setCollideWorldBounds(true);
 
-    // make the bullet collide with the level
-    this.game.events.on(
-      "update",
-      () => {
-        this.game.physics.collide(bullet, this.game.world.foreground.tilemapLayer);
-        this.game.physics.collide(bullet, this.game.world.action.tilemapLayer);
-        for (const [_, player] of this.game.players.players) {
-          this.game.physics.collide(player.body, bullet);
-        }
-      },
-      this
-    );
+    this.bullets.push(bullet);
 
     // spawn the bullet pretty fast at the desired angle
     let velocity = distanceAway({ x: 0, y: 0 }, angle, 2000);
@@ -147,10 +135,31 @@ export default class Player {
     this.game.sound.play("shoot"); // TODO: map key to where it's used, or abstract away in bullet
 
     // kill bullet after 2 seconds
-    this.game.time.delayedCall(2000, bullet.destroy, [], bullet);
+    this.game.time.delayedCall(
+      2000,
+      () => {
+        bullet.destroy();
+      },
+      [],
+      this
+    );
   }
 
   update() {
+    if (!this.alive) {
+      console.warn("ticking dead player");
+      return;
+    }
+
+    // update bullets
+    for (const bullet of this.bullets) {
+      this.game.physics.collide(bullet, this.game.world.foreground.tilemapLayer);
+      this.game.physics.collide(bullet, this.game.world.action.tilemapLayer);
+      for (const [_, player] of this.game.players.players) {
+        this.game.physics.collide(player.body, bullet);
+      }
+    }
+
     if (this.gunEquipped) {
       if (this.guaranteeGun.gun.depth !== GUN_EQUIPPED_DEPTH) {
         this.guaranteeGun.gun.setDepth(GUN_EQUIPPED_DEPTH);
@@ -218,9 +227,7 @@ export default class Player {
   }
 
   destroy() {
-    this.game.events.off("update", this.update, this);
-    this.game.events.off("postupdate", this.postUpdate, this);
-
+    this.alive = false;
     this.body.destroy();
     this.usernameText.destroy();
 
