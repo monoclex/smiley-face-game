@@ -79,6 +79,9 @@ export const zsPacket = (width: number, height: number) => {
 export type ZSPacket = SchemaInput<ReturnType<typeof zsPacket>>;
 export type ZSPacketId = Pick<ZSPacket, "packetId">;
 
+// copied from above PickZPacket
+export type PickZSPacket<K extends ZSPacket["packetId"]> = Extract<ZSPacket, { packetId: K }>;
+
 export const zPickupGun = addParse(
   Schema({
     packetId: "PICKUP_GUN" as const,
@@ -215,6 +218,7 @@ export const zsPlayerJoin = addParse(
     gunEquipped: boolean,
   })
 );
+export type ZSPlayerJoin = SchemaInput<typeof zsPlayerJoin>;
 
 export const zsPickupGun = addParse(
   Schema.merge(zs, {
@@ -277,3 +281,4 @@ export const zsEvent = addParse(
     }),
   })
 );
+export type ZSEvent = SchemaInput<typeof zsEvent>;
