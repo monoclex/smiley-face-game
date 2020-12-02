@@ -58,13 +58,18 @@ export class Bullet implements PhysicsObject {
   }
 }
 
-interface PlayerCtor {
-  new (username: string, isGuest: boolean, mainPlayer: boolean): Player;
+export function defaultInputs(): Inputs {
+  return { jump: false, up: false, down: false, left: false, right: false };
 }
+
+interface PlayerCtor {
+  new (username: string, isGuest: boolean): Player;
+}
+
 export class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
-  input: Inputs = { jump: false, up: false, down: false, left: false, right: false };
+  input: Inputs = defaultInputs();
   role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
   private gunState: GunState = 0;
 
@@ -80,10 +85,7 @@ export class Player implements PhysicsObject {
     return this.role === "edit" || this.role === "owner";
   }
 
-  // TODO: i don't think `Player` here should have or deal with `mainPlayer` since that's
-  // only needed to be cared about for a ClientGame. however, it makes things
-  // simpler so, sticking it here i go!
-  constructor(readonly username: string, readonly isGuest: boolean, readonly mainPlayer: boolean) {}
+  constructor(readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -242,6 +244,10 @@ export class Chat {
   }
 }
 
+export interface Network {
+  update(game: Game): void;
+}
+
 export class Players {
   private readonly _map: Map<number, Player> = new Map();
   private readonly P: PlayerCtor;
@@ -256,8 +262,8 @@ export class Players {
     return player;
   }
 
-  addPlayer(joinInfo: ZSPlayerJoin, isMainPlayer?: boolean): Player {
-    const player = new this.P(joinInfo.username, joinInfo.isGuest, Boolean(isMainPlayer));
+  addPlayer(joinInfo: ZSPlayerJoin): Player {
+    const player = new this.P(joinInfo.username, joinInfo.isGuest);
 
     player.role = joinInfo.role;
     player.position = joinInfo.joinLocation;
@@ -286,17 +292,21 @@ export class Players {
   }
 }
 
-type GameFactory = (tileJson: TileRegistration, init: ZSInit) => [Bullets, Chat, Display | undefined, Players, World];
+type GameFactory = (
+  tileJson: TileRegistration,
+  init: ZSInit
+) => [Bullets, Chat, Display | undefined, Network | undefined, Players, World];
 const defaultGameFactory: GameFactory = (tileJson, init) => [
   new Bullets(),
   new Chat(),
+  undefined,
   undefined,
   new Players(),
   new World(tileJson, init.size),
 ];
 
 export interface Display {
-  draw(): void;
+  draw(game: Game): void;
 }
 
 /**
@@ -307,32 +317,31 @@ export class Game {
   readonly bullets: Bullets;
   readonly chat: Chat;
   readonly display: Display | undefined;
+  readonly network: Network | undefined;
   readonly players: Players;
   readonly world: World;
   readonly self: Player;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
     factory = factory || defaultGameFactory;
-    const [bullets, chat, display, players, world] = factory(tileJson, init);
+    const [bullets, chat, display, network, players, world] = factory(tileJson, init);
     this.bullets = bullets;
     this.chat = chat;
     this.display = display;
+    this.network = network;
     this.players = players;
     this.world = world;
 
-    this.self = this.players.addPlayer(
-      {
-        playerId: init.playerId,
-        packetId: "SERVER_PLAYER_JOIN",
-        username: init.username,
-        role: init.role,
-        isGuest: init.isGuest,
-        joinLocation: init.spawnPosition,
-        hasGun: false,
-        gunEquipped: false,
-      },
-      true
-    );
+    this.self = this.players.addPlayer({
+      playerId: init.playerId,
+      packetId: "SERVER_PLAYER_JOIN",
+      username: init.username,
+      role: init.role,
+      isGuest: init.isGuest,
+      joinLocation: init.spawnPosition,
+      hasGun: false,
+      gunEquipped: false,
+    });
 
     this.world.load(init.blocks);
   }
@@ -352,8 +361,10 @@ export class Game {
       b.tick();
     }
 
-    // once we process *all* physics ticks as necessary, *then* we draw
-    this.display?.draw();
+    // once we process *all* physics ticks as necessary, *then* we update network/draw
+    // that way we don't cause duplicate packets/draws
+    this.network?.update(this);
+    this.display?.draw(this);
   }
 
   // tick sub-routines

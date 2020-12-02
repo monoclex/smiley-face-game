@@ -1,7 +1,20 @@
 import type { ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import type { Connection } from "@smiley-face-game/api";
 import { Container, Sprite, Renderer, Texture, DisplayObject, TilingSprite, Rectangle } from "pixi.js";
-import { Game, Bullets, Players, Chat, World, Bullet, Player, Size, Inputs } from "./Game";
+import {
+  Game,
+  Bullets,
+  Players,
+  Chat,
+  World,
+  Bullet,
+  Player,
+  Size,
+  Inputs,
+  Network,
+  Display,
+  defaultInputs,
+} from "./Game";
 import playerUrl from "../assets/base.png";
 import bulletUrl from "../assets/bullet.png";
 import atlasUrl from "../assets/atlas.png";
@@ -89,27 +102,17 @@ function areSame(a: Inputs, b: Inputs) {
 }
 
 export class ClientPlayer extends Player {
-  static connection: Connection;
   sprite: Sprite;
-  lastInputs: Inputs;
 
-  constructor(username: string, isGuest: boolean, mainPlayer: boolean) {
-    super(username, isGuest, mainPlayer);
+  constructor(username: string, isGuest: boolean) {
+    super(username, isGuest);
     this.sprite = new Sprite(textures.player);
-    this.lastInputs = { ...this.input };
   }
 
   tick() {
     super.tick();
     this.sprite.position.x = this.position.x;
     this.sprite.position.y = this.position.y;
-
-    if (this.mainPlayer) {
-      if (!areSame(this.input, this.lastInputs)) {
-        ClientPlayer.connection.move(this.position, this.velocity, this.input);
-        this.lastInputs = { ...this.input };
-      }
-    }
   }
 }
 
@@ -118,9 +121,9 @@ export class ClientPlayers extends Players {
     super(ClientPlayer);
   }
 
-  addPlayer(joinInfo: ZSPlayerJoin, isMainPlayer?: boolean): ClientPlayer {
-    const player = super.addPlayer(joinInfo, isMainPlayer) as ClientPlayer;
-    this.players.addChild(player.sprite);
+  addPlayer(joinInfo: ZSPlayerJoin): ClientPlayer {
+    const player = super.addPlayer(joinInfo) as ClientPlayer;
+    this.players.addChildAt(player.sprite, 0);
     return player;
   }
 
@@ -133,18 +136,23 @@ export class ClientPlayers extends Players {
 
 export class ClientWorld extends World {
   private readonly void: TilingSprite;
-  // private readonly background;
+  private readonly background: CompositeRectTileLayer & DisplayObject;
   private readonly action: CompositeRectTileLayer & DisplayObject;
   private readonly foreground: CompositeRectTileLayer & DisplayObject;
+  private readonly decoration: CompositeRectTileLayer & DisplayObject;
 
   constructor(tileJson: TileRegistration, size: Size, worldBehind: Container, worldInfront: Container) {
     super(tileJson, size);
     this.void = new TilingSprite(textures.block("empty"), size.width * 32, size.height * 32);
+    this.background = newCompositeRectTileLayer();
     this.action = newCompositeRectTileLayer();
     this.foreground = newCompositeRectTileLayer();
+    this.decoration = newCompositeRectTileLayer();
     worldBehind.addChild(this.void);
+    worldBehind.addChild(this.background);
     worldBehind.addChild(this.action);
     worldBehind.addChild(this.foreground);
+    worldInfront.addChild(this.decoration);
   }
 
   load(blocks: number[][][]) {
@@ -174,44 +182,61 @@ export class ClientWorld extends World {
   }
 }
 
+export class ClientNetwork implements Network {
+  private mainPlayerOldInputs: Inputs = defaultInputs();
+
+  constructor(private readonly connection: Connection) {}
+
+  update(game: Game): void {
+    if (!areSame(game.self.input, this.mainPlayerOldInputs)) {
+      this.connection.move(game.self.position, game.self.velocity, game.self.input);
+      this.mainPlayerOldInputs = { ...game.self.input };
+    }
+  }
+}
+
+export class ClientDisplay implements Display {
+  readonly root: Container = new Container();
+  readonly worldBehind: Container = new Container();
+  readonly players: Container = new Container();
+  readonly bullets: Container = new Container();
+  readonly worldInfront: Container = new Container();
+
+  constructor(private readonly renderer: Renderer) {
+    this.root.addChild(this.worldBehind); // <-- most behind
+    this.root.addChild(this.players);
+    this.root.addChild(this.bullets);
+    this.root.addChild(this.worldInfront); // <-- closest to viewer
+  }
+
+  draw(game: Game): void {
+    // calculate position for player to be in the center
+    const HALF_PLAYER_SIZE = 16;
+    const centerX = -game.self.position.x - HALF_PLAYER_SIZE + this.renderer.width / 2;
+    const centerY = -game.self.position.y - HALF_PLAYER_SIZE + this.renderer.height / 2;
+
+    // calc some camera lag
+    const CAMERA_LAG_MODIFIER = 1 / 16;
+    const cameraLagX = (centerX - this.root.position.x) * CAMERA_LAG_MODIFIER;
+    const cameraLagY = (centerY - this.root.position.y) * CAMERA_LAG_MODIFIER;
+
+    // apply the camera lag
+    this.root.position.x += cameraLagX;
+    this.root.position.y += cameraLagY;
+    this.renderer.render(this.root);
+  }
+}
+
 export function makeClientConnectedGame(renderer: Renderer, connection: Connection): Game {
-  ClientPlayer.connection = connection;
-  const root = new Container();
-  const worldBehind = new Container();
-  const players = new Container();
-  const bullets = new Container();
-  const worldInfront = new Container();
-  root.addChild(worldBehind); // <-- most behind
-  root.addChild(players);
-  root.addChild(bullets);
-  root.addChild(worldInfront); // <-- closest to viewer
-
-  const display = { draw: () => {} };
-
+  const display = new ClientDisplay(renderer);
   const game = new Game(connection.tileJson, connection.init, (tileJson, init) => [
     new Bullets(ClientBullet),
     new Chat(),
     display,
-    new ClientPlayers(players),
-    new ClientWorld(tileJson, init.size, worldBehind, worldInfront),
+    new ClientNetwork(connection),
+    new ClientPlayers(display.players),
+    new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
   ]);
-
-  display.draw = () => {
-    // calculate position for player to be in the center
-    const HALF_PLAYER_SIZE = 16;
-    const centerX = -game.self.position.x - HALF_PLAYER_SIZE + renderer.width / 2;
-    const centerY = -game.self.position.y - HALF_PLAYER_SIZE + renderer.height / 2;
-
-    // calc some camera lag
-    const CAMERA_LAG_MODIFIER = 1 / 16;
-    const cameraLagX = (centerX - root.position.x) * CAMERA_LAG_MODIFIER;
-    const cameraLagY = (centerY - root.position.y) * CAMERA_LAG_MODIFIER;
-
-    // apply the camera lag
-    root.position.x += cameraLagX;
-    root.position.y += cameraLagY;
-    renderer.render(root);
-  };
 
   for (const playerInfo of connection.init.players) {
     game.players.addPlayer(playerInfo);
