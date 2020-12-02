@@ -2,21 +2,20 @@ import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration"
 import type { ZSPacket, ZSInit, ZSEvent, ZSPlayerJoin, ZWorldAction } from "@smiley-face-game/api/packets";
 import { TileLayer, ZWorldActionKindReply } from "@smiley-face-game/api/types";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import { Connection } from "@smiley-face-game/api";
 
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }
 
-type Velocity = Position;
+export type Velocity = Position;
 
-interface Size {
+export interface Size {
   width: number;
   height: number;
 }
 
-interface Inputs {
+export interface Inputs {
   jump: boolean;
   up: boolean;
   down: boolean;
@@ -24,13 +23,13 @@ interface Inputs {
   right: boolean;
 }
 
-enum GunState {
+export enum GunState {
   None,
   Carrying,
   Held,
 }
 
-interface PhysicsObject {
+export interface PhysicsObject {
   position: Position;
   velocity: Velocity;
   tick?: () => void;
@@ -150,7 +149,7 @@ export class World {
     }
   }
 
-  constructor(private readonly tileJson: TileRegistration, readonly size: Size) {
+  constructor(protected readonly tileJson: TileRegistration, readonly size: Size) {
     this.state = World.emptyWorld(size);
   }
 
@@ -317,6 +316,7 @@ export class Game {
     this.display = display;
     this.players = players;
     this.world = world;
+
     this.self = this.players.addPlayer({
       playerId: init.playerId,
       packetId: "SERVER_PLAYER_JOIN",
@@ -327,6 +327,8 @@ export class Game {
       hasGun: false,
       gunEquipped: false,
     });
+
+    this.world.load(init.blocks);
   }
 
   // main tick function
