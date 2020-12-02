@@ -126,7 +126,7 @@ const PlayPage = ({
       });
 
     const listener = () => {
-      game.scale.resize(window.innerWidth, window.innerHeight);
+      renderer.resize(window.innerWidth, window.innerHeight);
     };
 
     window.addEventListener("resize", listener);
