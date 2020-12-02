@@ -2,6 +2,7 @@ import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration"
 import type { ZSPacket, ZSInit, ZSEvent, ZSPlayerJoin, ZWorldAction } from "@smiley-face-game/api/packets";
 import { TileLayer, ZWorldActionKindReply } from "@smiley-face-game/api/types";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
+import { Connection } from "@smiley-face-game/api";
 
 interface Position {
   x: number;
@@ -35,6 +36,9 @@ interface PhysicsObject {
   tick?: () => void;
 }
 
+interface BulletCtor {
+  new (x: number, y: number, angle: number): Bullet;
+}
 export class Bullet implements PhysicsObject {
   creation: Date = new Date();
   position: Position;
@@ -48,8 +52,16 @@ export class Bullet implements PhysicsObject {
       y: Math.sin(angle) * startingPower,
     };
   }
+
+  tick() {
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+  }
 }
 
+interface PlayerCtor {
+  new (username: string, isGuest: boolean): Player;
+}
 export class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
@@ -69,7 +81,7 @@ export class Player implements PhysicsObject {
     return this.role === "edit" || this.role === "owner";
   }
 
-  constructor(readonly username: string, readonly isGuest: boolean) { }
+  constructor(readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -151,7 +163,7 @@ export class World {
     World.placeBorder(this.state, this.tileJson, this.size);
   }
 
-  onSave(author: Player) { }
+  onSave(author: Player) {}
 
   onLoad(author: Player, blocks: number[][][]) {
     this.load(blocks);
@@ -175,10 +187,15 @@ interface Message {
 
 export class Bullets {
   private readonly bullets: Bullet[] = [];
+  private readonly B: BulletCtor;
+
+  constructor(constructor?: BulletCtor) {
+    this.B = constructor || Bullet;
+  }
 
   spawn(at: Player, angle: number) {
     // TODO: put bullet in front of gun
-    const bullet = new Bullet(at.position.x, at.position.y, angle);
+    const bullet = new this.B(at.position.x, at.position.y, angle);
     this.bullets.push(bullet);
   }
 }
@@ -208,6 +225,11 @@ export class Chat {
 
 export class Players {
   private readonly _map: Map<number, Player> = new Map();
+  private readonly P: PlayerCtor;
+
+  constructor(constructor?: PlayerCtor) {
+    this.P = constructor || Player;
+  }
 
   getPlayer(id: number): Player {
     const player = this._map.get(id);
@@ -216,7 +238,7 @@ export class Players {
   }
 
   addPlayer(joinInfo: ZSPlayerJoin) {
-    const player = new Player(joinInfo.username, joinInfo.isGuest);
+    const player = new this.P(joinInfo.username, joinInfo.isGuest);
 
     player.role = joinInfo.role;
     player.position = joinInfo.joinLocation;
@@ -241,18 +263,38 @@ export class Players {
   }
 }
 
+type GameFactory = (tileJson: TileRegistration, init: ZSInit) => [Bullets, Chat, Display | undefined, Players, World];
+const defaultGameFactory: GameFactory = (tileJson, init) => [
+  new Bullets(),
+  new Chat(),
+  undefined,
+  new Players(),
+  new World(tileJson, init.size),
+];
+
+export interface Display {
+  draw(): void;
+}
+
 /**
  * `Game` class contains everything relevant for data, making it perfectly suitable
  * to use as a headless instance of a game (and thus, testing).
  */
 export class Game {
-  readonly bullets: Bullets = new Bullets();
-  readonly chat: Chat = new Chat();
-  readonly players: Players = new Players();
+  readonly bullets: Bullets;
+  readonly chat: Chat;
+  readonly display: Display | undefined;
+  readonly players: Players;
   readonly world: World;
 
-  constructor(readonly tileJson: TileRegistration, readonly init: ZSInit) {
-    this.world = new World(tileJson, init.size);
+  constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
+    factory = factory || defaultGameFactory;
+    const [bullets, chat, display, players, world] = factory(tileJson, init);
+    this.bullets = bullets;
+    this.chat = chat;
+    this.display = display;
+    this.players = players;
+    this.world = world;
   }
 
   // main tick function
@@ -274,6 +316,9 @@ export class Game {
       p.position.x += p.velocity.x * 16;
       p.position.y += p.velocity.y * 16;
     }
+
+    // once we process *all* physics ticks as necessary, *then* we draw
+    this.display?.draw();
   }
 
   // tick sub-routines
