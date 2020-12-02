@@ -130,7 +130,7 @@ export class ClientWorld extends World {
     this.foreground = newCompositeRectTileLayer();
     worldBehind.addChild(this.void);
     worldBehind.addChild(this.action);
-    worldInfront.addChild(this.foreground);
+    worldBehind.addChild(this.foreground);
   }
 
   load(blocks: number[][][]) {
@@ -173,11 +173,7 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
   root.addChild(bullets);
   root.addChild(worldInfront); // <-- closest to viewer
 
-  const display = {
-    draw: () => {
-      renderer.render(root);
-    },
-  };
+  const display = { draw: () => {} };
 
   const game = new Game(connection.tileJson, connection.init, (tileJson, init) => [
     new Bullets(ClientBullet),
@@ -186,6 +182,24 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
     new ClientPlayers(players),
     new ClientWorld(tileJson, init.size, worldBehind, worldInfront),
   ]);
+
+  display.draw = () => {
+    // we want to draw the player in the center
+    // calculate how much we have to offset the root container by for the main
+    // player to appear in the center
+    const HALF_PLAYER_SIZE = 16;
+    const centerX = -game.self.position.x - HALF_PLAYER_SIZE + renderer.width / 2;
+    const centerY = -game.self.position.y - HALF_PLAYER_SIZE + renderer.height / 2;
+
+    // we want to apply a bit of camera lag too
+    const CAMERA_LAG_MODIFIER = 1 / 16;
+    const cameraLagX = (centerX - root.position.x) * CAMERA_LAG_MODIFIER;
+    const cameraLagY = (centerY - root.position.y) * CAMERA_LAG_MODIFIER;
+
+    root.position.x += cameraLagX;
+    root.position.y += cameraLagY;
+    renderer.render(root);
+  };
 
   for (const playerInfo of connection.init.players) {
     game.players.addPlayer(playerInfo);
