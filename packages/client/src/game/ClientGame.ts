@@ -112,5 +112,50 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
     }
   }
 
+  // TODO: do this nicely?
+  document.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+
+    switch (key) {
+      case "w":
+        game.self.input.up = true;
+        break;
+      case "d":
+        game.self.input.right = true;
+        break;
+      case "a":
+        game.self.input.left = true;
+        break;
+      case "s":
+        game.self.input.down = true;
+        break;
+      case "space":
+        game.self.input.jump = true;
+        break;
+    }
+  });
+
+  document.addEventListener("keyup", (event) => {
+    const key = event.key.toLowerCase();
+
+    switch (key) {
+      case "w":
+        game.self.input.up = !true;
+        break;
+      case "d":
+        game.self.input.right = !true;
+        break;
+      case "a":
+        game.self.input.left = !true;
+        break;
+      case "s":
+        game.self.input.down = !true;
+        break;
+      case "space":
+        game.self.input.jump = !true;
+        break;
+    }
+  });
+
   return game;
 }

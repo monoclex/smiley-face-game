@@ -98,8 +98,8 @@ export class Player implements PhysicsObject {
     // fancy stuff coming later <3
     this.velocity.x = 0;
     this.velocity.y = 0;
-    if (this.input.up) this.velocity.y++;
-    if (this.input.down) this.velocity.y--;
+    if (this.input.up) this.velocity.y--;
+    if (this.input.down) this.velocity.y++;
     if (this.input.left) this.velocity.x--;
     if (this.input.right) this.velocity.x++;
     this.position.x += this.velocity.x * 16;
