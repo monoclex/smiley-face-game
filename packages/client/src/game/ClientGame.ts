@@ -1,7 +1,7 @@
 import type { ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import type { Connection } from "@smiley-face-game/api";
 import { Container, Sprite, Renderer, Texture, DisplayObject, TilingSprite, Rectangle } from "pixi.js";
-import { Game, Bullets, Players, Chat, World, Bullet, Player, Size } from "./Game";
+import { Game, Bullets, Players, Chat, World, Bullet, Player, Size, Inputs } from "./Game";
 import playerUrl from "../assets/base.png";
 import bulletUrl from "../assets/bullet.png";
 import atlasUrl from "../assets/atlas.png";
@@ -84,18 +84,32 @@ export class ClientBullet extends Bullet {
   }
 }
 
-export class ClientPlayer extends Player {
-  sprite: Sprite;
+function areSame(a: Inputs, b: Inputs) {
+  return a.up === b.up && a.down === b.down && a.left === b.left && a.right === b.right && a.jump === b.jump;
+}
 
-  constructor(username: string, isGuest: boolean) {
-    super(username, isGuest);
+export class ClientPlayer extends Player {
+  static connection: Connection;
+  sprite: Sprite;
+  lastInputs: Inputs;
+
+  constructor(username: string, isGuest: boolean, mainPlayer: boolean) {
+    super(username, isGuest, mainPlayer);
     this.sprite = new Sprite(textures.player);
+    this.lastInputs = { ...this.input };
   }
 
   tick() {
     super.tick();
     this.sprite.position.x = this.position.x;
     this.sprite.position.y = this.position.y;
+
+    if (this.mainPlayer) {
+      if (!areSame(this.input, this.lastInputs)) {
+        ClientPlayer.connection.move(this.position, this.velocity, this.input);
+        this.lastInputs = { ...this.input };
+      }
+    }
   }
 }
 
@@ -104,8 +118,8 @@ export class ClientPlayers extends Players {
     super(ClientPlayer);
   }
 
-  addPlayer(joinInfo: ZSPlayerJoin): ClientPlayer {
-    const player = super.addPlayer(joinInfo) as ClientPlayer;
+  addPlayer(joinInfo: ZSPlayerJoin, isMainPlayer?: boolean): ClientPlayer {
+    const player = super.addPlayer(joinInfo, isMainPlayer) as ClientPlayer;
     this.players.addChild(player.sprite);
     return player;
   }
@@ -134,7 +148,6 @@ export class ClientWorld extends World {
   }
 
   load(blocks: number[][][]) {
-    console.log("load called");
     super.load(blocks);
     this.action.clear();
     this.foreground.clear();
@@ -154,7 +167,6 @@ export class ClientWorld extends World {
         for (let x = 0; x < this.size.width; x++) {
           if (y[x] === 0) continue;
           const textureName = this.tileJson.texture(y[x]);
-          console.log("addFrame");
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }
       }
@@ -163,6 +175,7 @@ export class ClientWorld extends World {
 }
 
 export function makeClientConnectedGame(renderer: Renderer, connection: Connection): Game {
+  ClientPlayer.connection = connection;
   const root = new Container();
   const worldBehind = new Container();
   const players = new Container();
@@ -184,18 +197,17 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
   ]);
 
   display.draw = () => {
-    // we want to draw the player in the center
-    // calculate how much we have to offset the root container by for the main
-    // player to appear in the center
+    // calculate position for player to be in the center
     const HALF_PLAYER_SIZE = 16;
     const centerX = -game.self.position.x - HALF_PLAYER_SIZE + renderer.width / 2;
     const centerY = -game.self.position.y - HALF_PLAYER_SIZE + renderer.height / 2;
 
-    // we want to apply a bit of camera lag too
+    // calc some camera lag
     const CAMERA_LAG_MODIFIER = 1 / 16;
     const cameraLagX = (centerX - root.position.x) * CAMERA_LAG_MODIFIER;
     const cameraLagY = (centerY - root.position.y) * CAMERA_LAG_MODIFIER;
 
+    // apply the camera lag
     root.position.x += cameraLagX;
     root.position.y += cameraLagY;
     renderer.render(root);

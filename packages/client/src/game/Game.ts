@@ -59,7 +59,7 @@ export class Bullet implements PhysicsObject {
 }
 
 interface PlayerCtor {
-  new (username: string, isGuest: boolean): Player;
+  new (username: string, isGuest: boolean, mainPlayer: boolean): Player;
 }
 export class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
@@ -80,7 +80,10 @@ export class Player implements PhysicsObject {
     return this.role === "edit" || this.role === "owner";
   }
 
-  constructor(readonly username: string, readonly isGuest: boolean) {}
+  // TODO: i don't think `Player` here should have or deal with `mainPlayer` since that's
+  // only needed to be cared about for a ClientGame. however, it makes things
+  // simpler so, sticking it here i go!
+  constructor(readonly username: string, readonly isGuest: boolean, readonly mainPlayer: boolean) {}
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -253,8 +256,8 @@ export class Players {
     return player;
   }
 
-  addPlayer(joinInfo: ZSPlayerJoin): Player {
-    const player = new this.P(joinInfo.username, joinInfo.isGuest);
+  addPlayer(joinInfo: ZSPlayerJoin, isMainPlayer?: boolean): Player {
+    const player = new this.P(joinInfo.username, joinInfo.isGuest, Boolean(isMainPlayer));
 
     player.role = joinInfo.role;
     player.position = joinInfo.joinLocation;
@@ -317,16 +320,19 @@ export class Game {
     this.players = players;
     this.world = world;
 
-    this.self = this.players.addPlayer({
-      playerId: init.playerId,
-      packetId: "SERVER_PLAYER_JOIN",
-      username: init.username,
-      role: init.role,
-      isGuest: init.isGuest,
-      joinLocation: init.spawnPosition,
-      hasGun: false,
-      gunEquipped: false,
-    });
+    this.self = this.players.addPlayer(
+      {
+        playerId: init.playerId,
+        packetId: "SERVER_PLAYER_JOIN",
+        username: init.username,
+        role: init.role,
+        isGuest: init.isGuest,
+        joinLocation: init.spawnPosition,
+        hasGun: false,
+        gunEquipped: false,
+      },
+      true
+    );
 
     this.world.load(init.blocks);
   }
