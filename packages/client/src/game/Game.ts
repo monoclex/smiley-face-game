@@ -24,7 +24,7 @@ interface Inputs {
   right: boolean;
 }
 
-const enum GunState {
+enum GunState {
   None,
   Carrying,
   Held,
@@ -91,6 +91,19 @@ export class Player implements PhysicsObject {
   holdGun(isHeld: boolean) {
     if (!this.hasGun) throw new Error("can't hold gun when there is no gun");
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
+  }
+
+  tick() {
+    // stupidly simple physics just so we can prototype for now
+    // fancy stuff coming later <3
+    this.velocity.x = 0;
+    this.velocity.y = 0;
+    if (this.input.up) this.velocity.y++;
+    if (this.input.down) this.velocity.y--;
+    if (this.input.left) this.velocity.x--;
+    if (this.input.right) this.velocity.x++;
+    this.position.x += this.velocity.x * 16;
+    this.position.y += this.velocity.y * 16;
   }
 
   destroy() {
@@ -198,6 +211,10 @@ export class Bullets {
     const bullet = new this.B(at.position.x, at.position.y, angle);
     this.bullets.push(bullet);
   }
+
+  [Symbol.iterator]() {
+    return this.bullets[Symbol.iterator]();
+  }
 }
 
 export class Chat {
@@ -237,7 +254,7 @@ export class Players {
     return player;
   }
 
-  addPlayer(joinInfo: ZSPlayerJoin) {
+  addPlayer(joinInfo: ZSPlayerJoin): Player {
     const player = new this.P(joinInfo.username, joinInfo.isGuest);
 
     player.role = joinInfo.role;
@@ -250,12 +267,16 @@ export class Players {
         player.holdGun(true);
       }
     }
+
+    this._map.set(joinInfo.playerId, player);
+    return player;
   }
 
-  removePlayer(id: number) {
+  removePlayer(id: number): Player {
     const player = this.getPlayer(id);
     player.destroy();
     this._map.delete(id);
+    return player;
   }
 
   [Symbol.iterator]() {
@@ -286,6 +307,7 @@ export class Game {
   readonly display: Display | undefined;
   readonly players: Players;
   readonly world: World;
+  readonly self: Player;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
     factory = factory || defaultGameFactory;
@@ -295,6 +317,16 @@ export class Game {
     this.display = display;
     this.players = players;
     this.world = world;
+    this.self = this.players.addPlayer({
+      playerId: init.playerId,
+      packetId: "SERVER_PLAYER_JOIN",
+      username: init.username,
+      role: init.role,
+      isGuest: init.isGuest,
+      joinLocation: init.spawnPosition,
+      hasGun: false,
+      gunEquipped: false,
+    });
   }
 
   // main tick function
@@ -305,16 +337,11 @@ export class Game {
   tick(deltaMs: number) {
     // TODO: account for deltaMs and operate ticks at a fixed interval
     for (const p of this.players) {
-      // stupidly simple physics just so we can prototype for now
-      // fancy stuff coming later <3
-      p.velocity.x = 0;
-      p.velocity.y = 0;
-      if (p.input.up) p.velocity.y++;
-      if (p.input.down) p.velocity.y--;
-      if (p.input.left) p.velocity.x--;
-      if (p.input.right) p.velocity.x++;
-      p.position.x += p.velocity.x * 16;
-      p.position.y += p.velocity.y * 16;
+      p.tick();
+    }
+
+    for (const b of this.bullets) {
+      b.tick();
     }
 
     // once we process *all* physics ticks as necessary, *then* we draw

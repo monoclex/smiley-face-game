@@ -2,13 +2,12 @@
 // | COPY PASTED FROM Game.jsx, MUST CLEAN THIS LATER |
 // \--------------------------------------------------/
 
-import Phaser from "phaser";
 import qs from "query-string";
 import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
-import { globalVariableParkour, LoadingScene } from "../../game/LoadingScene";
+import { globalVariableParkour } from "../../game/LoadingScene";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../history";
@@ -21,28 +20,8 @@ import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
 import WorldSettings from "../game/WorldSettings";
 import { Authentication } from "@smiley-face-game/api";
-
-export const config = {
-  pixelArt: true,
-  type: Phaser.AUTO,
-  title: "Smiley Face Game",
-  version: "0.1.0",
-  width: window.innerWidth,
-  height: window.innerHeight,
-  scene: [LoadingScene, GameScene],
-  backgroundColor: "#000000",
-
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 1000 },
-      debug: isDev,
-      // toggles hitboxes around objects
-      // if we're not in production, we want to see them
-      // debug: isProduction ? false : true,
-    },
-  },
-};
+import { Renderer } from "pixi.js";
+import { textures, makeClientConnectedGame } from "../../game/ClientGame";
 
 const useStyles = makeStyles({
   game: {
@@ -105,7 +84,7 @@ const PlayPage = ({
 
     let auth = new Authentication(token);
     globalVariableParkour.token = auth;
-    globalVariableParkour.joinRequest =
+    let joinRequest =
       state.request === "create"
         ? { type: "dynamic", name: state.name, width: state.width, height: state.height }
         : { type: state.type, id: state.roomId };
@@ -117,8 +96,34 @@ const PlayPage = ({
     };
 
     // start game
-    const game = new Phaser.Game({ ...config, parent: gameRef.current });
-    window.game = game;
+    const renderer = new Renderer({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      view: gameRef.current,
+    });
+
+    let rafAnother = true;
+
+    textures
+      .load()
+      .then(() => auth.connect(joinRequest))
+      .then((connection) => {
+        console.time("init");
+        const game = makeClientConnectedGame(renderer, connection);
+        let timeStart;
+        const raf = (elapsed) => {
+          if (!rafAnother) return;
+          let delta = elapsed - timeStart;
+          timeStart = elapsed;
+          game.tick(delta);
+          requestAnimationFrame(raf);
+        };
+
+        requestAnimationFrame((elapsed) => {
+          timeStart = elapsed;
+          raf(elapsed);
+        });
+      });
 
     const listener = () => {
       game.scale.resize(window.innerWidth, window.innerHeight);
@@ -127,9 +132,9 @@ const PlayPage = ({
     window.addEventListener("resize", listener);
 
     return function cleanup() {
+      rafAnother = false;
       window.removeEventListener("resize", listener);
       sharedGlobalLoading.set({ failed: undefined, why: undefined });
-      game.destroy(true);
     };
   }, []);
 
@@ -163,7 +168,7 @@ const PlayPage = ({
         </Grid>
       )}
       <Grid container justify="center">
-        <div className={styles.game} ref={gameRef} />
+        <canvas className={styles.game} ref={gameRef} />
       </Grid>
       <Grid className={styles.uiOverlay} container direction="column-reverse" alignItems="stretch">
         <Grid container item direction="row" alignItems="stretch">
