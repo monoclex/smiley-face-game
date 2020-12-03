@@ -63,7 +63,7 @@ export function defaultInputs(): Inputs {
 }
 
 interface PlayerCtor {
-  new (username: string, isGuest: boolean): Player;
+  new (id: number, username: string, isGuest: boolean): Player;
 }
 
 export class Player implements PhysicsObject {
@@ -85,7 +85,7 @@ export class Player implements PhysicsObject {
     return this.role === "edit" || this.role === "owner";
   }
 
-  constructor(readonly username: string, readonly isGuest: boolean) {}
+  constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -263,7 +263,7 @@ export class Players {
   }
 
   addPlayer(joinInfo: ZSPlayerJoin): Player {
-    const player = new this.P(joinInfo.username, joinInfo.isGuest);
+    const player = new this.P(joinInfo.playerId, joinInfo.username, joinInfo.isGuest);
 
     player.role = joinInfo.role;
     player.position = joinInfo.joinLocation;

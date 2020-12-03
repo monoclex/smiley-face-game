@@ -104,11 +104,10 @@ const PlayPage = ({
 
     let rafAnother = true;
 
-    textures
-      .load()
-      .then(() => auth.connect(joinRequest))
+    auth
+      .connect(joinRequest)
+      .then((connection) => textures.load(connection.tileJson).then((textures) => connection))
       .then((connection) => {
-        console.time("init");
         const game = makeClientConnectedGame(renderer, connection);
         let timeStart;
         const raf = (elapsed) => {

@@ -1,6 +1,6 @@
 import type { ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import type { Connection } from "@smiley-face-game/api";
-import { Container, Sprite, Renderer, Texture, DisplayObject, TilingSprite, Rectangle } from "pixi.js";
+import { Container, Sprite, Renderer, Texture, DisplayObject, TilingSprite, Rectangle, resources } from "pixi.js";
 import {
   Game,
   Bullets,
@@ -22,6 +22,9 @@ import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { CompositeRectTileLayer } from "pixi-tilemap";
 import atlasJson from "../assets/atlas_atlas.json";
 import { TileLayer } from "@smiley-face-game/api/types";
+import { blockbar } from "../recoil/atoms/blockbar";
+import { loading } from "../recoil/atoms/loading";
+import { playerList } from "../recoil/atoms/playerList";
 
 function newCompositeRectTileLayer(zIndex?: number, bitmaps?: any[]): CompositeRectTileLayer & DisplayObject {
   // for some reason, pixi-tilemap compositerecttilelayers are valid
@@ -33,6 +36,12 @@ function newCompositeRectTileLayer(zIndex?: number, bitmaps?: any[]): CompositeR
 }
 
 export const textures = new (class {
+  private _tileJson: TileRegistration | undefined;
+  get tileJson(): TileRegistration {
+    if (!this._tileJson) throw new Error("`tileJson` not loaded");
+    return this._tileJson;
+  }
+
   private _bullet: Texture | undefined;
   get bullet(): Texture {
     if (!this._bullet) throw new Error("`bullet` texture not loaded");
@@ -52,12 +61,17 @@ export const textures = new (class {
   }
 
   private readonly _blockCache: Map<string, Texture> = new Map();
-  block(name: string): Texture {
+  block(name: number | string): Texture {
+    if (typeof name === "number") {
+      return this.block(this.tileJson.texture(name));
+    }
+
     const blockCacheResult = this._blockCache.get(name);
     if (blockCacheResult !== undefined) {
       return blockCacheResult;
     }
 
+    // TODO: move atlas json stuff to its own component
     for (const frame of atlasJson.frames) {
       if (frame.filename === name) {
         const texture = new Texture(
@@ -71,7 +85,10 @@ export const textures = new (class {
     throw new Error("couldn't find texture " + name);
   }
 
-  load(): Promise<void> {
+  load(tileJson: TileRegistration): Promise<void> {
+    //@ts-ignore
+    window.HACK_FIXME_LATER_tileJson = tileJson;
+    this._tileJson = tileJson;
     return Promise.all([playerUrl, bulletUrl, atlasUrl])
       .then((urls) => Promise.all(urls.map(Texture.fromURL)))
       .then(([player, bullet, atlas]) => {
@@ -104,8 +121,8 @@ function areSame(a: Inputs, b: Inputs) {
 export class ClientPlayer extends Player {
   sprite: Sprite;
 
-  constructor(username: string, isGuest: boolean) {
-    super(username, isGuest);
+  constructor(id: number, username: string, isGuest: boolean) {
+    super(id, username, isGuest);
     this.sprite = new Sprite(textures.player);
   }
 
@@ -124,6 +141,16 @@ export class ClientPlayers extends Players {
   addPlayer(joinInfo: ZSPlayerJoin): ClientPlayer {
     const player = super.addPlayer(joinInfo) as ClientPlayer;
     this.players.addChildAt(player.sprite, 0);
+    playerList.modify({
+      players: [
+        ...playerList.state.players,
+        {
+          playerId: player.id,
+          role: player.role,
+          username: player.username,
+        },
+      ],
+    });
     return player;
   }
 
@@ -227,6 +254,67 @@ export class ClientDisplay implements Display {
   }
 }
 
+export class ClientBlockBar {
+  constructor(tileJson: TileRegistration) {
+    blockbar.modify({
+      // TODO: maybe this could be an instance method on this class instead?
+      loader: async (id) => {
+        const textureName = tileJson.texture(id);
+        const textureFrame = find(textureName);
+
+        const resource = textures.block(id).baseTexture.resource;
+        if (!(resource instanceof resources.BaseImageResource)) {
+          throw new Error("atlas not png, huh?");
+        }
+
+        if ("ownerSVGElement" in resource.source) {
+          throw new Error("cant use svg as resource");
+        }
+
+        const TILE_WIDTH = 32;
+        const TILE_HEIGHT = 32;
+        const renderImageCanvas = document.createElement("canvas");
+        renderImageCanvas.width = TILE_WIDTH;
+        renderImageCanvas.height = TILE_HEIGHT;
+
+        const context = renderImageCanvas.getContext("2d")!;
+
+        const { x, y, w: width, h: height } = textureFrame.frame;
+        context.drawImage(resource.source, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
+
+        const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
+        const url = URL.createObjectURL(blob);
+
+        const tileTexture = new Image();
+        tileTexture.src = url;
+        return tileTexture;
+      },
+      slots: {
+        ...blockbar.state.slots,
+        [0]: tileJson.id("empty"),
+        [1]: tileJson.id("basic-white"),
+        [2]: tileJson.id("gun"),
+        [3]: tileJson.id("arrow-up"),
+        [4]: tileJson.id("prismarine-basic"),
+        [5]: tileJson.id("gemstone-red"),
+        [6]: tileJson.id("tshell-white"),
+        [7]: tileJson.id("pyramid-white"),
+        [8]: tileJson.id("choc-l0"),
+      },
+    });
+
+    function find(textureName: string) {
+      // TODO: move atlas json stuff to its own component
+      for (const frame of atlasJson.frames) {
+        if (frame.filename === textureName) {
+          return frame;
+        }
+      }
+      throw new Error("couldn't find texture " + textureName);
+    }
+  }
+}
+
 export function makeClientConnectedGame(renderer: Renderer, connection: Connection): Game {
   const display = new ClientDisplay(renderer);
   const game = new Game(connection.tileJson, connection.init, (tileJson, init) => [
@@ -238,6 +326,9 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
     new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
   ]);
 
+  //@ts-ignore
+  window.HACK_FIX_LATER_selfId = game.self.id;
+
   for (const playerInfo of connection.init.players) {
     game.players.addPlayer(playerInfo);
   }
@@ -248,6 +339,8 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
       game.handle(message);
     }
   }
+
+  const clientBlockBar = new ClientBlockBar(connection.tileJson);
 
   // TODO: do this nicely?
   document.addEventListener("keydown", (event) => {
@@ -293,6 +386,8 @@ export function makeClientConnectedGame(renderer: Renderer, connection: Connecti
         break;
     }
   });
+
+  loading.set({ failed: false });
 
   return game;
 }
