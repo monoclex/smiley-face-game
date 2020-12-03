@@ -116,7 +116,7 @@ export class Player implements PhysicsObject {
 }
 
 export class World {
-  private state: number[][][];
+  protected state: number[][][];
 
   private static emptyWorld(size: Size): number[][][] {
     const state = [];

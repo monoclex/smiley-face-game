@@ -205,7 +205,7 @@ export class ClientWorld extends World {
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
       //@ts-ignore
-      const tileLayer = map[layerIdx];
+      const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
       if (tileLayer === undefined) continue;
       for (let yIdx = 0; yIdx < this.size.height; yIdx++) {
         const y = layer[yIdx];
@@ -216,6 +216,20 @@ export class ClientWorld extends World {
         }
       }
     }
+  }
+
+  placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
+    super.placeBlock(author, x, y, id, layer);
+    this.foreground.clear();
+    this.decoration.clear();
+    this.load(this.state);
+  }
+
+  placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layer?: number) {
+    super.placeLine(author, x1, y1, x2, y2, id, layer);
+    this.foreground.clear();
+    this.decoration.clear();
+    this.load(this.state);
   }
 
   onPlace(layer: TileLayer, y: number, x: number, id: number) {
@@ -250,6 +264,29 @@ enum MouseState {
   WasErasingNowPlacing,
 }
 
+/** Component that gives capabilities for the user sitting at the computer to place blocks. */
+export class AuthoredBlockPlacer {
+  constructor(
+    private readonly author: Player,
+    private readonly connection: Connection,
+    private readonly world: World,
+    private readonly blockBar: ClientBlockBar
+  ) {}
+
+  // TODO: function signature weird lol
+  draw(lastPos: undefined | Position, curX: number, curY: number, action: "place" | "erase", layer?: TileLayer) {
+    const id = action === "erase" ? 0 : this.blockBar.selectedBlock;
+
+    if (lastPos === undefined) {
+      this.connection.place(id, { x: curX, y: curY }, layer);
+      this.world.placeBlock(this.author, curX, curY, id, layer);
+    } else {
+      this.connection.placeLine(id, lastPos, { x: curX, y: curY }, layer);
+      this.world.placeLine(this.author, lastPos.x, lastPos.y, curX, curY, id, layer);
+    }
+  }
+}
+
 export class ClientSelector {
   readonly selection: Sprite = new Sprite(textures.select);
   private mousePos: Position = { x: 0, y: 0 };
@@ -258,11 +295,10 @@ export class ClientSelector {
 
   constructor(
     private readonly root: Container,
-    private readonly player: Player,
-    private readonly connection: Connection,
-    private readonly world: World,
-    private readonly blockBar: ClientBlockBar
+    private readonly authoredBlockPlacer: AuthoredBlockPlacer,
+    private readonly world: World
   ) {
+    // TODO: should we *really* be adding something to the root container?
     root.addChild(this.selection);
 
     document.addEventListener("mousemove", (event) => {
@@ -310,7 +346,6 @@ export class ClientSelector {
   }
 
   tick() {
-    // draw
     const mouseWorldX = -this.root.position.x + this.mousePos.x;
     const mouseWorldY = -this.root.position.y + this.mousePos.y;
 
@@ -319,6 +354,7 @@ export class ClientSelector {
     let mouseBlockX = Math.floor(mouseWorldX / TILE_WIDTH);
     let mouseBlockY = Math.floor(mouseWorldY / TILE_HEIGHT);
 
+    // TODO: everything below here do be kinda ugly doe
     mouseBlockX = mouseBlockX < 0 ? 0 : mouseBlockX >= this.world.size.width ? this.world.size.width - 1 : mouseBlockX;
     mouseBlockY =
       mouseBlockY < 0 ? 0 : mouseBlockY >= this.world.size.height ? this.world.size.height - 1 : mouseBlockY;
@@ -327,35 +363,12 @@ export class ClientSelector {
     this.selection.position.y = mouseBlockY * TILE_HEIGHT;
 
     if (this.state === MouseState.Place || this.state === MouseState.WasErasingNowPlacing) {
-      if (this.lastPlacePos === undefined) this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
-
-      if (this.lastPlacePos.x === mouseBlockX && this.lastPlacePos.y === mouseBlockY) {
-        this.world.placeBlock(this.player, mouseBlockX, mouseBlockY, this.blockBar.blockId);
-      } else {
-        this.world.placeLine(
-          this.player,
-          this.lastPlacePos.x,
-          this.lastPlacePos.y,
-          mouseBlockX,
-          mouseBlockY,
-          this.blockBar.blockId
-        );
-      }
-
-      this.lastPlacePos.x = mouseBlockX;
-      this.lastPlacePos.y = mouseBlockY;
+      this.authoredBlockPlacer.draw(this.lastPlacePos, mouseBlockX, mouseBlockY, "place");
+      this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
     } else if (this.state === MouseState.Erase || this.state === MouseState.WasPlacingNowErasing) {
-      if (this.lastPlacePos === undefined) this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
-
-      // TODO: sample layer to erase on
-      if (this.lastPlacePos.x === mouseBlockX && this.lastPlacePos.y === mouseBlockY) {
-        this.world.placeBlock(this.player, mouseBlockX, mouseBlockY, 0);
-      } else {
-        this.world.placeLine(this.player, this.lastPlacePos.x, this.lastPlacePos.y, mouseBlockX, mouseBlockY, 0);
-      }
-
-      this.lastPlacePos.x = mouseBlockX;
-      this.lastPlacePos.y = mouseBlockY;
+      // TODO: figure out layer to erase on
+      this.authoredBlockPlacer.draw(this.lastPlacePos, mouseBlockX, mouseBlockY, "erase");
+      this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
     } else this.lastPlacePos = undefined;
   }
 }
@@ -374,7 +387,7 @@ export class ClientDisplay implements Display {
     this.root.addChild(this.players);
     this.root.addChild(this.bullets);
     this.root.addChild(this.worldInfront);
-    // selection gets added too
+    // selection gets added here too (in `ClientSelector`)
     // <-- closest to viewer
   }
 
@@ -460,8 +473,8 @@ export class ClientBlockBar {
     }
   }
 
-  get blockId(): number {
-    return this.tileJson.id("basic-white");
+  get selectedBlock(): number {
+    return blockbar.state.slots[blockbar.state.selected];
   }
 }
 
@@ -515,10 +528,13 @@ export class Keyboard {
 }
 
 export class ClientGame extends Game {
+  readonly authoredBlockPlacer: AuthoredBlockPlacer;
   readonly blockBar: ClientBlockBar;
+  readonly connection: Connection;
   readonly display: ClientDisplay;
   readonly keyboard: Keyboard;
   readonly network: ClientNetwork;
+  readonly renderer: Renderer;
   readonly selector: ClientSelector;
 
   constructor(tileJson: TileRegistration, init: ZSInit, renderer: Renderer, connection: Connection) {
@@ -532,11 +548,14 @@ export class ClientGame extends Game {
       new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
     ]);
 
+    this.connection = connection;
+    this.renderer = renderer;
     this.blockBar = new ClientBlockBar(connection.tileJson);
     this.display = display;
     this.keyboard = new Keyboard(this.self);
     this.network = network;
-    this.selector = new ClientSelector(this.display.root, this.self, connection, this.world, this.blockBar);
+    this.authoredBlockPlacer = new AuthoredBlockPlacer(this.self, this.connection, this.world, this.blockBar);
+    this.selector = new ClientSelector(this.display.root, this.authoredBlockPlacer, this.world);
 
     for (const playerInfo of connection.init.players) {
       this.players.addPlayer(playerInfo);
@@ -559,10 +578,10 @@ export class ClientGame extends Game {
 }
 
 export function makeClientConnectedGame(renderer: Renderer, connection: Connection): ClientGame {
-  const game = new ClientGame(connection.tileJson, connection.init, renderer, connection);
-
   //@ts-ignore
-  window.HACK_FIX_LATER_selfId = game.self.id;
+  window.HACK_FIX_LATER_selfId = connection.init.playerId;
+
+  const game = new ClientGame(connection.tileJson, connection.init, renderer, connection);
 
   loading.set({ failed: false });
 
