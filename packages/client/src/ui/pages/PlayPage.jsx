@@ -100,6 +100,7 @@ const PlayPage = ({
       width: window.innerWidth,
       height: window.innerHeight,
       view: gameRef.current,
+      antialias: true,
     });
 
     let rafAnother = true;

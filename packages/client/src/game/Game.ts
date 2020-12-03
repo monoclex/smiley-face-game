@@ -159,15 +159,19 @@ export class World {
   }
 
   placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
+    if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
     layer = layer ?? this.tileJson.for(id).layer;
     this.state[layer][y][x] = id;
+    this.onPlace(layer, y, x, id);
   }
 
   placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layer?: number) {
     layer = layer ?? this.tileJson.for(id).layer;
     const stateLayer = this.state[layer];
     bresenhamsLine(x1, y1, x2, y2, (x, y) => {
+      if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
       stateLayer[y][x] = id;
+      this.onPlace(layer, y, x, id);
     });
   }
 
@@ -189,6 +193,8 @@ export class World {
   onClear(author: Player) {
     this.clear();
   }
+
+  onPlace(layer: TileLayer, y: number, x: number, id: number) {}
 }
 
 interface Message {
@@ -292,18 +298,7 @@ export class Players {
   }
 }
 
-type GameFactory = (
-  tileJson: TileRegistration,
-  init: ZSInit
-) => [Bullets, Chat, Display | undefined, Network | undefined, Players, World];
-const defaultGameFactory: GameFactory = (tileJson, init) => [
-  new Bullets(),
-  new Chat(),
-  undefined,
-  undefined,
-  new Players(),
-  new World(tileJson, init.size),
-];
+type GameFactory = () => [Bullets, Chat, Players, World];
 
 export interface Display {
   draw(game: Game): void;
@@ -316,19 +311,15 @@ export interface Display {
 export class Game {
   readonly bullets: Bullets;
   readonly chat: Chat;
-  readonly display: Display | undefined;
-  readonly network: Network | undefined;
   readonly players: Players;
   readonly world: World;
   readonly self: Player;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
-    factory = factory || defaultGameFactory;
-    const [bullets, chat, display, network, players, world] = factory(tileJson, init);
+    factory = factory || (() => [new Bullets(), new Chat(), new Players(), new World(tileJson, init.size)]);
+    const [bullets, chat, players, world] = factory();
     this.bullets = bullets;
     this.chat = chat;
-    this.display = display;
-    this.network = network;
     this.players = players;
     this.world = world;
 
@@ -360,11 +351,6 @@ export class Game {
     for (const b of this.bullets) {
       b.tick();
     }
-
-    // once we process *all* physics ticks as necessary, *then* we update network/draw
-    // that way we don't cause duplicate packets/draws
-    this.network?.update(this);
-    this.display?.draw(this);
   }
 
   // tick sub-routines

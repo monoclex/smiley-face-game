@@ -1,4 +1,4 @@
-import type { ZSPlayerJoin } from "@smiley-face-game/api/packets";
+import type { ZSInit, ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import type { Connection } from "@smiley-face-game/api";
 import { Container, Sprite, Renderer, Texture, DisplayObject, TilingSprite, Rectangle, resources } from "pixi.js";
 import {
@@ -14,10 +14,12 @@ import {
   Network,
   Display,
   defaultInputs,
+  Position,
 } from "./Game";
 import playerUrl from "../assets/base.png";
 import bulletUrl from "../assets/bullet.png";
 import atlasUrl from "../assets/atlas.png";
+import selectUrl from "../assets/select.png";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { CompositeRectTileLayer } from "pixi-tilemap";
 import atlasJson from "../assets/atlas_atlas.json";
@@ -25,6 +27,7 @@ import { TileLayer } from "@smiley-face-game/api/types";
 import { blockbar } from "../recoil/atoms/blockbar";
 import { loading } from "../recoil/atoms/loading";
 import { playerList } from "../recoil/atoms/playerList";
+import { bresenhamsLine } from "@smiley-face-game/api/misc";
 
 function newCompositeRectTileLayer(zIndex?: number, bitmaps?: any[]): CompositeRectTileLayer & DisplayObject {
   // for some reason, pixi-tilemap compositerecttilelayers are valid
@@ -60,6 +63,12 @@ export const textures = new (class {
     return this._atlas;
   }
 
+  private _select: Texture | undefined;
+  get select(): Texture {
+    if (!this._select) throw new Error("`select` texture not loaded");
+    return this._select;
+  }
+
   private readonly _blockCache: Map<string, Texture> = new Map();
   block(name: number | string): Texture {
     if (typeof name === "number") {
@@ -89,12 +98,13 @@ export const textures = new (class {
     //@ts-ignore
     window.HACK_FIXME_LATER_tileJson = tileJson;
     this._tileJson = tileJson;
-    return Promise.all([playerUrl, bulletUrl, atlasUrl])
+    return Promise.all([playerUrl, bulletUrl, atlasUrl, selectUrl])
       .then((urls) => Promise.all(urls.map(Texture.fromURL)))
-      .then(([player, bullet, atlas]) => {
+      .then(([player, bullet, atlas, select]) => {
         this._player = player;
         this._bullet = bullet;
         this._atlas = atlas;
+        this._select = select;
       });
   }
 })();
@@ -207,6 +217,16 @@ export class ClientWorld extends World {
       }
     }
   }
+
+  onPlace(layer: TileLayer, y: number, x: number, id: number) {
+    const map = {
+      [TileLayer.Foreground]: this.foreground,
+      [TileLayer.Action]: this.action,
+    };
+
+    //@ts-ignore
+    map[layer].addFrame(textures.block(id), x * 32, y * 32);
+  }
 }
 
 export class ClientNetwork implements Network {
@@ -222,21 +242,148 @@ export class ClientNetwork implements Network {
   }
 }
 
+enum MouseState {
+  None,
+  Place,
+  Erase,
+  WasPlacingNowErasing,
+  WasErasingNowPlacing,
+}
+
+export class ClientSelector {
+  readonly selection: Sprite = new Sprite(textures.select);
+  private mousePos: Position = { x: 0, y: 0 };
+  private state: MouseState = MouseState.None;
+  private lastPlacePos: Position | undefined;
+
+  constructor(
+    private readonly root: Container,
+    private readonly player: Player,
+    private readonly connection: Connection,
+    private readonly world: World,
+    private readonly blockBar: ClientBlockBar
+  ) {
+    root.addChild(this.selection);
+
+    document.addEventListener("mousemove", (event) => {
+      this.mousePos.x = event.clientX;
+      this.mousePos.y = event.clientY;
+    });
+
+    document.addEventListener("mousedown", this.handleClick.bind(this));
+    document.addEventListener("mouseup", this.handleClick.bind(this));
+  }
+
+  handleClick(event: MouseEvent) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+    const MOUSE_PRIMARY = 1;
+    const MOUSE_SECONDARY = 2;
+
+    const doPlace = (event.buttons & MOUSE_PRIMARY) != 0;
+    const doErase = (event.buttons & MOUSE_SECONDARY) != 0;
+
+    // TODO: yikers!
+    switch (this.state) {
+      case MouseState.None:
+        // this is a rare edge case, just set it to sommething
+        if (doPlace && doErase) this.state = MouseState.WasErasingNowPlacing;
+        else if (doPlace) this.state = MouseState.Place;
+        else if (doErase) this.state = MouseState.Erase;
+        break;
+      case MouseState.Place:
+        if (!doPlace) this.state = doErase ? MouseState.Erase : MouseState.None;
+        else this.state = doErase ? MouseState.WasPlacingNowErasing : MouseState.Place;
+        break;
+      case MouseState.Erase:
+        if (!doErase) this.state = doPlace ? MouseState.Place : MouseState.None;
+        else this.state = doPlace ? MouseState.WasPlacingNowErasing : MouseState.Erase;
+        break;
+      case MouseState.WasPlacingNowErasing:
+        if (doPlace) this.state = doErase ? MouseState.WasPlacingNowErasing : MouseState.Place;
+        else this.state = doErase ? MouseState.Erase : MouseState.None;
+        break;
+      case MouseState.WasErasingNowPlacing:
+        if (doErase) this.state = doPlace ? MouseState.WasErasingNowPlacing : MouseState.Erase;
+        else this.state = doPlace ? MouseState.Place : MouseState.None;
+        break;
+    }
+  }
+
+  tick() {
+    // draw
+    const mouseWorldX = -this.root.position.x + this.mousePos.x;
+    const mouseWorldY = -this.root.position.y + this.mousePos.y;
+
+    const TILE_WIDTH = 32;
+    const TILE_HEIGHT = 32;
+    let mouseBlockX = Math.floor(mouseWorldX / TILE_WIDTH);
+    let mouseBlockY = Math.floor(mouseWorldY / TILE_HEIGHT);
+
+    mouseBlockX = mouseBlockX < 0 ? 0 : mouseBlockX >= this.world.size.width ? this.world.size.width - 1 : mouseBlockX;
+    mouseBlockY =
+      mouseBlockY < 0 ? 0 : mouseBlockY >= this.world.size.height ? this.world.size.height - 1 : mouseBlockY;
+
+    this.selection.position.x = mouseBlockX * TILE_WIDTH;
+    this.selection.position.y = mouseBlockY * TILE_HEIGHT;
+
+    if (this.state === MouseState.Place || this.state === MouseState.WasErasingNowPlacing) {
+      if (this.lastPlacePos === undefined) this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
+
+      if (this.lastPlacePos.x === mouseBlockX && this.lastPlacePos.y === mouseBlockY) {
+        this.world.placeBlock(this.player, mouseBlockX, mouseBlockY, this.blockBar.blockId);
+      } else {
+        this.world.placeLine(
+          this.player,
+          this.lastPlacePos.x,
+          this.lastPlacePos.y,
+          mouseBlockX,
+          mouseBlockY,
+          this.blockBar.blockId
+        );
+      }
+
+      this.lastPlacePos.x = mouseBlockX;
+      this.lastPlacePos.y = mouseBlockY;
+    } else if (this.state === MouseState.Erase || this.state === MouseState.WasPlacingNowErasing) {
+      if (this.lastPlacePos === undefined) this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
+
+      // TODO: sample layer to erase on
+      if (this.lastPlacePos.x === mouseBlockX && this.lastPlacePos.y === mouseBlockY) {
+        this.world.placeBlock(this.player, mouseBlockX, mouseBlockY, 0);
+      } else {
+        this.world.placeLine(this.player, this.lastPlacePos.x, this.lastPlacePos.y, mouseBlockX, mouseBlockY, 0);
+      }
+
+      this.lastPlacePos.x = mouseBlockX;
+      this.lastPlacePos.y = mouseBlockY;
+    } else this.lastPlacePos = undefined;
+  }
+}
+
 export class ClientDisplay implements Display {
   readonly root: Container = new Container();
   readonly worldBehind: Container = new Container();
   readonly players: Container = new Container();
   readonly bullets: Container = new Container();
   readonly worldInfront: Container = new Container();
+  private mouse: Position = { x: 0, y: 0 };
 
   constructor(private readonly renderer: Renderer) {
-    this.root.addChild(this.worldBehind); // <-- most behind
+    // <-- most behind
+    this.root.addChild(this.worldBehind);
     this.root.addChild(this.players);
     this.root.addChild(this.bullets);
-    this.root.addChild(this.worldInfront); // <-- closest to viewer
+    this.root.addChild(this.worldInfront);
+    // selection gets added too
+    // <-- closest to viewer
   }
 
   draw(game: Game): void {
+    this.updateCameraView(game);
+    this.renderer.render(this.root);
+  }
+
+  updateCameraView(game: Game) {
     // calculate position for player to be in the center
     const HALF_PLAYER_SIZE = 16;
     const centerX = -game.self.position.x - HALF_PLAYER_SIZE + this.renderer.width / 2;
@@ -250,12 +397,11 @@ export class ClientDisplay implements Display {
     // apply the camera lag
     this.root.position.x += cameraLagX;
     this.root.position.y += cameraLagY;
-    this.renderer.render(this.root);
   }
 }
 
 export class ClientBlockBar {
-  constructor(tileJson: TileRegistration) {
+  constructor(private readonly tileJson: TileRegistration) {
     blockbar.modify({
       // TODO: maybe this could be an instance method on this class instead?
       loader: async (id) => {
@@ -313,79 +459,110 @@ export class ClientBlockBar {
       throw new Error("couldn't find texture " + textureName);
     }
   }
+
+  get blockId(): number {
+    return this.tileJson.id("basic-white");
+  }
 }
 
-export function makeClientConnectedGame(renderer: Renderer, connection: Connection): Game {
-  const display = new ClientDisplay(renderer);
-  const game = new Game(connection.tileJson, connection.init, (tileJson, init) => [
-    new Bullets(ClientBullet),
-    new Chat(),
-    display,
-    new ClientNetwork(connection),
-    new ClientPlayers(display.players),
-    new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
-  ]);
+export class Keyboard {
+  constructor(player: Player) {
+    // TODO: do this nicely? (inside of ClientGame)
+    document.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case "w":
+          player.input.up = true;
+          break;
+        case "d":
+          player.input.right = true;
+          break;
+        case "a":
+          player.input.left = true;
+          break;
+        case "s":
+          player.input.down = true;
+          break;
+        case "space":
+          player.input.jump = true;
+          break;
+      }
+    });
+
+    document.addEventListener("keyup", (event) => {
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case "w":
+          player.input.up = !true;
+          break;
+        case "d":
+          player.input.right = !true;
+          break;
+        case "a":
+          player.input.left = !true;
+          break;
+        case "s":
+          player.input.down = !true;
+          break;
+        case "space":
+          player.input.jump = !true;
+          break;
+      }
+    });
+  }
+}
+
+export class ClientGame extends Game {
+  readonly blockBar: ClientBlockBar;
+  readonly display: ClientDisplay;
+  readonly keyboard: Keyboard;
+  readonly network: ClientNetwork;
+  readonly selector: ClientSelector;
+
+  constructor(tileJson: TileRegistration, init: ZSInit, renderer: Renderer, connection: Connection) {
+    const display = new ClientDisplay(renderer);
+    const network = new ClientNetwork(connection);
+
+    super(tileJson, init, () => [
+      new Bullets(ClientBullet),
+      new Chat(),
+      new ClientPlayers(display.players),
+      new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
+    ]);
+
+    this.blockBar = new ClientBlockBar(connection.tileJson);
+    this.display = display;
+    this.keyboard = new Keyboard(this.self);
+    this.network = network;
+    this.selector = new ClientSelector(this.display.root, this.self, connection, this.world, this.blockBar);
+
+    for (const playerInfo of connection.init.players) {
+      this.players.addPlayer(playerInfo);
+    }
+
+    (async () => {
+      for await (const message of connection) {
+        this.handle(message);
+      }
+    })();
+  }
+
+  tick(deltaMs: number) {
+    super.tick(deltaMs);
+
+    this.selector.tick();
+    this.display.draw(this);
+    this.network.update(this);
+  }
+}
+
+export function makeClientConnectedGame(renderer: Renderer, connection: Connection): ClientGame {
+  const game = new ClientGame(connection.tileJson, connection.init, renderer, connection);
 
   //@ts-ignore
   window.HACK_FIX_LATER_selfId = game.self.id;
-
-  for (const playerInfo of connection.init.players) {
-    game.players.addPlayer(playerInfo);
-  }
-
-  messagesTask();
-  async function messagesTask() {
-    for await (const message of connection) {
-      game.handle(message);
-    }
-  }
-
-  const clientBlockBar = new ClientBlockBar(connection.tileJson);
-
-  // TODO: do this nicely?
-  document.addEventListener("keydown", (event) => {
-    const key = event.key.toLowerCase();
-
-    switch (key) {
-      case "w":
-        game.self.input.up = true;
-        break;
-      case "d":
-        game.self.input.right = true;
-        break;
-      case "a":
-        game.self.input.left = true;
-        break;
-      case "s":
-        game.self.input.down = true;
-        break;
-      case "space":
-        game.self.input.jump = true;
-        break;
-    }
-  });
-
-  document.addEventListener("keyup", (event) => {
-    const key = event.key.toLowerCase();
-
-    switch (key) {
-      case "w":
-        game.self.input.up = !true;
-        break;
-      case "d":
-        game.self.input.right = !true;
-        break;
-      case "a":
-        game.self.input.left = !true;
-        break;
-      case "s":
-        game.self.input.down = !true;
-        break;
-      case "space":
-        game.self.input.jump = !true;
-        break;
-    }
-  });
 
   loading.set({ failed: false });
 
