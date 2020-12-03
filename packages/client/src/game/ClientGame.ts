@@ -292,6 +292,7 @@ export class ClientSelector {
   private mousePos: Position = { x: 0, y: 0 };
   private state: MouseState = MouseState.None;
   private lastPlacePos: Position | undefined;
+  private layerSample: TileLayer | undefined;
 
   constructor(
     private readonly root: Container,
@@ -351,25 +352,28 @@ export class ClientSelector {
 
     const TILE_WIDTH = 32;
     const TILE_HEIGHT = 32;
-    let mouseBlockX = Math.floor(mouseWorldX / TILE_WIDTH);
-    let mouseBlockY = Math.floor(mouseWorldY / TILE_HEIGHT);
+    let blockX = Math.floor(mouseWorldX / TILE_WIDTH);
+    let blockY = Math.floor(mouseWorldY / TILE_HEIGHT);
 
     // TODO: everything below here do be kinda ugly doe
-    mouseBlockX = mouseBlockX < 0 ? 0 : mouseBlockX >= this.world.size.width ? this.world.size.width - 1 : mouseBlockX;
-    mouseBlockY =
-      mouseBlockY < 0 ? 0 : mouseBlockY >= this.world.size.height ? this.world.size.height - 1 : mouseBlockY;
+    blockX = blockX < 0 ? 0 : blockX >= this.world.size.width ? this.world.size.width - 1 : blockX;
+    blockY = blockY < 0 ? 0 : blockY >= this.world.size.height ? this.world.size.height - 1 : blockY;
 
-    this.selection.position.x = mouseBlockX * TILE_WIDTH;
-    this.selection.position.y = mouseBlockY * TILE_HEIGHT;
+    this.selection.position.x = blockX * TILE_WIDTH;
+    this.selection.position.y = blockY * TILE_HEIGHT;
 
     if (this.state === MouseState.Place || this.state === MouseState.WasErasingNowPlacing) {
-      this.authoredBlockPlacer.draw(this.lastPlacePos, mouseBlockX, mouseBlockY, "place");
-      this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
+      this.authoredBlockPlacer.draw(this.lastPlacePos, blockX, blockY, "place");
+      this.lastPlacePos = { x: blockX, y: blockY };
     } else if (this.state === MouseState.Erase || this.state === MouseState.WasPlacingNowErasing) {
       // TODO: figure out layer to erase on
-      this.authoredBlockPlacer.draw(this.lastPlacePos, mouseBlockX, mouseBlockY, "erase");
-      this.lastPlacePos = { x: mouseBlockX, y: mouseBlockY };
-    } else this.lastPlacePos = undefined;
+      if (this.layerSample === undefined) this.layerSample = this.world.layerOfTopmostBlock(blockX, blockY);
+      this.authoredBlockPlacer.draw(this.lastPlacePos, blockX, blockY, "erase", this.layerSample);
+      this.lastPlacePos = { x: blockX, y: blockY };
+    } else {
+      this.layerSample = undefined;
+      this.lastPlacePos = undefined;
+    }
   }
 }
 

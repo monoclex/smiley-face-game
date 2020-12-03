@@ -158,7 +158,16 @@ export class World {
     this.state = World.emptyWorld(size);
   }
 
-  placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
+  layerOfTopmostBlock(x: number, y: number): TileLayer {
+    // TODO: support decoration layers
+    // this is set to background because server doesn't send decoration layer
+    for (let layer = TileLayer.Background; layer >= TileLayer.Foreground; layer--) {
+      if (this.state[layer][y][x] !== 0) return layer;
+    }
+    return TileLayer.Foreground;
+  }
+
+  placeBlock(author: Player, x: number, y: number, id: number, layer?: TileLayer) {
     if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
     layer = layer ?? this.tileJson.for(id).layer;
     this.state[layer][y][x] = id;
