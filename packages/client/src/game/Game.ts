@@ -32,7 +32,7 @@ export enum GunState {
 export interface PhysicsObject {
   position: Position;
   velocity: Velocity;
-  tick?: () => void;
+  tick?: (game: Game) => void;
 }
 
 interface BulletCtor {
@@ -66,6 +66,8 @@ interface PlayerCtor {
   new (id: number, username: string, isGuest: boolean): Player;
 }
 
+export class Physics {}
+
 export class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
@@ -97,7 +99,7 @@ export class Player implements PhysicsObject {
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
   }
 
-  tick() {
+  tick(game: Game) {
     // stupidly simple physics just so we can prototype for now
     // fancy stuff coming later <3
     this.velocity.x = 0;
@@ -106,8 +108,32 @@ export class Player implements PhysicsObject {
     if (this.input.down) this.velocity.y++;
     if (this.input.left) this.velocity.x--;
     if (this.input.right) this.velocity.x++;
-    this.position.x += this.velocity.x * 16;
-    this.position.y += this.velocity.y * 16;
+
+    const PLAYER_WIDTH = 32;
+    const PLAYER_HEIGHT = 32;
+    const HALF_PLAYER_WIDTH = PLAYER_WIDTH / 2;
+    const HALF_PLAYER_HEIGHT = PLAYER_HEIGHT / 2;
+    const centerX = Math.floor((this.position.x + HALF_PLAYER_WIDTH) / PLAYER_WIDTH);
+    const centerY = Math.floor((this.position.y + HALF_PLAYER_HEIGHT) / PLAYER_HEIGHT);
+
+    const block = game.world.blockAt(centerX, centerY, TileLayer.Action);
+
+    // TODO: this better
+    if (block === game.tileJson.id("arrow-up")) this.velocity.y = -2;
+    if (block === game.tileJson.id("arrow-down")) this.velocity.y = 2;
+    if (block === game.tileJson.id("arrow-left")) this.velocity.x = -2;
+    if (block === game.tileJson.id("arrow-right")) this.velocity.x = 2;
+
+    this.position.x += this.velocity.x * HALF_PLAYER_WIDTH;
+    this.position.y += this.velocity.y * HALF_PLAYER_HEIGHT;
+
+    if (this.position.x < 0) this.position.x = 0;
+    if (this.position.x > (game.world.size.width - 1) * PLAYER_WIDTH)
+      this.position.x = (game.world.size.width - 1) * PLAYER_WIDTH;
+
+    if (this.position.y < 0) this.position.y = 0;
+    if (this.position.y > (game.world.size.height - 1) * PLAYER_HEIGHT)
+      this.position.y = (game.world.size.height - 1) * PLAYER_HEIGHT;
   }
 
   destroy() {
@@ -115,7 +141,12 @@ export class Player implements PhysicsObject {
   }
 }
 
-export class World {
+export interface ReadOnlyWorld {
+  layerOfTopmostBlock(x: number, y: number): TileLayer;
+  blockAt(x: number, y: number, layer: TileLayer): number;
+}
+
+export class World implements ReadOnlyWorld {
   protected state: number[][][];
 
   private static emptyWorld(size: Size): number[][][] {
@@ -167,6 +198,10 @@ export class World {
     return TileLayer.Foreground;
   }
 
+  blockAt(x: number, y: number, layer: TileLayer): number {
+    return this.state[layer][y][x];
+  }
+
   placeBlock(author: Player, x: number, y: number, id: number, layer?: TileLayer) {
     if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
     layer = layer ?? this.tileJson.for(id).layer;
@@ -174,8 +209,8 @@ export class World {
     this.onPlace(layer, y, x, id);
   }
 
-  placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layer?: number) {
-    layer = layer ?? this.tileJson.for(id).layer;
+  placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layerParam?: number) {
+    const layer = layerParam ?? this.tileJson.for(id).layer;
     const stateLayer = this.state[layer];
     bresenhamsLine(x1, y1, x2, y2, (x, y) => {
       if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
@@ -354,7 +389,7 @@ export class Game {
   tick(deltaMs: number) {
     // TODO: account for deltaMs and operate ticks at a fixed interval
     for (const p of this.players) {
-      p.tick();
+      p.tick(this);
     }
 
     for (const b of this.bullets) {
