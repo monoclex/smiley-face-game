@@ -20,7 +20,8 @@ import MobileControls from "../game/MobileControls";
 import WorldSettings from "../game/WorldSettings";
 import { Authentication } from "@smiley-face-game/api";
 import { Renderer } from "pixi.js";
-import { textures, makeClientConnectedGame } from "../../game/ClientGame";
+import makeClientConnectedGame from "../../game/makeClientConnectedGame";
+import textures from "../../game/textures";
 
 const useStyles = makeStyles({
   game: {
