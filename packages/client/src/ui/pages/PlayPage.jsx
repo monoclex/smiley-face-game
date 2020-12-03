@@ -7,7 +7,6 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
-import { globalVariableParkour } from "../../game/LoadingScene";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../history";
@@ -80,20 +79,18 @@ const PlayPage = ({
     // disable right click for context menu
     gameRef.current.oncontextmenu = () => false;
 
-    // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
-
     let auth = new Authentication(token);
-    globalVariableParkour.token = auth;
+    // globalVariableParkour.token = auth;
     let joinRequest =
       state.request === "create"
         ? { type: "dynamic", name: state.name, width: state.width, height: state.height }
         : { type: state.type, id: state.roomId };
 
-    globalVariableParkour.onId = (id) => {
-      // https://stackoverflow.com/a/61596862/3780113
-      // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
-      window.history.replaceState(null, document.title, `/games/${id}?type=${state.type ?? "dynamic"}`);
-    };
+    // globalVariableParkour.onId = (id) => {
+    //   // https://stackoverflow.com/a/61596862/3780113
+    //   // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
+    //   window.history.replaceState(null, document.title, `/games/${id}?type=${state.type ?? "dynamic"}`);
+    // };
 
     // start game
     const renderer = new Renderer({

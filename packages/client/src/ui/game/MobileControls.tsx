@@ -2,7 +2,7 @@
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useState } from "react";
 import { Joystick } from "react-joystick-component";
-import InputPipe from "../../game/input/InputPipe";
+// import InputPipe from "../../game/input/InputPipe";
 
 // this entire file is probably a bit confusing to read because i tried to code it in a way that made it small for no good reason
 // then i just kinda stopped and pasted code around and bleh
@@ -16,11 +16,11 @@ const useStyles = makeStyles({
 function invokeInputPipe(value: -1 | 1, key: "right" | "up" | "left") {
   switch (key) {
     case "right":
-      return InputPipe.addRight(value);
+    // return InputPipe.addRight(value);
     case "up":
-      return InputPipe.addUp(value);
+    // return InputPipe.addUp(value);
     case "left":
-      return InputPipe.addLeft(value);
+    // return InputPipe.addLeft(value);
   }
 }
 
