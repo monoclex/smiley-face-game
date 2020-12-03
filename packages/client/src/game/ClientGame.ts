@@ -332,7 +332,7 @@ export class ClientSelector {
         break;
       case MouseState.Erase:
         if (!doErase) this.state = doPlace ? MouseState.Place : MouseState.None;
-        else this.state = doPlace ? MouseState.WasPlacingNowErasing : MouseState.Erase;
+        else this.state = doPlace ? MouseState.WasErasingNowPlacing : MouseState.Erase;
         break;
       case MouseState.WasPlacingNowErasing:
         if (doPlace) this.state = doErase ? MouseState.WasPlacingNowErasing : MouseState.Place;
