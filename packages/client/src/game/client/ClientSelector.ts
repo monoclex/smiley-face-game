@@ -1,10 +1,17 @@
 import { Container, Sprite } from "pixi.js";
-import World from "./World";
-import Position from "./Position";
+import World from "../World";
+import Position from "../interfaces/Position";
 import { TileLayer } from "@smiley-face-game/api/types";
-import textures from "./textures";
+import textures from "../textures";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
-import MouseState from "./MouseState";
+
+enum MouseState {
+  None,
+  Place,
+  Erase,
+  WasPlacingNowErasing,
+  WasErasingNowPlacing,
+}
 
 export default class ClientSelector {
   readonly selection: Sprite = new Sprite(textures.select);

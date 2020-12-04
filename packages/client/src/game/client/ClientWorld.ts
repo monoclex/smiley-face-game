@@ -1,12 +1,12 @@
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
-import World from "./World";
-import Player from "./Player";
-import Size from "./Size";
+import World from "../World";
+import Player from "../components/Player";
+import Size from "../interfaces/Size";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { CompositeRectTileLayer } from "pixi-tilemap";
 import { TileLayer } from "@smiley-face-game/api/types";
-import textures from "./textures";
-import newCompositeRectTileLayer from "./newCompositeRectTileLayer";
+import textures from "../textures";
+import newCompositeRectTileLayer from "../helpers/newCompositeRectTileLayer";
 
 export default class ClientWorld extends World {
   private readonly void: TilingSprite;

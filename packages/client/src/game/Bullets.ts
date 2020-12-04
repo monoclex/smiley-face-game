@@ -1,6 +1,6 @@
-import Bullet from "./Bullet";
-import Player from "./Player";
-import BulletCtor from "./BulletCtor";
+import Bullet from "./components/Bullet";
+import Player from "./components/Player";
+import BulletCtor from "./interfaces/BulletCtor";
 
 export default class Bullets {
   private readonly bullets: Bullet[] = [];

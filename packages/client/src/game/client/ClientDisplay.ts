@@ -1,7 +1,7 @@
 import { Container, Renderer } from "pixi.js";
-import Game from "./Game";
-import Display from "./Display";
-import Position from "./Position";
+import Game from "../Game";
+import Display from "../interfaces/Display";
+import Position from "../interfaces/Position";
 
 export default class ClientDisplay implements Display {
   readonly root: Container = new Container();

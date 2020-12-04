@@ -1,12 +1,11 @@
 import { Connection } from "@smiley-face-game/api";
-import World from "./World";
-import Player from "./Player";
-import Position from "./Position";
+import World from "../World";
+import Player from "../components/Player";
+import Position from "../interfaces/Position";
 import { TileLayer } from "@smiley-face-game/api/types";
 import ClientBlockBar from "./ClientBlockBar";
 
 /** Component that gives capabilities for the user sitting at the computer to place blocks. */
-
 export default class AuthoredBlockPlacer {
   constructor(
     private readonly author: Player,

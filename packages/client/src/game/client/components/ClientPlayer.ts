@@ -1,7 +1,7 @@
 import { Sprite } from "pixi.js";
-import Game from "./Game";
-import Player from "./Player";
-import textures from "./textures";
+import Game from "../../Game";
+import Player from "../../components/Player";
+import textures from "../../textures";
 
 export default class ClientPlayer extends Player {
   sprite: Sprite;

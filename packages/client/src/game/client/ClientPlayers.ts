@@ -1,8 +1,8 @@
 import { ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import { Container } from "pixi.js";
-import Players from "./Players";
-import { playerList } from "../recoil/atoms/playerList";
-import ClientPlayer from "./ClientPlayer";
+import Players from "../Players";
+import { playerList } from "../../recoil/atoms/playerList";
+import ClientPlayer from "./components/ClientPlayer";
 
 export default class ClientPlayers extends Players {
   constructor(readonly players: Container) {

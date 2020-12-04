@@ -1,11 +1,16 @@
 import { TileLayer } from "@smiley-face-game/api/types";
-import Position from "./Position";
-import Velocity from "./Velocity";
-import Inputs from "./Inputs";
-import GunState from "./GunState";
-import PhysicsObject from "./PhysicsObject";
-import defaultInputs from "./defaultInputs";
-import Game from "./Game";
+import Position from "../interfaces/Position";
+import Velocity from "../interfaces/Velocity";
+import Inputs from "../interfaces/Inputs";
+import PhysicsObject from "../interfaces/PhysicsObject";
+import defaultInputs from "../helpers/defaultInputs";
+import Game from "../Game";
+
+enum GunState {
+  None,
+  Carrying,
+  Held,
+}
 
 export default class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };

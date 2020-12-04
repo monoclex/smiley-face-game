@@ -1,7 +1,7 @@
 import { Connection } from "@smiley-face-game/api";
 import { Renderer } from "pixi.js";
-import { loading } from "../recoil/atoms/loading";
-import ClientGame from "./ClientGame";
+import { loading } from "../../recoil/atoms/loading";
+import ClientGame from "../client/ClientGame";
 
 export default function makeClientConnectedGame(renderer: Renderer, connection: Connection): ClientGame {
   //@ts-ignore

@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
-import Bullet from "./Bullet";
-import textures from "./textures";
+import Bullet from "../../components/Bullet";
+import textures from "../../textures";
 
 export default class ClientBullet extends Bullet {
   sprite: Sprite;

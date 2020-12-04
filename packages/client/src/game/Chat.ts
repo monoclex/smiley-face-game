@@ -1,5 +1,5 @@
-import Player from "./Player";
-import Message from "./Message";
+import Player from "./components/Player";
+import Message from "./interfaces/Message";
 
 export default class Chat {
   private _atTimeCanSend: Date = new Date();

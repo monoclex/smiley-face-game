@@ -1,6 +1,6 @@
-import Position from "./Position";
-import Velocity from "./Velocity";
-import PhysicsObject from "./PhysicsObject";
+import Position from "../interfaces/Position";
+import Velocity from "../interfaces/Velocity";
+import PhysicsObject from "../interfaces/PhysicsObject";
 
 export default class Bullet implements PhysicsObject {
   creation: Date = new Date();

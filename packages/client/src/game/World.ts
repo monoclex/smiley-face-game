@@ -1,9 +1,9 @@
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { TileLayer } from "@smiley-face-game/api/types";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import Size from "./Size";
-import Player from "./Player";
-import ReadOnlyWorld from "./ReadOnlyWorld";
+import Size from "./interfaces/Size";
+import Player from "./components/Player";
+import ReadOnlyWorld from "./interfaces/ReadOnlyWorld";
 
 export default class World implements ReadOnlyWorld {
   protected state: number[][][];

@@ -1,6 +1,6 @@
 import { ZSPlayerJoin } from "@smiley-face-game/api/packets";
-import Player from "./Player";
-import PlayerCtor from "./PlayerCtor";
+import Player from "./components/Player";
+import PlayerCtor from "./interfaces/PlayerCtor";
 
 export default class Players {
   private readonly _map: Map<number, Player> = new Map();

@@ -1,8 +1,8 @@
 import { resources } from "pixi.js";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import atlasJson from "../assets/atlas_atlas.json";
-import { blockbar } from "../recoil/atoms/blockbar";
-import textures from "./textures";
+import atlasJson from "../../assets/atlas_atlas.json";
+import { blockbar } from "../../recoil/atoms/blockbar";
+import textures from "../textures";
 
 export default class ClientBlockBar {
   constructor(private readonly tileJson: TileRegistration) {

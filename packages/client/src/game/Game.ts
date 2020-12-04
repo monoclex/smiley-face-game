@@ -1,7 +1,7 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import type { ZSPacket, ZSInit, ZSEvent, ZWorldAction } from "@smiley-face-game/api/packets";
 import { ZWorldActionKindReply } from "@smiley-face-game/api/types";
-import Player from "./Player";
+import Player from "./components/Player";
 import World from "./World";
 import Players from "./Players";
 import Chat from "./Chat";
