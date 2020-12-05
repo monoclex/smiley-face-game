@@ -5,6 +5,7 @@ import Inputs from "../interfaces/Inputs";
 import PhysicsObject from "../interfaces/PhysicsObject";
 import defaultInputs from "../helpers/defaultInputs";
 import Game from "../Game";
+import accelerate from "../physics/math/acceleration";
 
 enum GunState {
   None,
@@ -43,15 +44,24 @@ export default class Player implements PhysicsObject {
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
   }
 
-  tick(game: Game) {
+  _holdingDownLeft: number = 0;
+  _holdingDownRight: number = 0;
+  tick(game: Game, deltaMs: number) {
     // stupidly simple physics just so we can prototype for now
     // fancy stuff coming later <3
-    this.velocity.x = 0;
     this.velocity.y = 0;
     if (this.input.up) this.velocity.y--;
     if (this.input.down) this.velocity.y++;
-    if (this.input.left) this.velocity.x--;
-    if (this.input.right) this.velocity.x++;
+    if (this.input.left) {
+      this.velocity.x = -accelerate(this._holdingDownLeft, deltaMs);
+      this._holdingDownLeft += deltaMs;
+    } else this._holdingDownLeft = 0;
+    if (this.input.right) {
+      this.velocity.x = accelerate(this._holdingDownRight, deltaMs);
+      this._holdingDownRight += deltaMs;
+    } else this._holdingDownRight = 0;
+
+    console.log("vel", this.velocity.x);
 
     const PLAYER_WIDTH = 32;
     const PLAYER_HEIGHT = 32;
@@ -68,7 +78,7 @@ export default class Player implements PhysicsObject {
     if (block === game.tileJson.id("arrow-left")) this.velocity.x = -2;
     if (block === game.tileJson.id("arrow-right")) this.velocity.x = 2;
 
-    this.position.x += this.velocity.x * HALF_PLAYER_WIDTH;
+    this.position.x += this.velocity.x;
     this.position.y += this.velocity.y * HALF_PLAYER_HEIGHT;
 
     if (this.position.x < 0) this.position.x = 0;
@@ -78,6 +88,8 @@ export default class Player implements PhysicsObject {
     if (this.position.y < 0) this.position.y = 0;
     if (this.position.y > (game.world.size.height - 1) * PLAYER_HEIGHT)
       this.position.y = (game.world.size.height - 1) * PLAYER_HEIGHT;
+
+    console.log("pos", this.position.x);
   }
 
   destroy() {

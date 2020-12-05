@@ -11,8 +11,8 @@ export default class ClientPlayer extends Player {
     this.sprite = new Sprite(textures.player);
   }
 
-  tick(game: Game) {
-    super.tick(game);
+  tick(game: Game, deltaMs: number) {
+    super.tick(game, deltaMs);
     this.sprite.position.x = this.position.x;
     this.sprite.position.y = this.position.y;
   }

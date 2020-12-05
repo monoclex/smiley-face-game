@@ -5,5 +5,5 @@ import Game from "../Game";
 export default interface PhysicsObject {
   position: Position;
   velocity: Velocity;
-  tick?: (game: Game) => void;
+  tick?: (game: Game, deltaMs: number) => void;
 }

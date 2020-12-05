@@ -50,7 +50,7 @@ export default class Game {
   tick(deltaMs: number) {
     // TODO: account for deltaMs and operate ticks at a fixed interval
     for (const p of this.players) {
-      p.tick(this);
+      p.tick(this, deltaMs);
     }
 
     for (const b of this.bullets) {
