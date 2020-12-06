@@ -5,6 +5,7 @@ export default class Keyboard {
     // TODO: do this nicely? (inside of ClientGame)
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
+      console.log("press", key);
 
       switch (key) {
         case "w":
@@ -19,7 +20,7 @@ export default class Keyboard {
         case "s":
           player.input.down = true;
           break;
-        case "space":
+        case " ": // space
           player.input.jump = true;
           break;
       }
@@ -41,7 +42,7 @@ export default class Keyboard {
         case "s":
           player.input.down = !true;
           break;
-        case "space":
+        case " ": // space
           player.input.jump = !true;
           break;
       }

@@ -6,6 +6,7 @@ import PhysicsObject from "../interfaces/PhysicsObject";
 import defaultInputs from "../helpers/defaultInputs";
 import Game from "../Game";
 import accelerate from "../physics/math/acceleration";
+import { PHYSICS_DECELERATION_DRAG, position_after, velocity_after } from "../physics/path";
 
 enum GunState {
   None,
@@ -44,52 +45,54 @@ export default class Player implements PhysicsObject {
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
   }
 
-  _holdingDownLeft: number = 0;
-  _holdingDownRight: number = 0;
   tick(game: Game, deltaMs: number) {
     // stupidly simple physics just so we can prototype for now
     // fancy stuff coming later <3
-    this.velocity.y = 0;
-    if (this.input.up) this.velocity.y--;
-    if (this.input.down) this.velocity.y++;
-    if (this.input.left) {
-      this.velocity.x = -accelerate(this._holdingDownLeft, deltaMs);
-      this._holdingDownLeft += deltaMs;
-    } else this._holdingDownLeft = 0;
-    if (this.input.right) {
-      this.velocity.x = accelerate(this._holdingDownRight, deltaMs);
-      this._holdingDownRight += deltaMs;
-    } else this._holdingDownRight = 0;
+    let directionX = 0;
+    let directionY = 0;
+    if (this.input.up) directionY--;
+    if (this.input.down) directionY++;
+    if (this.input.left) directionX--;
+    if (this.input.right) directionX++;
 
-    console.log("vel", this.velocity.x);
+    // if the player doesn't press any keys, they loose acceleration a lot faster
+    let drag = directionX === 0 ? PHYSICS_DECELERATION_DRAG : undefined;
+    let x = this.position.x;
+    let velX = this.velocity.x;
+    this.position.x = position_after(deltaMs, x, velX, directionX, drag);
+    this.velocity.x = velocity_after(deltaMs, x, velX, directionX, drag);
+
+    let y = this.position.y;
+    let velY = this.velocity.y;
+    this.position.y = position_after(deltaMs, y, velY, 1 * 2);
+    this.velocity.y = velocity_after(deltaMs, y, velY, 1 * 2);
+
+    if (this.position.x < 0) {
+      this.position.x = 0;
+      this.velocity.x = 0;
+    }
 
     const PLAYER_WIDTH = 32;
-    const PLAYER_HEIGHT = 32;
-    const HALF_PLAYER_WIDTH = PLAYER_WIDTH / 2;
-    const HALF_PLAYER_HEIGHT = PLAYER_HEIGHT / 2;
-    const centerX = Math.floor((this.position.x + HALF_PLAYER_WIDTH) / PLAYER_WIDTH);
-    const centerY = Math.floor((this.position.y + HALF_PLAYER_HEIGHT) / PLAYER_HEIGHT);
-
-    const block = game.world.blockAt(centerX, centerY, TileLayer.Action);
-
-    // TODO: this better
-    if (block === game.tileJson.id("arrow-up")) this.velocity.y = -2;
-    if (block === game.tileJson.id("arrow-down")) this.velocity.y = 2;
-    if (block === game.tileJson.id("arrow-left")) this.velocity.x = -2;
-    if (block === game.tileJson.id("arrow-right")) this.velocity.x = 2;
-
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y * HALF_PLAYER_HEIGHT;
-
-    if (this.position.x < 0) this.position.x = 0;
-    if (this.position.x > (game.world.size.width - 1) * PLAYER_WIDTH)
+    if (this.position.x > (game.world.size.width - 1) * PLAYER_WIDTH) {
       this.position.x = (game.world.size.width - 1) * PLAYER_WIDTH;
+      this.velocity.x = 0;
+    }
 
-    if (this.position.y < 0) this.position.y = 0;
-    if (this.position.y > (game.world.size.height - 1) * PLAYER_HEIGHT)
+    if (this.position.y < 0) {
+      this.position.y = 0;
+      this.velocity.y = 0;
+    }
+
+    const PLAYER_HEIGHT = 32;
+    if (this.position.y > (game.world.size.height - 1) * PLAYER_HEIGHT) {
       this.position.y = (game.world.size.height - 1) * PLAYER_HEIGHT;
+      this.velocity.y = 0;
+    }
 
-    console.log("pos", this.position.x);
+    // if we want to jump and we collided on the y axis (TODO: check if on ground properly)
+    if (this.input.jump && this.velocity.y === 0) {
+      this.velocity.y = -13.5; // velocity_after(deltaMs, y, velY, -1 * 2 - 1);
+    }
   }
 
   destroy() {
