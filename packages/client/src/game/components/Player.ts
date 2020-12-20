@@ -5,7 +5,6 @@ import Inputs from "../interfaces/Inputs";
 import PhysicsObject from "../interfaces/PhysicsObject";
 import defaultInputs from "../helpers/defaultInputs";
 import Game from "../Game";
-import accelerate from "../physics/math/acceleration";
 import { PHYSICS_DECELERATION_DRAG, position_after, velocity_after } from "../physics/path";
 
 enum GunState {
@@ -66,51 +65,145 @@ export default class Player implements PhysicsObject {
     this.position.y = position_after(deltaMs, y, velY, 1 * 2);
     this.velocity.y = velocity_after(deltaMs, y, velY, 1 * 2);
 
+    // ========== AWFUL PHYSICS HANDLING START ============================================================================================
     // TODO: better physics handling
     // for now, we just go "eh, ill go across the player's line a bunch and if i run into something i'll run back a bit yeh?"
-    const ACCURACY_AMT_HACK = 100;
-    let xAdv = (this.position.x - x) / ACCURACY_AMT_HACK;
-    let yAdv = (this.position.y - y) / ACCURACY_AMT_HACK;
+    // accuracy needs to result in a '1' for xAdv/yAdv and less than '1' for the other (yAdv/xAdv)
+    let farX = this.position.x < x ? Math.floor(this.position.x) : Math.ceil(this.position.x);
+    let nearX = x < this.position.x ? Math.floor(x) : Math.ceil(x);
+    let farY = this.position.y < y ? Math.floor(this.position.y) : Math.ceil(this.position.y);
+    let nearY = y < this.position.y ? Math.floor(y) : Math.ceil(y);
+    const ACCURACY_AMT = Math.max(Math.abs(farX - nearX), Math.abs(farY - nearY));
+    let xAdv = (this.position.x - x) / ACCURACY_AMT;
+    let yAdv = (this.position.y - y) / ACCURACY_AMT;
     let simX = x;
     let simY = y;
     let doSetZeroX = false;
     let doSetZeroY = false;
-    for (let _ = 0; _ < ACCURACY_AMT_HACK; _++) {
+    const epsilon = Math.min(xAdv, yAdv) / 1.1;
+    for (let _ = 0; _ < ACCURACY_AMT; _++) {
+      let prevSimX = simX;
+      let prevSimY = simY;
       simX += xAdv;
       simY += yAdv;
+
+      if (simX < Math.floor(simX) + epsilon) simX = Math.floor(simX);
+      if (simX > Math.ceil(simX) - epsilon) simX = Math.ceil(simX);
+      if (simY < Math.floor(simY) + epsilon) simY = Math.floor(simY);
+      if (simY > Math.ceil(simY) - epsilon) simY = Math.ceil(simY);
+
+      // TODO: don't duplicate code
+      // cap the player inside world bounds
+      if (simX < 0) simX = 0;
+
+      const PLAYER_WIDTH = 32;
+      if (simX > (game.world.size.width - 1) * PLAYER_WIDTH) simX = (game.world.size.width - 1) * PLAYER_WIDTH;
+
+      if (simY < 0) simY = 0;
+
+      const PLAYER_HEIGHT = 32;
+      if (simY > (game.world.size.height - 1) * PLAYER_HEIGHT) simY = (game.world.size.height - 1) * PLAYER_HEIGHT;
+
       const worldX = Math.floor(simX / 32);
       const worldY = Math.floor(simY / 32);
-      for (let boxOffsetX = 0; boxOffsetX < 2; boxOffsetX++) {
-        for (let boxOffsetY = 0; boxOffsetY < 2; boxOffsetY++) {
-          const boxX = worldX + boxOffsetX;
-          const boxY = worldY + boxOffsetY;
-          if (boxX < 0 || boxY < 0 || boxX >= game.world.size.width || boxY >= game.world.size.height) continue;
-          const isSolid = game.world.blockAt(boxX, boxY, TileLayer.Foreground) !== 0;
-          if (!isSolid) continue;
-          if (rectInRect(simX, simY, boxX * 32, boxY * 32)) {
-            // in collision (we probably weren't before)
-            // try to resolve both ways
-            if (!rectInRect(simX - xAdv, simY, boxX * 32, boxY * 32)) {
-              simX -= xAdv;
-              doSetZeroX = true;
-            } else if (!rectInRect(simX, simY - yAdv, boxX * 32, boxY * 32)) {
-              simY -= yAdv;
-              yAdv = 0;
-              doSetZeroY = true;
-            } else console.log("didnt resolve simulation");
+
+      // instead of naively iterating through all 4 blocks around the player,
+      // we'll iterate around them in order of nearest (fixes some collision bugs)
+      const boxOffsets = [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ];
+      const boxWorldCoordsCenters = boxOffsets.map(([ox, oy]) => [
+        worldX * 32 + ox * 32,
+        worldY * 32 + oy * 32,
+        worldX + ox,
+        worldY + oy,
+      ]);
+      const boxByDist = boxWorldCoordsCenters
+        .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
+        .sort(([a], [b]) => a - b);
+      /** for performance (yes i know """performance""" in this god awful code is cringe) we just dont do the math sqrt */
+      function dist(sourceX: number, sourceY: number, destX: number, destY: number): number {
+        // sqrt((x2 - x1)^2 + (y2 - y1)^2)
+        // dont do the sqrt since we dont care about distance, just how far something is
+        let left = sourceX - destX;
+        let right = sourceY - destY;
+        return left * left + right * right;
+      }
+
+      for (const [_, boxX, boxY] of boxByDist) {
+        if (boxX < 0 || boxY < 0 || boxX >= game.world.size.width || boxY >= game.world.size.height) continue;
+        const isSolid = game.world.blockAt(boxX, boxY, TileLayer.Foreground) !== 0;
+        if (!isSolid) continue;
+        if (rectInRect(simX, simY, boxX * 32, boxY * 32)) {
+          // in collision (we probably weren't before)
+          // try to resolve both ways
+          if (!rectInRect(prevSimX, simY, boxX * 32, boxY * 32)) {
+            // instead of backing up the simulation by a simulation tick, we round it to the nearest 32x32 whole number
+            // so that we can fit through gaps and stuff
+            let diff = simX - prevSimX;
+            if (diff < 0) {
+              simX = boxX * 32 + 32;
+            } /* diff > 0 */ else {
+              simX = boxX * 32 - 32;
+            }
+            doSetZeroX = true;
+          } else if (!rectInRect(simX, prevSimY, boxX * 32, boxY * 32)) {
+            let diff = simY - prevSimY;
+            if (diff < 0) {
+              simY = boxY * 32 + 32;
+            } else {
+              simY = boxY * 32 - 32;
+            }
+            doSetZeroY = true;
+          } else {
+            // so we couldn't fix our collision by moving back a tick in the x/y direction
+            // we could either be in a 4x4 amount of blocks or just dealing with weird floating point errors
+            // we will attempt to resovle this by affixing our position to one of the nearest blocks
+            const b2oxOffsets = [
+              [0, 0],
+              [1, 0],
+              [0, 1],
+              [1, 1],
+            ];
+            const b2oxWorldCoordsCenters = b2oxOffsets.map(([ox, oy]) => [
+              worldX * 32 + ox * 32 + 16,
+              worldY * 32 + oy * 32 + 16,
+              worldX + ox,
+              worldY + oy,
+            ]);
+            const b2oxByDist = b2oxWorldCoordsCenters
+              .map(([x, y, wx, wy]) => [dist(simX + 16, simY + 16, x, y), wx, wy])
+              .sort(([a], [b]) => a - b);
+            for (const [_, bx, by] of b2oxByDist) {
+              if (bx < 0 || by < 0 || bx >= game.world.size.width || by >= game.world.size.height) continue;
+              const isSolid = game.world.blockAt(bx, by, TileLayer.Foreground) !== 0;
+              if (isSolid) continue;
+              simX = bx * 32;
+              simY = by * 32;
+              break;
+            }
           }
         }
       }
     }
-    this.position.x = simX;
-    this.position.y = simY;
-    if (doSetZeroX) this.velocity.x = 0;
-    if (doSetZeroY) this.velocity.y = 0;
+
+    if (doSetZeroX) {
+      this.position.x = simX;
+      this.velocity.x = 0;
+    }
+    if (doSetZeroY) {
+      this.position.y = simY;
+      this.velocity.y = 0;
+    }
 
     function rectInRect(px: number, py: number, tx: number, ty: number) {
       // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
       return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
     }
+    // ========== AWFUL PHYSICS HANDLING END ==============================================================================================
 
     // cap the player inside world bounds
     if (this.position.x < 0) {
@@ -137,7 +230,11 @@ export default class Player implements PhysicsObject {
 
     // if we want to jump and we collided on the y axis (TODO: check if on ground properly)
     // TODO: is there some way to immediately apply velocity for one frame?
-    if (this.input.jump && this.velocity.y === 0) {
+    if (
+      this.input.jump &&
+      this.velocity.y === 0 &&
+      velY >= 0 /* if they're currently not moving, and last frame they were at least moving down or standing still */
+    ) {
       // TODO: is -13.2 the right value to use? might be something more precise
       this.velocity.y = -13.2; // velocity_after(deltaMs, y, velY, -1 * 2 - 1);
     }
