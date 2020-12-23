@@ -11,6 +11,7 @@ export default class ClientPlayers extends Players {
 
   addPlayer(joinInfo: ZSPlayerJoin): ClientPlayer {
     const player = super.addPlayer(joinInfo) as ClientPlayer;
+    this.players.addChildAt(player.gun, 0);
     this.players.addChildAt(player.sprite, 0);
     playerList.modify({
       players: [
@@ -27,6 +28,7 @@ export default class ClientPlayers extends Players {
 
   removePlayer(id: number): ClientPlayer {
     const player = super.removePlayer(id) as ClientPlayer;
+    this.players.removeChild(player.gun);
     this.players.removeChild(player.sprite);
     return player;
   }

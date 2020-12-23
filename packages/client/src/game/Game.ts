@@ -103,7 +103,9 @@ export default class Game {
       }
 
       case "SERVER_FIRE_BULLET": {
-        this.bullets.spawn(this.players.getPlayer(packet.playerId), packet.angle);
+        const player = this.players.getPlayer(packet.playerId);
+        player.gunAngle = packet.angle;
+        this.bullets.spawn(player, packet.angle);
         return;
       }
 

@@ -5,6 +5,7 @@ import atlasUrl from "../assets/atlas.png";
 import selectUrl from "../assets/select.png";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import atlasJson from "../assets/atlas_atlas.json";
+import gunUrl from "../assets/held_gun.png";
 
 const textures = new (class {
   private _tileJson: TileRegistration | undefined;
@@ -37,6 +38,12 @@ const textures = new (class {
     return this._select;
   }
 
+  private _gun: Texture | undefined;
+  get gun(): Texture {
+    if (!this._gun) throw new Error("`gun` texture not loaded");
+    return this._gun;
+  }
+
   private readonly _blockCache: Map<string, Texture> = new Map();
   block(name: number | string): Texture {
     if (typeof name === "number") {
@@ -66,13 +73,14 @@ const textures = new (class {
     //@ts-ignore
     window.HACK_FIXME_LATER_tileJson = tileJson;
     this._tileJson = tileJson;
-    return Promise.all([playerUrl, bulletUrl, atlasUrl, selectUrl])
+    return Promise.all([playerUrl, bulletUrl, atlasUrl, selectUrl, gunUrl])
       .then((urls) => Promise.all(urls.map(Texture.fromURL)))
-      .then(([player, bullet, atlas, select]) => {
+      .then(([player, bullet, atlas, select, gun]) => {
         this._player = player;
         this._bullet = bullet;
         this._atlas = atlas;
         this._select = select;
+        this._gun = gun;
       });
   }
 })();

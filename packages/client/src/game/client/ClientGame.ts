@@ -14,8 +14,12 @@ import ClientSelector from "./ClientSelector";
 import ClientDisplay from "./ClientDisplay";
 import ClientBlockBar from "./ClientBlockBar";
 import Keyboard from "./Keyboard";
+import type ClientPlayer from "./components/ClientPlayer";
+import { TileLayer } from "@smiley-face-game/api/types";
+import ClientAim from "./ClientAim";
 
 export default class ClientGame extends Game {
+  readonly aim: ClientAim;
   readonly authoredBlockPlacer: AuthoredBlockPlacer;
   readonly blockBar: ClientBlockBar;
   readonly connection: Connection;
@@ -36,14 +40,35 @@ export default class ClientGame extends Game {
       new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
     ]);
 
+    const self = this.self as ClientPlayer;
+
     this.connection = connection;
     this.renderer = renderer;
     this.blockBar = new ClientBlockBar(connection.tileJson);
     this.display = display;
-    this.keyboard = new Keyboard(this.self);
+    this.aim = new ClientAim(this.display.root, self, this.bullets);
+    this.keyboard = new Keyboard(self);
     this.network = network;
-    this.authoredBlockPlacer = new AuthoredBlockPlacer(this.self, this.connection, this.world, this.blockBar);
+    this.authoredBlockPlacer = new AuthoredBlockPlacer(self, this.connection, this.world, this.blockBar);
     this.selector = new ClientSelector(this.display.root, this.authoredBlockPlacer, this.world);
+
+    self.onEnterGun = (x, y) => {
+      if (!self.probablyHasGun) {
+        const position = { x, y };
+
+        this.connection.pickupGun(position);
+        self.setProbablyGunPickupLocation(position);
+      }
+    };
+
+    this.world.onPlace = (layer, x, y, _) => {
+      if (!self.pendingGunPickup) return;
+      if (layer !== TileLayer.Action) return;
+      if (x !== self.probablyPickedUpGunAt!.x || y !== self.probablyPickedUpGunAt!.y) return;
+
+      // a modification to the tile we picked the gun up on most likely means failure
+      self.setProbablyGunPickupLocation(undefined);
+    };
 
     for (const playerInfo of connection.init.players) {
       this.players.addPlayer(playerInfo);
@@ -59,8 +84,13 @@ export default class ClientGame extends Game {
   tick(deltaMs: number) {
     super.tick(deltaMs);
 
+    this.selector.enable(!this.self.isGunHeld);
     this.selector.tick();
+
     this.display.draw(this);
     this.network.update(this);
+
+    // tick the aim *after* this tick so that it gives it a kinda "bouncy" effect
+    this.aim.tick();
   }
 }

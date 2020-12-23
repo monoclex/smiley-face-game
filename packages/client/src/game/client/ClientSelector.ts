@@ -37,6 +37,10 @@ export default class ClientSelector {
     document.addEventListener("mouseup", this.handleClick.bind(this));
   }
 
+  enable(shouldShow: boolean) {
+    this.selection.visible = shouldShow;
+  }
+
   handleClick(event: MouseEvent) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
     const MOUSE_PRIMARY = 1;
@@ -73,6 +77,8 @@ export default class ClientSelector {
   }
 
   tick() {
+    if (!this.selection.visible) return;
+
     const mouseWorldX = -this.root.position.x + this.mousePos.x;
     const mouseWorldY = -this.root.position.y + this.mousePos.y;
 

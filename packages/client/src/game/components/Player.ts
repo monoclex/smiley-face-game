@@ -18,7 +18,10 @@ export default class Player implements PhysicsObject {
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
   role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
+  gunAngle: number = 0;
   private gunState: GunState = 0;
+
+  onEnterGun?: (x: number, y: number) => void;
 
   get hasGun(): boolean {
     return this.gunState >= GunState.Carrying;
@@ -35,8 +38,12 @@ export default class Player implements PhysicsObject {
   constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
+    console.log("pickupGun called");
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
-    this.gunState = GunState.Carrying;
+
+    // as soon as we pick up a gun we are holding it
+    // TODO: should we not hold it when we pick it up, and let the server send two packets? who knows
+    this.gunState = GunState.Held;
   }
 
   holdGun(isHeld: boolean) {
@@ -106,6 +113,12 @@ export default class Player implements PhysicsObject {
 
       const worldX = Math.floor(simX / 32);
       const worldY = Math.floor(simY / 32);
+
+      // < - the bit that checks if a player enters a block - >
+      if (this.onEnterGun && game.world.blockAt(worldX, worldY, TileLayer.Action) === game.tileJson.id("gun")) {
+        this.onEnterGun(worldX, worldY);
+      }
+      // < -- >
 
       // instead of naively iterating through all 4 blocks around the player,
       // we'll iterate around them in order of nearest (fixes some collision bugs)
