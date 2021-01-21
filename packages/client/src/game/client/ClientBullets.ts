@@ -14,9 +14,10 @@ export default class ClientBullets extends Bullets {
 
     this.bulletContainer.addChild(bullet.sprite);
 
-    // is this a hack?
+    // TODO: definitely a hack because duplicated code
     setTimeout(() => {
       this.bulletContainer.removeChild(bullet.sprite);
+      bullet.sprite.destroy({ children: true });
     }, 2000);
 
     super._spawnBullet(bullet);
