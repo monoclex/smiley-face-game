@@ -19,6 +19,10 @@ export default class ClientAim {
     });
 
     document.addEventListener("mousedown", () => {
+      // `"mousedown"` may get fired more than once, so if we're already firing do nothing
+      // otherwise we'll create 2 intervals, one which will never get cleared (credit: @Seb135#7528)
+      if (this.shootInterval) return;
+
       //@ts-ignore this is using node types not DOM types
       this.shootInterval = setInterval(() => {
         if (!player.isGunHeld) return;
@@ -34,6 +38,7 @@ export default class ClientAim {
 
     document.addEventListener("mouseup", () => {
       clearInterval(this.shootInterval);
+      this.shootInterval = undefined;
     });
   }
 
