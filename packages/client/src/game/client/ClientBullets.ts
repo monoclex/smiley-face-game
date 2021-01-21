@@ -19,6 +19,6 @@ export default class ClientBullets extends Bullets {
       this.bulletContainer.removeChild(bullet.sprite);
     }, 2000);
 
-    this.bullets.push(bullet);
+    super._spawnBullet(bullet);
   }
 }

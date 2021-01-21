@@ -44,4 +44,13 @@ export default class Players {
   [Symbol.iterator]() {
     return this._map.values();
   }
+
+  cleanup() {
+    // this is here because a derived class, ClientPlayers, needs to call `cleanup` so we
+    // need to typecheck that `cleanup` exists in `Game` because `Game` handles cleaning up
+    // players
+    // i thought about just having ClientGame call ClientPlayers.cleanup() but in the event that
+    // players itself needs to clean things up then i need to screw with inheritence so
+    // this is being left as a placeholder incase i need to clean stuff up here in the future
+  }
 }

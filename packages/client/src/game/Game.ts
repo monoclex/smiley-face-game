@@ -178,4 +178,8 @@ export default class Game {
       }
     }
   }
+
+  cleanup() {
+    this.players.cleanup(); // TODO: is this elegant? (see `cleanup`)
+  }
 }

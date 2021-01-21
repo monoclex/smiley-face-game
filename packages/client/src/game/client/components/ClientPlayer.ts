@@ -25,6 +25,10 @@ export default class ClientPlayer extends Player {
     this.gun = new Sprite(textures.gun);
   }
 
+  holdGun(isHeld: boolean) {
+    super.holdGun(isHeld);
+  }
+
   tick(game: Game, deltaMs: number) {
     super.tick(game, deltaMs);
     this.sprite.position.x = this.position.x;

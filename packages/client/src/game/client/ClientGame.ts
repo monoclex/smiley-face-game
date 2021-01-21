@@ -60,6 +60,22 @@ export default class ClientGame extends Game {
       }
     };
 
+    self.onGunStateChange = (previous, current) => {
+      // `onEnterGun` handles this
+      if (previous === "none") return;
+
+      if (current === "none") {
+        // currently no way to implement this
+        return;
+      }
+
+      this.connection.equipGun(current === "held");
+    };
+
+    this.aim.onShoot = (angle) => {
+      this.connection.fireBullet(angle);
+    };
+
     this.world.onPlace = (layer, x, y, _) => {
       if (!self.pendingGunPickup) return;
       if (layer !== TileLayer.Action) return;
@@ -72,12 +88,6 @@ export default class ClientGame extends Game {
     for (const playerInfo of connection.init.players) {
       this.players.addPlayer(playerInfo);
     }
-
-    (async () => {
-      for await (const message of connection) {
-        this.handle(message);
-      }
-    })();
   }
 
   tick(deltaMs: number) {
@@ -89,7 +99,12 @@ export default class ClientGame extends Game {
     this.display.draw(this);
     this.network.update(this);
 
-    // tick the aim *after* this tick so that it gives it a kinda "bouncy" effect
+    // tick the aim *after* this tick so that it gives it a kinda "bouncy" effect (does this work?)
     this.aim.tick();
+  }
+
+  cleanup() {
+    this.connection.close();
+    super.cleanup();
   }
 }

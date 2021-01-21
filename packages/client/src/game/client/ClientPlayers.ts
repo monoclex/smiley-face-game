@@ -32,4 +32,10 @@ export default class ClientPlayers extends Players {
     this.players.removeChild(player.sprite);
     return player;
   }
+
+  cleanup() {
+    playerList.set({
+      players: [],
+    });
+  }
 }

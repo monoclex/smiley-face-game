@@ -7,6 +7,10 @@ export default class Bullets {
   spawn(at: Player, angle: number) {
     // TODO: put bullet in front of gun
     const bullet = new Bullet(at.position.x, at.position.y, angle);
+    this._spawnBullet(bullet);
+  }
+
+  protected _spawnBullet(bullet: Bullet) {
     this.bullets.push(bullet);
   }
 

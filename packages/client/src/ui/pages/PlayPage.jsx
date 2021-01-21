@@ -108,6 +108,20 @@ const PlayPage = ({
       .then((connection) => textures.load(connection.tileJson).then((textures) => connection))
       .then((connection) => {
         const game = makeClientConnectedGame(renderer, connection);
+
+        // TODO: shoudl this be here? (it was in ClientGame)
+        (async () => {
+          for await (const message of connection) {
+            game.handle(message);
+          }
+          window.history.back();
+        })();
+
+        // TODO: we should be doing proper state management
+        //@ts-ignore
+        window.HACK_FIX_LATER_game = game;
+        window.gameScene = game;
+
         let timeStart;
         const raf = (elapsed) => {
           if (!rafAnother) return;
@@ -133,6 +147,12 @@ const PlayPage = ({
       rafAnother = false;
       window.removeEventListener("resize", listener);
       sharedGlobalLoading.set({ failed: undefined, why: undefined });
+
+      if (window.HACK_FIX_LATER_game) {
+        /** @type {import("../../game/client/ClientGame")} */
+        const game = window.HACK_FIX_LATER_game;
+        game.cleanup();
+      }
     };
   }, []);
 

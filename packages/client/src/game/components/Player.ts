@@ -13,15 +13,38 @@ enum GunState {
   Held,
 }
 
+function hackyMapGunStateToString(g: GunState): "none" | "carrying" | "held" {
+  if (g === GunState.None) return "none";
+  else if (g === GunState.Carrying) return "carrying";
+  else if (g === GunState.Held) return "held";
+  else throw new Error("unreachable");
+}
+
 export default class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
   role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
   gunAngle: number = 0;
-  private gunState: GunState = 0;
+  private _gunState: GunState = 0;
 
+  private get gunState(): GunState {
+    return this._gunState;
+  }
+
+  private set gunState(value: GunState) {
+    if (this.onGunStateChange) {
+      this.onGunStateChange(hackyMapGunStateToString(this.gunState), hackyMapGunStateToString(value));
+    }
+
+    this._gunState = value;
+  }
+
+  // TODO: have events for entering **all** blocks
   onEnterGun?: (x: number, y: number) => void;
+
+  // TODO: have a way to subscribe to *all* state changes (**DON'T** JUST HAVE ONE CALLBACK)
+  onGunStateChange?: (previous: "none" | "carrying" | "held", current: "none" | "carrying" | "held") => void;
 
   get hasGun(): boolean {
     return this.gunState >= GunState.Carrying;
@@ -46,6 +69,7 @@ export default class Player implements PhysicsObject {
     this.gunState = GunState.Held;
   }
 
+  // TODO: use setters
   holdGun(isHeld: boolean) {
     if (!this.hasGun) throw new Error("can't hold gun when there is no gun");
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;

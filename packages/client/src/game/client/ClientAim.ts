@@ -10,6 +10,8 @@ export default class ClientAim {
   y: number = 0;
   shootInterval: number | undefined;
 
+  onShoot?: (angle: number) => void;
+
   constructor(private readonly root: Container, private readonly player: ClientPlayer, bullets: Bullets) {
     document.addEventListener("mousemove", (e) => {
       this.x = e.clientX;
@@ -21,7 +23,12 @@ export default class ClientAim {
       this.shootInterval = setInterval(() => {
         if (!player.isGunHeld) return;
 
-        bullets.spawn(this.player, this.calcAngle());
+        const angle = this.calcAngle();
+        bullets.spawn(this.player, angle);
+
+        if (this.onShoot) {
+          this.onShoot(angle);
+        }
       }, A_SECOND / TEN_TIMES);
     });
 
