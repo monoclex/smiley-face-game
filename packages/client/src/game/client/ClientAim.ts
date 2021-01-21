@@ -10,11 +10,7 @@ export default class ClientAim {
   y: number = 0;
   shootInterval: number | undefined;
 
-  constructor(
-    private readonly root: Container,
-    private readonly player: ClientPlayer,
-    private readonly bullets: Bullets
-  ) {
+  constructor(private readonly root: Container, private readonly player: ClientPlayer, bullets: Bullets) {
     document.addEventListener("mousemove", (e) => {
       this.x = e.clientX;
       this.y = e.clientY;
@@ -23,6 +19,8 @@ export default class ClientAim {
     document.addEventListener("mousedown", () => {
       //@ts-ignore this is using node types not DOM types
       this.shootInterval = setInterval(() => {
+        if (!player.isGunHeld) return;
+
         bullets.spawn(this.player, this.calcAngle());
       }, A_SECOND / TEN_TIMES);
     });

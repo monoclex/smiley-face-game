@@ -8,6 +8,7 @@ export default class ClientBullet extends Bullet {
   constructor(x: number, y: number, angle: number) {
     super(x, y, angle);
     this.sprite = new Sprite(textures.bullet);
+    this.sprite.visible = true;
   }
 
   tick() {

@@ -1,18 +1,12 @@
 import Bullet from "./components/Bullet";
 import Player from "./components/Player";
-import BulletCtor from "./interfaces/BulletCtor";
 
 export default class Bullets {
-  private readonly bullets: Bullet[] = [];
-  private readonly B: BulletCtor;
-
-  constructor(constructor?: BulletCtor) {
-    this.B = constructor || Bullet;
-  }
+  protected readonly bullets: Bullet[] = [];
 
   spawn(at: Player, angle: number) {
     // TODO: put bullet in front of gun
-    const bullet = new this.B(at.position.x, at.position.y, angle);
+    const bullet = new Bullet(at.position.x, at.position.y, angle);
     this.bullets.push(bullet);
   }
 

@@ -3,12 +3,10 @@ import type { Connection } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import Game from "../Game";
-import Bullets from "../Bullets";
 import Chat from "../Chat";
 import ClientPlayers from "./ClientPlayers";
 import ClientWorld from "./ClientWorld";
 import ClientNetwork from "./ClientNetwork";
-import ClientBullet from "./components/ClientBullet";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientSelector from "./ClientSelector";
 import ClientDisplay from "./ClientDisplay";
@@ -17,6 +15,7 @@ import Keyboard from "./Keyboard";
 import type ClientPlayer from "./components/ClientPlayer";
 import { TileLayer } from "@smiley-face-game/api/types";
 import ClientAim from "./ClientAim";
+import ClientBullets from "./ClientBullets";
 
 export default class ClientGame extends Game {
   readonly aim: ClientAim;
@@ -34,7 +33,7 @@ export default class ClientGame extends Game {
     const network = new ClientNetwork(connection);
 
     super(tileJson, init, () => [
-      new Bullets(ClientBullet),
+      new ClientBullets(display.bullets),
       new Chat(),
       new ClientPlayers(display.players),
       new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
