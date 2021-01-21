@@ -83,8 +83,9 @@ export default class World implements ReadOnlyWorld {
   }
 
   clear() {
-    this.state = World.emptyWorld(this.size);
-    World.placeBorder(this.state, this.tileJson, this.size);
+    const state = World.emptyWorld(this.size);
+    World.placeBorder(state, this.tileJson, this.size);
+    this.load(state);
   }
 
   onSave(author: Player) {}
