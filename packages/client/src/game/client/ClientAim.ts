@@ -12,13 +12,17 @@ export default class ClientAim {
 
   onShoot?: (angle: number) => void;
 
+  private mousemove: (ev: MouseEvent) => void;
+  private mousedown: () => void;
+  private mouseup: () => void;
+
   constructor(private readonly root: Container, private readonly player: ClientPlayer, bullets: Bullets) {
-    document.addEventListener("mousemove", (e) => {
+    this.mousemove = (e) => {
       this.x = e.clientX;
       this.y = e.clientY;
-    });
+    };
 
-    document.addEventListener("mousedown", () => {
+    this.mousedown = () => {
       // `"mousedown"` may get fired more than once, so if we're already firing do nothing
       // otherwise we'll create 2 intervals, one which will never get cleared (credit: @Seb135#7528)
       if (this.shootInterval) return;
@@ -34,12 +38,16 @@ export default class ClientAim {
           this.onShoot(angle);
         }
       }, A_SECOND / TEN_TIMES);
-    });
+    };
 
-    document.addEventListener("mouseup", () => {
+    this.mouseup = () => {
       clearInterval(this.shootInterval);
       this.shootInterval = undefined;
-    });
+    };
+
+    document.addEventListener("mousemove", this.mousemove);
+    document.addEventListener("mousedown", this.mousedown);
+    document.addEventListener("mouseup", this.mouseup);
   }
 
   private calcAngle(): number {
@@ -54,5 +62,16 @@ export default class ClientAim {
 
   tick() {
     this.player.gunAngle = this.calcAngle();
+  }
+
+  cleanup() {
+    // TODO: put this functionality in a function (since it's used twice)?
+    if (this.shootInterval) {
+      clearInterval(this.shootInterval);
+    }
+
+    document.removeEventListener("mousemove", this.mousemove);
+    document.removeEventListener("mousedown", this.mousedown);
+    document.removeEventListener("mouseup", this.mouseup);
   }
 }

@@ -1,11 +1,12 @@
 import { Container } from "pixi.js";
 import Bullets from "../Bullets";
+import Timer from "../Timer";
 import ClientBullet from "./components/ClientBullet";
 import ClientPlayer from "./components/ClientPlayer";
 
 export default class ClientBullets extends Bullets {
-  constructor(private readonly bulletContainer: Container) {
-    super();
+  constructor(timer: Timer, private readonly bulletContainer: Container) {
+    super(timer);
   }
 
   spawn(at: ClientPlayer, angle: number) {
@@ -14,12 +15,11 @@ export default class ClientBullets extends Bullets {
 
     this.bulletContainer.addChild(bullet.sprite);
 
-    // TODO: definitely a hack because duplicated code
-    setTimeout(() => {
-      this.bulletContainer.removeChild(bullet.sprite);
-      bullet.sprite.destroy({ children: true });
-    }, 2000);
-
     super._spawnBullet(bullet);
+  }
+
+  _cleanupBullet(bullet: ClientBullet) {
+    this.bulletContainer.removeChild(bullet.sprite);
+    super._cleanupBullet(bullet);
   }
 }

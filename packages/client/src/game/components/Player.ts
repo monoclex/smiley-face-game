@@ -61,7 +61,6 @@ export default class Player implements PhysicsObject {
   constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
-    console.log("pickupGun called");
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
 
     // as soon as we pick up a gun we are holding it

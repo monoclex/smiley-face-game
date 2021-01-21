@@ -1,7 +1,6 @@
 import Player from "../components/Player";
 
 function handleKey(player: Player, key: string, pressed: boolean) {
-  console.log("key", key);
   switch (key) {
     case "arrowup":
     case "w":

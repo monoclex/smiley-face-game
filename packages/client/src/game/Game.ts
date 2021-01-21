@@ -6,8 +6,9 @@ import World from "./World";
 import Players from "./Players";
 import Chat from "./Chat";
 import Bullets from "./Bullets";
+import Timer from "./Timer";
 
-type GameFactory = () => [Bullets, Chat, Players, World];
+type GameFactory = (timer: Timer) => [Bullets, Chat, Players, World];
 
 /**
  * `Game` class contains everything relevant for data, making it perfectly suitable
@@ -17,12 +18,14 @@ export default class Game {
   readonly bullets: Bullets;
   readonly chat: Chat;
   readonly players: Players;
+  readonly timer: Timer;
   readonly world: World;
   readonly self: Player;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
-    factory = factory || (() => [new Bullets(), new Chat(), new Players(), new World(tileJson, init.size)]);
-    const [bullets, chat, players, world] = factory();
+    factory = factory || ((timer) => [new Bullets(timer), new Chat(), new Players(), new World(tileJson, init.size)]);
+    this.timer = new Timer();
+    const [bullets, chat, players, world] = factory(this.timer);
     this.bullets = bullets;
     this.chat = chat;
     this.players = players;
@@ -103,6 +106,14 @@ export default class Game {
       }
 
       case "SERVER_FIRE_BULLET": {
+        // TODO: this is a hack to work around the poor design
+        if (packet.playerId === this.self.id) {
+          // the idea is that if a packet is received, then the client dispatches events to update
+          // but in ClientAim, a client-side bullet is spawned already for the player
+          // so really we need to figure out a better system to """hide lag"""
+          return;
+        }
+
         const player = this.players.getPlayer(packet.playerId);
         player.gunAngle = packet.angle;
         this.bullets.spawn(player, packet.angle);
