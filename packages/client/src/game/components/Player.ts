@@ -24,7 +24,7 @@ export default class Player implements PhysicsObject {
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
-  role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
+  private _role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
   gunAngle: number = 0;
   private _gunState: GunState = 0;
 
@@ -43,8 +43,11 @@ export default class Player implements PhysicsObject {
   // TODO: have events for entering **all** blocks
   onEnterGun?: (x: number, y: number) => void;
 
-  // TODO: have a way to subscribe to *all* state changes (**DON'T** JUST HAVE ONE CALLBACK)
+  // TODO: have a way to subscribe to *all* state changes (**DON'T** JUST HAVE ONE CALLBACK PER STAT)
   onGunStateChange?: (previous: "none" | "carrying" | "held", current: "none" | "carrying" | "held") => void;
+
+  // TODO: see above todo
+  onRoleChange?: (previous: "non" | "edit" | "staff" | "owner", current: "non" | "edit" | "staff" | "owner") => void;
 
   get hasGun(): boolean {
     return this.gunState >= GunState.Carrying;
@@ -62,6 +65,17 @@ export default class Player implements PhysicsObject {
   get center(): Position {
     // TODO: don't hardcode 16
     return { x: this.position.x + 16, y: this.position.y + 16 };
+  }
+
+  get role(): "non" | "edit" | "staff" | "owner" {
+    return this._role;
+  }
+
+  set role(value: "non" | "edit" | "staff" | "owner") {
+    if (this.onRoleChange) {
+      this.onRoleChange(this._role, value);
+    }
+    this._role = value;
   }
 
   constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}

@@ -11,6 +11,20 @@ export default class ClientPlayers extends Players {
 
   addPlayer(joinInfo: ZSPlayerJoin): ClientPlayer {
     const player = super.addPlayer(joinInfo) as ClientPlayer;
+    // TODO: cleanup state management so this doesn't need to exist (ideally recoil should
+    // fetch values from the game itself or something)
+    player.onRoleChange = (previous, current) => {
+      playerList.modify({
+        players: [
+          ...playerList.state.players.filter((p) => p.playerId !== player.id),
+          {
+            playerId: player.id,
+            role: current,
+            username: player.username,
+          },
+        ],
+      });
+    };
     this.players.addChildAt(player.gun, 0);
     this.players.addChildAt(player.sprite, 0);
     playerList.modify({
