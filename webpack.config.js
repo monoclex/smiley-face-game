@@ -26,6 +26,7 @@ module.exports = (env, argv) => {
 
   return {
     mode,
+    devtool: mode === "development" && "eval-source-map",
     entry: ["./packages/client/src/index.tsx"],
     resolve: {
       modules: [path.resolve(__dirname, "./packages"), path.resolve(__dirname, "./node_modules")],

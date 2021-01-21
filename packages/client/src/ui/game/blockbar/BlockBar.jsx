@@ -47,7 +47,8 @@ const BlockBar = () => {
 
       if (blockbar.selected === slot) {
         // if we've already selected the block, we wanna go to the next state
-        const newTileState = window.gameScene.world.tileJson.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
+        //@ts-ignore
+        const newTileState = window.HACK_FIXME_LATER_tileJson.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
         setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [slot]: newTileState } });
       } else {
         setBlockbar({ ...blockbar, selected: slot });
@@ -69,7 +70,8 @@ const BlockBar = () => {
           slotId={i}
           block={blockbar.slots[i]}
           nextState={() => {
-            const newTileState = window.gameScene.world.tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
+            //@ts-ignore
+            const newTileState = window.HACK_FIXME_LATER_tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
             setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}

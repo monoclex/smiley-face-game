@@ -5,5 +5,6 @@ import { playerListState } from "../atoms/playerList";
 export default selector<Player | undefined>({
   key: "currentPlayer",
   get: ({ get }) =>
-    get(playerListState).players.find((player) => player.playerId === window?.gameScene?.mainPlayer?.id),
+    //@ts-ignore
+    get(playerListState).players.find((player) => player.playerId === window.HACK_FIX_LATER_selfId),
 });

@@ -2,13 +2,11 @@
 // | COPY PASTED FROM Game.jsx, MUST CLEAN THIS LATER |
 // \--------------------------------------------------/
 
-import Phaser from "phaser";
 import qs from "query-string";
 import { useRecoilState, useRecoilValue } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
-import { globalVariableParkour, LoadingScene } from "../../game/LoadingScene";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../history";
@@ -21,28 +19,9 @@ import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
 import WorldSettings from "../game/WorldSettings";
 import { Authentication } from "@smiley-face-game/api";
-
-export const config = {
-  pixelArt: true,
-  type: Phaser.AUTO,
-  title: "Smiley Face Game",
-  version: "0.1.0",
-  width: window.innerWidth,
-  height: window.innerHeight,
-  scene: [LoadingScene, GameScene],
-  backgroundColor: "#000000",
-
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 1000 },
-      debug: isDev,
-      // toggles hitboxes around objects
-      // if we're not in production, we want to see them
-      // debug: isProduction ? false : true,
-    },
-  },
-};
+import { Renderer } from "pixi.js";
+import makeClientConnectedGame from "../../game/helpers/makeClientConnectedGame";
+import textures from "../../game/textures";
 
 const useStyles = makeStyles({
   game: {
@@ -101,35 +80,79 @@ const PlayPage = ({
     // disable right click for context menu
     gameRef.current.oncontextmenu = () => false;
 
-    // idk how to send state to the initial scene of phaser, so let's do some GLOBAL VARIABLE PARKOUR!
-
     let auth = new Authentication(token);
-    globalVariableParkour.token = auth;
-    globalVariableParkour.joinRequest =
+    // globalVariableParkour.token = auth;
+    let joinRequest =
       state.request === "create"
         ? { type: "dynamic", name: state.name, width: state.width, height: state.height }
         : { type: state.type, id: state.roomId };
 
-    globalVariableParkour.onId = (id) => {
-      // https://stackoverflow.com/a/61596862/3780113
-      // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
-      window.history.replaceState(null, document.title, `/games/${id}?type=${state.type ?? "dynamic"}`);
-    };
+    // globalVariableParkour.onId = (id) => {
+    //   // https://stackoverflow.com/a/61596862/3780113
+    //   // replace the ID so that if the user is creating a dynamic world it looks a bit nicer
+    //   window.history.replaceState(null, document.title, `/games/${id}?type=${state.type ?? "dynamic"}`);
+    // };
 
     // start game
-    const game = new Phaser.Game({ ...config, parent: gameRef.current });
-    window.game = game;
+    const renderer = new Renderer({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      view: gameRef.current,
+      antialias: true,
+    });
+
+    let rafAnother = true;
+
+    auth
+      .connect(joinRequest)
+      .then((connection) => textures.load(connection.tileJson).then((textures) => connection))
+      .then((connection) => {
+        const game = makeClientConnectedGame(renderer, connection);
+
+        // TODO: shoudl this be here? (it was in ClientGame)
+        (async () => {
+          for await (const message of connection) {
+            game.handle(message);
+          }
+          window.history.back();
+        })();
+
+        // TODO: we should be doing proper state management
+        //@ts-ignore
+        window.HACK_FIX_LATER_game = game;
+        window.gameScene = game;
+
+        let timeStart;
+        const raf = (elapsed) => {
+          if (!rafAnother) return;
+          let delta = elapsed - timeStart;
+          timeStart = elapsed;
+          game.tick(delta);
+          requestAnimationFrame(raf);
+        };
+
+        requestAnimationFrame((elapsed) => {
+          timeStart = elapsed;
+          raf(elapsed);
+        });
+      });
 
     const listener = () => {
-      game.scale.resize(window.innerWidth, window.innerHeight);
+      renderer.resize(window.innerWidth, window.innerHeight);
     };
 
     window.addEventListener("resize", listener);
 
     return function cleanup() {
+      rafAnother = false;
       window.removeEventListener("resize", listener);
       sharedGlobalLoading.set({ failed: undefined, why: undefined });
-      game.destroy(true);
+
+      if (window.HACK_FIX_LATER_game) {
+        /** @type {import("../../game/client/ClientGame")} */
+        const game = window.HACK_FIX_LATER_game;
+        game.cleanup();
+      }
     };
   }, []);
 
@@ -163,7 +186,7 @@ const PlayPage = ({
         </Grid>
       )}
       <Grid container justify="center">
-        <div className={styles.game} ref={gameRef} />
+        <canvas className={styles.game} ref={gameRef} />
       </Grid>
       <Grid className={styles.uiOverlay} container direction="column-reverse" alignItems="stretch">
         <Grid container item direction="row" alignItems="stretch">

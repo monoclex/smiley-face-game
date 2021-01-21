@@ -51,6 +51,7 @@ export const zInputs = addParse(
     left: boolean,
     right: boolean,
     up: boolean,
+    down: boolean,
     jump: boolean,
   })
 );
@@ -148,6 +149,7 @@ export const zWorldActionKindReply = Schema.either(
     action: "clear" as const,
   }
 );
+export type ZWorldActionKindReply = SchemaInput<typeof zWorldActionKindReply>;
 
 // TODO: this looks like it needs to be re-done. direct port of WorldDetails schema
 export const zWorldDetails = addParse(
