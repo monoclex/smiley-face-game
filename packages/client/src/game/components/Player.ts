@@ -58,6 +58,12 @@ export default class Player implements PhysicsObject {
     return this.role === "edit" || this.role === "owner";
   }
 
+  // TODO: jesus christ this is a lot of getters at this point, is this really the way?
+  get center(): Position {
+    // TODO: don't hardcode 16
+    return { x: this.position.x + 16, y: this.position.y + 16 };
+  }
+
   constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {

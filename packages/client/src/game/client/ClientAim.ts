@@ -57,7 +57,7 @@ export default class ClientAim {
     const y = this.y + offsetY;
 
     // https://github.com/photonstorm/phaser/blob/v3.50.0/src/math/angle/Between.js
-    return Math.atan2(y - this.player.position.y, x - this.player.position.x);
+    return Math.atan2(y - this.player.center.y, x - this.player.center.x);
   }
 
   tick() {

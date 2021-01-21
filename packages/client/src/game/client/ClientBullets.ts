@@ -10,8 +10,9 @@ export default class ClientBullets extends Bullets {
   }
 
   spawn(at: ClientPlayer, angle: number) {
-    // TODO: put bullet in front of gun, not at player
-    const bullet = new ClientBullet(at.position.x, at.position.y, angle);
+    // TODO: put bullet in front of ***gun***, not at player
+    // (and be really smart about it - not just plopping it in the center)
+    const bullet = new ClientBullet(at.center.x, at.center.y, angle);
 
     this.bulletContainer.addChild(bullet.sprite);
 
