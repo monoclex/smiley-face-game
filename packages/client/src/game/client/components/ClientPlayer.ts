@@ -6,6 +6,7 @@ import Position from "../../interfaces/Position";
 import distanceAway from "../../../math/distanceAway";
 
 export default class ClientPlayer extends Player {
+  cosmetic: Sprite;
   sprite: Sprite;
   gun: Sprite;
 
@@ -21,6 +22,7 @@ export default class ClientPlayer extends Player {
 
   constructor(id: number, username: string, isGuest: boolean) {
     super(id, username, isGuest);
+    this.cosmetic = new Sprite(textures.smile);
     this.sprite = new Sprite(textures.player);
     this.gun = new Sprite(textures.gun);
     this.gun.visible = false;
@@ -34,6 +36,8 @@ export default class ClientPlayer extends Player {
     super.tick(game, deltaMs);
     this.sprite.position.x = this.position.x;
     this.sprite.position.y = this.position.y;
+    this.cosmetic.position.x = this.position.x;
+    this.cosmetic.position.y = this.position.y;
 
     // https://github.com/SirJosh3917/smiley-face-game/blob/d8cfff2df26ee29aa569c40b5bddc73ae84a3b7b/packages/client/src/game/guns/behaviour/GunBehaviour.ts#L18-L61
     if (!this.hasGun) return;

@@ -26,6 +26,7 @@ export default class ClientPlayers extends Players {
       });
     };
     this.players.addChildAt(player.gun, 0);
+    this.players.addChildAt(player.cosmetic, 0);
     this.players.addChildAt(player.sprite, 0);
     playerList.modify({
       players: [
