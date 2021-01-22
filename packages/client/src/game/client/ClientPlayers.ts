@@ -45,6 +45,8 @@ export default class ClientPlayers extends Players {
     const player = super.removePlayer(id) as ClientPlayer;
     this.players.removeChild(player.gun);
     this.players.removeChild(player.sprite);
+    // TODO: put the player in a container so that this code isn't repetitive
+    this.players.removeChild(player.cosmetic);
     return player;
   }
 
