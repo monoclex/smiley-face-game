@@ -30,7 +30,7 @@ function handleKey(player: Player, key: string, pressed: boolean) {
 }
 
 export default class Keyboard {
-  constructor(player: Player) {
+  constructor(readonly player: Player) {
     // TODO: do this nicely? (inside of ClientGame)
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
@@ -41,5 +41,9 @@ export default class Keyboard {
       const key = event.key.toLowerCase();
       handleKey(player, key, false);
     });
+  }
+
+  simulateKey(key: string, down: boolean) {
+    handleKey(this.player, key.toLowerCase(), down);
   }
 }
