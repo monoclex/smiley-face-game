@@ -63,7 +63,7 @@ const PlayPage = ({
     state = {};
     state.request = "join";
     state.roomId = roomId;
-    state.type = type;
+    state.type = type ?? "saved";
   }
 
   const gameRef = useRef();
