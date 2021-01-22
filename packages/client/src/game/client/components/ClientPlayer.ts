@@ -23,6 +23,7 @@ export default class ClientPlayer extends Player {
     super(id, username, isGuest);
     this.sprite = new Sprite(textures.player);
     this.gun = new Sprite(textures.gun);
+    this.gun.visible = false;
   }
 
   holdGun(isHeld: boolean) {
