@@ -3,7 +3,7 @@ import SharedGlobal from "../../../recoil/SharedGlobal";
 
 export interface Message {
   id: number;
-  timestamp: number;
+  timestamp: number | Date;
   username: string;
   content: string;
 }

@@ -16,6 +16,7 @@ import type ClientPlayer from "./components/ClientPlayer";
 import { TileLayer } from "@smiley-face-game/api/types";
 import ClientAim from "./ClientAim";
 import ClientBullets from "./ClientBullets";
+import ClientChat from "./ClientChat";
 
 export default class ClientGame extends Game {
   readonly aim: ClientAim;
@@ -34,7 +35,7 @@ export default class ClientGame extends Game {
 
     super(tileJson, init, (timer) => [
       new ClientBullets(timer, display.bullets),
-      new Chat(),
+      new ClientChat(),
       new ClientPlayers(display.players),
       new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
     ]);
