@@ -4,9 +4,9 @@
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "cd ../../ && webpack serve --env mode=development --env dev=yep",
+    "dev": "cd ../../ && webpack serve --mode=development --env mode=development --env dev=yep",
     "build-dev": "cd ../../ && webpack --env mode=production --env dev=yep",
-    "build": "cd ../../ && webpack --env mode=production",
+    "build": "cd ../../ && webpack --mode=production --env mode=production",
     "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
   },
   "dependencies": {

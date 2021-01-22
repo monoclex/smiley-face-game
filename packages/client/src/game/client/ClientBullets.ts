@@ -1,24 +1,26 @@
 import { Container } from "pixi.js";
 import Bullets from "../Bullets";
+import Timer from "../Timer";
 import ClientBullet from "./components/ClientBullet";
 import ClientPlayer from "./components/ClientPlayer";
 
 export default class ClientBullets extends Bullets {
-  constructor(private readonly bulletContainer: Container) {
-    super();
+  constructor(timer: Timer, private readonly bulletContainer: Container) {
+    super(timer);
   }
 
   spawn(at: ClientPlayer, angle: number) {
-    // TODO: put bullet in front of gun, not at player
-    const bullet = new ClientBullet(at.position.x, at.position.y, angle);
+    // TODO: put bullet in front of ***gun***, not at player
+    // (and be really smart about it - not just plopping it in the center)
+    const bullet = new ClientBullet(at.center.x, at.center.y, angle);
 
     this.bulletContainer.addChild(bullet.sprite);
 
-    // is this a hack?
-    setTimeout(() => {
-      this.bulletContainer.removeChild(bullet.sprite);
-    }, 2000);
-
     super._spawnBullet(bullet);
+  }
+
+  _cleanupBullet(bullet: ClientBullet) {
+    this.bulletContainer.removeChild(bullet.sprite);
+    super._cleanupBullet(bullet);
   }
 }

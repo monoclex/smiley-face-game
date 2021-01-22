@@ -18,6 +18,8 @@ export default class AuthoredBlockPlacer {
   draw(lastPos: undefined | Position, curX: number, curY: number, action: "place" | "erase", layer?: TileLayer) {
     const id = action === "erase" ? 0 : this.blockBar.selectedBlock;
 
+    if (!this.author.hasEdit) return;
+
     if (lastPos === undefined) {
       this.connection.place(id, { x: curX, y: curY }, layer);
       this.world.placeBlock(this.author, curX, curY, id, layer);

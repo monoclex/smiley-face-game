@@ -32,8 +32,8 @@ export default class ClientGame extends Game {
     const display = new ClientDisplay(renderer);
     const network = new ClientNetwork(connection);
 
-    super(tileJson, init, () => [
-      new ClientBullets(display.bullets),
+    super(tileJson, init, (timer) => [
+      new ClientBullets(timer, display.bullets),
       new Chat(),
       new ClientPlayers(display.players),
       new ClientWorld(tileJson, init.size, display.worldBehind, display.worldInfront),
@@ -104,6 +104,7 @@ export default class ClientGame extends Game {
   }
 
   cleanup() {
+    this.aim.cleanup();
     this.connection.close();
     super.cleanup();
   }

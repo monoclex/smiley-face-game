@@ -16,4 +16,9 @@ export default class ClientBullet extends Bullet {
     this.sprite.position.x = this.position.x;
     this.sprite.position.y = this.position.y;
   }
+
+  cleanup() {
+    this.sprite.destroy({ children: true });
+    super.cleanup();
+  }
 }

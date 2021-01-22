@@ -15,9 +15,7 @@ const SpringScrollbars = (props: any) => {
 
     spring.addListener({
       onSpringUpdate: (spring) => {
-        console.log("onSpringUpdate", spring);
         const val = spring.getCurrentValue();
-        console.log("springUpdate", val);
         scrollbars.current!.scrollTop(val);
       },
     });
