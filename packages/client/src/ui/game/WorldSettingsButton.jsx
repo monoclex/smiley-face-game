@@ -6,6 +6,7 @@ import { Cog } from "mdi-material-ui";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
 import Menu from "@material-ui/core/Menu/Menu";
 import IconButton from "@material-ui/core/IconButton";
+import WorldSettingsDialog from "./WorldSettingsDialog";
 
 const useStyles = makeStyles({
   cog: {
@@ -13,26 +14,12 @@ const useStyles = makeStyles({
   },
 });
 
-const WorldSettings = ({}) => {
+const WorldSettingsButton = ({}) => {
   const classes = useStyles();
   const mainPlayer = useRecoilValue(currentPlayer);
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const clear = () => {
-    window.gameScene.connection.clear();
-    setAnchorEl(null); // closes menu
-  };
-
-  const save = () => {
-    window.gameScene.connection.save();
-    setAnchorEl(null); // closes menu
-  };
-
-  const load = () => {
-    window.gameScene.connection.load();
-    setAnchorEl(null); // closes menu
-  };
+  const [open, setOpen] = useState(false);
+  const onClose = () => setOpen(false);
 
   // if the player isn't the owner, they shouldn't have access to world settings
   if (mainPlayer === undefined || mainPlayer.role !== "owner") {
@@ -44,7 +31,7 @@ const WorldSettings = ({}) => {
       <IconButton
         variant="contained"
         aria-haspopup="true"
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={() => setOpen(true)}
         className={classes.cog}
         color="primary"
         aria-label="world settings"
@@ -52,13 +39,9 @@ const WorldSettings = ({}) => {
       >
         <Cog />
       </IconButton>
-      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-        <MenuItem onClick={clear}>Clear</MenuItem>
-        <MenuItem onClick={save}>Save</MenuItem>
-        <MenuItem onClick={load}>Load</MenuItem>
-      </Menu>
+      <WorldSettingsDialog open={open} onClose={onClose} />
     </>
   );
 };
 
-export default WorldSettings;
+export default WorldSettingsButton;

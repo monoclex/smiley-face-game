@@ -3,7 +3,6 @@ import { useRecoilValue } from "recoil";
 import { makeStyles } from "@material-ui/core/styles";
 import { format } from "date-fns/fp";
 import { messagesState } from "../../../recoil/atoms/chat";
-import { useStyles } from "./Chat";
 
 const useStyles = makeStyles((theme) => ({
   message: {
