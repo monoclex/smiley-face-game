@@ -3,7 +3,7 @@
 // \--------------------------------------------------/
 
 import qs from "query-string";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import React, { useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core";
@@ -15,11 +15,13 @@ import PlayerList from "../../ui/game/playerlist/PlayerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
 import currentPlayer from "../../recoil/selectors/currentPlayer";
 import MobileControls from "../game/MobileControls";
-import WorldSettings from "../game/WorldSettings";
+import WorldSettingsButton from "../game/WorldSettingsButton";
 import { Authentication } from "@smiley-face-game/api";
 import { Renderer } from "pixi.js";
 import makeClientConnectedGame from "../../game/helpers/makeClientConnectedGame";
 import textures from "../../game/textures";
+import { maybeGame, maybeGameState } from "../../recoil/atoms/maybeConnection";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 const useStyles = makeStyles({
   game: {
@@ -40,13 +42,13 @@ const useStyles = makeStyles({
   },
 });
 
-const PlayPage = ({
+export default function PlayPage({
   loader,
   location: { search, state },
   match: {
     params: { roomId },
   },
-}) => {
+}) {
   // don't have to check if the token is valid because that will happen when we try to join the game
   const token = localStorage.getItem("token");
   if (token === null) {
@@ -67,6 +69,7 @@ const PlayPage = ({
   const styles = useStyles();
 
   const [loading, setLoading] = useRecoilState(loadingState);
+  const setMaybeGame = useSetRecoilState(maybeGameState);
   const mainPlayer = useRecoilValue(currentPlayer);
 
   // this fixes a bug where because the blockbar might not be rendered before the game begins, not initializing the recoil blockbar state,
@@ -133,6 +136,9 @@ const PlayPage = ({
           timeStart = elapsed;
           raf(elapsed);
         });
+
+        setMaybeGame(game);
+        setLoading({ failed: false });
       });
 
     const listener = () => {
@@ -175,33 +181,33 @@ const PlayPage = ({
       <Grid container justify="center">
         <canvas className={styles.game} ref={gameRef} />
       </Grid>
-      <Grid className={styles.uiOverlay} container direction="column-reverse" alignItems="stretch">
-        <Grid container item direction="row" alignItems="stretch">
-          <Grid container item xs={3} justify="center">
-            <MobileControls />
+      {loading.failed === false && (
+        <Grid className={styles.uiOverlay} container direction="column-reverse" alignItems="stretch">
+          <Grid container item direction="row" alignItems="stretch">
+            <Grid container item xs={3} justify="center">
+              <MobileControls />
+            </Grid>
+            <Grid container item xs={6} justify="flex-end">
+              {loading.failed === false && mainPlayer !== undefined && mainPlayer.role !== "non" ? (
+                <BlockBar loader={loader} />
+              ) : null}
+            </Grid>
+            <Grid container item xs={3} alignItems="flex-end">
+              <WorldSettingsButton />
+            </Grid>
           </Grid>
-          <Grid container item xs={6} justify="flex-end">
-            {loading.failed === false && mainPlayer !== undefined && mainPlayer.role !== "non" ? (
-              <BlockBar loader={loader} />
-            ) : null}
-          </Grid>
-          <Grid container item xs={3} alignItems="flex-end">
-            <WorldSettings />
+          {/* the 100% - 100px comes from the joystick which is 100px. this is awful */}
+          {/* oh, and to add to the awfulness, we subtract like 13 more pixels just incase it overflows because why not */}
+          <Grid container item direction="row" alignItems="stretch" style={{ height: "calc(100% - 100px - 13px)" }}>
+            <Grid item xs={6} container alignItems="flex-end">
+              <Chat />
+            </Grid>
+            <Grid item xs={6} container direction="column" justify="center" alignItems="flex-end">
+              <PlayerList />
+            </Grid>
           </Grid>
         </Grid>
-        {/* the 100% - 100px comes from the joystick which is 100px. this is awful */}
-        {/* oh, and to add to the awfulness, we subtract like 13 more pixels just incase it overflows because why not */}
-        <Grid container item direction="row" alignItems="stretch" style={{ height: "calc(100% - 100px - 13px)" }}>
-          <Grid item xs={6} container alignItems="flex-end">
-            <Chat />
-          </Grid>
-          <Grid item xs={6} container direction="column" justify="center" alignItems="flex-end">
-            <PlayerList />
-          </Grid>
-        </Grid>
-      </Grid>
+      )}
     </>
   );
-};
-
-export default PlayPage;
+}
