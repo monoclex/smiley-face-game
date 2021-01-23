@@ -7,7 +7,7 @@ export const PHYSICS_DECELERATION_DRAG = PHYSICS_DRAG * 6.4392094;
 /**
  * This equation is used to figure out the end position of the player (horizontally) given
  * their current velocity and x position. The base acceleration and drag are set to their default
- * values (TODO: use modifiers to configure).
+ * values.
  * @param time The primary thing that changes - how much time to simulate moving the player for.
  * @param x The current x position of the player
  * @param xVelocity The current x velocity of the player (found via `velocity_after`)
@@ -55,7 +55,7 @@ you can actually find this exact same formula in EEU too. what this function doe
 /**
  * This equation is used to figure out the end velocity of the player (horizontally) given
  * their current velocity and x position. The base acceleration and drag are set to their default
- * values (TODO: use modifiers to configure).
+ * values.
  *
  * On a physics/math note, this is just the derivative of `position_at`.
  * @param time The primary thing that changes - how much time to simulate moving the player for.

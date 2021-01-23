@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import { Container, Sprite } from "pixi.js";
 import Game from "../../Game";
 import Player from "../../components/Player";
 import textures from "../../textures";
@@ -6,6 +6,7 @@ import Position from "../../interfaces/Position";
 import distanceAway from "../../../math/distanceAway";
 
 export default class ClientPlayer extends Player {
+  container: Container;
   cosmetic: Sprite;
   sprite: Sprite;
   gun: Sprite;
@@ -22,10 +23,13 @@ export default class ClientPlayer extends Player {
 
   constructor(id: number, username: string, isGuest: boolean) {
     super(id, username, isGuest);
-    this.cosmetic = new Sprite(textures.smile);
-    this.sprite = new Sprite(textures.player);
-    this.gun = new Sprite(textures.gun);
+    this.container = new Container();
+    this.cosmetic = new Sprite(textures.get("smile"));
+    this.sprite = new Sprite(textures.get("player"));
+    this.gun = new Sprite(textures.get("gun"));
     this.gun.visible = false;
+
+    this.container.addChild(this.sprite, this.cosmetic, this.gun);
   }
 
   holdGun(isHeld: boolean) {
@@ -34,10 +38,8 @@ export default class ClientPlayer extends Player {
 
   tick(game: Game, deltaMs: number) {
     super.tick(game, deltaMs);
-    this.sprite.position.x = this.position.x;
-    this.sprite.position.y = this.position.y;
-    this.cosmetic.position.x = this.position.x;
-    this.cosmetic.position.y = this.position.y;
+    this.container.position.x = this.position.x;
+    this.container.position.y = this.position.y;
 
     // https://github.com/SirJosh3917/smiley-face-game/blob/d8cfff2df26ee29aa569c40b5bddc73ae84a3b7b/packages/client/src/game/guns/behaviour/GunBehaviour.ts#L18-L61
     if (!this.hasGun) return;
@@ -45,8 +47,8 @@ export default class ClientPlayer extends Player {
 
     if (!this.isGunHeld) {
       // place it behind the player and rotate it so it looks like it's carried on the player's back diagonally-ish
-      this.gun.position.x = this.sprite.position.x + 16 - 6;
-      this.gun.position.y = this.sprite.position.y + 16 - 6;
+      this.gun.position.x = 0 + 16 - 6;
+      this.gun.position.y = 0 + 16 - 6;
       this.gun.rotation = Math.PI / 3.5;
       this.gun.scale.y = 1; // setFlipX(false)
       return;
@@ -55,7 +57,7 @@ export default class ClientPlayer extends Player {
     // gun is equipped, have it go around the player
 
     // given the angle the user is holding it at, place the gun 20 units away from the player
-    const { x, y } = distanceAway({ x: this.position.x + 16, y: this.position.y + 16 }, this.gunAngle, 20);
+    const { x, y } = distanceAway({ x: 16, y: 16 }, this.gunAngle, 20);
 
     // TODO: align the gun exactly with the cursor
     this.gun.position.x = x;
@@ -80,5 +82,9 @@ export default class ClientPlayer extends Player {
 
   setProbablyGunPickupLocation(at: Position | undefined) {
     this.probablyPickedUpGunAt = at;
+  }
+
+  cleanup() {
+    this.container.destroy({ children: true });
   }
 }

@@ -65,7 +65,6 @@ export default class ClientAim {
   }
 
   cleanup() {
-    // TODO: put this functionality in a function (since it's used twice)?
     if (this.shootInterval) {
       clearInterval(this.shootInterval);
     }

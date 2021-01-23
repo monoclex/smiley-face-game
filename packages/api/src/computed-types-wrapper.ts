@@ -2,7 +2,13 @@ import S, { SchemaInput } from "computed-types";
 
 export default S;
 
-export function addParse<T>(input: T): T & { parse: (input: unknown) => SchemaInput<T> } {
+interface ParseSchema<T> {
+  parse(input: unknown): SchemaInput<T>;
+}
+
+export type ParsableSchemaInput<T> = T & ParseSchema<T>;
+
+export function addParse<T>(input: T): ParsableSchemaInput<T> {
   //@ts-ignore
   const validator = input.destruct();
   //@ts-ignore
