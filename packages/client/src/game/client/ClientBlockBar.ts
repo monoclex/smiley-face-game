@@ -7,7 +7,6 @@ import findTexture from "../helpers/atlasFindFrame";
 export default class ClientBlockBar {
   constructor(private readonly tileJson: TileRegistration) {
     blockbar.modify({
-      loader: this.load.bind(this),
       slots: {
         ...blockbar.state.slots,
         [0]: tileJson.id("empty"),
@@ -44,8 +43,8 @@ export default class ClientBlockBar {
 
     const context = renderImageCanvas.getContext("2d")!;
 
-    const { x, y, w: width, h: height } = textureFrame.frame;
-    context.drawImage(resource.source, x, y, width, height, 0, 0, TILE_WIDTH, TILE_HEIGHT);
+    const { x, y, w, h } = textureFrame.frame;
+    context.drawImage(resource.source, x, y, w, h, 0, 0, TILE_WIDTH, TILE_HEIGHT);
 
     const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
     const url = URL.createObjectURL(blob);

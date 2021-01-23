@@ -6,12 +6,10 @@ import type { ZBlock } from "@smiley-face-game/api/types";
 export interface BlockBar {
   selected: SelectedSlotId;
   slots: { [key in SelectedSlotId]: ZBlock };
-  loader: null | ((tileState: ZBlock) => Promise<HTMLImageElement>);
 }
 
 export const defaultBlockbarState: BlockBar = {
   selected: 1,
-  loader: null,
   slots: {
     [0]: 0,
     [1]: 0,

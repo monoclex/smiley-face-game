@@ -1,5 +1,5 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import type { ZSPacket, ZSInit, ZSEvent, ZWorldAction } from "@smiley-face-game/api/packets";
+import type { ZSPacket, ZSInit, ZSEvent } from "@smiley-face-game/api/packets";
 import { ZWorldActionKindReply } from "@smiley-face-game/api/types";
 import Player from "./components/Player";
 import World from "./World";
@@ -7,6 +7,7 @@ import Players from "./Players";
 import Chat from "./Chat";
 import Bullets from "./Bullets";
 import Timer from "./Timer";
+import StateSystem from "./StateSystem";
 
 type GameFactory = (timer: Timer) => [Bullets, Chat, Players, World];
 
@@ -21,6 +22,8 @@ export default class Game {
   readonly timer: Timer;
   readonly world: World;
   readonly self: Player;
+  readonly stateSystem: StateSystem;
+  running: boolean = true;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
     factory = factory || ((timer) => [new Bullets(timer), new Chat(), new Players(), new World(tileJson, init.size)]);
@@ -42,6 +45,8 @@ export default class Game {
       gunEquipped: false,
     });
 
+    this.stateSystem = new StateSystem();
+
     this.world.load(init.blocks);
   }
 
@@ -60,6 +65,8 @@ export default class Game {
     for (const b of this.bullets) {
       b.tick();
     }
+
+    this.stateSystem.tick(this);
   }
 
   // tick sub-routines
@@ -194,5 +201,6 @@ export default class Game {
 
   cleanup() {
     this.players.cleanup();
+    this.running = false;
   }
 }

@@ -30,12 +30,12 @@ function hackyMapGunStateToString(g: GunState): "none" | "carrying" | "held" {
 }
 
 export default class Player implements PhysicsObject {
-  gravityDirection: number = ArrowDirection.Down;
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
-  private _role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
+  gravityDirection: number = ArrowDirection.Down;
   gunAngle: number = 0;
+  _role: "non" | "edit" | "staff" | "owner" = "non";
   private _gunState: GunState = 0;
 
   private get gunState(): GunState {
