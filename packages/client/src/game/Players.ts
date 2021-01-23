@@ -36,7 +36,7 @@ export default class Players {
 
   removePlayer(id: number): Player {
     const player = this.getPlayer(id);
-    player.destroy();
+    player.cleanup();
     this._map.delete(id);
     return player;
   }

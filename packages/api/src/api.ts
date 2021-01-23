@@ -1,15 +1,17 @@
 import Schema, { SchemaInput, array, boolean, number, string, addParse } from "./computed-types-wrapper";
 import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail } from "./types";
 
-// TODO: fill this in
-export const zLobbyResp = addParse(
-  array.of({
+export const zGamePreview = addParse(
+  Schema({
     type: Schema.either("saved" as const, "dynamic" as const),
     id: zWorldId,
     name: zWorldName,
     playerCount: number.integer().min(0),
   })
 );
+export type ZGamePreview = SchemaInput<typeof zGamePreview>;
+
+export const zLobbyResp = addParse(array.of(zGamePreview));
 export type ZLobbyResp = SchemaInput<typeof zLobbyResp>;
 
 export const zLoginReq = addParse(
@@ -56,7 +58,6 @@ export const zGuestResp = addParse(
 );
 export type ZGuestResp = SchemaInput<typeof zGuestResp>;
 
-// TODO: fill this in
 export const zPlayerResp = addParse(
   Schema({
     isGuest: boolean,

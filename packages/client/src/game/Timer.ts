@@ -10,10 +10,9 @@ interface Event {
 export default class Timer {
   events: Event[] = [];
 
-  // TODO: ugly `after: Date` because js date api SUCKS
-  schedule(after: Date, run: () => void) {
+  schedule(afterMs: number, run: () => void) {
     this.events.push({
-      schedule: after.getTime(),
+      schedule: new Date().getTime() + afterMs,
       run: run,
     });
   }

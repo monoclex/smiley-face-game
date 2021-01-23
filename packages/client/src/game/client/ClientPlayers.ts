@@ -25,9 +25,7 @@ export default class ClientPlayers extends Players {
         ],
       });
     };
-    this.players.addChildAt(player.gun, 0);
-    this.players.addChildAt(player.cosmetic, 0);
-    this.players.addChildAt(player.sprite, 0);
+    this.players.addChildAt(player.container, 0);
     playerList.modify({
       players: [
         ...playerList.state.players,
@@ -43,10 +41,6 @@ export default class ClientPlayers extends Players {
 
   removePlayer(id: number): ClientPlayer {
     const player = super.removePlayer(id) as ClientPlayer;
-    this.players.removeChild(player.gun);
-    this.players.removeChild(player.sprite);
-    // TODO: put the player in a container so that this code isn't repetitive
-    this.players.removeChild(player.cosmetic);
     return player;
   }
 
