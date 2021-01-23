@@ -29,5 +29,10 @@ module.exports = {
     "react/no-unescaped-entities": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
+    "no-use-before-define": "error",
+    "no-undef": "error",
+    // https://stackoverflow.com/a/64024916
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
   },
 };

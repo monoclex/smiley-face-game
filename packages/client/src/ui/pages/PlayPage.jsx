@@ -10,8 +10,6 @@ import { Grid } from "@material-ui/core";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import history from "../history";
-import { isDev } from "../../isProduction";
-import GameScene from "../../game/GameScene";
 import { loadingState, loading as sharedGlobalLoading } from "../../recoil/atoms/loading";
 import PlayerList from "../../ui/game/playerlist/PlayerList";
 import { blockbarState } from "../../recoil/atoms/blockbar";
@@ -43,7 +41,6 @@ const useStyles = makeStyles({
 });
 
 const PlayPage = ({
-  selectedSlot,
   loader,
   location: { search, state },
   match: {
@@ -74,6 +71,7 @@ const PlayPage = ({
 
   // this fixes a bug where because the blockbar might not be rendered before the game begins, not initializing the recoil blockbar state,
   // we have to use the recoil state so that it is guaranteed to get initialized before the game begins
+  // eslint-disable-next-line no-unused-vars
   const _ = useRecoilState(blockbarState);
 
   useEffect(() => {
@@ -105,7 +103,7 @@ const PlayPage = ({
 
     auth
       .connect(joinRequest)
-      .then((connection) => textures.load(connection.tileJson).then((textures) => connection))
+      .then((connection) => textures.load(connection.tileJson).then(() => connection))
       .then((connection) => {
         const game = makeClientConnectedGame(renderer, connection);
 
@@ -155,17 +153,6 @@ const PlayPage = ({
       }
     };
   }, []);
-
-  // just a hacky way to force the game to scale right on render
-  // a bug occurs where the click position isn't correct after a user presses the "gclick here to make a new roome" button
-  // so we force the game to resize on component render to hopefully tell phaser to correct the positioning
-  if (window.game) {
-    // when we immediately call this, the game isn't yet rendered
-    // so by delaying it until after react completes rendering we can get it to fix itself
-    setTimeout(() => {
-      game.scale.resize(window.innerWidth, window.innerHeight);
-    }, 0);
-  }
 
   return (
     <>
