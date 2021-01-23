@@ -1,7 +1,7 @@
 import "regenerator-runtime";
 import React from "react";
 import ReactDOM from "react-dom";
-import { App } from "./ui/App";
+import App from "./ui/App";
 import { rewriteHost } from "@smiley-face-game/api/endpoints";
 import isProduction, { isDev } from "./isProduction";
 

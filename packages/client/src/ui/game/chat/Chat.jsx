@@ -3,11 +3,11 @@ import { Grid, Input } from "@material-ui/core";
 import { makeStyles, fade } from "@material-ui/core/styles";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns/fp";
 
 import { messagesState, chatState } from "../../../recoil/atoms/chat";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
+import { Message } from "./Message";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,31 +44,9 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
   },
-  message: {
-    paddingTop: 2,
-    paddingLeft: 4,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2,
-  },
 }));
 
-const Message = ({ id }) => {
-  const classes = useStyles();
-  const message = useRecoilValue(messagesState)[id];
-
-  return (
-    <div key={id} className={classes.message}>
-      <small>{format("HH:mm:ss", message.timestamp)}</small>
-      <span>
-        <b>{` ${message.username}: `}</b>
-        {`${message.content}`}
-      </span>
-    </div>
-  );
-};
-
-const Chat = () => {
+export default function Chat() {
   const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
@@ -152,6 +130,4 @@ const Chat = () => {
       )}
     </Grid>
   );
-};
-
-export default Chat;
+}

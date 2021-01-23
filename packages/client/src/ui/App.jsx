@@ -18,7 +18,7 @@ const LobbyPage = lazy(() => import("./pages/LobbyPage"));
 const PlayPage = lazy(() => import("./pages/PlayPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 
-export const App = () => {
+export default function App() {
   const prefersDarkMode = true;
 
   const theme = useMemo(
@@ -55,4 +55,4 @@ export const App = () => {
       </RecoilRoot>
     </Router>
   );
-};
+}

@@ -162,6 +162,11 @@ export default class Player implements PhysicsObject {
 
     {
       // ========== AWFUL PHYSICS HANDLING START ============================================================================================
+      function rectInRect(px: number, py: number, tx: number, ty: number) {
+        // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+        return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
+      }
+
       // TODO: better physics handling
       // for now, we just go "eh, ill go across the player's line a bunch and if i run into something i'll run back a bit yeh?"
       // accuracy needs to result in a '1' for xAdv/yAdv and less than '1' for the other (yAdv/xAdv)
@@ -218,9 +223,6 @@ export default class Player implements PhysicsObject {
           worldX + ox,
           worldY + oy,
         ]);
-        const boxByDist = boxWorldCoordsCenters
-          .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
-          .sort(([a], [b]) => a - b);
         /** for performance (yes i know """performance""" in this god awful code is cringe) we just dont do the math sqrt */
         function dist(sourceX: number, sourceY: number, destX: number, destY: number): number {
           // sqrt((x2 - x1)^2 + (y2 - y1)^2)
@@ -229,6 +231,9 @@ export default class Player implements PhysicsObject {
           let right = sourceY - destY;
           return left * left + right * right;
         }
+        const boxByDist = boxWorldCoordsCenters
+          .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
+          .sort(([a], [b]) => a - b);
 
         for (const [_, boxX, boxY] of boxByDist) {
           if (boxX < 0 || boxY < 0 || boxX >= game.world.size.width || boxY >= game.world.size.height) continue;
@@ -294,11 +299,6 @@ export default class Player implements PhysicsObject {
       if (doSetZeroY) {
         this.position.y = simY;
         this.velocity.y = 0;
-      }
-
-      function rectInRect(px: number, py: number, tx: number, ty: number) {
-        // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-        return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
       }
       // ========== AWFUL PHYSICS HANDLING END ==============================================================================================
     }
