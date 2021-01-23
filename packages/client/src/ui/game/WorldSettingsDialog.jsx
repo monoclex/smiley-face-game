@@ -1,8 +1,8 @@
 import React from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
 import PropTypes from "prop-types";
-import gameSelector from "../../recoil/selectors/game";
 import { useRecoilValue } from "recoil";
+import state from "../../bridge/state";
 
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
 WorldSettingsDialog.propTypes = {
@@ -11,15 +11,14 @@ WorldSettingsDialog.propTypes = {
 };
 
 export default function WorldSettingsDialog({ open, onClose }) {
-  const game = useRecoilValue(gameSelector);
-
   const composeToClose = (callback) => () => {
     callback();
     onClose();
   };
 
-  const save = composeToClose(() => game.save());
-  const load = composeToClose(() => game.load());
+  const game = state.game;
+  const save = composeToClose(() => game.connection.save());
+  const load = composeToClose(() => game.connection.load());
 
   return (
     <Dialog open={open} onClose={onClose}>

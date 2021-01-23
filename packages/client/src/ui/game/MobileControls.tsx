@@ -2,6 +2,7 @@
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect, useState } from "react";
 import { Joystick } from "react-joystick-component";
+import state from "../../bridge/state";
 
 const useStyles = makeStyles({
   joystick: {
@@ -17,13 +18,14 @@ export default function MobileControls() {
   const [moving, setMoving] = useState(notMoving);
 
   useEffect(() => {
-    if (!window.gameScene || !window.gameScene.keyboard) return;
+    if (!state.game) return;
+
     // TODO: maybe have a "jump" button?
-    window.gameScene.keyboard.simulateKey(" ", moving.up);
-    window.gameScene.keyboard.simulateKey("w", moving.up);
-    window.gameScene.keyboard.simulateKey("a", moving.left);
-    window.gameScene.keyboard.simulateKey("s", moving.down);
-    window.gameScene.keyboard.simulateKey("d", moving.right);
+    state.game.keyboard.simulateKey(" ", moving.up);
+    state.game.keyboard.simulateKey("w", moving.up);
+    state.game.keyboard.simulateKey("a", moving.left);
+    state.game.keyboard.simulateKey("s", moving.down);
+    state.game.keyboard.simulateKey("d", moving.right);
   }, [moving]);
 
   return (

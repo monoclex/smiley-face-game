@@ -9,6 +9,7 @@ import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { makeStyles } from "@material-ui/core/styles";
+import state from "../../../bridge/state";
 
 const useStyles = makeStyles((theme) => ({
   message: {
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Player = ({ username, playerId, role: roleParam }) => {
+export const Player = ({ username, id: playerId, role: roleParam }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -45,7 +46,7 @@ export const Player = ({ username, playerId, role: roleParam }) => {
   const actions = [];
 
   const kick = () => {
-    window.gameScene.connection.kick(playerId);
+    state.game.connection.kick(playerId);
     enqueueSnackbar(`Kicked ${username}`, {
       variant: "success",
     });
@@ -56,9 +57,9 @@ export const Player = ({ username, playerId, role: roleParam }) => {
     if (mainPlayer.role !== "owner") return;
 
     if (shouldHaveEdit) {
-      window.gameScene.connection.giveEdit(playerId);
+      state.game.connection.giveEdit(playerId);
     } else {
-      window.gameScene.connection.takeEdit(playerId);
+      state.game.connection.takeEdit(playerId);
     }
 
     enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {

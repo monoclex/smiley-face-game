@@ -2,11 +2,18 @@ import { Authentication, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import ClientGame from "../game/client/ClientGame";
 import makeClientConnectedGame from "../game/helpers/makeClientConnectedGame";
+import StateSystem from "../game/StateSystem";
 import textures from "../game/textures";
+import { game } from "../recoil/atoms/gameState";
+import state from "./state";
 
 interface Bridge {
   game: ClientGame;
   cleanup: () => void;
+}
+
+function connectToRecoil(stateSystem: StateSystem) {
+  stateSystem.onStateDifference = (state) => game.set(state);
 }
 
 export default async function setupBridge(
@@ -31,6 +38,8 @@ export default async function setupBridge(
     }
   })();
 
+  connectToRecoil(game.stateSystem);
+
   // eslint-disable-next-line no-undef
   let loop: FrameRequestCallback;
   let timeStart: number;
@@ -50,6 +59,9 @@ export default async function setupBridge(
     game.tick(0);
     requestAnimationFrame(loop);
   });
+
+  // connect game to `state` so react components can call methods on it
+  state.game = game;
 
   return {
     game,

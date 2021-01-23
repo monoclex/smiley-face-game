@@ -38,8 +38,6 @@ class TexturesObject<T extends { atlas: string }> {
   }
 
   load(tileJson: TileRegistration): Promise<void[]> {
-    //@ts-ignore
-    window.HACK_FIXME_LATER_tileJson = tileJson;
     this._tileJson = tileJson;
 
     return Promise.all(

@@ -48,7 +48,7 @@ export default function PlayPage({ game, gameElement }) {
             <MobileControls />
           </Grid>
           <Grid container item xs={6} justify="flex-end">
-            {game.self.role !== "non" && <BlockBar loader={(id) => game.blockBar.load(id)} />}
+            <BlockBar loader={(id) => game.blockBar.load(id)} />
           </Grid>
           <Grid container item xs={3} alignItems="flex-end">
             <WorldSettingsButton />

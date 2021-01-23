@@ -2,8 +2,10 @@ import React from "react";
 import { useEffect } from "react";
 import { Grid } from "@material-ui/core";
 import Block from "./Block";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { blockbar as blockbarGlobal, blockbarState } from "../../../recoil/atoms/blockbar";
+import currentPlayer from "../../../recoil/selectors/currentPlayer";
+import state from "../../../bridge/state";
 
 const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
@@ -47,8 +49,7 @@ const BlockBar = ({ loader }) => {
 
       if (blockbar.selected === slot) {
         // if we've already selected the block, we wanna go to the next state
-        //@ts-ignore
-        const newTileState = window.HACK_FIXME_LATER_tileJson.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
+        const newTileState = state.game.tileJson.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
         setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [slot]: newTileState } });
       } else {
         setBlockbar({ ...blockbar, selected: slot });
@@ -59,6 +60,9 @@ const BlockBar = ({ loader }) => {
     return () => document.removeEventListener("keydown", listener);
   }, [blockbar]);
 
+  const self = useRecoilValue(currentPlayer);
+  if (self.role === "non") return null;
+
   return (
     <Grid item container justify="center" alignItems="flex-end">
       {keys.map((key, i) => (
@@ -68,8 +72,7 @@ const BlockBar = ({ loader }) => {
           slotId={i}
           block={blockbar.slots[i]}
           nextState={() => {
-            //@ts-ignore
-            const newTileState = window.HACK_FIXME_LATER_tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
+            const newTileState = state.game.tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
             setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}

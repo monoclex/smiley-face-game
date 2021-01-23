@@ -3,10 +3,6 @@ import { Renderer } from "pixi.js";
 import ClientGame from "../client/ClientGame";
 
 export default function makeClientConnectedGame(renderer: Renderer, connection: Connection): ClientGame {
-  //@ts-ignore
-  window.HACK_FIX_LATER_selfId = connection.init.playerId;
-
   const game = new ClientGame(connection.tileJson, connection.init, renderer, connection);
-
   return game;
 }
