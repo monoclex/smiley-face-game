@@ -1,11 +1,10 @@
 import { Connection } from "@smiley-face-game/api";
 import Game from "../Game";
-import Network from "../Network";
 import defaultInputs from "../helpers/defaultInputs";
 import Inputs from "../interfaces/Inputs";
 import areSame from "../helpers/areSame";
 
-export default class ClientNetwork implements Network {
+export default class ClientNetwork {
   private mainPlayerOldInputs: Inputs = defaultInputs();
 
   constructor(private readonly connection: Connection) {}

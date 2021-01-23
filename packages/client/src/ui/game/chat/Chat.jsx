@@ -67,7 +67,6 @@ export default function Chat() {
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown, true);
-
     return () => window.removeEventListener("keydown", onKeyDown, true);
   }, []);
 
