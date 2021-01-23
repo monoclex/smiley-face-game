@@ -5,7 +5,7 @@ import Block from "./Block";
 import { useRecoilState } from "recoil";
 import { blockbar as blockbarGlobal, blockbarState } from "../../../recoil/atoms/blockbar";
 
-const BlockBar = () => {
+const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
 
   const [blockbar, setBlockbar] = useRecoilState(blockbarState);
@@ -54,11 +54,9 @@ const BlockBar = () => {
         setBlockbar({ ...blockbar, selected: slot });
       }
     };
-    document.addEventListener("keydown", listener);
 
-    return function () {
-      document.removeEventListener("keydown", listener);
-    };
+    document.addEventListener("keydown", listener);
+    return () => document.removeEventListener("keydown", listener);
   }, [blockbar]);
 
   return (
@@ -76,7 +74,7 @@ const BlockBar = () => {
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: i })}
           selected={blockbar.selected === i}
-          loader={blockbar.loader}
+          loader={loader}
         />
       ))}
     </Grid>

@@ -43,6 +43,7 @@ const useStyles = makeStyles({
 });
 
 export default function PlayPage({
+  token,
   loader,
   location: { search, state },
   match: {
@@ -50,11 +51,11 @@ export default function PlayPage({
   },
 }) {
   // don't have to check if the token is valid because that will happen when we try to join the game
-  const token = localStorage.getItem("token");
-  if (token === null) {
-    history.push("/");
-    return null;
-  }
+  // const token = localStorage.getItem("token");
+  // if (token === null) {
+  //   history.push("/");
+  //   return null;
+  // }
 
   if (!state || !state.request) {
     // if the user navigates here naturally, we have to infer the state
