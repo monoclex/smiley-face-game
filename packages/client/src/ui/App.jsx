@@ -58,8 +58,7 @@ export default function App() {
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/login" component={LoginPage} />
               <Route exact path="/lobby" component={LobbyPage} />
-              <Route exact path="/games/:roomId" component={PlayPage} />
-              <Route exact path="/games/" component={PlayPage} />
+              <Route exact path="/games/:id" component={PlayPage} />
             </Suspense>
           </ThemeProvider>
         </SnackbarProvider>

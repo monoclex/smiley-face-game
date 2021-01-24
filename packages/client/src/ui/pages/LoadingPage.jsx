@@ -4,24 +4,11 @@ import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
 
-/**
- * @returns {import("@smiley-face-game/api/ws-api").ZJoinRequest}
- */
-function inferJoinRequest(roomId) {
-  return { id: roomId, type: "saved" };
-  // if (!state || !state.request) {
-  //   // if the user navigates here naturally, we have to infer the state
-  //   const { type } = qs.parse(search);
-  //   return { request: "join", roomId, type: type ?? "saved" };
-  // }
-  // return state;
-}
-
 export default function LoadingPage({
   token,
-  // location: { search, state },
+  location: { state },
   match: {
-    params: { roomId },
+    params: { id },
   },
 }) {
   const [gameElement] = useState(document.createElement("canvas"));
@@ -40,7 +27,7 @@ export default function LoadingPage({
 
     const completion = new PromiseCompletionSource();
 
-    setupBridge(token, inferJoinRequest(roomId), renderer, (game) => {
+    setupBridge(token, state ?? { type: "join", id }, renderer, (game) => {
       if (game.running) {
         window.history.back();
       }
@@ -57,7 +44,7 @@ export default function LoadingPage({
     return () => {
       completion.handle.then((cleanup) => cleanup());
     };
-  }, [token, roomId]);
+  }, [token, state, id]);
 
   if (game === undefined) {
     return <h1>loadingeroooooooooo</h1>;
