@@ -42,7 +42,7 @@ type RoomProps = {
 
 export const Room = (props: RoomProps) => {
   const {
-    room: { id, name, type, playerCount },
+    room: { id, name, playerCount },
   } = props;
 
   const classes = useStyles();
@@ -74,7 +74,7 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => history.joinGame({ type, roomId: id })}>
+              <IconButton aria-label="play" onClick={() => history.joinGame(id)}>
                 <PlayIcon />
               </IconButton>
             </Tooltip>

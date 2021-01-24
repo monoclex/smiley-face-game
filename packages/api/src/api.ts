@@ -3,7 +3,6 @@ import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail 
 
 export const zGamePreview = addParse(
   Schema({
-    type: Schema.either("saved" as const, "dynamic" as const),
     id: zWorldId,
     name: zWorldName,
     playerCount: number.integer().min(0),
