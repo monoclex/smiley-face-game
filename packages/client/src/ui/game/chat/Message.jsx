@@ -1,9 +1,8 @@
 import React from "react";
-import { useRecoilValue } from "recoil";
 import { makeStyles } from "@material-ui/core/styles";
 import { format } from "date-fns/fp";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   message: {
     paddingTop: 2,
     paddingLeft: 4,

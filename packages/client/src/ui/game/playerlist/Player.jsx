@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
 import { Pencil, ShoeCleat } from "mdi-material-ui";
-import { currentPlayer } from "../../../state";
+import { currentPlayerState } from "../../../state";
 import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,7 +40,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
   // https://material-ui.com/components/menus/#SimpleMenu.js
   const [anchorElement, setAnchorElement] = useState(null);
 
-  const mainPlayer = useRecoilValue(currentPlayer);
+  const mainPlayer = useRecoilValue(currentPlayerState);
 
   /** @type {JSX.Element[]} */
   const actions = [];

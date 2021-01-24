@@ -11,24 +11,24 @@ const defaultGameState: GameState = {
 
 export const gameGlobal = new SharedGlobal<GameState>(defaultGameState);
 
-export const game = atom<GameState>({
-  key: "game",
+export const gameState = atom<GameState>({
+  key: "gameState",
   default: defaultGameState,
   //@ts-ignore
   effects_UNSTABLE: [gameGlobal.initialize],
 });
 
-export const playerList = selector({
-  key: "playerList",
-  get: ({ get }) => get(game).players,
+export const playerListState = selector({
+  key: "playerListState",
+  get: ({ get }) => get(gameState).players,
 });
 
-export const currentPlayer = selector({
-  key: "currentPlayer",
-  get: ({ get }) => get(game).self,
+export const currentPlayerState = selector({
+  key: "currentPlayerState",
+  get: ({ get }) => get(gameState).self,
 });
 
-export const messages = selector({
-  key: "messages",
-  get: ({ get }) => get(game).messages,
+export const messagesState = selector({
+  key: "messagesState",
+  get: ({ get }) => get(gameState).messages,
 });

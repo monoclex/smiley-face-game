@@ -1,7 +1,6 @@
 import React from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
-import PropTypes from "prop-types";
-import { useRecoilValue } from "recoil";
+import { Button, Dialog, DialogContent, DialogTitle } from "@material-ui/core";
+import * as PropTypes from "prop-types";
 import state from "../../bridge/state";
 
 // eslint-disable-next-line @typescript-eslint/no-use-before-define

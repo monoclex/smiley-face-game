@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { SizeMe } from "react-sizeme";
-import { playerList } from "../../../state/";
+import { playerListState } from "../../../state/";
 import { useRecoilValue } from "recoil";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
@@ -58,7 +58,7 @@ const PlayerList = ({}) => {
     });
   }, []);
 
-  const players = useRecoilValue(playerList);
+  const players = useRecoilValue(playerListState);
 
   return (
     <Grid container justify="flex-end" alignItems="center" className={classes.container}>
