@@ -1,23 +1,13 @@
-import { atom } from "recoil";
-import SharedGlobal from "../../../recoil/SharedGlobal";
+import { atom, selector } from "recoil";
+import SharedGlobal from "../../SharedGlobal";
+import { gameState } from "../gameState";
 
-export interface Message {
-  id: number;
-  timestamp: number | Date;
-  username: string;
-  content: string;
-}
-
-export const defaultMessagesState: Message[] = [];
-export const messages = new SharedGlobal<Message[]>(defaultMessagesState);
-export const messagesState = atom<Message[]>({
+export const messagesState = selector({
   key: "messagesState",
-  default: defaultMessagesState,
-  //@ts-ignore
-  effects_UNSTABLE: [messages.initialize],
+  get: ({ get }) => get(gameState).messages,
 });
 
-export interface ChatState {
+interface ChatState {
   isActive: boolean;
 }
 

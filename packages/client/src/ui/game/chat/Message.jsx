@@ -2,7 +2,6 @@ import React from "react";
 import { useRecoilValue } from "recoil";
 import { makeStyles } from "@material-ui/core/styles";
 import { format } from "date-fns/fp";
-import { messagesState } from "../../../recoil/atoms/chat";
 
 const useStyles = makeStyles((theme) => ({
   message: {
@@ -14,15 +13,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Message = ({ id }) => {
+export const Message = ({ message }) => {
   const classes = useStyles();
-  const message = useRecoilValue(messagesState)[id];
 
   return (
-    <div key={id} className={classes.message}>
-      <small>{format("HH:mm:ss", message.timestamp)}</small>
+    <div className={classes.message}>
+      <small>{format("HH:mm:ss", message.time)}</small>
       <span>
-        <b>{` ${message.username}: `}</b>
+        <b>{` ${message.sender.username}: `}</b>
         {`${message.content}`}
       </span>
     </div>
