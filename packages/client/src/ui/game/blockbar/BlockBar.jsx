@@ -6,7 +6,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { blockbar as blockbarGlobal, blockbarState } from "../../../recoil/atoms/blockbar";
 import currentPlayer from "../../../recoil/selectors/currentPlayer";
 import state from "../../../bridge/state";
-import keyboardEnabled from "../../../bridge/keyboardEnabled";
+import inputEnabled from "../../../bridge/inputEnabled";
 
 const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
@@ -15,7 +15,7 @@ const BlockBar = ({ loader }) => {
 
   useEffect(() => {
     const listener = (keyboardEvent) => {
-      if (!keyboardEnabled()) return;
+      if (!inputEnabled()) return;
 
       const map = {
         "`": 0,

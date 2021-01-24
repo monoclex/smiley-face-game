@@ -5,6 +5,7 @@ import { TileLayer } from "@smiley-face-game/api/types";
 import textures from "../textures";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import clamp from "../helpers/clamp";
+import inputEnabled from "../../bridge/inputEnabled";
 
 enum MouseState {
   None,
@@ -184,6 +185,11 @@ export default class ClientSelector {
 
   tick() {
     if (!this.selection.visible) return;
+    if (!inputEnabled()) {
+      // will be reset next tick anyways
+      this.selection.visible = false;
+      return;
+    }
 
     const mouseWorldX = -this.root.position.x + this.mousePos.x;
     const mouseWorldY = -this.root.position.y + this.mousePos.y;

@@ -1,8 +1,8 @@
-import keyboardEnabled from "../../bridge/keyboardEnabled";
+import inputEnabled from "../../bridge/inputEnabled";
 import Player from "../components/Player";
 
 function handleKey(player: Player, key: string, pressed: boolean) {
-  if (!keyboardEnabled()) return;
+  if (!inputEnabled()) return;
 
   switch (key) {
     case "arrowup":
