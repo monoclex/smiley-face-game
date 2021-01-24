@@ -3,14 +3,14 @@ import { useEffect } from "react";
 import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { currentPlayer, blockBarGlobal, blockBar } from "../../../state/";
+import { currentPlayerState, blockBarState } from "../../../state/";
 import state from "../../../bridge/state";
 import inputEnabled from "../../../bridge/inputEnabled";
 
 const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
 
-  const [blockbar, setBlockbar] = useRecoilState(blockBar);
+  const [blockbar, setBlockbar] = useRecoilState(blockBarState);
 
   useEffect(() => {
     const listener = (keyboardEvent) => {
@@ -62,7 +62,7 @@ const BlockBar = ({ loader }) => {
     return () => document.removeEventListener("keydown", listener);
   }, [blockbar]);
 
-  const self = useRecoilValue(currentPlayer);
+  const self = useRecoilValue(currentPlayerState);
   if (self.role === "non") return null;
 
   return (

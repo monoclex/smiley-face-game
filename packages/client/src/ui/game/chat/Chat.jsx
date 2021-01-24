@@ -1,9 +1,9 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { Grid, Input } from "@material-ui/core";
 import { makeStyles, fade } from "@material-ui/core/styles";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
-import { messagesState, chatState as recoilChatState } from "../../../recoil/atoms/chat";
+import { messagesState, chatOpenState } from "../../../state";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
@@ -52,12 +52,11 @@ export default function Chat() {
 
   const inputRef = useRef();
 
-  const [chatState, setChatState] = useRecoilState(recoilChatState);
-  const setActive = (isActive) => setChatState((old) => ({ ...old, isActive }));
+  const [isActive, setActive] = useRecoilState(chatOpenState);
 
   const onKeyDown = ({ keyCode }) => {
     // enter key
-    if (keyCode === 13 && !chatState.isActive) {
+    if (keyCode === 13 && !isActive) {
       setActive(true);
     }
   };
@@ -68,10 +67,10 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (chatState.isActive) {
+    if (isActive.isActive) {
       inputRef.current.focus();
     }
-  }, [chatState.isActive]);
+  }, [isActive.isActive]);
 
   const messages = useRecoilValue(messagesState);
 
@@ -102,7 +101,7 @@ export default function Chat() {
         </SpringScrollbars>
       </Grid>
 
-      {chatState.isActive && (
+      {isActive.isActive && (
         <Grid item className={classes.chatField}>
           <div>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>

@@ -24,7 +24,7 @@ export default function LoadingPage({
     params: { roomId },
   },
 }) {
-  const [gameElement, _] = useState(document.createElement("canvas"));
+  const [gameElement] = useState(document.createElement("canvas"));
   const [game, setGame] = useState(undefined);
 
   // don't show inspect on right click
