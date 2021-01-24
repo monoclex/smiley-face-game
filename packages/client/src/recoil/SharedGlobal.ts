@@ -4,50 +4,37 @@ export default class SharedGlobal<T> {
   private _setSelf?: (value: T) => void;
   private _onSet?: (callback: (value: T) => void) => void;
   private _value: T;
-
-  /**
-   * If we set/modify the SharedGlobal<T> and the update isn't reflected in the react side of things, we'll
-   * want to use our modification when we get `state` until the react side of things updates.
-   */
-  private _updateReflected: boolean = true;
-  private _lastSet: T;
+  private _valueSynchronized: boolean | null = false;
 
   constructor(value: T) {
-    this._lastSet = this._value = value;
+    this._value = value;
+    this._valueSynchronized = null;
     this.initialize = this.initialize.bind(this);
   }
 
   initialize({ setSelf, onSet }: RecoilEffects<T>): void {
+    if (this._valueSynchronized === false) {
+      setSelf(this._value);
+    }
+
     this._setSelf = setSelf;
     this._onSet = onSet;
     this._onSet((value: T) => {
-      this._updateReflected = true;
       this._value = value;
+      this._valueSynchronized = true;
     });
   }
 
   get state(): T {
-    if (!this._onSet) {
-      console.warn("getting state when hooks not registered yet");
-    }
-
-    if (!this._updateReflected) {
-      return this._lastSet;
-    }
-
     return this._value;
   }
 
   set(payload: T) {
-    if (!this._setSelf) {
-      console.warn("setting state when hooks not registered yet");
-      this._value = payload;
-      return;
-    }
+    this._value = payload;
+    this._valueSynchronized = false;
 
-    this._lastSet = payload;
-    this._updateReflected = false;
-    this._setSelf(payload);
+    if (!this._setSelf) return;
+    this._setSelf(this._value);
   }
 
   modify(modification: Partial<T>) {
