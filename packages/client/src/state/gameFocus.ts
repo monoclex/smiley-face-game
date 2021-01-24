@@ -20,7 +20,7 @@ export const chatOpenState = selector<boolean>({
   key: "chatOpenState",
   get: ({ get }) => get(gameFocusState).chatOpen,
   set: ({ set }, value) =>
-    set(gameFocusState, (old) => ({ ...old, settingsOpen: value instanceof DefaultValue ? false : value })),
+    set(gameFocusState, (old) => ({ ...old, chatOpen: value instanceof DefaultValue ? false : value })),
 });
 
 export const settingsOpenState = selector<boolean>({

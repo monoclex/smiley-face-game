@@ -3,9 +3,8 @@ import { TileLayer } from "@smiley-face-game/api/types";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
 import Size from "./interfaces/Size";
 import Player from "./components/Player";
-import ReadOnlyWorld from "./interfaces/ReadOnlyWorld";
 
-export default class World implements ReadOnlyWorld {
+export default class World {
   protected state: number[][][];
 
   private static emptyWorld(size: Size): number[][][] {
@@ -51,7 +50,7 @@ export default class World implements ReadOnlyWorld {
   layerOfTopmostBlock(x: number, y: number): TileLayer {
     // TODO: support decoration layers
     // this is set to background because server doesn't send decoration layer
-    for (let layer = TileLayer.Background; layer >= TileLayer.Foreground; layer--) {
+    for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
       if (this.state[layer][y][x] !== 0) return layer;
     }
     return TileLayer.Foreground;
