@@ -3,15 +3,14 @@ import { useEffect } from "react";
 import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { blockbar as blockbarGlobal, blockbarState } from "../../../recoil/atoms/blockbar";
-import currentPlayer from "../../../recoil/selectors/currentPlayer";
+import { currentPlayer, blockBarGlobal, blockBar } from "../../../state/";
 import state from "../../../bridge/state";
 import inputEnabled from "../../../bridge/inputEnabled";
 
 const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
 
-  const [blockbar, setBlockbar] = useRecoilState(blockbarState);
+  const [blockbar, setBlockbar] = useRecoilState(blockBar);
 
   useEffect(() => {
     const listener = (keyboardEvent) => {

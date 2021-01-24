@@ -1,5 +1,5 @@
-import { chat } from "../recoil/atoms/chat";
+import { gameFocusGlobal } from "../state";
 
 export default function inputEnabled() {
-  return !chat.state.isActive && !chat.state.settingsOpen;
+  return !gameFocusGlobal.state.chatOpen && !gameFocusGlobal.state.settingsOpen;
 }

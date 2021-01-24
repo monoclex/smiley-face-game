@@ -4,7 +4,7 @@ import ClientGame from "../game/client/ClientGame";
 import makeClientConnectedGame from "../game/helpers/makeClientConnectedGame";
 import StateSystem from "../game/StateSystem";
 import textures from "../game/textures";
-import { game } from "../recoil/atoms/gameState";
+import { gameGlobal } from "../state";
 import state from "./state";
 
 interface Bridge {
@@ -13,7 +13,7 @@ interface Bridge {
 }
 
 function connectToRecoil(stateSystem: StateSystem) {
-  stateSystem.onStateDifference = (state) => game.set(state);
+  stateSystem.onStateDifference = (state) => gameGlobal.set(state);
 }
 
 export default async function setupBridge(
