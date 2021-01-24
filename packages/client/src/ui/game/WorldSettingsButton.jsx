@@ -17,9 +17,14 @@ const useStyles = makeStyles({
 const WorldSettingsButton = ({}) => {
   const classes = useStyles();
   const mainPlayer = useRecoilValue(currentPlayer);
+  const ref = useRef();
 
   const [open, setOpen] = useState(false);
   const onClose = () => setOpen(false);
+  const doOpen = () => {
+    ref.current.blur(); // un-focus cog
+    setOpen(true);
+  };
 
   // if the player isn't the owner, they shouldn't have access to world settings
   if (mainPlayer === undefined || mainPlayer.role !== "owner") {
@@ -29,9 +34,10 @@ const WorldSettingsButton = ({}) => {
   return (
     <>
       <IconButton
+        ref={ref}
         variant="contained"
         aria-haspopup="true"
-        onClick={() => setOpen(true)}
+        onClick={doOpen}
         className={classes.cog}
         color="primary"
         aria-label="world settings"
