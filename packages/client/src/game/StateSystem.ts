@@ -55,6 +55,9 @@ export function captureGameState(game: Game): GameState {
     players.push(capturePlayerState(player));
   }
 
+  // sort it so that the first element is the newest player
+  players.sort((a, b) => b.id - a.id);
+
   return { self: capturePlayerState(game.self), players };
 }
 
