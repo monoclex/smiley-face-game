@@ -6,6 +6,7 @@ import textures from "../textures";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import clamp from "../helpers/clamp";
 import inputEnabled from "../../bridge/inputEnabled";
+import { blockBarGlobal } from "../../state";
 
 enum MouseState {
   None,
@@ -211,7 +212,8 @@ export default class ClientSelector {
       return;
     }
 
-    const erase = this.state === MouseState.Erase;
+    const { slots, selected } = blockBarGlobal.state;
+    const erase = this.state === MouseState.Erase || slots[selected] === 0;
     let action: "place" | "erase" = erase ? "erase" : "place";
 
     // TODO: figure out layer to erase on

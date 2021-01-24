@@ -67,10 +67,10 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (isActive.isActive) {
+    if (isActive) {
       inputRef.current.focus();
     }
-  }, [isActive.isActive]);
+  }, [isActive]);
 
   const messages = useRecoilValue(messagesState);
 
@@ -101,7 +101,7 @@ export default function Chat() {
         </SpringScrollbars>
       </Grid>
 
-      {isActive.isActive && (
+      {isActive && (
         <Grid item className={classes.chatField}>
           <div>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
