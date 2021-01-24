@@ -14,7 +14,7 @@ export default class DynamicBehaviour implements Behaviour {
 
   readonly id: string;
 
-  constructor(joinRequest: Exclude<Extract<ZJoinRequest, { type: "dynamic" }>, { id: string }>, id: string) {
+  constructor(joinRequest: Exclude<Extract<ZJoinRequest, { type: "create" }>, { id: string }>, id: string) {
     ensureValidates(zJoinRequest, joinRequest);
 
     this.id = id;

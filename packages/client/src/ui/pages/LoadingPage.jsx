@@ -3,6 +3,7 @@ import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
+import history from "../history";
 
 export default function LoadingPage({
   token,
@@ -35,6 +36,7 @@ export default function LoadingPage({
       .then(({ game, cleanup }) => {
         completion.resolve(cleanup);
         setGame(game);
+        history.push(`/games/${game.connection.init.worldId}`, undefined);
       })
       .catch((error) => {
         completion.resolve(() => {});
@@ -44,7 +46,7 @@ export default function LoadingPage({
     return () => {
       completion.handle.then((cleanup) => cleanup());
     };
-  }, [token, state, id]);
+  }, [token]);
 
   if (game === undefined) {
     return <h1>loadingeroooooooooo</h1>;

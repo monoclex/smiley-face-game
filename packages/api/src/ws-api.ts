@@ -5,14 +5,14 @@ export const zJoinRequest = addParse(
   Schema.either(
     {
       // create a dynamic room
-      type: "create",
+      type: "create" as const,
       name: zWorldName,
       width: zDynWidth,
       height: zDynHeight,
     },
     {
       // join a saved/dynamic room
-      type: "join",
+      type: "join" as const,
       id: zWorldId,
     }
   )

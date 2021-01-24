@@ -140,7 +140,7 @@ const LobbyPage = () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.createGame({ name, width: parseInt(width), height: parseInt(height) });
+          history.createGame(name, parseInt(width), parseInt(height));
           setCreateRoomDialogOpen(false);
         }}
       />
