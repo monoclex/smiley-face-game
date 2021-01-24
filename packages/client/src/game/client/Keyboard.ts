@@ -1,6 +1,9 @@
+import keyboardEnabled from "../../bridge/keyboardEnabled";
 import Player from "../components/Player";
 
 function handleKey(player: Player, key: string, pressed: boolean) {
+  if (!keyboardEnabled()) return;
+
   switch (key) {
     case "arrowup":
     case "w":
@@ -22,7 +25,7 @@ function handleKey(player: Player, key: string, pressed: boolean) {
       player.input.jump = pressed;
       break;
     case "e":
-      if (pressed) {
+      if (pressed && player.hasGun) {
         player.holdGun(!player.isGunHeld);
       }
       break;
