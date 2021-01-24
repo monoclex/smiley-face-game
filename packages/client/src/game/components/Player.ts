@@ -6,6 +6,7 @@ import PhysicsObject from "../interfaces/PhysicsObject";
 import defaultInputs from "../helpers/defaultInputs";
 import Game from "../Game";
 import { PHYSICS_DECELERATION_DRAG, position_after, velocity_after } from "../physics/path";
+import clamp from "../helpers/clamp";
 
 enum GunState {
   None,
@@ -29,12 +30,12 @@ function hackyMapGunStateToString(g: GunState): "none" | "carrying" | "held" {
 }
 
 export default class Player implements PhysicsObject {
-  gravityDirection: number = ArrowDirection.Down;
   position: Position = { x: 0, y: 0 };
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
-  private _role: "non" | "edit" | "staff" | "owner" = "non"; // TODO: remove role in favor of permission based stuff
+  gravityDirection: number = ArrowDirection.Down;
   gunAngle: number = 0;
+  _role: "non" | "edit" | "staff" | "owner" = "non";
   private _gunState: GunState = 0;
 
   private get gunState(): GunState {
@@ -93,7 +94,6 @@ export default class Player implements PhysicsObject {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
 
     // as soon as we pick up a gun we are holding it
-    // TODO: should we not hold it when we pick it up, and let the server send two packets? who knows
     this.gunState = GunState.Held;
   }
 
@@ -162,6 +162,11 @@ export default class Player implements PhysicsObject {
 
     {
       // ========== AWFUL PHYSICS HANDLING START ============================================================================================
+      function rectInRect(px: number, py: number, tx: number, ty: number) {
+        // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+        return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
+      }
+
       // TODO: better physics handling
       // for now, we just go "eh, ill go across the player's line a bunch and if i run into something i'll run back a bit yeh?"
       // accuracy needs to result in a '1' for xAdv/yAdv and less than '1' for the other (yAdv/xAdv)
@@ -190,15 +195,10 @@ export default class Player implements PhysicsObject {
 
         // TODO: don't duplicate code
         // cap the player inside world bounds
-        if (simX < 0) simX = 0;
-
         const PLAYER_WIDTH = 32;
-        if (simX > (game.world.size.width - 1) * PLAYER_WIDTH) simX = (game.world.size.width - 1) * PLAYER_WIDTH;
-
-        if (simY < 0) simY = 0;
-
         const PLAYER_HEIGHT = 32;
-        if (simY > (game.world.size.height - 1) * PLAYER_HEIGHT) simY = (game.world.size.height - 1) * PLAYER_HEIGHT;
+        simX = clamp(simX, 0, (game.world.size.width - 1) * PLAYER_WIDTH);
+        simY = clamp(simY, 0, (game.world.size.height - 1) * PLAYER_HEIGHT);
 
         const worldX = Math.floor(simX / 32);
         const worldY = Math.floor(simY / 32);
@@ -223,9 +223,6 @@ export default class Player implements PhysicsObject {
           worldX + ox,
           worldY + oy,
         ]);
-        const boxByDist = boxWorldCoordsCenters
-          .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
-          .sort(([a], [b]) => a - b);
         /** for performance (yes i know """performance""" in this god awful code is cringe) we just dont do the math sqrt */
         function dist(sourceX: number, sourceY: number, destX: number, destY: number): number {
           // sqrt((x2 - x1)^2 + (y2 - y1)^2)
@@ -234,6 +231,9 @@ export default class Player implements PhysicsObject {
           let right = sourceY - destY;
           return left * left + right * right;
         }
+        const boxByDist = boxWorldCoordsCenters
+          .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
+          .sort(([a], [b]) => a - b);
 
         for (const [_, boxX, boxY] of boxByDist) {
           if (boxX < 0 || boxY < 0 || boxX >= game.world.size.width || boxY >= game.world.size.height) continue;
@@ -300,15 +300,13 @@ export default class Player implements PhysicsObject {
         this.position.y = simY;
         this.velocity.y = 0;
       }
-
-      function rectInRect(px: number, py: number, tx: number, ty: number) {
-        // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-        return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
-      }
       // ========== AWFUL PHYSICS HANDLING END ==============================================================================================
     }
 
     this.capIntoWorldBoundaries(game);
+
+    // trial and error
+    const JUMP_CONSTANT = -13.2;
 
     if (gravityDirection === ArrowDirection.Up || gravityDirection === ArrowDirection.Down) {
       // if we want to jump and we collided on the y axis (TODO: check if on ground properly)
@@ -319,13 +317,12 @@ export default class Player implements PhysicsObject {
         /* if they're currently not moving, and last frame they were at least moving down or standing still */
         (gravityDirection === ArrowDirection.Up ? -1 : 1) * velY >= 0
       ) {
-        // TODO: is -13.2 the right value to use? might be something more precise
-        this.velocity.y = (gravityDirection === ArrowDirection.Up ? -1 : 1) * -13.2; // velocity_after(deltaMs, y, velY, -1 * 2 - 1);
+        this.velocity.y = (gravityDirection === ArrowDirection.Up ? -1 : 1) * JUMP_CONSTANT; // velocity_after(deltaMs, y, velY, -1 * 2 - 1);
       }
     } else {
       // TODO: nuke this when gravity is done properly
       if (this.input.jump && this.velocity.x === 0 && (gravityDirection === ArrowDirection.Left ? -1 : 1) * velX >= 0) {
-        this.velocity.x = (gravityDirection === ArrowDirection.Left ? -1 : 1) * -13.2;
+        this.velocity.x = (gravityDirection === ArrowDirection.Left ? -1 : 1) * JUMP_CONSTANT;
       }
     }
   }
@@ -347,30 +344,18 @@ export default class Player implements PhysicsObject {
   }
 
   capIntoWorldBoundaries(game: Game) {
-    if (this.position.x < 0) {
-      this.position.x = 0;
-      this.velocity.x = 0;
-    }
+    const previousX = this.position.x;
+    const previousY = this.position.y;
 
     const PLAYER_WIDTH = 32;
-    if (this.position.x > (game.world.size.width - 1) * PLAYER_WIDTH) {
-      this.position.x = (game.world.size.width - 1) * PLAYER_WIDTH;
-      this.velocity.x = 0;
-    }
-
-    if (this.position.y < 0) {
-      this.position.y = 0;
-      this.velocity.y = 0;
-    }
-
     const PLAYER_HEIGHT = 32;
-    if (this.position.y > (game.world.size.height - 1) * PLAYER_HEIGHT) {
-      this.position.y = (game.world.size.height - 1) * PLAYER_HEIGHT;
-      this.velocity.y = 0;
-    }
+
+    this.position.x = clamp(this.position.x, 0, (game.world.size.width - 1) * PLAYER_WIDTH);
+    this.position.y = clamp(this.position.y, 0, (game.world.size.height - 1) * PLAYER_HEIGHT);
+
+    if (previousX !== this.position.x) this.velocity.x = 0;
+    if (previousY !== this.position.y) this.velocity.y = 0;
   }
 
-  destroy() {
-    // TODO: run code that needs to be run on deletion
-  }
+  cleanup() {}
 }

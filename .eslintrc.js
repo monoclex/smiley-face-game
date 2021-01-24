@@ -4,7 +4,14 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["plugin:react/recommended", "prettier", "prettier/react"],
+  extends: [
+    "plugin:react/recommended",
+    "prettier",
+    "prettier/react",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+  ],
   overrides: [
     {
       files: ["*.js", "*.jsx", "*.ts", "*.tsx"],
@@ -29,5 +36,17 @@ module.exports = {
     "react/no-unescaped-entities": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
+    "no-use-before-define": "error",
+    "no-undef": "error",
+    // https://stackoverflow.com/a/64024916
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
+  },
+  settings: {
+    "import/resolver": {
+      typescript: {
+        project: "packages/*/tsconfig.json",
+      },
+    },
   },
 };

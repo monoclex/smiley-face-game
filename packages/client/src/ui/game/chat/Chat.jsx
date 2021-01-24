@@ -1,13 +1,13 @@
 import React, { useRef, useEffect } from "react";
 import { Grid, Input } from "@material-ui/core";
 import { makeStyles, fade } from "@material-ui/core/styles";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns/fp";
-
-import { messagesState, chatState } from "../../../recoil/atoms/chat";
+import { messagesState, chatOpenState } from "../../../state";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
+import { Message } from "./Message";
+import state from "../../../bridge/state";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,66 +44,39 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.common.white, 0.15),
   },
-  message: {
-    paddingTop: 2,
-    paddingLeft: 4,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2,
-  },
 }));
 
-const Message = ({ id }) => {
-  const classes = useStyles();
-  const message = useRecoilValue(messagesState)[id];
-
-  return (
-    <div key={id} className={classes.message}>
-      <small>{format("HH:mm:ss", message.timestamp)}</small>
-      <span>
-        <b>{` ${message.username}: `}</b>
-        {`${message.content}`}
-      </span>
-    </div>
-  );
-};
-
-const Chat = () => {
+export default function Chat() {
   const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
   const inputRef = useRef();
 
-  const currentChatState = useRecoilValue(chatState);
-  const setChatState = useSetRecoilState(chatState);
+  const [isActive, setActive] = useRecoilState(chatOpenState);
 
   const onKeyDown = ({ keyCode }) => {
     // enter key
-    if (keyCode === 13 && !currentChatState.isActive) {
-      setChatState((old) => ({
-        ...old,
-        isActive: true,
-      }));
+    if (keyCode === 13 && !isActive) {
+      setActive(true);
     }
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", onKeyDown, true);
-
-    return () => window.removeEventListener("keydown", onKeyDown, true);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {
-    if (currentChatState.isActive) {
+    if (isActive.isActive) {
       inputRef.current.focus();
     }
-  }, [currentChatState.isActive]);
+  }, [isActive.isActive]);
 
   const messages = useRecoilValue(messagesState);
 
   const onSubmit = (values) => {
     if (values.content !== "") {
-      window.gameScene.connection.chat(values.content);
+      state.game.connection.chat(values.content);
     }
 
     reset();
@@ -123,12 +96,12 @@ const Chat = () => {
           autoHideDuration={200}
         >
           {messages.map((message) => (
-            <Message key={message.id} id={message.id} />
+            <Message key={message.id} message={message} />
           ))}
         </SpringScrollbars>
       </Grid>
 
-      {currentChatState.isActive && (
+      {isActive.isActive && (
         <Grid item className={classes.chatField}>
           <div>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -139,8 +112,8 @@ const Chat = () => {
                 id="content"
                 name="content"
                 placeholder="Press Enter to chat"
-                onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
-                onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
+                onFocus={() => setActive(true)}
+                onBlur={() => setActive(false)}
                 inputRef={(ref) => {
                   register(ref);
                   inputRef.current = ref;
@@ -152,6 +125,4 @@ const Chat = () => {
       )}
     </Grid>
   );
-};
-
-export default Chat;
+}

@@ -1,6 +1,9 @@
+import inputEnabled from "../../bridge/inputEnabled";
 import Player from "../components/Player";
 
 function handleKey(player: Player, key: string, pressed: boolean) {
+  if (!inputEnabled()) return;
+
   switch (key) {
     case "arrowup":
     case "w":
@@ -22,7 +25,7 @@ function handleKey(player: Player, key: string, pressed: boolean) {
       player.input.jump = pressed;
       break;
     case "e":
-      if (pressed) {
+      if (pressed && player.hasGun) {
         player.holdGun(!player.isGunHeld);
       }
       break;
@@ -31,7 +34,6 @@ function handleKey(player: Player, key: string, pressed: boolean) {
 
 export default class Keyboard {
   constructor(readonly player: Player) {
-    // TODO: do this nicely? (inside of ClientGame)
     document.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
       handleKey(player, key, true);

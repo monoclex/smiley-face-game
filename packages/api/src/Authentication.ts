@@ -31,7 +31,10 @@ export default class Authentication {
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   constructor(token: unknown, id?: unknown) {
     this.token = zToken.parse(token);
-    this.id = id && zAccountId.parse(id);
+
+    if (id) {
+      this.id = zAccountId.parse(id);
+    }
   }
 
   /**

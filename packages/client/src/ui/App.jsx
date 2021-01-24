@@ -10,15 +10,26 @@ import Loading from "./Loading";
 import history from "./history";
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 
+const needToken = (Component) =>
+  function NeedsTokenGuard(props) {
+    const token = localStorage.getItem("token");
+    if (token === null) {
+      history.push("/");
+      return null;
+    }
+
+    return <Component {...props} token={token} />;
+  };
+
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
-const LobbyPage = lazy(() => import("./pages/LobbyPage"));
-const PlayPage = lazy(() => import("./pages/PlayPage"));
+const LobbyPage = needToken(lazy(() => import("./pages/LobbyPage")));
+const PlayPage = needToken(lazy(() => import("./pages/LoadingPage")));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 
-export const App = () => {
+export default function App() {
   const prefersDarkMode = true;
 
   const theme = useMemo(
@@ -55,4 +66,4 @@ export const App = () => {
       </RecoilRoot>
     </Router>
   );
-};
+}

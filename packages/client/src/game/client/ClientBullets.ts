@@ -19,8 +19,9 @@ export default class ClientBullets extends Bullets {
     super._spawnBullet(bullet);
   }
 
-  _cleanupBullet(bullet: ClientBullet) {
+  _cleanupBullet(bulletIndex: number) {
+    const bullet = this.bullets[bulletIndex] as ClientBullet;
     this.bulletContainer.removeChild(bullet.sprite);
-    super._cleanupBullet(bullet);
+    super._cleanupBullet(bulletIndex);
   }
 }

@@ -8,7 +8,7 @@ export default class Bullets {
   constructor(protected readonly timer: Timer) {}
 
   spawn(at: Player, angle: number) {
-    // TODO: put bullet in front of gun
+    // TODO: spawn bullet directly in front of gun for more realistic aiming
     const bullet = new Bullet(at.position.x, at.position.y, angle);
     this._spawnBullet(bullet);
   }
@@ -16,19 +16,18 @@ export default class Bullets {
   protected _spawnBullet(bullet: Bullet) {
     this.bullets.push(bullet);
 
-    const TWO_SECONDS = 2000;
-    this.timer.schedule(new Date(new Date().getTime() + TWO_SECONDS), () => {
-      // TODO: kinda ugly how we find the bullet and then pass it to cleanup which has to find the index again
+    const SECOND = 1_000;
+    this.timer.schedule(2 * SECOND, () => {
       const index = this.bullets.indexOf(bullet);
-      const deletedBullet = this.bullets[index];
-      this._cleanupBullet(deletedBullet);
+      this._cleanupBullet(index);
     });
   }
 
-  protected _cleanupBullet(bullet: Bullet) {
+  protected _cleanupBullet(bulletIndex: number) {
+    const bullet = this.bullets[bulletIndex];
     bullet.cleanup();
-    const idx = this.bullets.indexOf(bullet);
-    this.bullets = this.bullets.splice(idx, 1);
+
+    this.bullets = this.bullets.splice(bulletIndex, 1);
   }
 
   [Symbol.iterator]() {

@@ -7,6 +7,7 @@ import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
 import history from "../../ui/history";
+import type { ZGamePreview } from "@smiley-face-game/api/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,13 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// TODO: import from libcore
-interface GamePreview {
-  id: string;
-  name: string;
-  type: "saved" | "dynamic";
-  playerCount: number;
-}
+type GamePreview = ZGamePreview;
 
 type RoomProps = {
   room: GamePreview;

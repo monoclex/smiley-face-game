@@ -1,5 +1,5 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import type { ZSPacket, ZSInit, ZSEvent, ZWorldAction } from "@smiley-face-game/api/packets";
+import type { ZSPacket, ZSInit, ZSEvent } from "@smiley-face-game/api/packets";
 import { ZWorldActionKindReply } from "@smiley-face-game/api/types";
 import Player from "./components/Player";
 import World from "./World";
@@ -7,6 +7,7 @@ import Players from "./Players";
 import Chat from "./Chat";
 import Bullets from "./Bullets";
 import Timer from "./Timer";
+import StateSystem from "./StateSystem";
 
 type GameFactory = (timer: Timer) => [Bullets, Chat, Players, World];
 
@@ -21,6 +22,8 @@ export default class Game {
   readonly timer: Timer;
   readonly world: World;
   readonly self: Player;
+  readonly stateSystem: StateSystem;
+  running: boolean = true;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
     factory = factory || ((timer) => [new Bullets(timer), new Chat(), new Players(), new World(tileJson, init.size)]);
@@ -42,6 +45,8 @@ export default class Game {
       gunEquipped: false,
     });
 
+    this.stateSystem = new StateSystem();
+
     this.world.load(init.blocks);
   }
 
@@ -51,7 +56,8 @@ export default class Game {
    * @param deltaMs The amount of milliseconds that have elapsed since the last tick.
    */
   tick(deltaMs: number) {
-    // TODO: account for deltaMs and operate ticks at a fixed interval
+    // TO-DON'T: account for deltaMs and operate ticks at a fixed interval
+    // ^ going to end up using LukeM physics, so no need
     for (const p of this.players) {
       p.tick(this, deltaMs);
     }
@@ -59,13 +65,21 @@ export default class Game {
     for (const b of this.bullets) {
       b.tick();
     }
+
+    this.stateSystem.tick(this);
   }
 
   // tick sub-routines
 
   // message handler
-  handle(packet: ZSPacket) {
+  // return `1` for compile-time exauhstive typescript type checking
+  handle(packet: ZSPacket): 1 {
     switch (packet.packetId) {
+      case "SERVER_INIT": {
+        // should never receive this, doing it for the type checking
+        return 1;
+      }
+
       case "SERVER_BLOCK_LINE": {
         this.world.placeLine(
           this.players.getPlayer(packet.playerId),
@@ -76,7 +90,7 @@ export default class Game {
           packet.block,
           packet.layer
         );
-        return;
+        return 1;
       }
 
       case "SERVER_BLOCK_SINGLE": {
@@ -87,22 +101,22 @@ export default class Game {
           packet.block,
           packet.layer
         );
-        return;
+        return 1;
       }
 
       case "SERVER_CHAT": {
         this.chat.add(new Date(), this.players.getPlayer(packet.playerId), packet.message);
-        return;
+        return 1;
       }
 
       case "SERVER_EQUIP_GUN": {
         this.players.getPlayer(packet.playerId).holdGun(packet.equipped);
-        return;
+        return 1;
       }
 
       case "SERVER_EVENT": {
         this.handleEvent(packet.event);
-        return;
+        return 1;
       }
 
       case "SERVER_FIRE_BULLET": {
@@ -111,13 +125,13 @@ export default class Game {
           // the idea is that if a packet is received, then the client dispatches events to update
           // but in ClientAim, a client-side bullet is spawned already for the player
           // so really we need to figure out a better system to """hide lag"""
-          return;
+          return 1;
         }
 
         const player = this.players.getPlayer(packet.playerId);
         player.gunAngle = packet.angle;
         this.bullets.spawn(player, packet.angle);
-        return;
+        return 1;
       }
 
       case "SERVER_MOVEMENT": {
@@ -125,38 +139,33 @@ export default class Game {
         player.position = packet.position;
         player.velocity = packet.velocity;
         player.input = packet.inputs;
-        return;
+        return 1;
       }
 
       case "SERVER_PICKUP_GUN": {
         this.players.getPlayer(packet.playerId).pickupGun();
-        return;
+        return 1;
       }
 
       case "SERVER_PLAYER_JOIN": {
         this.players.addPlayer(packet);
-        return;
+        return 1;
       }
 
       case "SERVER_PLAYER_LEAVE": {
         this.players.removePlayer(packet.playerId);
-        return;
+        return 1;
       }
 
       case "SERVER_ROLE_UPDATE": {
         this.players.getPlayer(packet.playerId).role = packet.newRole;
-        return;
+        return 1;
       }
 
       case "SERVER_WORLD_ACTION": {
         const player = this.players.getPlayer(packet.playerId);
         this.handleWorldAction(player, packet.action);
-        return;
-      }
-
-      // TODO: let typescript yell at us if we don't cover all edgecases
-      default: {
-        throw new Error(`unimplemented packet type ${packet.packetId}`);
+        return 1;
       }
     }
   }
@@ -191,6 +200,7 @@ export default class Game {
   }
 
   cleanup() {
-    this.players.cleanup(); // TODO: is this elegant? (see `cleanup`)
+    this.players.cleanup();
+    this.running = false;
   }
 }

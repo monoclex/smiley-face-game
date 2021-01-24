@@ -17,6 +17,7 @@ const RegisterPage = () => (
       register({ username, email, password }).then(({ token }) => {
         localStorage.setItem("token", token);
         history.push("/lobby");
+        SnackbarUtils.success("Registered account!");
       })
     }
   />
