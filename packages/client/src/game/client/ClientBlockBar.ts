@@ -1,14 +1,14 @@
 import { resources } from "pixi.js";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { blockbar } from "../../recoil/atoms/blockbar";
+import { blockBarGlobal } from "../../state/";
 import textures from "../textures";
 import findTexture from "../helpers/atlasFindFrame";
 
 export default class ClientBlockBar {
   constructor(private readonly tileJson: TileRegistration) {
-    blockbar.modify({
+    blockBarGlobal.modify({
       slots: {
-        ...blockbar.state.slots,
+        ...blockBarGlobal.state.slots,
         [0]: tileJson.id("empty"),
         [1]: tileJson.id("basic-white"),
         [2]: tileJson.id("gun"),
@@ -55,6 +55,6 @@ export default class ClientBlockBar {
   }
 
   get selectedBlock(): number {
-    return blockbar.state.slots[blockbar.state.selected];
+    return blockBarGlobal.state.slots[blockBarGlobal.state.selected];
   }
 }

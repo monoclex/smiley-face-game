@@ -3,11 +3,11 @@ import { Divider, Paper, Grid, MenuItem, Checkbox } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useRecoilValue, useRecoilCallback, useRecoilState } from "recoil";
 import { Cog } from "mdi-material-ui";
-import currentPlayer from "../../recoil/selectors/currentPlayer";
+import currentPlayer from "../../state/selectors/currentPlayer";
 import Menu from "@material-ui/core/Menu/Menu";
 import IconButton from "@material-ui/core/IconButton";
 import WorldSettingsDialog from "./WorldSettingsDialog";
-import { chatState, settingsOpen } from "../../recoil/atoms/chat";
+import { settingsOpen } from "../../state";
 
 const useStyles = makeStyles({
   cog: {
