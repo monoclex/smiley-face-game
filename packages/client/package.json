@@ -4,7 +4,7 @@
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "cd ../../ && webpack serve --mode=development --env mode=development --env dev=yep",
+    "dev": "yarn snowpack dev --polyfill-node",
     "build-dev": "cd ../../ && webpack --env mode=production --env dev=yep",
     "build": "cd ../../ && webpack --mode=production --env mode=production",
     "test": "mocha --require @swc-node/register 'src/**/*.test.ts'"
@@ -54,6 +54,7 @@
     "@types/react-custom-scrollbars": "^4.0.7",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
+    "@types/snowpack-env": "^2.3.3",
     "@types/webpack-env": "^1.15.3",
     "@webpack-cli/serve": "^1.1.0",
     "babel-loader": "^8.2.2",

@@ -1,5 +1,5 @@
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = import.meta.env.NODE_ENV === "production";
 export default isProduction;
 
 //@ts-ignore
-export const isDev = process.env.DEV === true;
+export const isDev = import.meta.env.DEV === true;

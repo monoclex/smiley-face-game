@@ -43,7 +43,7 @@ if (isProduction) {
 ReactDOM.render(<App />, document.getElementById("root"));
 
 // enable HMR (hot module reloading)
-if (module.hot) {
+if (import.meta.hot) {
   // if (import.meta.hot) {
-  module.hot.accept(); // import.meta.hot.accept();
+  import.meta.hot.accept(); // import.meta.hot.accept();
 }
