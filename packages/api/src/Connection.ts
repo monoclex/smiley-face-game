@@ -24,34 +24,8 @@ function parseWebsocket(payload: any): Websocket {
 }
 
 export default class Connection {
-  /**
-   * Makes a connection to Smiley Face Game.
-   * @param endpoint The websocket endpoint to establish a connection with.
-   * @param token The token to use when connecting.
-   * @param joinRequest The join request to supply when making the connection.
-   */
-  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
-
-  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
-    const endpoint = zEndpoint.parse(argEndpoint);
-    const token = zToken.parse(argToken);
-    const joinRequest = zJoinRequest.parse(argJoinRequest);
-
-    const url = toUrl(endpoint, true);
-    url.searchParams.append("token", token);
-    url.searchParams.append("world", JSON.stringify(joinRequest));
-
-    return new Promise((resolve, reject) => {
-      const websocket = new Websocket(url.href);
-
-      // we've created a websocket, but did we really join?
-      // listen for either 'init' or an error
-      websocket.onclose = (e) => reject(e.reason);
-      websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
-    });
-  }
-
+  // TODO: put these variables below `establish`, see https://github.com/alangpierce/sucrase/issues/592
+  // === START
   /**
    * The validator for a `BlockPosition`.
    */
@@ -87,6 +61,35 @@ export default class Connection {
    * The state for registered tiles.
    */
   readonly tileJson: TileRegistration;
+  // === END
+
+  /**
+   * Makes a connection to Smiley Face Game.
+   * @param endpoint The websocket endpoint to establish a connection with.
+   * @param token The token to use when connecting.
+   * @param joinRequest The join request to supply when making the connection.
+   */
+  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
+
+  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
+  static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
+    const endpoint = zEndpoint.parse(argEndpoint);
+    const token = zToken.parse(argToken);
+    const joinRequest = zJoinRequest.parse(argJoinRequest);
+
+    const url = toUrl(endpoint, true);
+    url.searchParams.append("token", token);
+    url.searchParams.append("world", JSON.stringify(joinRequest));
+
+    return new Promise((resolve, reject) => {
+      const websocket = new Websocket(url.href);
+
+      // we've created a websocket, but did we really join?
+      // listen for either 'init' or an error
+      websocket.onclose = (e) => reject(e.reason);
+      websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
+    });
+  }
 
   /**
    * Constructs a new `Connection`, given a `websocket` and an `init` message.

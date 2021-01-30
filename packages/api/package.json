@@ -19,7 +19,7 @@
     "url": "https://github.com/SirJosh3917/smiley-face-game"
   },
   "dependencies": {
-    "computed-types": "^1.4.0",
+    "computed-types": "^1.5.1",
     "cross-fetch": "^3.0.6",
     "isomorphic-ws": "^4.0.1"
   },
