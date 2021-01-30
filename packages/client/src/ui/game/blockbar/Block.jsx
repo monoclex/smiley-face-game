@@ -61,7 +61,7 @@ const Block = (props) => {
         [classes.selected]: props.selected,
       })}
     >
-      <Grid item container justify="center">
+      <Grid item container justifyContent="center">
         <span>{props.slot}</span>
       </Grid>
       <Grid item className={classes.removeLineHeight}>

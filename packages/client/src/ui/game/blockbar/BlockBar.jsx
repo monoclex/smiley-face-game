@@ -1,5 +1,5 @@
-import React from "react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+
 import { Grid } from "@material-ui/core";
 import Block from "./Block";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -66,7 +66,7 @@ const BlockBar = ({ loader }) => {
   if (self.role === "non") return null;
 
   return (
-    <Grid item container justify="center" alignItems="flex-end">
+    <Grid item container justifyContent="center" alignItems="flex-end">
       {keys.map((key, i) => (
         <Block
           key={i}

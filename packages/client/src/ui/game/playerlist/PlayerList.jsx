@@ -62,7 +62,7 @@ const PlayerList = ({}) => {
   const players = useRecoilValue(playerListState);
 
   return (
-    <Grid container justify="flex-end" alignItems="center" className={classes.container}>
+    <Grid container justifyContent="flex-end" alignItems="center" className={classes.container}>
       <Grid item>
         <SizeMe>
           {({ size }) => (

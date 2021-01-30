@@ -90,7 +90,7 @@ const LobbyPage = () => {
 
   return (
     <>
-      <Grid container item justify="center" alignItems="center">
+      <Grid container item justifyContent="center" alignItems="center">
         <IconButton className={classes.rotate180} onClick={logout}>
           <ExitToAppIcon />
         </IconButton>
@@ -107,7 +107,7 @@ const LobbyPage = () => {
         </IconButton>
       </Grid>
       <div className={classes.paddingStyle}>
-        <Grid container spacing={3} justify="center" alignItems="flex-start">
+        <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
           {!roomPreviews && <Loading message={"Loading rooms..."} />}
           {!!roomPreviews &&
             roomPreviews.map((room) => (
@@ -124,7 +124,7 @@ const LobbyPage = () => {
         )}
 
         {myRooms && (
-          <Grid container spacing={3} justify="center" alignItems="flex-start">
+          <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
             {!myRooms && <Loading message={"Loading your rooms..."} />}
             {!!myRooms &&
               myRooms.map((room) => (

@@ -121,7 +121,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
         open={Boolean(anchorElement)}
         onClose={handleClose}
       >
-        <Grid container justify="center" direction="column">
+        <Grid container justifyContent="center" direction="column">
           <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>
       </Menu>

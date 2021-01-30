@@ -5,7 +5,7 @@ import { CssBaseline } from "@material-ui/core";
 import { deepPurple, indigo } from "@material-ui/core/colors";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
-
+import StyledEngineProvider from "@material-ui/core/StyledEngineProvider";
 import Loading from "./Loading";
 import history from "./history";
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
@@ -49,18 +49,20 @@ export default function App() {
       <RecoilRoot>
         <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
           <SnackbarUtilsConfigurator />
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Suspense fallback={<Loading />}>
-              <Route exact path="/" component={HomePage} />
-              <Route exact path="/terms" component={TermsAndConditionsPage} />
-              <Route exact path="/guest" component={GuestPage} />
-              <Route exact path="/register" component={RegisterPage} />
-              <Route exact path="/login" component={LoginPage} />
-              <Route exact path="/lobby" component={LobbyPage} />
-              <Route exact path="/games/:id" component={PlayPage} />
-            </Suspense>
-          </ThemeProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <Suspense fallback={<Loading />}>
+                <Route exact path="/" component={HomePage} />
+                <Route exact path="/terms" component={TermsAndConditionsPage} />
+                <Route exact path="/guest" component={GuestPage} />
+                <Route exact path="/register" component={RegisterPage} />
+                <Route exact path="/login" component={LoginPage} />
+                <Route exact path="/lobby" component={LobbyPage} />
+                <Route exact path="/games/:id" component={PlayPage} />
+              </Suspense>
+            </ThemeProvider>
+          </StyledEngineProvider>
         </SnackbarProvider>
       </RecoilRoot>
     </Router>
