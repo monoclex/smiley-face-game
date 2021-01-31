@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import SvgIcon from "@material-ui/core/SvgIcon";
-import RefreshIcon from "mdi-material-ui/Refresh";
-import PlusIcon from "mdi-material-ui/Plus";
+import Plus from "mdi-material-ui/Plus";
+import Refresh from "mdi-material-ui/Refresh";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
@@ -96,11 +96,11 @@ const LobbyPage = () => {
         </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()}>
-            <RefreshIcon />
+            <Refresh />
           </IconButton>
         </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
-          <PlusIcon />
+          <Plus />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
