@@ -13,6 +13,15 @@ module.exports = {
     "mdi-material-ui": "../../node_modules/mdi-material-ui",
   },
   plugins: [
+    [
+      "snowpack-plugin-rust-atlas-generator",
+      {
+        sourceDir: "./src/assets/tiles",
+        targetDir: "./src/assets",
+        width: 32,
+        height: 32,
+      },
+    ],
     "@snowpack/plugin-react-refresh",
     "@snowpack/plugin-dotenv",
     ["./snowpack-plugin-sucrase.js", { transforms: ["typescript", "jsx"] }],

@@ -9,6 +9,7 @@ import path from "path";
 import copy from "rollup-plugin-copy";
 import replace from "@rollup/plugin-replace";
 import builtins from "rollup-plugin-node-builtins";
+import rustAtlasGenerator from "rollup-plugin-rust-atlas-generator";
 
 const customResolver = resolve({
   extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -27,6 +28,12 @@ const config = {
     format: "esm",
   },
   plugins: [
+    rustAtlasGenerator({
+      sourceDir: path.resolve(__dirname, "./src/assets/tiles"),
+      targetDir: path.resolve(__dirname, "./src/assets"),
+      width: 32,
+      height: 32,
+    }),
     alias({
       customResolver,
       entries: [
