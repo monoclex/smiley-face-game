@@ -10,6 +10,7 @@ import copy from "rollup-plugin-copy";
 import replace from "@rollup/plugin-replace";
 import builtins from "rollup-plugin-node-builtins";
 import rustAtlasGenerator from "rollup-plugin-rust-atlas-generator";
+import json from "@rollup/plugin-json";
 
 const customResolver = resolve({
   extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -34,6 +35,7 @@ const config = {
       width: 32,
       height: 32,
     }),
+    json(),
     alias({
       customResolver,
       entries: [
@@ -52,9 +54,8 @@ const config = {
       "import.meta.env.DEV": false,
     }),
     resolve({
-      mainFields: ["module"],
+      mainFields: ["module", "browser"],
       extensions: [".js", ".jsx", ".ts", ".tsx"],
-      browser: true,
     }),
     commonjs({
       // it's of my moral opinion to be a righteous steward of my code, and to manually
@@ -87,9 +88,24 @@ const config = {
         // enabling sourcemap helps
         /\/react-router\//,
         /\/@babel\/runtime\/helpers\//,
+        /\/isarray\//,
+        /\/react-dom\//,
+        /\/scheduler\//,
+        /\/raf\//,
+        /\/performance-now\//,
+        /\/dom-css\//,
+        /\/prefix-style\//,
+        /\/to-camel-case\//,
+        /\/to-space-case\//,
+        /\/to-no-case\//,
+        /\/add-px-to-style\//,
+        /\/invariant\//,
+        /\/element-resize-detector\//,
+        /\/shallowequal\//,
+        /\/batch-processor\//,
       ],
     }),
-    url({ include: ["**/*.png", "**/*.json"] }),
+    url({ include: ["**/*.png"] }),
     svgr(),
     sucrase({
       include: ["./src/**", "../api/src/**"],
