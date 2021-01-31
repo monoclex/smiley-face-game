@@ -9,25 +9,20 @@ module.exports = {
   },
   alias: {
     "@smiley-face-game/api": "../api/src/",
+    // see above comment about mdi-material-ui
     "mdi-material-ui": "../../node_modules/mdi-material-ui",
-    // "@smiley-face-game/api": "/__snowpack_monorepo_package/api/",
-    // "@smiley-face-game/api/endpoints": "/__snowpack_monorepo_package/api/endpoints.js",
   },
   plugins: [
     "@snowpack/plugin-react-refresh",
     "@snowpack/plugin-dotenv",
     ["./snowpack-plugin-sucrase.js", { transforms: ["typescript", "jsx"] }],
-    "./import-svg-as-react-component-snowpack-plugin.js",
+    "./snowpack-plugin-svgr.js",
     "./snowpack-plugin-fix-mdi-material-ui.js",
   ],
   routes: [
-    /* Enable an SPA Fallback in development: */
+    // get react router to work, otherwise it can't find any path
     { match: "routes", src: ".*", dest: "/index.html" },
   ],
-  optimize: {
-    /* Example: Bundle your final build: */
-    // "bundle": true,
-  },
   packageOptions: {
     env: {
       NODE_ENV: "development",
@@ -36,9 +31,7 @@ module.exports = {
   },
   devOptions: {
     port: 5000,
+    // snowpack has a "dev console dashboard" that interferes with parallel logging
     output: "stream",
-  },
-  buildOptions: {
-    /* ... */
   },
 };
