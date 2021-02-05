@@ -5,7 +5,8 @@
   "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "dev-wp": "nodemon"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

@@ -8,6 +8,7 @@
     "build": "lerna run build --parallel",
     "build-dev": "lerna run build-dev --parallel",
     "dev": "lerna run dev --parallel",
+    "dev-wp": "lerna run dev-wp --parallel",
     "prelude": "yarn && lerna bootstrap",
     "test": "lerna run test --parallel"
   },

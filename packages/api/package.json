@@ -13,6 +13,7 @@
   "license": "MIT",
   "sideEffects": false,
   "exports": {
+    ".": "./src",
     "./": "./src/"
   },
   "main": "src/index.ts",
