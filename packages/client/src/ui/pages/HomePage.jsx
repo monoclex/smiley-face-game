@@ -22,12 +22,12 @@ const HomePage = () => {
 
   return (
     <Container maxWidth={false} className={classes.container}>
-      <Grid container direction="column" justify="center" alignItems="center" spacing={2}>
+      <Grid container direction="column" justifyContent="center" alignItems="center" spacing={2}>
         <Grid item>
           <Typography variant="h3">Smiley Face Game</Typography>
         </Grid>
 
-        <Grid container justify="center" alignItems="center" item spacing={2}>
+        <Grid container justifyContent="center" alignItems="center" item spacing={2}>
           <Grid item>
             <Button variant="contained" color="primary" component={Link} to="/register">
               Register

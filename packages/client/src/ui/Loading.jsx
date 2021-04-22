@@ -17,7 +17,7 @@ const Loading = ({ message = "Loading..." }) => {
 
   return (
     // we don't want 100% because then Loading looks too far down, so we'll put it up a bit
-    <Grid className={styles.fullScreen} container alignItems="center" justify="center">
+    <Grid className={styles.fullScreen} container alignItems="center" justifyContent="center">
       <Grid item>
         <Typography variant="h1" component="h1">
           {message}

@@ -77,7 +77,7 @@ const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
         src={smileyUrl}
       />
       {isWorking && (
-        <Grid container direction="row" justify="center" alignItems="center">
+        <Grid container direction="row" justifyContent="center" alignItems="center">
           <Grid item>
             <CircularProgress />
           </Grid>

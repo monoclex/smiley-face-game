@@ -22,8 +22,8 @@ export function position_after(
   drag?: number,
   acceleration?: number
 ): number {
-  drag ??= PHYSICS_DRAG;
-  acceleration ??= PHYSICS_BASE_ACCELERATION;
+  drag = drag ?? PHYSICS_DRAG;
+  acceleration = acceleration ?? PHYSICS_BASE_ACCELERATION;
   acceleration *= accelMultiplier;
 
   // the actual function has it's `x` axis in terms of ee ticks (10ms per tick) and output based on a 16x16 game (*2 for 32x32)
@@ -72,8 +72,8 @@ export function velocity_after(
   drag?: number,
   acceleration?: number
 ): number {
-  drag ??= PHYSICS_DRAG;
-  acceleration ??= PHYSICS_BASE_ACCELERATION;
+  drag = drag ?? PHYSICS_DRAG;
+  acceleration = acceleration ?? PHYSICS_BASE_ACCELERATION;
   acceleration *= accelMultiplier;
 
   // the actual function has it's `x` axis in terms of ee ticks (10ms per tick) and output based on a 16x16 game (*2 for 32x32)

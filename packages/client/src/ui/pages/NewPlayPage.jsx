@@ -44,10 +44,10 @@ export default function PlayPage({ game, gameElement }) {
       <div className={classes.game} ref={(elem) => elem && elem.appendChild(gameElement)} />
       <Grid className={classes.uiOverlay} container direction="column-reverse" alignItems="stretch">
         <Grid container item direction="row" alignItems="stretch">
-          <Grid container item xs={3} justify="center">
+          <Grid container item xs={3} justifyContent="center">
             <MobileControls />
           </Grid>
-          <Grid container item xs={6} justify="flex-end">
+          <Grid container item xs={6} justifyContent="flex-end">
             <BlockBar loader={(id) => game.blockBar.load(id)} />
           </Grid>
           <Grid container item xs={3} alignItems="flex-end">
@@ -60,7 +60,7 @@ export default function PlayPage({ game, gameElement }) {
           <Grid item xs={6} container alignItems="flex-end">
             <Chat />
           </Grid>
-          <Grid item xs={6} container direction="column" justify="center" alignItems="flex-end">
+          <Grid item xs={6} container direction="column" justifyContent="center" alignItems="flex-end">
             <PlayerList />
           </Grid>
         </Grid>

@@ -84,7 +84,7 @@ export default function Chat() {
   };
 
   return (
-    <Grid container direction="column" justify="flex-end" alignItems="flex-start" className={classes.container}>
+    <Grid container direction="column" justifyContent="flex-end" alignItems="flex-start" className={classes.container}>
       <Grid item className={classes.chatListGrid}>
         <SpringScrollbars
           className={classes.chatList}

@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import SvgIcon from "@material-ui/core/SvgIcon";
-import RefreshIcon from "mdi-material-ui/Refresh";
-import PlusIcon from "mdi-material-ui/Plus";
+import Plus from "mdi-material-ui/Plus";
+import Refresh from "mdi-material-ui/Refresh";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
@@ -90,24 +90,24 @@ const LobbyPage = () => {
 
   return (
     <>
-      <Grid container item justify="center" alignItems="center">
+      <Grid container item justifyContent="center" alignItems="center">
         <IconButton className={classes.rotate180} onClick={logout}>
           <ExitToAppIcon />
         </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()}>
-            <RefreshIcon />
+            <Refresh />
           </IconButton>
         </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)}>
-          <PlusIcon />
+          <Plus />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")}>
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
         </IconButton>
       </Grid>
       <div className={classes.paddingStyle}>
-        <Grid container spacing={3} justify="center" alignItems="flex-start">
+        <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
           {!roomPreviews && <Loading message={"Loading rooms..."} />}
           {!!roomPreviews &&
             roomPreviews.map((room) => (
@@ -124,7 +124,7 @@ const LobbyPage = () => {
         )}
 
         {myRooms && (
-          <Grid container spacing={3} justify="center" alignItems="flex-start">
+          <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
             {!myRooms && <Loading message={"Loading your rooms..."} />}
             {!!myRooms &&
               myRooms.map((room) => (

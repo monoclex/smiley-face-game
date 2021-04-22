@@ -1,7 +1,7 @@
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const { DefinePlugin } = require("webpack");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const atlas = require("rust-atlas-generator-webpack-plugin");
 
 module.exports = (env, argv) => {
@@ -15,7 +15,8 @@ module.exports = (env, argv) => {
       height: 32,
     }),
     new DefinePlugin({
-      "process.env.DEV": JSON.stringify(!!env.dev),
+      "import.meta.env.DEV": JSON.stringify(!!env.dev),
+      "import.meta.env.NODE_ENV": JSON.stringify(mode),
     }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -26,7 +27,7 @@ module.exports = (env, argv) => {
 
   return {
     mode,
-    devtool: mode === "development" && "eval-source-map",
+    devtool: "eval-source-map",
     entry: ["./packages/client/src/index.tsx"],
     resolve: {
       modules: [path.resolve(__dirname, "./packages"), path.resolve(__dirname, "./node_modules")],
@@ -36,8 +37,7 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.(j|t)sx?$/,
-          include: path.resolve(__dirname, "./packages"),
-          use: { loader: "babel-loader", options: require("./babel.config.js") },
+          use: { loader: "@sucrase/webpack-loader", options: { transforms: ["typescript", "jsx"] } },
         },
         { test: /\.(png|mp3)$/, use: "file-loader" },
         { test: /\.svg$/, use: "@svgr/webpack" },
@@ -53,7 +53,7 @@ module.exports = (env, argv) => {
       hot: true,
     },
     optimization: {
-      minimize: mode === "production",
+      minimize: false,
     },
   };
 };

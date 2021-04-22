@@ -1,9 +1,8 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import clsx from "clsx";
-import { TileId, Rotation } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
   selected: {
@@ -62,7 +61,7 @@ const Block = (props) => {
         [classes.selected]: props.selected,
       })}
     >
-      <Grid item container justify="center">
+      <Grid item container justifyContent="center">
         <span>{props.slot}</span>
       </Grid>
       <Grid item className={classes.removeLineHeight}>

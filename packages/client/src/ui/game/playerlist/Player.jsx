@@ -3,7 +3,8 @@ import { Grid, MenuItem } from "@material-ui/core";
 import clsx from "clsx";
 import { useRecoilValue } from "recoil";
 import Menu from "@material-ui/core/Menu/Menu";
-import { Pencil, ShoeCleat } from "mdi-material-ui";
+import Pencil from "mdi-material-ui/Pencil";
+import ShoeCleat from "mdi-material-ui/ShoeCleat";
 import { currentPlayerState } from "../../../state";
 import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
 import { useSnackbar } from "notistack";
@@ -121,7 +122,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
         open={Boolean(anchorElement)}
         onClose={handleClose}
       >
-        <Grid container justify="center" direction="column">
+        <Grid container justifyContent="center" direction="column">
           <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>
       </Menu>

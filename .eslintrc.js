@@ -28,7 +28,7 @@ module.exports = {
   plugins: ["react", "@typescript-eslint", "prettier"],
   settings: {
     react: {
-      version: "16.13",
+      version: "17.0.1",
     },
   },
   rules: {

@@ -3,7 +3,8 @@ import { Paper, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { SizeMe } from "react-sizeme";
+import withSize from "react-sizeme";
+const { SizeMe } = withSize;
 import { playerListState } from "../../../state/";
 import { useRecoilValue } from "recoil";
 import commonUIStyles from "../commonUIStyles";
@@ -61,7 +62,7 @@ const PlayerList = ({}) => {
   const players = useRecoilValue(playerListState);
 
   return (
-    <Grid container justify="flex-end" alignItems="center" className={classes.container}>
+    <Grid container justifyContent="flex-end" alignItems="center" className={classes.container}>
       <Grid item>
         <SizeMe>
           {({ size }) => (
