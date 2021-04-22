@@ -1,12 +1,12 @@
 import { TileLayer } from "@smiley-face-game/api/types";
-import Position from "../interfaces/Position";
-import Velocity from "../interfaces/Velocity";
-import Inputs from "../interfaces/Inputs";
-import PhysicsObject from "../interfaces/PhysicsObject";
-import defaultInputs from "../helpers/defaultInputs";
-import Game from "../Game";
-import { PHYSICS_DECELERATION_DRAG, position_after, velocity_after } from "../physics/path";
-import clamp from "../helpers/clamp";
+import Position from "./interfaces/Position";
+import Velocity from "./interfaces/Velocity";
+import Inputs from "./interfaces/Inputs";
+import PhysicsObject from "./interfaces/PhysicsObject";
+import defaultInputs from "./helpers/defaultInputs";
+import Game from "./Game";
+import { PHYSICS_DECELERATION_DRAG, position_after, velocity_after } from "./physics/path";
+import clamp from "./helpers/clamp";
 
 enum GunState {
   None,
@@ -88,7 +88,7 @@ export default class Player implements PhysicsObject {
     this._role = value;
   }
 
-  constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
+  constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) { }
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -335,12 +335,12 @@ export default class Player implements PhysicsObject {
     return actionBlock === game.tileJson.id("arrow-up")
       ? ArrowDirection.Up
       : actionBlock === game.tileJson.id("arrow-right")
-      ? ArrowDirection.Right
-      : actionBlock === game.tileJson.id("arrow-down")
-      ? ArrowDirection.Down
-      : actionBlock === game.tileJson.id("arrow-left")
-      ? ArrowDirection.Left
-      : ArrowDirection.Down;
+        ? ArrowDirection.Right
+        : actionBlock === game.tileJson.id("arrow-down")
+          ? ArrowDirection.Down
+          : actionBlock === game.tileJson.id("arrow-left")
+            ? ArrowDirection.Left
+            : ArrowDirection.Down;
   }
 
   capIntoWorldBoundaries(game: Game) {
@@ -357,5 +357,5 @@ export default class Player implements PhysicsObject {
     if (previousY !== this.position.y) this.velocity.y = 0;
   }
 
-  cleanup() {}
+  cleanup() { }
 }

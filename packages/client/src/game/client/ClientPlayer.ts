@@ -1,9 +1,9 @@
 import { Container, Sprite } from "pixi.js";
-import Game from "../../Game";
-import Player from "../../components/Player";
-import textures from "../../textures";
-import Position from "../../interfaces/Position";
-import distanceAway from "../../../math/distanceAway";
+import Game from "../Game";
+import Player from "../Player";
+import textures from "../textures";
+import Position from "../interfaces/Position";
+import distanceAway from "../../math/distanceAway";
 
 export default class ClientPlayer extends Player {
   container: Container;

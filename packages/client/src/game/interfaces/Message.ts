@@ -1,4 +1,4 @@
-import Player from "../components/Player";
+import Player from "../Player";
 
 export default interface Message {
   // id is for react

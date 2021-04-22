@@ -1,5 +1,5 @@
 import { ZSPlayerJoin } from "@smiley-face-game/api/packets";
-import Player from "./components/Player";
+import Player from "./Player";
 import PlayerCtor from "./interfaces/PlayerCtor";
 
 export default class Players {

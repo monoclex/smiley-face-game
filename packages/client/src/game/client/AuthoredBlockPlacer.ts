@@ -1,6 +1,6 @@
 import { Connection } from "@smiley-face-game/api";
 import World from "../World";
-import Player from "../components/Player";
+import Player from "../Player";
 import Position from "../interfaces/Position";
 import { TileLayer } from "@smiley-face-game/api/types";
 import ClientBlockBar from "./ClientBlockBar";
@@ -12,7 +12,7 @@ export default class AuthoredBlockPlacer {
     private readonly connection: Connection,
     private readonly world: World,
     private readonly blockBar: ClientBlockBar
-  ) {}
+  ) { }
 
   // TODO: function signature weird lol
   draw(lastPos: undefined | Position, curX: number, curY: number, action: "place" | "erase", layer?: TileLayer) {

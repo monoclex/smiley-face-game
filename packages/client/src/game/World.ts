@@ -2,7 +2,7 @@ import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { TileLayer } from "@smiley-face-game/api/types";
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
 import Size from "./interfaces/Size";
-import Player from "./components/Player";
+import Player from "./Player";
 
 export default class World {
   protected state: number[][][];
@@ -87,7 +87,7 @@ export default class World {
     this.load(state);
   }
 
-  onSave(author: Player) {}
+  onSave(author: Player) { }
 
   onLoad(author: Player, blocks: number[][][]) {
     this.load(blocks);
@@ -97,5 +97,5 @@ export default class World {
     this.clear();
   }
 
-  onPlace(layer: TileLayer, y: number, x: number, id: number) {}
+  onPlace(layer: TileLayer, y: number, x: number, id: number) { }
 }

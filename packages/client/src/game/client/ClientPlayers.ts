@@ -1,7 +1,7 @@
 import { ZSPlayerJoin } from "@smiley-face-game/api/packets";
 import { Container } from "pixi.js";
 import Players from "../Players";
-import ClientPlayer from "./components/ClientPlayer";
+import ClientPlayer from "./ClientPlayer";
 
 export default class ClientPlayers extends Players {
   constructor(readonly players: Container) {
@@ -19,5 +19,5 @@ export default class ClientPlayers extends Players {
     return player;
   }
 
-  cleanup() {}
+  cleanup() { }
 }
