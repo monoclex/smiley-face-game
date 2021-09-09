@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Grid, Input } from "@material-ui/core";
-import { makeStyles, fade } from "@material-ui/core/styles";
+import { makeStyles, alpha } from "@material-ui/core/styles";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 import { messagesState, chatOpenState } from "../../../state";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   chatListGrid: {
     color: theme.palette.text.primary,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     borderTopLeftRadius: theme.shape.borderRadius,
     borderTopRightRadius: theme.shape.borderRadius,
     paddingLeft: 5,
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   chatField: {
     borderBottomLeftRadius: theme.shape.borderRadius,
     borderBottomRightRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     pointerEvents: "all",
     width: "40%",
     padding: 5,
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   chatInput: {
     padding: theme.spacing(1, 1, 1, 1),
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
   },
 }));
 
