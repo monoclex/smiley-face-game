@@ -42,8 +42,8 @@ const config = {
         // TODO: submit a PR to get mini-signals to work properly with package.json stuff
         { find: /mini-signals/, replacement: nodeModule("mini-signals/src") },
         { find: /@smiley-face-game\/api\/(.*)/, replacement: `${apiSrcRootDir}/$1` },
-        { find: /@material-ui\/icons(.*)/, replacement: nodeModule("@material-ui/icons/esm/$1") },
-        { find: /@material-ui\/lab(.*)/, replacement: nodeModule("@material-ui/lab/esm/$1") },
+        { find: /@material-ui\/icons(.*)/, replacement: nodeModule("@mui/icons-material/esm/$1") },
+        { find: /@material-ui\/lab(.*)/, replacement: nodeModule("@mui/lab/esm/$1") },
       ],
     }),
     // pixi.js imports from "url" for some reason, so we have to include node builtins

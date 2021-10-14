@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { Grid, MenuItem } from "@material-ui/core";
+import { Grid, MenuItem } from "@mui/material";
 import clsx from "clsx";
 import { useRecoilValue } from "recoil";
-import Menu from "@material-ui/core/Menu/Menu";
+import Menu from "@mui/material/Menu/Menu";
 import Pencil from "mdi-material-ui/Pencil";
 import ShoeCleat from "mdi-material-ui/ShoeCleat";
 import { currentPlayerState } from "../../../state";
-import ToggleButton from "@material-ui/lab/ToggleButton/ToggleButton";
+import { ToggleButton } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import state from "../../../bridge/state";
 
 const useStyles = makeStyles((theme) => ({

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { Grid } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Grid } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import PlayerList from "../../ui/game/playerlist/PlayerList";

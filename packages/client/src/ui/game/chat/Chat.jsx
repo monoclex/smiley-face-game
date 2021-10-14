@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import { Grid, Input } from "@material-ui/core";
-import { makeStyles, alpha } from "@material-ui/core/styles";
+import { Grid, Input } from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import { alpha } from "@mui/material/styles";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 import { messagesState, chatOpenState } from "../../../state";
