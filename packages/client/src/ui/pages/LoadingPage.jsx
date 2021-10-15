@@ -4,7 +4,7 @@ import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
-import history from "../history";
+import { useHistory } from "react-router";
 
 export default function LoadingPage({
   token,
@@ -13,6 +13,7 @@ export default function LoadingPage({
     params: { id },
   },
 }) {
+  const history = useHistory();
   const [gameElement] = useState(document.createElement("canvas"));
   const [game, setGame] = useState(undefined);
 

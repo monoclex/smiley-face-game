@@ -1,12 +1,11 @@
 //@ts-check
 import React, { Suspense, lazy, useMemo } from "react";
-import { Router, Route } from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
 import Loading from "./Loading";
-import history from "./history";
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 
 const needToken = (Component) =>
@@ -49,7 +48,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Router history={history}>
+      <BrowserRouter>
         <RecoilRoot>
           <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
             <SnackbarUtilsConfigurator />
@@ -67,7 +66,7 @@ export default function App() {
             </Suspense>
           </SnackbarProvider>
         </RecoilRoot>
-      </Router>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

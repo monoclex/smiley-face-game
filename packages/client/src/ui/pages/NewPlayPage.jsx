@@ -9,7 +9,7 @@ import WorldSettingsButton from "../game/WorldSettingsButton";
 
 // TODO: better name
 const GameContainer = styled("div")({
-  lineHeiht: "1px",
+  lineHeight: "1px",
 });
 
 const UiOverlay = styled(Grid)({

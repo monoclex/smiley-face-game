@@ -10,12 +10,12 @@ import Refresh from "mdi-material-ui/Refresh";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
-import history from "../../ui/history";
 import Loading from "../../ui/Loading";
 import Typography from "@mui/material/Typography";
 import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
 import { Authentication } from "@smiley-face-game/api";
+import { useHistory } from "react-router";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
@@ -28,6 +28,7 @@ const RotatedIcon = styled(IconButton)({
 });
 
 const LobbyPage = () => {
+  const history = useHistory();
   const token = localStorage.getItem("token");
 
   if (token === null) {
@@ -136,7 +137,7 @@ const LobbyPage = () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.createGame(name, parseInt(width), parseInt(height));
+          history.push(`/games/loading`, { type: "create", name, width: parseInt(width), height: parseInt(height) });
           setCreateRoomDialogOpen(false);
         }}
       />

@@ -1,15 +1,17 @@
 //@ts-check
 import React from "react";
+import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { Grid, Typography, Container, styled } from "@mui/material";
-import history from "../../ui/history";
 
 const PaddedContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
 }));
 
 const HomePage = () => {
+  const history = useHistory();
+
   // if they have a token, they should go straight to the lobby
   if (localStorage.getItem("token") !== null) {
     history.push("/lobby");

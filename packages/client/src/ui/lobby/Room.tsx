@@ -6,8 +6,8 @@ import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
-import history from "../../ui/history";
 import type { ZGamePreview } from "@smiley-face-game/api/api";
+import { useHistory } from "react-router";
 
 const CardRoot = styled(Card)({
   display: "flex",
@@ -43,6 +43,7 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
+  const history = useHistory();
   const {
     room: { id, name, playerCount },
   } = props;
@@ -74,7 +75,7 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => history.joinGame(id)} size="large">
+              <IconButton aria-label="play" onClick={() => history.push(`/games/${id}`, { type: "join", id })} size="large">
                 <PlayIcon />
               </IconButton>
             </Tooltip>

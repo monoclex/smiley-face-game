@@ -61,16 +61,16 @@ export default class Connection {
     this.connected = true;
     const validator = room.validateWorldPacket;
 
-    this.webSocket.on("message", async (data) => {
+    this.webSocket.on("message", async (wsData) => {
       if (!this.connected) {
         console.warn("received message despite websocket being disconnected");
         return;
       }
 
-      console.log("the data is", data);
-      this.kill("asdf");
-      /*
+      // it simply is a string /shrug
+      const data = wsData as unknown as string;
       if (typeof data !== "string") {
+        console.error("got non-string", wsData);
         this.kill("Sent a non-string.");
         return;
       }
@@ -97,7 +97,6 @@ export default class Connection {
         this.kill("sent an invalid packet");
         return;
       }
-      */
     });
 
     const untilClose = new PromiseCompletionSource();
