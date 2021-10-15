@@ -17,7 +17,8 @@
   },
   "scripts": {
     "check": "package-check",
-    "lint": "eslint ./src/*",
+    "lint": "eslint \"./**\"",
+    "lint:fix": "eslint --fix \"./**\"",
     "build": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production"
   },
