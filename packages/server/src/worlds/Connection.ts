@@ -71,7 +71,7 @@ export default class Connection {
         this.kill("Sent a non-string.");
         return;
       }
-
+      
       if (data.length >= 8096) {
         this.kill("Sent a magnum payload."); // all hail danny devito
         return;

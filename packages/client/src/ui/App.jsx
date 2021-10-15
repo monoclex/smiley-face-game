@@ -29,6 +29,7 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const LobbyPage = needToken(lazy(() => import("./pages/LobbyPage")));
 const PlayPage = needToken(lazy(() => import("./pages/LoadingPage")));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
+const ShopPage = lazy(() => import("./pages/ShopPage"));
 
 export default function App() {
   const prefersDarkMode = true;
@@ -65,6 +66,8 @@ export default function App() {
                   <Route exact path="/login" component={LoginPage} />
                   <Route exact path="/lobby" component={LobbyPage} />
                   <Route exact path="/games/:id" component={PlayPage} />
+                  <Route exact path="/games/" component={PlayPage} />
+                  <Route exact path="/shop" component={ShopPage} />
                 </Suspense>
               </StyledEngineProvider>
             </SnackbarProvider>
