@@ -1,3 +1,4 @@
+//@ts-check
 import React, { useState, useRef, useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { SpringSystem } from "rebound";

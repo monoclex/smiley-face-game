@@ -1,14 +1,13 @@
+//@ts-check
 import React, { useState } from "react";
 
 import { Button, Grid, Slide } from "@mui/material";
-
-import makeStyles from '@mui/styles/makeStyles';
 
 import ShopItem from "../ShopItem";
 import ShopItemSkeleton from "../ShopItemSkeleton";
 import Carousel from "../../components/Carousel";
 
-export default ({ items }) => {
+export default function ShopCarousel({ items }) {
   if (!Array.isArray(items)) {
     return items;
   }
@@ -20,4 +19,4 @@ export default ({ items }) => {
       ))}
     </Carousel>
   );
-};
+}

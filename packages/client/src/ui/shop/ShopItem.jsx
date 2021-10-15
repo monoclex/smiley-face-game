@@ -1,31 +1,20 @@
+//@ts-check
 import React from "react";
 
 import { motion } from "framer-motion";
 import { useSnackbar } from "notistack";
-import {
-  Button,
-  Card,
-  CardActionArea,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@mui/material";
+import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
 
-import makeStyles from '@mui/styles/makeStyles';
-
-const useStyles = makeStyles({
-  root: {
-    width: 256,
-    height: 384,
-  },
-  buyButton: {
-    marginLeft: "auto !important",
-  },
+const ShopCard = styled(Card)({
+  width: 256,
+  height: 384,
 });
 
-export default ({ image, title, description, owned, cost }) => {
-  const classes = useStyles();
+const BuyButton = styled(Button)({
+  marginLeft: "auto !important",
+});
+
+export default function ShopItem({ image, title, description, owned, cost }) {
   const snackbar = useSnackbar();
 
   const handleClick = () => {
@@ -49,7 +38,7 @@ export default ({ image, title, description, owned, cost }) => {
 
   return (
     <motion.div whileHover={{ scale: 1.05 }}>
-      <Card className={classes.root}>
+      <ShopCard>
         <CardMedia component="img" image={image} title={title} width={256} height={196} />
 
         <CardContent>
@@ -64,18 +53,11 @@ export default ({ image, title, description, owned, cost }) => {
         <CardActions>
           <PriceLabel />
 
-          <Button
-            size="small"
-            color="primary"
-            variant="contained"
-            className={classes.buyButton}
-            disabled={owned}
-            onClick={handleClick}
-          >
+          <BuyButton size="small" color="primary" variant="contained" disabled={owned} onClick={handleClick}>
             {owned ? "owned" : "buy"}
-          </Button>
+          </BuyButton>
         </CardActions>
-      </Card>
+      </ShopCard>
     </motion.div>
   );
-};
+}

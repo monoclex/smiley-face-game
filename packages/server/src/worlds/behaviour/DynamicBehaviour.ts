@@ -5,7 +5,7 @@ import Connection from "../../worlds/Connection";
 import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
 import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
 import { zJoinRequest } from "@smiley-face-game/api/ws-api";
-import TileJson from "packages/server/src/worlds/TileJson";
+import TileJson from "../TileJson";
 
 export default class DynamicBehaviour implements Behaviour {
   #name: string;

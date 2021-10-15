@@ -67,6 +67,9 @@ export default class Connection {
         return;
       }
 
+      console.log("the data is", data);
+      this.kill("asdf");
+      /*
       if (typeof data !== "string") {
         this.kill("Sent a non-string.");
         return;
@@ -94,6 +97,7 @@ export default class Connection {
         this.kill("sent an invalid packet");
         return;
       }
+      */
     });
 
     const untilClose = new PromiseCompletionSource();

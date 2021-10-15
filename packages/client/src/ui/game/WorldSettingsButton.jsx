@@ -1,19 +1,16 @@
+//@ts-check
 import React, { useRef } from "react";
-import { makeStyles } from "@mui/styles";
 import { useRecoilValue, useRecoilState } from "recoil";
-import Cog from "mdi-material-ui/Cog";
 import IconButton from "@mui/material/IconButton";
+import { styled } from "@mui/material";
 import WorldSettingsDialog from "./WorldSettingsDialog";
 import { settingsOpenState, currentPlayerState } from "../../state";
 
-const useStyles = makeStyles({
-  cog: {
-    pointerEvents: "all",
-  },
+const CogIconButton = styled(IconButton)({
+  pointerEvents: "all",
 });
 
 const WorldSettingsButton = ({}) => {
-  const classes = useStyles();
   const mainPlayer = useRecoilValue(currentPlayerState);
   const ref = useRef();
 
@@ -29,21 +26,25 @@ const WorldSettingsButton = ({}) => {
     return null;
   }
 
-  return <>
-    <IconButton
-      ref={ref}
-      variant="contained"
-      aria-haspopup="true"
-      onClick={doOpen}
-      className={classes.cog}
-      color="primary"
-      aria-label="world settings"
-      component="span"
-      size="large">
-      <Cog />
-    </IconButton>
-    <WorldSettingsDialog open={open} onClose={onClose} />
-  </>;
+  return (
+    <>
+      <CogIconButton
+        ref={ref}
+        // TODO: what does it want here?
+        // variant="contained"
+        aria-haspopup="true"
+        onClick={doOpen}
+        color="primary"
+        aria-label="world settings"
+        // TODO: what does it want here?
+        // component="span"
+        size="large"
+      >
+        <Cog />
+      </CogIconButton>
+      <WorldSettingsDialog open={open} onClose={onClose} />
+    </>
+  );
 };
 
 export default WorldSettingsButton;

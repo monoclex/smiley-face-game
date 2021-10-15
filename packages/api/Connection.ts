@@ -126,7 +126,7 @@ export default class Connection {
   [Symbol.asyncIterator]() {
     const self = this;
     const next: () => Promise<{ done: false; value: ZSPacket } | { done: true }> = () =>
-      self.messages.next().then((value) => (!!value ? { value, done: false } : { done: true }));
+      self.messages.next().then((value) => (value ? { value, done: false } : { done: true }));
     return { next };
   }
 

@@ -1,3 +1,4 @@
+//@ts-check
 import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmnop.png";

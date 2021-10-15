@@ -10,33 +10,21 @@ interface ModifiedHistory<S = HistoryState> extends History<S> {
   createGame(name: string, width: number, height: number): void;
 }
 
-const history = createBrowserHistory<HistoryState>();
+const history = createBrowserHistory();
 
 const modifiedHistory: ModifiedHistory = {
   ...history,
   home: () => {
-    history.push({
-      pathname: "/",
-      state: undefined,
-    });
+    history.push({ pathname: "/" }, undefined);
   },
   lobby: () => {
-    history.push({
-      pathname: "/lobby",
-      state: undefined,
-    });
+    history.push({ pathname: "/lobby" }, undefined);
   },
   joinGame: (id) => {
-    history.push({
-      pathname: `/games/${id}`,
-      state: { type: "join", id },
-    });
+    history.push({ pathname: `/games/${id}` }, { type: "join", id });
   },
   createGame: (name, width, height) => {
-    history.push({
-      pathname: `/games/loading`,
-      state: { type: "create", name, width, height },
-    });
+    history.push({ pathname: `/games/loading` }, { type: "create", name, width, height });
   },
 };
 

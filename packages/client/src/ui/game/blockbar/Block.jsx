@@ -1,37 +1,37 @@
+//@ts-check
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { makeStyles } from "@mui/styles";
 import Grid from "@mui/material/Grid";
+import { styled } from "@mui/material";
 import clsx from "clsx";
 
-const useStyles = makeStyles({
-  selected: {
-    marginBottom: 8,
-  },
+const Selected = styled(Grid)({
+  marginBottom: 8,
+});
+// so that this doesn't get ripped out, cuz we need it later for refactors
+console.log(Selected);
 
-  image: {
-    width: 32,
-    height: 32,
-    pointerEvents: "all",
-    imageRendering: "pixelated",
-  },
-
-  hover: {
-    "&:hover": {
-      marginBottom: 8,
-    },
-  },
-
+const LineheightlessGrid = styled(Grid)({
   // the line height on grid item that contains the image causes the size of the div to be 32x35.(...), which is a result of the
   // line height affecting the height
   // this removes it so that the div is exactly 32x32
-  removeLineHeight: {
-    lineHeight: "1px",
-  },
+  lineHeight: "1px",
+});
+
+const BlockPreview = styled("img")({
+  width: 32,
+  height: 32,
+  pointerEvents: "all",
+  imageRendering: "pixelated",
+  // TODO: include this for selected blocks
+  // hover: {
+  //   "&:hover": {
+  //     marginBottom: 8,
+  //   },
+  // },
 });
 
 const Block = (props) => {
-  const classes = useStyles(props);
   const [imageSource, setImageSource] = useState(null);
 
   useEffect(() => {
@@ -57,16 +57,18 @@ const Block = (props) => {
 
   return (
     <Grid
-      className={clsx({
-        [classes.selected]: props.selected,
-      })}
+    // TODO: conditionally apply "Selected"
+    // className={clsx({
+    //   [classes.selected]: props.selected,
+    // })}
     >
       <Grid item container justifyContent="center">
         <span>{props.slot}</span>
       </Grid>
-      <Grid item className={classes.removeLineHeight}>
-        <img className={clsx(classes.image, props.selected && classes.hover)} onClick={handleClick} src={imageSource} />
-      </Grid>
+      <LineheightlessGrid item>
+        {/* TODO: for block previews, add code if they're selected */}
+        <BlockPreview onClick={handleClick} src={imageSource} />
+      </LineheightlessGrid>
     </Grid>
   );
 };

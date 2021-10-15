@@ -1,6 +1,6 @@
+//@ts-check
 import React, { useRef, useEffect } from "react";
-import { Grid, Input } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { Grid, Input, styled } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
@@ -10,45 +10,43 @@ import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
 import state from "../../../bridge/state";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    ...commonUIStyles.uiOverlayElement,
-    paddingLeft: theme.spacing(3),
-  },
-  containerNotActive: {
-    display: "none",
-  },
-  chatListGrid: {
-    color: theme.palette.text.primary,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    borderTopLeftRadius: theme.shape.borderRadius,
-    borderTopRightRadius: theme.shape.borderRadius,
-    paddingLeft: 5,
-    paddingRight: 5,
-    width: "40%",
-  },
-  chatList: {
-    overflow: "auto",
-    maxHeight: "100%",
-    pointerEvents: "all",
-  },
-  chatField: {
-    borderBottomLeftRadius: theme.shape.borderRadius,
-    borderBottomRightRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    pointerEvents: "all",
-    width: "40%",
-    padding: 5,
-  },
-  chatInput: {
-    padding: theme.spacing(1, 1, 1, 1),
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-  },
+const Container = styled(Grid)(({ theme }) => ({
+  ...commonUIStyles.uiOverlayElement,
+  paddingLeft: theme.spacing(3),
+}));
+
+const ChatListGrid = styled(Grid)(({ theme }) => ({
+  color: theme.palette.text.primary,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  borderTopLeftRadius: theme.shape.borderRadius,
+  borderTopRightRadius: theme.shape.borderRadius,
+  paddingLeft: 5,
+  paddingRight: 5,
+  width: "40%",
+}));
+
+const ChatList = styled(SpringScrollbars)({
+  overflow: "auto",
+  maxHeight: "100%",
+  pointerEvents: "all",
+});
+
+const ChatField = styled(Grid)(({ theme }) => ({
+  borderBottomLeftRadius: theme.shape.borderRadius,
+  borderBottomRightRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  pointerEvents: "all",
+  width: "40%",
+  padding: 5,
+}));
+
+const ChatInput = styled(Input)(({ theme }) => ({
+  padding: theme.spacing(1, 1, 1, 1),
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
 }));
 
 export default function Chat() {
-  const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
   const inputRef = useRef();
@@ -85,29 +83,20 @@ export default function Chat() {
   };
 
   return (
-    <Grid container direction="column" justifyContent="flex-end" alignItems="flex-start" className={classes.container}>
-      <Grid item className={classes.chatListGrid}>
-        <SpringScrollbars
-          className={classes.chatList}
-          autoHeight
-          autoHeightMin={0}
-          autoHeightMax={400}
-          autoHide
-          autoHideTimeout={1000}
-          autoHideDuration={200}
-        >
+    <Container container direction="column" justifyContent="flex-end" alignItems="flex-start">
+      <ChatListGrid item>
+        <ChatList autoHeight autoHeightMin={0} autoHeightMax={400} autoHide autoHideTimeout={1000} autoHideDuration={200}>
           {messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
-        </SpringScrollbars>
-      </Grid>
+        </ChatList>
+      </ChatListGrid>
 
       {isActive && (
-        <Grid item className={classes.chatField}>
+        <ChatField item>
           <div>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-              <Input
-                className={classes.chatInput}
+              <ChatInput
                 disableUnderline
                 fullWidth
                 id="content"
@@ -122,8 +111,8 @@ export default function Chat() {
               />
             </form>
           </div>
-        </Grid>
+        </ChatField>
       )}
-    </Grid>
+    </Container>
   );
 }

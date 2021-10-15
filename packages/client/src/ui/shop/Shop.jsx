@@ -1,7 +1,7 @@
+//@ts-check
 import React, { useState } from "react";
 
-import { Box, Grid, Paper, Tab, Toolbar, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled, Box, Grid, Paper, Tab, Toolbar, Typography } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 
@@ -12,11 +12,9 @@ import ShopGroup from "./ShopGroup";
 import ShopItem from "./ShopItem";
 import ShopFeatured from "./ShopFeatured";
 
-const useStyles = makeStyles({
-  paper: {
-    margin: 20,
-    marginBottom: 0,
-  },
+const SpacedPaper = styled(Paper)({
+  margin: 20,
+  marginBottom: 0,
 });
 
 const Icon = ({ icon: TextIcon, text }) => {
@@ -29,8 +27,6 @@ const Icon = ({ icon: TextIcon, text }) => {
 };
 
 const Shop = () => {
-  const classes = useStyles();
-
   // TODO:
   //  Give featured items a title bar (done, but not sure how i feel about it...)
   //  Grab shop content from API
@@ -108,14 +104,14 @@ const Shop = () => {
     <Grid container>
       <Grid item container justifyContent="center">
         <Grid item>
-          <Paper className={classes.paper}>
+          <SpacedPaper>
             <ShopFeatured />
-          </Paper>
+          </SpacedPaper>
         </Grid>
       </Grid>
 
       <Grid item xs={12}>
-        <Paper className={classes.paper}>
+        <SpacedPaper>
           <TabContext value={value}>
             <Paper square>
               <TabList onChange={(e, newValue) => setValue(newValue)} centered>
@@ -135,7 +131,7 @@ const Shop = () => {
               <ShopGroup items={items.filter((item) => (item.categoryType & CategoryType.Owned) !== 0)} />
             </TabPanel>
           </TabContext>
-        </Paper>
+        </SpacedPaper>
       </Grid>
     </Grid>
   );

@@ -1,3 +1,4 @@
+//@ts-check
 import React, { useEffect, useState } from "react";
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";

@@ -1,37 +1,30 @@
+//@ts-check
 import React, { useEffect } from "react";
-import { Grid } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { Grid, styled } from "@mui/material";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";
 import PlayerList from "../../ui/game/playerlist/PlayerList";
 import MobileControls from "../game/MobileControls";
 import WorldSettingsButton from "../game/WorldSettingsButton";
 
-const useStyles = makeStyles({
-  game: {
-    lineHeight: "1px",
-  },
-  uiOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: "none",
-  },
-  bottomLeft: {
-    width: "100px",
-    height: "100px",
-    marginLeft: 1,
-  },
+// TODO: better name
+const GameContainer = styled("div")({
+  lineHeiht: "1px",
+});
+
+const UiOverlay = styled(Grid)({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: "none",
 });
 
 /**
  * @param {{ game: import("../../game/client/ClientGame").default, gameElement: HTMLElement }} param0
  */
 export default function PlayPage({ game, gameElement }) {
-  const classes = useStyles();
-
   useEffect(() => {
     const listener = () => game.renderer.resize(window.innerWidth, window.innerHeight);
 
@@ -41,8 +34,8 @@ export default function PlayPage({ game, gameElement }) {
 
   return (
     <>
-      <div className={classes.game} ref={(elem) => elem && elem.appendChild(gameElement)} />
-      <Grid className={classes.uiOverlay} container direction="column-reverse" alignItems="stretch">
+      <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
+      <UiOverlay container direction="column-reverse" alignItems="stretch">
         <Grid container item direction="row" alignItems="stretch">
           <Grid container item xs={3} justifyContent="center">
             <MobileControls />
@@ -64,7 +57,7 @@ export default function PlayPage({ game, gameElement }) {
             <PlayerList />
           </Grid>
         </Grid>
-      </Grid>
+      </UiOverlay>
     </>
   );
 }

@@ -3,7 +3,7 @@ import World from "../World";
 import Player from "../Player";
 import Size from "../interfaces/Size";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { CompositeRectTileLayer } from "pixi-tilemap";
+import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { TileLayer } from "@smiley-face-game/api/types";
 import textures from "../textures";
 import newCompositeRectTileLayer from "../helpers/newCompositeRectTileLayer";

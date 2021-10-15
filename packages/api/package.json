@@ -1,82 +1,52 @@
 {
   "name": "@smiley-face-game/api",
-  "version": "0.0.0-beta3",
+  "version": "0.0.0",
+  "description": "> TODO: description",
   "keywords": [
     "sfg",
     "api",
     "game"
   ],
+  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
+  "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
+  "license": "MIT",
+  "main": "index.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SirJosh3917/smiley-face-game"
+    "url": "git+https://github.com/SirJosh3917/smiley-face-game.git"
   },
-  "license": "MIT",
-  "sideEffects": false,
-  "exports": {
-    ".": "./src",
-    "./": "./src/"
-  },
-  "main": "src/index.ts",
-  "files": [
-    "src"
-  ],
   "scripts": {
-    "build": "pika build"
+    "check": "package-check",
+    "lint": "eslint ./src/*",
+    "build": "webpack --env mode=development",
+    "build:prod": "webpack --env mode=production"
+  },
+  "bugs": {
+    "url": "https://github.com/SirJosh3917/smiley-face-game/issues"
   },
   "dependencies": {
-    "computed-types": "^1.5.1",
-    "cross-fetch": "^3.0.6",
+    "computed-types": "^1.10.2",
+    "cross-fetch": "^3.1.4",
     "isomorphic-ws": "^4.0.1"
   },
-  "devDependencies": {
-    "@pika/pack": "^0.5.0",
-    "@pika/plugin-build-node": "^0.9.2",
-    "@pika/plugin-build-types": "^0.9.2",
-    "@pika/plugin-build-web": "^0.9.2",
-    "@pika/plugin-standard-pkg": "^0.9.2",
-    "@pika/plugin-ts-standard-pkg": "^0.9.2",
-    "@skypack/package-check": "^0.2.2",
-    "pika-plugin-minify": "^0.1.0",
-    "pika-plugin-package.json": "^1.0.2"
-  },
   "optionalDependencies": {
-    "ws": "^4.0.1"
+    "ws": "^8.2.3"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-ts-standard-pkg"
-      ],
-      [
-        "@pika/plugin-build-node"
-      ],
-      [
-        "@pika/plugin-build-web"
-      ],
-      [
-        "pika-plugin-package.json",
-        {
-          "*files": [
-            "+dist.umd.min.js",
-            "-bin/"
-          ],
-          "+umd:main": "dist.umd.min.js",
-          "+unpkg": "dist.umd.min.js",
-          "+exports": {
-            "umd": "./dist.umd.min.js",
-            "browser": "./dist-web/index.js",
-            "import": "./dist-web/index.js",
-            "require": "./dist-node/index.js",
-            "default": "./dist-src/index.js"
-          }
-        }
-      ],
-      [
-        "./pika-plugin-invoke-rollup.js"
-      ]
-    ]
+  "devDependencies": {
+    "@skypack/package-check": "^0.2.2",
+    "@sucrase/webpack-loader": "^2.0.0",
+    "@types/ws": "^8.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
+    "sucrase": "^3.20.2",
+    "typescript": "^4.4.4",
+    "webpack": "^5.58.2",
+    "webpack-cli": "^4.9.0",
+    "webpack-dev-server": "^4.3.1"
   }
 }

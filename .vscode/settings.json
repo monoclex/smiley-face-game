@@ -21,5 +21,6 @@
     "packages/server/src/**/*.js": true,
     "packages/api/src/**/*.js": true,
     "**/.cache": true
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
