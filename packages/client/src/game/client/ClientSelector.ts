@@ -24,11 +24,7 @@ export default class ClientSelector {
   private lastPlacePos: Position | undefined;
   private layerSample: TileLayer | undefined;
 
-  constructor(
-    private readonly root: Container,
-    private readonly authoredBlockPlacer: AuthoredBlockPlacer,
-    private readonly world: World
-  ) {
+  constructor(private readonly root: Container, private readonly authoredBlockPlacer: AuthoredBlockPlacer, private readonly world: World) {
     // TODO: should we *really* be adding something to the root container?
     root.addChild(this.selection);
 
@@ -214,7 +210,7 @@ export default class ClientSelector {
 
     const { slots, selected } = blockBarGlobal.state;
     const erase = this.state === MouseState.Erase || slots[selected] === 0;
-    let action: "place" | "erase" = erase ? "erase" : "place";
+    const action: "place" | "erase" = erase ? "erase" : "place";
 
     // TODO: figure out layer to erase on
     if (erase && this.layerSample === undefined) {

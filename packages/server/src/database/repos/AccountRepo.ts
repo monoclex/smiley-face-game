@@ -55,7 +55,7 @@ export default class AccountRepo {
     const password = await bcrypt.hash(details.password, 10);
     const worlds = details.worlds ?? [];
 
-    let account = this.#repo.create();
+    const account = this.#repo.create();
     account.username = details.username;
     account.email = details.email;
     account.password = password;

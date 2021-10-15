@@ -1,6 +1,6 @@
+//@ts-check
 import React, { useEffect, useState } from "react";
-import { Paper, Grid } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { Paper, Grid, styled } from "@mui/material";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import withSize from "react-sizeme";
@@ -19,36 +19,30 @@ library.add(faUserAstronaut);
 library.add(faUserEdit);
 library.add(faUserTie);
 
-const useStyles = makeStyles(() => ({
-  container: {
-    ...commonUIStyles.uiOverlayElement,
-    paddingRight: 5,
-    overflow: "hidden",
-  },
-  paper: {
-    pointerEvents: "none",
-    minWidth: 10,
-  },
-  alignText: {
-    textAlign: "left",
-  },
-  chatList: {
-    overflow: "auto",
-    maxHeight: "100%",
-    pointerEvents: "all",
-  },
-  noRole: {
-    width: "0.875em",
-    height: "1em",
-    display: "inline-block",
-  },
-  hide: {
-    visibility: "hidden",
-  },
-}));
+const Container = styled(Grid)({
+  ...commonUIStyles.uiOverlayElement,
+  paddingRight: 5,
+  overflow: "hidden",
+});
+
+const PlayerListContainer = styled(Paper)({
+  pointerEvents: "none",
+  minWidth: 10,
+});
+
+const ChatList = styled(SpringScrollbars)({
+  overflow: "auto",
+  maxHeight: "100%",
+  pointerEvents: "all",
+});
+
+// const useStyles = makeStyles(() => ({
+//   hide: {
+//     visibility: "hidden",
+//   },
+// }));
 
 const PlayerList = ({}) => {
-  const classes = useStyles();
   const [duration, setDuration] = useState(0);
 
   // for duration, we want to set the duration back to 0.3 once it's done
@@ -62,7 +56,7 @@ const PlayerList = ({}) => {
   const players = useRecoilValue(playerListState);
 
   return (
-    <Grid container justifyContent="flex-end" alignItems="center" className={classes.container}>
+    <Container container justifyContent="flex-end" alignItems="center">
       <Grid item>
         <SizeMe>
           {({ size }) => (
@@ -70,7 +64,8 @@ const PlayerList = ({}) => {
               // if we don't have the size yet, hide the component so that
               // instead of being fully visible and then getting shifted to the right side of the screen,
               // it goes from being invisible to popping up. it makes it less jarring
-              className={clsx(!size.width && classes.hide)}
+              // TODO: use `sx` magic
+              // className={clsx(!size.width && classes.hide)}
               // the '0' never matters here. we just ensure we have the size
               animate={{ translateX: size.width ? size.width - 30 : 0 }}
               // while we hover, we reset the tranlateX thing we did
@@ -79,30 +74,22 @@ const PlayerList = ({}) => {
               // still be jarring and make the jump. see where duration is defined for more info
               transition={{ duration }}
             >
-              <Paper className={classes.paper}>
+              <PlayerListContainer>
                 <Grid container direction="column">
                   <Grid item>
-                    <SpringScrollbars
-                      className={classes.chatList}
-                      autoHeight
-                      autoHeightMin={0}
-                      autoHeightMax={400}
-                      autoHide
-                      autoHideTimeout={1000}
-                      autoHideDuration={200}
-                    >
+                    <ChatList autoHeight autoHeightMin={0} autoHeightMax={400} autoHide autoHideTimeout={1000} autoHideDuration={200}>
                       {players.map((player, i) => (
                         <Player key={i} {...player} />
                       ))}
-                    </SpringScrollbars>
+                    </ChatList>
                   </Grid>
                 </Grid>
-              </Paper>
+              </PlayerListContainer>
             </motion.div>
           )}
         </SizeMe>
       </Grid>
-    </Grid>
+    </Container>
   );
 };
 

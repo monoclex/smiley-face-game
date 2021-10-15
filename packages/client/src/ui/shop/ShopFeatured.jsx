@@ -1,22 +1,16 @@
 import React from "react";
 
-import { Grid, Paper, Typography } from "@mui/material";
-
-import makeStyles from '@mui/styles/makeStyles';
+import { Grid, Paper, Typography, styled } from "@mui/material";
 
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
 
 import ShopCarousel from "./carousel/ShopCarousel";
 
-const useStyles = makeStyles({
-  carousel: {
-    padding: 10,
-  },
+const CarouselContainer = styled("div")({
+  padding: 10,
 });
 
 export default () => {
-  const classes = useStyles();
-
   // TODO:
   //  Fetch featured items
 
@@ -86,9 +80,9 @@ export default () => {
           </Grid>
         </Paper>
       </Grid>
-      <div className={classes.carousel}>
+      <CarouselContainer>
         <ShopCarousel items={items} />
-      </div>
+      </CarouselContainer>
     </Grid>
   );
 };

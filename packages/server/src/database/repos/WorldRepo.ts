@@ -52,10 +52,10 @@ export default class WorldRepo {
     // TODO: verify details given
 
     // all computed assignments are stated in plain sight before assignment
-    const blocks = JSON.stringify(serialize(!!details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)), tileJson));
-    const name = !!details.name ? details.name : `${details.owner.username}'s World`;
+    const blocks = JSON.stringify(serialize(details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)), tileJson));
+    const name = details.name ? details.name : `${details.owner.username}'s World`;
 
-    let world = this.#repo.create();
+    const world = this.#repo.create();
     // @ts-expect-error
     world.owner = details.owner;
     world.name = name;

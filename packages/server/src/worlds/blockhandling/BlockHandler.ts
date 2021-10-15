@@ -32,7 +32,7 @@ export class BlockHandler {
       this.map[layer][y] = wY = [];
     }
 
-    let wX = wY[x];
+    const wX = wY[x];
     if (wX === undefined) {
       wY[x] = 0;
       return 0;

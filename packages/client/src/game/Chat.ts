@@ -4,7 +4,7 @@ import Message from "./interfaces/Message";
 export default class Chat {
   private _atTimeCanSend: Date = new Date();
   readonly messages: Message[] = [];
-  private _topId: number = 0;
+  private _topId = 0;
 
   get topId(): number {
     return this._topId;

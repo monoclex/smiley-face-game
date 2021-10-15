@@ -1,5 +1,4 @@
-import { TileLayer, ZTileJson } from "../types";
-import { Rotation } from "../types";
+import { TileLayer, ZTileJson, Rotation } from "../types";
 import Behavior from "./Behavior";
 import TileRegistration from "./TileRegistration";
 

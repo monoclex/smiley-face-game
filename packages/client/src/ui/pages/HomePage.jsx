@@ -1,21 +1,16 @@
+//@ts-check
 import React from "react";
+import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
-import { Grid, Typography, Container } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import history from "../../ui/history";
+import { Grid, Typography, Container, styled } from "@mui/material";
 
-const useStyles = makeStyles((theme) => {
-  console.log("homePage makeStyles called:", theme);
-  ({
-    container: {
-      marginTop: theme.spacing(4),
-    },
-  });
-});
+const PaddedContainer = styled(Container)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+}));
 
 const HomePage = () => {
-  const classes = useStyles();
+  const history = useHistory();
 
   // if they have a token, they should go straight to the lobby
   if (localStorage.getItem("token") !== null) {
@@ -24,7 +19,7 @@ const HomePage = () => {
   }
 
   return (
-    <Container maxWidth={false} className={classes.container}>
+    <PaddedContainer maxWidth={false}>
       <Grid container direction="column" justifyContent="center" alignItems="center" spacing={2}>
         <Grid item>
           <Typography variant="h3">Smiley Face Game</Typography>
@@ -53,7 +48,7 @@ const HomePage = () => {
           </Button>
         </Grid>
       </Grid>
-    </Container>
+    </PaddedContainer>
   );
 };
 

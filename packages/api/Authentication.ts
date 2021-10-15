@@ -1,6 +1,5 @@
 import { zJoinRequest } from "./ws-api";
-import { zLobbyResp } from "./api";
-import { zPlayerResp } from "./api";
+import { zLobbyResp, zPlayerResp } from "./api";
 import Connection from "./Connection";
 import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
@@ -28,7 +27,7 @@ export default class Authentication {
    */
   constructor(token: string, id?: string);
 
-  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */  
+  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   constructor(token: unknown, id?: unknown) {
     this.token = zToken.parse(token);
     if (id) this.id = zAccountId.parse(id);

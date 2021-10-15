@@ -1,15 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
-    "lib": ["ES2020", "DOM"],
-    "allowJs": true,
-    "jsx": "react",
-    "baseUrl": "./src/",
-    "paths": {
-      "@smiley-face-game/api/*": ["../../api/src/*"]
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "lib": ["es2020", "dom"],
+        "jsx": "react"
     }
-  },
-  "include": ["src/**/*"]
 }

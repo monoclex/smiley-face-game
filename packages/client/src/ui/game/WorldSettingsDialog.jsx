@@ -1,3 +1,4 @@
+//@ts-check
 import React from "react";
 import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import * as PropTypes from "prop-types";

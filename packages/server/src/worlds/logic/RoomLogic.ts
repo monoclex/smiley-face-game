@@ -27,9 +27,9 @@ export default class RoomLogic {
   readonly blockHandler: BlockHandler;
 
   #onEmpty: PromiseCompletionSource<void>;
-  #shouldBeDead: boolean = false;
+  #shouldBeDead = false;
   #players: Map<number, Connection>;
-  #idCounter: number = 0;
+  #idCounter = 0;
   #details: ZWorldDetails;
   #setStoppingStatus: () => void;
   #id: string;
@@ -68,7 +68,7 @@ export default class RoomLogic {
 
     this.behaviour.onPlayerJoin(connection);
 
-    let id = this.#idCounter++;
+    const id = this.#idCounter++;
     connection.playerId = id;
 
     if (connection.authTokenPayload.aud === this.#details.ownerId) {

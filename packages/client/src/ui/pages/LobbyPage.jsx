@@ -1,6 +1,7 @@
+//@ts-check
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
@@ -9,28 +10,25 @@ import Refresh from "mdi-material-ui/Refresh";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
-import history from "../../ui/history";
 import Loading from "../../ui/Loading";
 import Typography from "@mui/material/Typography";
-import { ExitToApp as ExitToAppIcon } from "@mui/icons-material";
+import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
 import { Authentication } from "@smiley-face-game/api";
+import { useHistory } from "react-router";
 
-const useStyles = makeStyles({
-  input: {
-    textAlign: "center",
-  },
-  paddingStyle: {
-    // https://material-ui.com/components/grid/#negative-margin
-    padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
-  },
-  rotate180: {
-    // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
-    transform: "rotate(180deg)",
-  },
+const PaddedContainer = styled("div")({
+  // https://material-ui.com/components/grid/#negative-margin
+  padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
+});
+
+const RotatedIcon = styled(IconButton)({
+  // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
+  transform: "rotate(180deg)",
 });
 
 const LobbyPage = () => {
+  const history = useHistory();
   const token = localStorage.getItem("token");
 
   if (token === null) {
@@ -40,7 +38,6 @@ const LobbyPage = () => {
 
   const auth = new Authentication(token);
 
-  const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
   const [roomPreviews, setRoomPreviews] = useState(undefined);
@@ -91,9 +88,9 @@ const LobbyPage = () => {
   return (
     <>
       <Grid container item justifyContent="center" alignItems="center">
-        <IconButton className={classes.rotate180} onClick={logout} size="large">
+        <RotatedIcon onClick={logout} size="large">
           <ExitToAppIcon />
-        </IconButton>
+        </RotatedIcon>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()} size="large">
             <Refresh />
@@ -106,7 +103,7 @@ const LobbyPage = () => {
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
         </IconButton>
       </Grid>
-      <div className={classes.paddingStyle}>
+      <PaddedContainer>
         <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
           {!roomPreviews && <Loading message={"Loading rooms..."} />}
           {!!roomPreviews &&
@@ -134,13 +131,13 @@ const LobbyPage = () => {
               ))}
           </Grid>
         )}
-      </div>
+      </PaddedContainer>
 
       <CreateRoomDialog
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.createGame(name, parseInt(width), parseInt(height));
+          history.push(`/games/loading`, { type: "create", name, width: parseInt(width), height: parseInt(height) });
           setCreateRoomDialogOpen(false);
         }}
       />

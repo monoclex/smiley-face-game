@@ -46,8 +46,7 @@ magic doo daa magic dee daa solved for `a` and `r`, and those are our magic cons
 you can actually find this exact same formula in EEU too. what this function does is described in the documentation of this method
 */
 
-  let result =
-    (acceleration / drag - xVelocity) * ((Math.exp(-drag * time) - 1) / drag) + acceleration * (time / drag) + x;
+  const result = (acceleration / drag - xVelocity) * ((Math.exp(-drag * time) - 1) / drag) + acceleration * (time / drag) + x;
 
   return result;
 }
@@ -81,7 +80,7 @@ export function velocity_after(
   time /= 10.0; // ms -> ee ticks
 
   const k = Math.exp(-drag * time);
-  let result = xVelocity * k + acceleration * ((1 - k) / drag);
+  const result = xVelocity * k + acceleration * ((1 - k) / drag);
 
   return result;
 }

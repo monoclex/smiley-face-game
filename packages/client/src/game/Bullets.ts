@@ -5,7 +5,7 @@ import Timer from "./Timer";
 export default class Bullets {
   protected bullets: Bullet[] = [];
 
-  constructor(protected readonly timer: Timer) { }
+  constructor(protected readonly timer: Timer) {}
 
   spawn(at: Player, angle: number) {
     // TODO: spawn bullet directly in front of gun for more realistic aiming

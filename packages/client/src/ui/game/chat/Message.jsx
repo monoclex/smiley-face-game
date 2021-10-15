@@ -1,8 +1,9 @@
+//@ts-check
 import React from "react";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/material";
 import { format } from "date-fns/fp";
 
-const useStyles = makeStyles(() => ({
+const MessageContainer = styled("div")({
   message: {
     paddingTop: 2,
     paddingLeft: 4,
@@ -10,18 +11,16 @@ const useStyles = makeStyles(() => ({
     marginTop: 2,
     marginBottom: 2,
   },
-}));
+});
 
 export const Message = ({ message }) => {
-  const classes = useStyles();
-
   return (
-    <div className={classes.message}>
+    <MessageContainer>
       <small>{format("HH:mm:ss", message.time)}</small>
       <span>
         <b>{` ${message.sender.username}: `}</b>
         {`${message.content}`}
       </span>
-    </div>
+    </MessageContainer>
   );
 };

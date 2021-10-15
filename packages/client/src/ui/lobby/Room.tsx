@@ -1,38 +1,40 @@
+//@ts-check
 import * as React from "react";
-import { makeStyles } from "@mui/styles";
-import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@mui/material";
+import { Card, styled, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@mui/material";
 import ThumbUpIcon from "mdi-material-ui/ThumbUp";
 import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
-import history from "../../ui/history";
 import type { ZGamePreview } from "@smiley-face-game/api/api";
+import { useHistory } from "react-router";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-  details: {
-    display: "flex",
-    flexDirection: "column",
-    minWidth: 175,
-    maxWidth: 600,
-  },
-  content: {
-    flex: "1 0 auto",
-  },
-  media: {
-    width: 175,
-    height: 175,
-  },
-  controls: {
-    display: "flex",
-    alignItems: "center",
-    paddingLeft: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
+const CardRoot = styled(Card)({
+  display: "flex",
+});
+
+const Details = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  minWidth: 175,
+  maxWidth: 600,
+});
+
+const Content = styled(CardContent)({
+  flex: "1 0 auto",
+});
+
+const Controls = styled(CardActions)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  paddingLeft: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
 }));
+
+const Media = styled(CardMedia)({
+  width: 175,
+  height: 175,
+});
 
 type GamePreview = ZGamePreview;
 
@@ -41,26 +43,25 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
+  const history = useHistory();
   const {
     room: { id, name, playerCount },
   } = props;
 
-  const classes = useStyles();
-
   return (
     <motion.div whileHover={{ scale: 1.1 }}>
-      <Card className={classes.root}>
-        <div className={classes.details}>
-          <CardContent className={classes.content}>
+      <CardRoot>
+        <Details>
+          <Content>
             <Typography component="h5" variant="h5">
               {name}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
               {playerCount} online
             </Typography>
-          </CardContent>
+          </Content>
 
-          <CardActions disableSpacing className={classes.controls}>
+          <Controls disableSpacing>
             <Tooltip title="Like">
               <IconButton aria-label="add-or-remove" size="large">
                 <ThumbUpIcon />
@@ -74,15 +75,15 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => history.joinGame(id)} size="large">
+              <IconButton aria-label="play" onClick={() => history.push(`/games/${id}`, { type: "join", id })} size="large">
                 <PlayIcon />
               </IconButton>
             </Tooltip>
-          </CardActions>
-        </div>
+          </Controls>
+        </Details>
 
-        <CardMedia className={classes.media} image={minimapImage} title={id} />
-      </Card>
+        <Media image={minimapImage} title={id} />
+      </CardRoot>
     </motion.div>
   );
 };

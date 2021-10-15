@@ -1,38 +1,41 @@
+//@ts-check
 import React, { useState } from "react";
-import { Grid, MenuItem } from "@mui/material";
+import { Grid, MenuItem, styled, ToggleButton } from "@mui/material";
 import clsx from "clsx";
 import { useRecoilValue } from "recoil";
 import Menu from "@mui/material/Menu/Menu";
 import Pencil from "mdi-material-ui/Pencil";
 import ShoeCleat from "mdi-material-ui/ShoeCleat";
 import { currentPlayerState } from "../../../state";
-import { ToggleButton } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { makeStyles } from "@mui/styles";
 import state from "../../../bridge/state";
 
-const useStyles = makeStyles((theme) => ({
-  message: {
-    paddingTop: 2,
-    paddingLeft: 4,
-    paddingRight: 4,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2,
+const PlayerDisplay = styled("div")(({ theme }) => ({
+  // clsx(classes.hoverable
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
   },
-  userIconPadding: {
-    marginRight: 4,
-  },
-  hoverable: {
-    "&:hover": {
-      backgroundColor: theme.palette.action.hover,
-    },
-  },
+  // , classes.message)
+  paddingTop: 2,
+  paddingLeft: 4,
+  paddingRight: 4,
+  paddingBottom: 2,
+  marginTop: 2,
+  marginBottom: 2,
 }));
 
+const NoIcon = styled("div")({
+  // clsx(classes.noRole
+  // , classes.userIconPadding)
+  marginRight: 4,
+});
+
+const UserIcon = styled(FontAwesomeIcon)({
+  marginRight: 4,
+});
+
 export const Player = ({ username, id: playerId, role: roleParam }) => {
-  const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 
   /** @type {import("@smiley-face-game/api/types").ZRole} */
@@ -75,12 +78,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
     // doing things based on role is hacky and weird
     if (role !== "owner") {
       actions.push(
-        <ToggleButton
-          value="edit"
-          aria-label="edit"
-          selected={role === "edit"}
-          onChange={() => setEdit(!(role === "edit"))}
-        >
+        <ToggleButton value="edit" aria-label="edit" selected={role === "edit"} onChange={() => setEdit(!(role === "edit"))}>
           <Pencil />
         </ToggleButton>
       );
@@ -105,23 +103,15 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
 
   return (
     <>
-      <div className={clsx(classes.hoverable, classes.message)} onClick={handleClick}>
-        {role === "non" && <div className={clsx(classes.noRole, classes.userIconPadding)} />}
-        {role === "edit" && (
-          <FontAwesomeIcon className={classes.userIconPadding} icon="user-edit" onClick={() => setEdit(false)} />
-        )}
-        {role === "owner" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-tie" />}
-        {role === "staff" && <FontAwesomeIcon className={classes.userIconPadding} icon="user-astronaut" />}
+      <PlayerDisplay onClick={handleClick}>
+        {role === "non" && <NoIcon />}
+        {role === "edit" && <UserIcon icon="user-edit" onClick={() => setEdit(false)} />}
+        {role === "owner" && <UserIcon icon="user-tie" />}
+        {role === "staff" && <UserIcon icon="user-astronaut" />}
 
         <span>{username}</span>
-      </div>
-      <Menu
-        id={"player-" + username}
-        anchorEl={anchorElement}
-        keepMounted
-        open={Boolean(anchorElement)}
-        onClose={handleClose}
-      >
+      </PlayerDisplay>
+      <Menu id={"player-" + username} anchorEl={anchorElement} keepMounted open={Boolean(anchorElement)} onClose={handleClose}>
         <Grid container justifyContent="center" direction="column">
           <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>

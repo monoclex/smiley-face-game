@@ -1,9 +1,14 @@
+//@ts-check
 import React from "react";
 import { Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
 
 const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
-  const { register, handleSubmit, errors } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs">
@@ -22,7 +27,7 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                 autoFocus
                 error={errors && errors.name}
                 helperText={errors && errors.name && "A name is required..."}
-                inputRef={register({ required: true })}
+                {...register("name", { required: true })}
               />
             </Grid>
 
@@ -36,7 +41,7 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                 defaultValue={25}
                 error={errors && errors.width}
                 helperText={errors && errors.width && "A width is required..."}
-                inputRef={register({ required: true })}
+                {...register("width", { required: true })}
                 inputProps={{
                   min: 5,
                   max: 50,
@@ -54,7 +59,7 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                 defaultValue={25}
                 error={errors && errors.height}
                 helperText={errors && errors.height && "A height is required..."}
-                inputRef={register({ required: true })}
+                {...register("height", { required: true })}
                 inputProps={{
                   min: 5,
                   max: 50,

@@ -19,13 +19,11 @@ export const gameFocusState = atom<GameFocus>({
 export const chatOpenState = selector<boolean>({
   key: "chatOpenState",
   get: ({ get }) => get(gameFocusState).chatOpen,
-  set: ({ set }, value) =>
-    set(gameFocusState, (old) => ({ ...old, chatOpen: value instanceof DefaultValue ? false : value })),
+  set: ({ set }, value) => set(gameFocusState, (old) => ({ ...old, chatOpen: value instanceof DefaultValue ? false : value })),
 });
 
 export const settingsOpenState = selector<boolean>({
   key: "settingsOpenState",
   get: ({ get }) => get(gameFocusState).settingsOpen,
-  set: ({ set }, value) =>
-    set(gameFocusState, (old) => ({ ...old, settingsOpen: value instanceof DefaultValue ? false : value })),
+  set: ({ set }, value) => set(gameFocusState, (old) => ({ ...old, settingsOpen: value instanceof DefaultValue ? false : value })),
 });

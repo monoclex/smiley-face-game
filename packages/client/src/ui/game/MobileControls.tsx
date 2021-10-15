@@ -1,20 +1,17 @@
 //@ts-check
-import { makeStyles } from "@mui/styles";
 import React, { useEffect, useState } from "react";
+import { styled } from "@mui/material";
 import { Joystick } from "react-joystick-component";
 import state from "../../bridge/state";
 
-const useStyles = makeStyles({
-  joystick: {
-    pointerEvents: "all",
-  },
+const JoystickContainer = styled("div")({
+  pointerEvents: "all",
 });
 
 const notMoving = { up: false, right: false, down: false, left: false };
 
 export default function MobileControls() {
   // lololo have fun
-  const classes = useStyles();
   const [moving, setMoving] = useState(notMoving);
 
   useEffect(() => {
@@ -29,7 +26,7 @@ export default function MobileControls() {
   }, [moving]);
 
   return (
-    <div className={classes.joystick}>
+    <JoystickContainer>
       <Joystick
         size={100} // TODO: figure out appropriate size based on device size
         stop={() => {
@@ -73,6 +70,6 @@ export default function MobileControls() {
           setMoving(newMoving);
         }}
       />
-    </div>
+    </JoystickContainer>
   );
 }

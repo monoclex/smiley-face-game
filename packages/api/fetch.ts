@@ -7,7 +7,7 @@ export default function <D>(
   request: unknown | undefined,
   zResponse: ParsableSchemaInput<D>,
   token?: string,
-  method: string = "POST"
+  method = "POST"
 ): Promise<SchemaInput<D>> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
 

@@ -1,13 +1,15 @@
-module.exports = {
+/** @type {import("eslint").Linter.Config} */
+const config = {
   env: {
     browser: true,
     es2021: true,
     node: true,
   },
   extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
-    "prettier",
-    "prettier/react",
+    "plugin:prettier/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
@@ -22,13 +24,13 @@ module.exports = {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 12,
+    ecmaVersion: 2020,
     sourceType: "module",
   },
   plugins: ["react", "@typescript-eslint", "prettier"],
   settings: {
     react: {
-      version: "17.0.1",
+      version: "17.0.2",
     },
   },
   rules: {
@@ -36,17 +38,11 @@ module.exports = {
     "react/no-unescaped-entities": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
-    "no-use-before-define": "error",
     "no-undef": "error",
     // https://stackoverflow.com/a/64024916
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
   },
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project: "packages/*/tsconfig.json",
-      },
-    },
-  },
 };
+
+module.exports = config;

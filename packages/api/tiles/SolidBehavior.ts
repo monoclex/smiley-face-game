@@ -39,7 +39,7 @@ export default class SolidBehavior<S extends number> extends Behavior<[S, number
   }
 
   next(current: number): number {
-    let next = current + 1;
+    const next = current + 1;
     if (next > this._end!) return this._start!;
     return next;
   }

@@ -34,7 +34,7 @@ export default class Player implements PhysicsObject {
   velocity: Velocity = { x: 0, y: 0 };
   input: Inputs = defaultInputs();
   gravityDirection: number = ArrowDirection.Down;
-  gunAngle: number = 0;
+  gunAngle = 0;
   _role: "non" | "edit" | "staff" | "owner" = "non";
   private _gunState: GunState = 0;
 
@@ -88,7 +88,7 @@ export default class Player implements PhysicsObject {
     this._role = value;
   }
 
-  constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) { }
+  constructor(readonly id: number, readonly username: string, readonly isGuest: boolean) {}
 
   pickupGun() {
     if (this.hasGun) throw new Error("picked up gun when already have a gun");
@@ -102,8 +102,8 @@ export default class Player implements PhysicsObject {
     if (!this.hasGun) throw new Error("can't hold gun when there is no gun");
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
   }
-  
-  private deltaAccum: number = 0;
+
+  private deltaAccum = 0;
   tick(game: Game, deltaMs: number) {
     // 100 ticks per second
     // 10 ticks per 100ms
@@ -116,48 +116,56 @@ export default class Player implements PhysicsObject {
     }
   }
 
-  private horizontal: number = 0;
-  private vertical: number = 0;
-  private isSpaceDown: boolean = false;
-  private isSpaceJustPressed: boolean = false;
-  private speedMult: number = 1;
-  private gravityMult: number = 1;
-  private speedX: number = 0;
-  private speedY: number = 0;
-  private get x(): number { return this.position.x / 2 };
-  private set x(x: number) { this.position.x = x * 2 };
-  private get y(): number { return this.position.y / 2 };
-  private set y(y: number) { this.position.y = y * 2 };
-  private ticks: number = 0;
-  private lastJump: number = 0;
-  private jumpCount: number = 0;
-  private maxJumps: number = 1;
-  private jumpMult: number = 1;
-  private moving: boolean = false;
+  private horizontal = 0;
+  private vertical = 0;
+  private isSpaceDown = false;
+  private isSpaceJustPressed = false;
+  private speedMult = 1;
+  private gravityMult = 1;
+  private speedX = 0;
+  private speedY = 0;
+  private get x(): number {
+    return this.position.x / 2;
+  }
+  private set x(x: number) {
+    this.position.x = x * 2;
+  }
+  private get y(): number {
+    return this.position.y / 2;
+  }
+  private set y(y: number) {
+    this.position.y = y * 2;
+  }
+  private ticks = 0;
+  private lastJump = 0;
+  private jumpCount = 0;
+  private maxJumps = 1;
+  private jumpMult = 1;
+  private moving = false;
   private queue: number[] = [ArrowDirection.Down];
-  private origModX: number = 0;
-  private origModY: number = 0;
-  private modX: number = 0;
-  private modY: number = 0;
+  private origModX = 0;
+  private origModY = 0;
+  private modX = 0;
+  private modY = 0;
   eetick(game: Game, deltaMs: number) {
-
-    this.horizontal = (this.input.right && 1 || 0) - (this.input.left && 1 || 0);
-    this.vertical = (this.input.down && 1 || 0) - (this.input.up && 1 || 0);
+    this.horizontal = ((this.input.right && 1) || 0) - ((this.input.left && 1) || 0);
+    this.vertical = ((this.input.down && 1) || 0) - ((this.input.up && 1) || 0);
     this.isSpaceJustPressed = !this.isSpaceDown && this.input.jump;
     this.isSpaceDown = this.input.jump;
 
-    let blockX = Math.round(this.x/Config.blockSize);
-    let blockY = Math.round(this.y/Config.blockSize);
+    const blockX = Math.round(this.x / Config.blockSize);
+    const blockY = Math.round(this.y / Config.blockSize);
 
-    let delayed = this.queue.shift()!;
-    let current = this.findGravityDirection(blockX, blockY, game);
+    const delayed = this.queue.shift()!;
+    const current = this.findGravityDirection(blockX, blockY, game);
     this.queue.push(current);
 
-    let modifierX = 0, modifierY = 0;
+    let modifierX = 0,
+      modifierY = 0;
 
     // let isFlying = this.isInGodMode;
-    let isFlying = false;
-    if(!isFlying) {
+    const isFlying = false;
+    if (!isFlying) {
       this.origModX = this.modX;
       this.origModY = this.modY;
 
@@ -202,17 +210,16 @@ export default class Player implements PhysicsObject {
       }
     }
 
-    let movementX = 0, movementY = 0;
+    let movementX = 0,
+      movementY = 0;
 
-    if(this.modY) {
+    if (this.modY) {
       movementX = this.horizontal;
       movementY = 0;
-    }
-    else if(this.modX) {
+    } else if (this.modX) {
       movementX = 0;
       movementY = this.vertical;
-    }
-    else {
+    } else {
       movementX = this.horizontal;
       movementY = this.vertical;
     }
@@ -224,129 +231,128 @@ export default class Player implements PhysicsObject {
     modifierX = (this.modX + movementX) / Config.physics.variable_multiplyer;
     modifierY = (this.modY + movementY) / Config.physics.variable_multiplyer;
 
-    if(this.speedX || modifierX) {
+    if (this.speedX || modifierX) {
       this.speedX += modifierX;
 
       this.speedX *= Config.physics.base_drag;
-      if((!movementX && this.modY) || (this.speedX < 0 && movementX > 0) || (this.speedX > 0 && movementX < 0)) {
+      if ((!movementX && this.modY) || (this.speedX < 0 && movementX > 0) || (this.speedX > 0 && movementX < 0)) {
         this.speedX *= Config.physics.no_modifier_drag;
       }
 
-      if(this.speedX > 16) {
+      if (this.speedX > 16) {
         this.speedX = 16;
-      } else if(this.speedX < -16) {
+      } else if (this.speedX < -16) {
         this.speedX = -16;
-      } else if(Math.abs(this.speedX) < 0.0001) {
+      } else if (Math.abs(this.speedX) < 0.0001) {
         this.speedX = 0;
       }
     }
 
-    if(this.speedY || modifierY) {
+    if (this.speedY || modifierY) {
       this.speedY += modifierY;
 
       this.speedY *= Config.physics.base_drag;
-      if((!movementY && this.modX) || (this.speedY < 0 && movementY > 0) || (this.speedY > 0 && movementY < 0)) {
+      if ((!movementY && this.modX) || (this.speedY < 0 && movementY > 0) || (this.speedY > 0 && movementY < 0)) {
         this.speedY *= Config.physics.no_modifier_drag;
       }
 
-      if(this.speedY > 16) {
+      if (this.speedY > 16) {
         this.speedY = 16;
-      } else if(this.speedY < -16) {
+      } else if (this.speedY < -16) {
         this.speedY = -16;
-      } else if(Math.abs(this.speedY) < 0.0001) {
+      } else if (Math.abs(this.speedY) < 0.0001) {
         this.speedY = 0;
       }
     }
 
-    let remainderX = this.x % 1, remainderY = this.y % 1;
-    let currentSX = this.speedX, currentSY = this.speedY;
-    let oldSX = 0, oldSY = 0;
-    let oldX = 0, oldY = 0;
+    let remainderX = this.x % 1,
+      remainderY = this.y % 1;
+    let currentSX = this.speedX,
+      currentSY = this.speedY;
+    let oldSX = 0,
+      oldSY = 0;
+    let oldX = 0,
+      oldY = 0;
 
-    let doneX = false, doneY = false;
+    let doneX = false,
+      doneY = false;
 
     let grounded = false;
 
-    let stepX = () => {
-      if(currentSX > 0){
-        if(currentSX + remainderX >= 1){
-          this.x += (1-remainderX);
+    const stepX = () => {
+      if (currentSX > 0) {
+        if (currentSX + remainderX >= 1) {
+          this.x += 1 - remainderX;
           this.x >>= 0;
-          currentSX -= (1-remainderX);
+          currentSX -= 1 - remainderX;
           remainderX = 0;
         } else {
           this.x += currentSX;
           currentSX = 0;
         }
-      }
-      else if(currentSX < 0){
-        if(remainderX + currentSX < 0 && (remainderX != 0)){
+      } else if (currentSX < 0) {
+        if (remainderX + currentSX < 0 && remainderX != 0) {
           currentSX += remainderX;
           this.x -= remainderX;
           this.x >>= 0;
           remainderX = 1;
-        }else{
+        } else {
           this.x += currentSX;
           currentSX = 0;
         }
       }
       if (true) {
         if (this.playerIsInFourSurroundingBlocks(game)) {
-      // if(this.playstate.world != null){
-        // if(this.playstate.world.overlaps(this)){
+          // if(this.playstate.world != null){
+          // if(this.playstate.world.overlaps(this)){
           this.x = oldX;
-          if (this.speedX > 0 && (this.origModX > 0))
-            grounded = true;
-          if (this.speedX < 0 && (this.origModX < 0))
-            grounded = true;
+          if (this.speedX > 0 && this.origModX > 0) grounded = true;
+          if (this.speedX < 0 && this.origModX < 0) grounded = true;
 
           this.speedX = 0;
           currentSX = oldSX;
           doneX = true;
         }
       }
-    }
-    let stepY = () => {
-      if(currentSY > 0){
-        if(currentSY + remainderY >= 1){
-          this.y += (1-remainderY);
+    };
+    const stepY = () => {
+      if (currentSY > 0) {
+        if (currentSY + remainderY >= 1) {
+          this.y += 1 - remainderY;
           this.y >>= 0;
-          currentSY -= (1-remainderY);
+          currentSY -= 1 - remainderY;
           remainderY = 0;
         } else {
           this.y += currentSY;
           currentSY = 0;
         }
-      }
-      else if(currentSY < 0){
-        if(remainderY + currentSY < 0 && (remainderY != 0)){
+      } else if (currentSY < 0) {
+        if (remainderY + currentSY < 0 && remainderY != 0) {
           currentSY += remainderY;
           this.y -= remainderY;
           this.y >>= 0;
           remainderY = 1;
-        }else{
+        } else {
           this.y += currentSY;
           currentSY = 0;
         }
       }
       if (true) {
-      if (this.playerIsInFourSurroundingBlocks(game)) {
-      // if(this.playstate.world != null){
-        // if(this.playstate.world.overlaps(this)){
+        if (this.playerIsInFourSurroundingBlocks(game)) {
+          // if(this.playstate.world != null){
+          // if(this.playstate.world.overlaps(this)){
           this.y = oldY;
-          if (this.speedY > 0 && (this.origModY > 0))
-            grounded = true;
-          if (this.speedY < 0 && (this.origModY < 0))
-            grounded = true;
+          if (this.speedY > 0 && this.origModY > 0) grounded = true;
+          if (this.speedY < 0 && this.origModY < 0) grounded = true;
 
           this.speedY = 0;
           currentSY = oldSY;
           doneY = true;
         }
       }
-    }
+    };
 
-    while((currentSX && !doneX) || (currentSY && !doneY)) {
+    while ((currentSX && !doneX) || (currentSY && !doneY)) {
       oldX = this.x;
       oldY = this.y;
 
@@ -357,46 +363,48 @@ export default class Player implements PhysicsObject {
       stepY();
     }
 
-
-
     // jumping
-    let mod = 1
+    let mod = 1;
     let inJump = false;
-    if (this.isSpaceJustPressed){
+    if (this.isSpaceJustPressed) {
       this.lastJump = -this.ticks;
       inJump = true;
-      mod = -1
+      mod = -1;
     }
 
-    if(this.isSpaceDown){
-        if(this.lastJump < 0){
-          if(this.ticks + this.lastJump > 75){
-            inJump = true;
-          }
-        }else{
-          if(this.ticks - this.lastJump > 15){
-            inJump = true;
-          }
+    if (this.isSpaceDown) {
+      if (this.lastJump < 0) {
+        if (this.ticks + this.lastJump > 75) {
+          inJump = true;
         }
+      } else {
+        if (this.ticks - this.lastJump > 15) {
+          inJump = true;
+        }
+      }
     }
 
-    if((this.speedX == 0 && this.origModX && this.modX || this.speedY == 0 && this.origModY && this.modY) && grounded) {
+    if (((this.speedX == 0 && this.origModX && this.modX) || (this.speedY == 0 && this.origModY && this.modY)) && grounded) {
       // On ground so reset jumps to 0
       this.jumpCount = 0;
     }
 
-    if(this.jumpCount == 0 && !grounded) this.jumpCount = 1; // Not on ground so first 'jump' removed
+    if (this.jumpCount == 0 && !grounded) this.jumpCount = 1; // Not on ground so first 'jump' removed
 
-    if(inJump) {
-      if(this.jumpCount < this.maxJumps && this.origModX && this.modX) { // Jump in x direction
-        if (this.maxJumps < 1000) { // Not infinite jumps
+    if (inJump) {
+      if (this.jumpCount < this.maxJumps && this.origModX && this.modX) {
+        // Jump in x direction
+        if (this.maxJumps < 1000) {
+          // Not infinite jumps
           this.jumpCount += 1;
         }
         this.speedX = (-this.origModX * Config.physics.jump_height * this.jumpMult) / Config.physics.variable_multiplyer;
         this.lastJump = this.ticks * mod;
       }
-      if(this.jumpCount < this.maxJumps && this.origModY && this.modY) { // Jump in y direction
-        if (this.maxJumps < 1000) { // Not infinite jumps
+      if (this.jumpCount < this.maxJumps && this.origModY && this.modY) {
+        // Jump in y direction
+        if (this.maxJumps < 1000) {
+          // Not infinite jumps
           this.jumpCount += 1;
         }
         this.speedY = (-this.origModY * Config.physics.jump_height * this.jumpMult) / Config.physics.variable_multiplyer;
@@ -407,54 +415,43 @@ export default class Player implements PhysicsObject {
     // touchBlock(cx, cy, isgodmod);
     // sendMovement(cx, cy);
 
-
-
     // autoalign
-    let imx = (this.speedX*256)>>0;
-    let imy = (this.speedY*256)>>0;
+    const imx = (this.speedX * 256) >> 0;
+    const imy = (this.speedY * 256) >> 0;
 
-    if(imx != 0) {
+    if (imx != 0) {
       this.moving = true;
-    }
-    else if(Math.abs(modifierX) < 0.1) {
-      let tx = this.x % Config.blockSize;
-      if(tx < Config.physics.autoalign_range) {
-        if(tx < Config.physics.autoalign_snap_range) {
+    } else if (Math.abs(modifierX) < 0.1) {
+      const tx = this.x % Config.blockSize;
+      if (tx < Config.physics.autoalign_range) {
+        if (tx < Config.physics.autoalign_snap_range) {
           this.x >>= 0;
-        }
-        else this.x -= tx/(Config.blockSize-1);
-      }
-      else if(tx > Config.blockSize - Config.physics.autoalign_range) {
-        if(tx > Config.blockSize - Config.physics.autoalign_snap_range) {
+        } else this.x -= tx / (Config.blockSize - 1);
+      } else if (tx > Config.blockSize - Config.physics.autoalign_range) {
+        if (tx > Config.blockSize - Config.physics.autoalign_snap_range) {
           this.x >>= 0;
           this.x++;
-        }
-        else this.x += (tx-(Config.blockSize - Config.physics.autoalign_range))/(Config.blockSize-1);
+        } else this.x += (tx - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
       }
     }
 
-    if(imy != 0) {
+    if (imy != 0) {
       this.moving = true;
-    }
-    else if(Math.abs(modifierY) < 0.1) {
-      let ty = this.y % Config.blockSize;
-      if(ty < Config.physics.autoalign_range) {
-        if(ty < Config.physics.autoalign_snap_range) {
+    } else if (Math.abs(modifierY) < 0.1) {
+      const ty = this.y % Config.blockSize;
+      if (ty < Config.physics.autoalign_range) {
+        if (ty < Config.physics.autoalign_snap_range) {
           this.y >>= 0;
-        }
-        else this.y -= ty/(Config.blockSize-1);
-      }
-      else if(ty > Config.blockSize - Config.physics.autoalign_range) {
-        if(ty > Config.blockSize - Config.physics.autoalign_snap_range) {
+        } else this.y -= ty / (Config.blockSize - 1);
+      } else if (ty > Config.blockSize - Config.physics.autoalign_range) {
+        if (ty > Config.blockSize - Config.physics.autoalign_snap_range) {
           this.y >>= 0;
           this.y++;
-        }
-        else this.y += (ty-(Config.blockSize - Config.physics.autoalign_range))/(Config.blockSize-1);
+        } else this.y += (ty - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
       }
     }
 
     this.ticks++;
-
   }
 
   findGravityDirection(worldX: number, worldY: number, game: Game) {
@@ -465,12 +462,12 @@ export default class Player implements PhysicsObject {
     return actionBlock === game.tileJson.id("arrow-up")
       ? ArrowDirection.Up
       : actionBlock === game.tileJson.id("arrow-right")
-        ? ArrowDirection.Right
-        : actionBlock === game.tileJson.id("arrow-down")
-          ? ArrowDirection.Down
-          : actionBlock === game.tileJson.id("arrow-left")
-            ? ArrowDirection.Left
-            : ArrowDirection.Down;
+      ? ArrowDirection.Right
+      : actionBlock === game.tileJson.id("arrow-down")
+      ? ArrowDirection.Down
+      : actionBlock === game.tileJson.id("arrow-left")
+      ? ArrowDirection.Left
+      : ArrowDirection.Down;
   }
 
   capIntoWorldBoundaries(game: Game) {
@@ -487,7 +484,7 @@ export default class Player implements PhysicsObject {
     if (previousY !== this.position.y) this.velocity.y = 0;
   }
 
-  cleanup() { }
+  cleanup() {}
 
   playerIsInFourSurroundingBlocks(game: Game): boolean {
     function rectInRect(px: number, py: number, tx: number, ty: number) {
@@ -506,12 +503,14 @@ export default class Player implements PhysicsObject {
     const has10 = game.world.blockAt(worldX + 1, worldY, TileLayer.Foreground) !== 0;
     const has01 = game.world.blockAt(worldX, worldY + 1, TileLayer.Foreground) !== 0;
     const has11 = game.world.blockAt(worldX + 1, worldY + 1, TileLayer.Foreground) !== 0;
-    console.log(has00,has10,has01,has11);
+    console.log(has00, has10, has01, has11);
 
-    return (has00 && rectInRect(this.position.x, this.position.y, worldX, worldY))
-      || (has10 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY))
-      || (has01 && rectInRect(this.position.x, this.position.y, worldX, worldY + 1))
-      || (has11 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY + 1))
+    return (
+      (has00 && rectInRect(this.position.x, this.position.y, worldX, worldY)) ||
+      (has10 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY)) ||
+      (has01 && rectInRect(this.position.x, this.position.y, worldX, worldY + 1)) ||
+      (has11 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY + 1))
+    );
   }
 }
 
@@ -533,25 +532,25 @@ class Config {
 
   //game width&height rounded up to the next multiple of block size
   //prevents glitchy offsets when moving blocks in the game container
-  static gameWidthCeil = Config.blockSize*Math.ceil(Config.gameWidth/Config.blockSize);
-  static gameHeightCeil = Config.blockSize*Math.ceil(Config.gameHeight/Config.blockSize);
+  static gameWidthCeil = Config.blockSize * Math.ceil(Config.gameWidth / Config.blockSize);
+  static gameHeightCeil = Config.blockSize * Math.ceil(Config.gameHeight / Config.blockSize);
 
-  static camera_lag = 1/16;
+  static camera_lag = 1 / 16;
 
   static physics = {
     ms_per_tick: 10,
     max_ticks_per_frame: 150,
     variable_multiplyer: 7.752,
 
-    base_drag: Math.pow(.9981, 10) * 1.00016093,
-    ice_no_mod_drag: Math.pow(.9993, 10) * 1.00016093,
-    ice_drag: Math.pow(.9998, 10) * 1.00016093,
+    base_drag: Math.pow(0.9981, 10) * 1.00016093,
+    ice_no_mod_drag: Math.pow(0.9993, 10) * 1.00016093,
+    ice_drag: Math.pow(0.9998, 10) * 1.00016093,
     //Multiplyer when not applying force by userkeys
-    no_modifier_drag: Math.pow(.9900, 10) * 1.00016093,
-    water_drag: Math.pow(.9950, 10) * 1.00016093,
-    mud_drag: Math.pow(.9750, 10) * 1.00016093,
-    lava_drag: Math.pow(.9800, 10) * 1.00016093,
-    toxic_drag: Math.pow(.9900, 10) * 1.00016093,
+    no_modifier_drag: Math.pow(0.99, 10) * 1.00016093,
+    water_drag: Math.pow(0.995, 10) * 1.00016093,
+    mud_drag: Math.pow(0.975, 10) * 1.00016093,
+    lava_drag: Math.pow(0.98, 10) * 1.00016093,
+    toxic_drag: Math.pow(0.99, 10) * 1.00016093,
     jump_height: 26,
 
     autoalign_range: 2,
@@ -559,11 +558,11 @@ class Config {
 
     gravity: 2,
     boost: 16,
-    water_buoyancy: -.5,
-    mud_buoyancy: .4,
-    lava_buoyancy: .2,
-    toxic_buoyancy: -.4,
-  }
+    water_buoyancy: -0.5,
+    mud_buoyancy: 0.4,
+    lava_buoyancy: 0.2,
+    toxic_buoyancy: -0.4,
+  };
 }
 Object.freeze(Config.physics);
 Object.freeze(Config);

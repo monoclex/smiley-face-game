@@ -1,3 +1,4 @@
+//@ts-check
 import React, { useState } from "react";
 
 import { Fade, Grid, Slide } from "@mui/material";
@@ -5,7 +6,7 @@ import useInterval from "react-use/esm/useInterval";
 
 import { repeat, slice } from "../../helpers/iterables";
 
-export default ({ visibleItems, delay, timeout, children }) => {
+export default function Carousel({ visibleItems, delay, timeout, children }) {
   const [index, setSelectedItem] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
@@ -44,4 +45,4 @@ export default ({ visibleItems, delay, timeout, children }) => {
       })}
     </Grid>
   );
-};
+}
