@@ -31,7 +31,7 @@ export default function (deps: UsedDependencies): Router {
           // TODO: move this outside the try catch?
           const token = authProvider.allowAuthentication(account.id);
 
-          let resp: ZLoginResp = { token, id: account.id };
+          const resp: ZLoginResp = { token, id: account.id };
           res.json(resp);
         } catch (error) {
           console.warn("Authentication attempt failed for user", body.email, error);

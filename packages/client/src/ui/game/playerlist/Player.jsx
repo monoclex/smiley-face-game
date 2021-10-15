@@ -1,13 +1,12 @@
 //@ts-check
 import React, { useState } from "react";
-import { Grid, MenuItem, styled } from "@mui/material";
+import { Grid, MenuItem, styled, ToggleButton } from "@mui/material";
 import clsx from "clsx";
 import { useRecoilValue } from "recoil";
 import Menu from "@mui/material/Menu/Menu";
 import Pencil from "mdi-material-ui/Pencil";
 import ShoeCleat from "mdi-material-ui/ShoeCleat";
 import { currentPlayerState } from "../../../state";
-import { ToggleButton } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import state from "../../../bridge/state";

@@ -52,7 +52,7 @@ export default class SavedBehaviour implements Behaviour {
           const yMap = layer[y];
 
           for (let x = 0; x < yMap.length; x++) {
-            let block = yMap[x];
+            const block = yMap[x];
 
             {
               if (block === undefined) newY.push(TileJson.for(0).serialize(0));
@@ -170,7 +170,7 @@ export default class SavedBehaviour implements Behaviour {
           const yMap = layer[y];
 
           for (let x = 0; x < yMap.length; x++) {
-            let block = yMap[x];
+            const block = yMap[x];
 
             if (block.length === 0) newY.push(0);
             else {

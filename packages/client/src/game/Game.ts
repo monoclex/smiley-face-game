@@ -23,7 +23,7 @@ export default class Game {
   readonly world: World;
   readonly self: Player;
   readonly stateSystem: StateSystem;
-  running: boolean = true;
+  running = true;
 
   constructor(readonly tileJson: TileRegistration, readonly init: ZSInit, factory?: GameFactory) {
     factory = factory || ((timer) => [new Bullets(timer), new Chat(), new Players(), new World(tileJson, init.size)]);
@@ -94,13 +94,7 @@ export default class Game {
       }
 
       case "SERVER_BLOCK_SINGLE": {
-        this.world.placeBlock(
-          this.players.getPlayer(packet.playerId),
-          packet.position.x,
-          packet.position.y,
-          packet.block,
-          packet.layer
-        );
+        this.world.placeBlock(this.players.getPlayer(packet.playerId), packet.position.x, packet.position.y, packet.block, packet.layer);
         return 1;
       }
 

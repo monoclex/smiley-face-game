@@ -19,5 +19,5 @@ export default class ClientPlayers extends Players {
     return player;
   }
 
-  cleanup() { }
+  cleanup() {}
 }

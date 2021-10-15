@@ -15,7 +15,7 @@ export function bresenhamsLine(x1: number, y1: number, x2: number, y2: number, p
   let longest = Math.abs(width);
   let shortest = Math.abs(height);
   if (!(longest > shortest)) {
-    let tmp = shortest;
+    const tmp = shortest;
     shortest = longest;
     longest = tmp;
 

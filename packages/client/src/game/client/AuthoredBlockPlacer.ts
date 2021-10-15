@@ -12,7 +12,7 @@ export default class AuthoredBlockPlacer {
     private readonly connection: Connection,
     private readonly world: World,
     private readonly blockBar: ClientBlockBar
-  ) { }
+  ) {}
 
   // TODO: function signature weird lol
   draw(lastPos: undefined | Position, curX: number, curY: number, action: "place" | "erase", layer?: TileLayer) {

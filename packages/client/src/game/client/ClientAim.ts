@@ -6,8 +6,8 @@ const A_SECOND = 1000;
 const TEN_TIMES = 10;
 
 export default class ClientAim {
-  x: number = 0;
-  y: number = 0;
+  x = 0;
+  y = 0;
   shootInterval: number | undefined;
 
   onShoot?: (angle: number) => void;

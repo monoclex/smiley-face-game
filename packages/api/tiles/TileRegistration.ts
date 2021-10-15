@@ -1,7 +1,7 @@
 import type Behavior from "./Behavior";
 
 export default class TileRegistration {
-  _current: number = 1; /* we start at `1` because the empty tile (0) is king */
+  _current = 1; /* we start at `1` because the empty tile (0) is king */
   _map: Map<number, Behavior<unknown>> = new Map();
   _sources: Map<number, Behavior<unknown>> = new Map();
 

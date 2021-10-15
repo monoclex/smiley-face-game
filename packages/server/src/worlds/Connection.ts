@@ -9,7 +9,7 @@ import type { ZRole } from "@smiley-face-game/api/types";
 
 export default class Connection {
   playerId!: number;
-  connected: boolean = false;
+  connected = false;
   username!: string;
   isGuest!: boolean;
   private _room?: Room;
@@ -17,19 +17,19 @@ export default class Connection {
   // room things
   // TODO: decouple 'lastPosition' default state
   lastPosition: { x: number; y: number } = { x: 32, y: 32 };
-  hasGun: boolean = false;
-  gunEquipped: boolean = false;
+  hasGun = false;
+  gunEquipped = false;
   lastMessage: Date = new Date();
-  messagesCounter: number = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
+  messagesCounter = 0; // counts how many messages have been sent in a row with a close enough `Date` to eachother
   role: ZRole = "non";
-  hasEdit: boolean = false;
+  hasEdit = false;
   get canPlaceBlocks(): boolean {
     return this.hasEdit && (this.hasGun ? !this.gunEquipped : true);
   }
 
   constructor(readonly webSocket: WebSocket, readonly authTokenPayload: AuthPayload, readonly worldTokenPayload: ZJoinRequest) {
     // ping the client every 30 seconds
-    let pingTimer = setInterval(() => {
+    const pingTimer = setInterval(() => {
       if (webSocket.readyState === webSocket.OPEN) {
         webSocket.ping();
       } else {
@@ -74,7 +74,7 @@ export default class Connection {
         this.kill("Sent a non-string.");
         return;
       }
-      
+
       if (data.length >= 8096) {
         this.kill("Sent a magnum payload."); // all hail danny devito
         return;
