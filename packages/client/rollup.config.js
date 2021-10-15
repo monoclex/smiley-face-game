@@ -36,17 +36,6 @@ const config = {
       height: 32,
     }),
     json(),
-    alias({
-      customResolver,
-      entries: [
-        // TODO: submit a PR to get mini-signals to work properly with package.json stuff
-        { find: /mini-signals/, replacement: nodeModule("mini-signals/src") },
-        { find: /@smiley-face-game\/api\/?/, replacement: `${apiSrcRootDir}/index.ts` },
-        { find: /@smiley-face-game\/api\/(.+)/, replacement: `${apiSrcRootDir}/$1` },
-        { find: /@material-ui\/icons(.*)/, replacement: nodeModule("@mui/icons-material/esm/$1") },
-        { find: /@material-ui\/lab(.*)/, replacement: nodeModule("@mui/lab/esm/$1") },
-      ],
-    }),
     // pixi.js imports from "url" for some reason, so we have to include node builtins
     builtins(),
     replace({
@@ -54,6 +43,21 @@ const config = {
       "import.meta.env.NODE_ENV": JSON.stringify("production"),
       "process.env.NODE_ENV": JSON.stringify("production"),
       "import.meta.env.DEV": false,
+    }),
+    replace({
+      // process-es6 dependency is weird
+      "global.performance": JSON.stringify("globalThis.performance"),
+    }),
+    alias({
+      customResolver,
+      entries: [
+        // TODO: submit a PR to get mini-signals to work properly with package.json stuff
+        { find: /mini-signals/, replacement: nodeModule("mini-signals/src") },
+        { find: /@smiley-face-game\/api\/(.+)/, replacement: `${apiSrcRootDir}/$1` },
+        { find: /@smiley-face-game\/api\/?/, replacement: `${apiSrcRootDir}/index.ts` },
+        { find: /@material-ui\/icons(.*)/, replacement: nodeModule("@mui/icons-material/esm/$1") },
+        { find: /@material-ui\/lab(.*)/, replacement: nodeModule("@mui/lab/esm/$1") },
+      ],
     }),
     resolve({
       mainFields: ["module", "browser"],

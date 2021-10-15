@@ -11,7 +11,7 @@ const config = {
     format: "umd",
     name: "sfg",
   },
-  plugins: [nodeResolve({ mainFields: ["browser"] }), commonjs(), typescript(), terser()],
+  plugins: [nodeResolve({ mainFields: ["browser"], extensions: [".ts"] }), commonjs(), typescript(), terser()],
 };
 
 export default config;

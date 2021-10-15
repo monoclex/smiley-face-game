@@ -12,7 +12,7 @@ import { Room } from "../../ui/lobby/Room";
 import history from "../../ui/history";
 import Loading from "../../ui/Loading";
 import Typography from "@mui/material/Typography";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { ExitToApp as ExitToAppIcon } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import { Authentication } from "@smiley-face-game/api";
 
@@ -88,62 +88,64 @@ const LobbyPage = () => {
     refresh();
   }, []);
 
-  return <>
-    <Grid container item justifyContent="center" alignItems="center">
-      <IconButton className={classes.rotate180} onClick={logout} size="large">
-        <ExitToAppIcon />
-      </IconButton>
-      <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
-        <IconButton onClick={() => refresh()} size="large">
-          <Refresh />
+  return (
+    <>
+      <Grid container item justifyContent="center" alignItems="center">
+        <IconButton className={classes.rotate180} onClick={logout} size="large">
+          <ExitToAppIcon />
         </IconButton>
-      </motion.div>
-      <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
-        <Plus />
-      </IconButton>
-      <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
-        <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
-      </IconButton>
-    </Grid>
-    <div className={classes.paddingStyle}>
-      <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-        {!roomPreviews && <Loading message={"Loading rooms..."} />}
-        {!!roomPreviews &&
-          roomPreviews.map((room) => (
-            <Grid item key={room.id}>
-              <Room room={room} />
-            </Grid>
-          ))}
+        <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
+          <IconButton onClick={() => refresh()} size="large">
+            <Refresh />
+          </IconButton>
+        </motion.div>
+        <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
+          <Plus />
+        </IconButton>
+        <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
+          <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
+        </IconButton>
       </Grid>
-
-      {myRooms && (
-        <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
-          Your Rooms
-        </Typography>
-      )}
-
-      {myRooms && (
+      <div className={classes.paddingStyle}>
         <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-          {!myRooms && <Loading message={"Loading your rooms..."} />}
-          {!!myRooms &&
-            myRooms.map((room) => (
+          {!roomPreviews && <Loading message={"Loading rooms..."} />}
+          {!!roomPreviews &&
+            roomPreviews.map((room) => (
               <Grid item key={room.id}>
                 <Room room={room} />
               </Grid>
             ))}
         </Grid>
-      )}
-    </div>
 
-    <CreateRoomDialog
-      open={createRoomDialogOpen}
-      onClose={() => setCreateRoomDialogOpen(false)}
-      onCreateRoom={({ width, height, name }) => {
-        history.createGame(name, parseInt(width), parseInt(height));
-        setCreateRoomDialogOpen(false);
-      }}
-    />
-  </>;
+        {myRooms && (
+          <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
+            Your Rooms
+          </Typography>
+        )}
+
+        {myRooms && (
+          <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
+            {!myRooms && <Loading message={"Loading your rooms..."} />}
+            {!!myRooms &&
+              myRooms.map((room) => (
+                <Grid item key={room.id}>
+                  <Room room={room} />
+                </Grid>
+              ))}
+          </Grid>
+        )}
+      </div>
+
+      <CreateRoomDialog
+        open={createRoomDialogOpen}
+        onClose={() => setCreateRoomDialogOpen(false)}
+        onCreateRoom={({ width, height, name }) => {
+          history.createGame(name, parseInt(width), parseInt(height));
+          setCreateRoomDialogOpen(false);
+        }}
+      />
+    </>
+  );
 };
 
 export default LobbyPage;
