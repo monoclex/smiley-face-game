@@ -102,234 +102,364 @@ export default class Player implements PhysicsObject {
     if (!this.hasGun) throw new Error("can't hold gun when there is no gun");
     this.gunState = isHeld ? GunState.Held : GunState.Carrying;
   }
-
+  
+  private deltaAccum: number = 0;
   tick(game: Game, deltaMs: number) {
-    // ===
-    // BIG TODO: abstract gravity stuff into its own code thing so that way
-    // we can read/write code that pretends like down is gravity
-    // whilst it's actually direction agnostic in practice
-    // ===
+    // 100 ticks per second
+    // 10 ticks per 100ms
+    // 1 tick per 10ms
+    this.deltaAccum += deltaMs;
 
-    const gravityDirection = this.findGravityDirection(game);
-    this.gravityDirection = gravityDirection;
-
-    // calculate the direction to go in based on what's pressed
-    let directionX = 0;
-    let directionY = 2;
-    // if (this.input.up) directionY--;
-    // if (this.input.down) directionY++;
-    if (gravityDirection === ArrowDirection.Up || gravityDirection === ArrowDirection.Down) {
-      if (this.input.left) directionX--;
-      if (this.input.right) directionX++;
-    } else if (gravityDirection === ArrowDirection.Left) {
-      if (this.input.up) directionX--;
-      if (this.input.down) directionX++;
-    } else if (gravityDirection === ArrowDirection.Right) {
-      if (this.input.up) directionX--;
-      if (this.input.down) directionX++;
-    }
-
-    // if the player doesn't press any keys, they loose acceleration a lot faster
-    let dragX = directionX === 0 ? PHYSICS_DECELERATION_DRAG : undefined;
-    let dragY = undefined;
-
-    // TODO: somehow bake these into gravity stuff so that way we can write code that is
-    // direction-agnostic and easily understandable
-    if (gravityDirection === ArrowDirection.Up) directionY *= -1;
-    else if (gravityDirection === ArrowDirection.Right) {
-      let tmp = directionX;
-      directionX = directionY;
-      directionY = tmp;
-      dragY = dragX;
-      dragX = undefined;
-    } else if (gravityDirection === ArrowDirection.Left) {
-      let tmp = directionX;
-      directionX = -directionY;
-      directionY = tmp;
-      dragY = dragX;
-      dragX = undefined;
-    }
-
-    let x = this.position.x;
-    let velX = this.velocity.x;
-    this.position.x = position_after(deltaMs, x, velX, directionX, dragX);
-    this.velocity.x = velocity_after(deltaMs, x, velX, directionX, dragX);
-
-    let y = this.position.y;
-    let velY = this.velocity.y;
-    this.position.y = position_after(deltaMs, y, velY, directionY, dragY);
-    this.velocity.y = velocity_after(deltaMs, y, velY, directionY, dragY);
-
-    {
-      // ========== AWFUL PHYSICS HANDLING START ============================================================================================
-      function rectInRect(px: number, py: number, tx: number, ty: number) {
-        // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-        return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
-      }
-
-      // TODO: better physics handling
-      // for now, we just go "eh, ill go across the player's line a bunch and if i run into something i'll run back a bit yeh?"
-      // accuracy needs to result in a '1' for xAdv/yAdv and less than '1' for the other (yAdv/xAdv)
-      let farX = this.position.x < x ? Math.floor(this.position.x) : Math.ceil(this.position.x);
-      let nearX = x < this.position.x ? Math.floor(x) : Math.ceil(x);
-      let farY = this.position.y < y ? Math.floor(this.position.y) : Math.ceil(this.position.y);
-      let nearY = y < this.position.y ? Math.floor(y) : Math.ceil(y);
-      const ACCURACY_AMT = Math.max(Math.abs(farX - nearX), Math.abs(farY - nearY));
-      let xAdv = (this.position.x - x) / ACCURACY_AMT;
-      let yAdv = (this.position.y - y) / ACCURACY_AMT;
-      let simX = x;
-      let simY = y;
-      let doSetZeroX = false;
-      let doSetZeroY = false;
-      const epsilon = Math.min(xAdv, yAdv) / 1.1;
-      for (let _ = 0; _ < ACCURACY_AMT; _++) {
-        let prevSimX = simX;
-        let prevSimY = simY;
-        simX += xAdv;
-        simY += yAdv;
-
-        if (simX < Math.floor(simX) + epsilon) simX = Math.floor(simX);
-        if (simX > Math.ceil(simX) - epsilon) simX = Math.ceil(simX);
-        if (simY < Math.floor(simY) + epsilon) simY = Math.floor(simY);
-        if (simY > Math.ceil(simY) - epsilon) simY = Math.ceil(simY);
-
-        // TODO: don't duplicate code
-        // cap the player inside world bounds
-        const PLAYER_WIDTH = 32;
-        const PLAYER_HEIGHT = 32;
-        simX = clamp(simX, 0, (game.world.size.width - 1) * PLAYER_WIDTH);
-        simY = clamp(simY, 0, (game.world.size.height - 1) * PLAYER_HEIGHT);
-
-        const worldX = Math.floor(simX / 32);
-        const worldY = Math.floor(simY / 32);
-
-        // < - the bit that checks if a player enters a block - >
-        if (this.onEnterGun && game.world.blockAt(worldX, worldY, TileLayer.Action) === game.tileJson.id("gun")) {
-          this.onEnterGun(worldX, worldY);
-        }
-        // < -- >
-
-        // instead of naively iterating through all 4 blocks around the player,
-        // we'll iterate around them in order of nearest (fixes some collision bugs)
-        const boxOffsets = [
-          [0, 0],
-          [1, 0],
-          [0, 1],
-          [1, 1],
-        ];
-        const boxWorldCoordsCenters = boxOffsets.map(([ox, oy]) => [
-          worldX * 32 + ox * 32,
-          worldY * 32 + oy * 32,
-          worldX + ox,
-          worldY + oy,
-        ]);
-        /** for performance (yes i know """performance""" in this god awful code is cringe) we just dont do the math sqrt */
-        function dist(sourceX: number, sourceY: number, destX: number, destY: number): number {
-          // sqrt((x2 - x1)^2 + (y2 - y1)^2)
-          // dont do the sqrt since we dont care about distance, just how far something is
-          let left = sourceX - destX;
-          let right = sourceY - destY;
-          return left * left + right * right;
-        }
-        const boxByDist = boxWorldCoordsCenters
-          .map(([x, y, wx, wy]) => [dist(simX, simY, x, y), wx, wy])
-          .sort(([a], [b]) => a - b);
-
-        for (const [_, boxX, boxY] of boxByDist) {
-          if (boxX < 0 || boxY < 0 || boxX >= game.world.size.width || boxY >= game.world.size.height) continue;
-          const isSolid = game.world.blockAt(boxX, boxY, TileLayer.Foreground) !== 0;
-          if (!isSolid) continue;
-          if (rectInRect(simX, simY, boxX * 32, boxY * 32)) {
-            // in collision (we probably weren't before)
-            // try to resolve both ways
-            if (!rectInRect(prevSimX, simY, boxX * 32, boxY * 32)) {
-              // instead of backing up the simulation by a simulation tick, we round it to the nearest 32x32 whole number
-              // so that we can fit through gaps and stuff
-              let diff = simX - prevSimX;
-              if (diff < 0) {
-                simX = boxX * 32 + 32;
-              } /* diff > 0 */ else {
-                simX = boxX * 32 - 32;
-              }
-              doSetZeroX = true;
-            } else if (!rectInRect(simX, prevSimY, boxX * 32, boxY * 32)) {
-              let diff = simY - prevSimY;
-              if (diff < 0) {
-                simY = boxY * 32 + 32;
-              } else {
-                simY = boxY * 32 - 32;
-              }
-              doSetZeroY = true;
-            } else {
-              // so we couldn't fix our collision by moving back a tick in the x/y direction
-              // we could either be in a 4x4 amount of blocks or just dealing with weird floating point errors
-              // we will attempt to resovle this by affixing our position to one of the nearest blocks
-              const b2oxOffsets = [
-                [0, 0],
-                [1, 0],
-                [0, 1],
-                [1, 1],
-              ];
-              const b2oxWorldCoordsCenters = b2oxOffsets.map(([ox, oy]) => [
-                worldX * 32 + ox * 32 + 16,
-                worldY * 32 + oy * 32 + 16,
-                worldX + ox,
-                worldY + oy,
-              ]);
-              const b2oxByDist = b2oxWorldCoordsCenters
-                .map(([x, y, wx, wy]) => [dist(simX + 16, simY + 16, x, y), wx, wy])
-                .sort(([a], [b]) => a - b);
-              for (const [_, bx, by] of b2oxByDist) {
-                if (bx < 0 || by < 0 || bx >= game.world.size.width || by >= game.world.size.height) continue;
-                const isSolid = game.world.blockAt(bx, by, TileLayer.Foreground) !== 0;
-                if (isSolid) continue;
-                simX = bx * 32;
-                simY = by * 32;
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      if (doSetZeroX) {
-        this.position.x = simX;
-        this.velocity.x = 0;
-      }
-      if (doSetZeroY) {
-        this.position.y = simY;
-        this.velocity.y = 0;
-      }
-      // ========== AWFUL PHYSICS HANDLING END ==============================================================================================
-    }
-
-    this.capIntoWorldBoundaries(game);
-
-    // trial and error
-    const JUMP_CONSTANT = -13.2;
-
-    if (gravityDirection === ArrowDirection.Up || gravityDirection === ArrowDirection.Down) {
-      // if we want to jump and we collided on the y axis (TODO: check if on ground properly)
-      // TODO: is there some way to immediately apply velocity for one frame?
-      if (
-        this.input.jump &&
-        this.velocity.y === 0 &&
-        /* if they're currently not moving, and last frame they were at least moving down or standing still */
-        (gravityDirection === ArrowDirection.Up ? -1 : 1) * velY >= 0
-      ) {
-        this.velocity.y = (gravityDirection === ArrowDirection.Up ? -1 : 1) * JUMP_CONSTANT; // velocity_after(deltaMs, y, velY, -1 * 2 - 1);
-      }
-    } else {
-      // TODO: nuke this when gravity is done properly
-      if (this.input.jump && this.velocity.x === 0 && (gravityDirection === ArrowDirection.Left ? -1 : 1) * velX >= 0) {
-        this.velocity.x = (gravityDirection === ArrowDirection.Left ? -1 : 1) * JUMP_CONSTANT;
-      }
+    while (this.deltaAccum >= 10) {
+      this.deltaAccum -= 10;
+      this.eetick(game, 0);
     }
   }
 
-  findGravityDirection(game: Game) {
-    const worldX = Math.floor(this.center.x / 32);
-    const worldY = Math.floor(this.center.y / 32);
+  private horizontal: number = 0;
+  private vertical: number = 0;
+  private isSpaceDown: boolean = false;
+  private isSpaceJustPressed: boolean = false;
+  private speedMult: number = 1;
+  private gravityMult: number = 1;
+  private speedX: number = 0;
+  private speedY: number = 0;
+  private get x(): number { return this.position.x / 2 };
+  private set x(x: number) { this.position.x = x * 2 };
+  private get y(): number { return this.position.y / 2 };
+  private set y(y: number) { this.position.y = y * 2 };
+  private ticks: number = 0;
+  private lastJump: number = 0;
+  private jumpCount: number = 0;
+  private maxJumps: number = 1;
+  private jumpMult: number = 1;
+  private moving: boolean = false;
+  private queue: number[] = [ArrowDirection.Down];
+  private origModX: number = 0;
+  private origModY: number = 0;
+  private modX: number = 0;
+  private modY: number = 0;
+  eetick(game: Game, deltaMs: number) {
+
+    this.horizontal = (this.input.right && 1 || 0) - (this.input.left && 1 || 0);
+    this.vertical = (this.input.down && 1 || 0) - (this.input.up && 1 || 0);
+    this.isSpaceJustPressed = !this.isSpaceDown && this.input.jump;
+    this.isSpaceDown = this.input.jump;
+
+    let blockX = Math.round(this.x/Config.blockSize);
+    let blockY = Math.round(this.y/Config.blockSize);
+
+    let delayed = this.queue.shift()!;
+    let current = this.findGravityDirection(blockX, blockY, game);
+    this.queue.push(current);
+
+    let modifierX = 0, modifierY = 0;
+
+    // let isFlying = this.isInGodMode;
+    let isFlying = false;
+    if(!isFlying) {
+      this.origModX = this.modX;
+      this.origModY = this.modY;
+
+      switch (current) {
+        case ArrowDirection.Left:
+          this.origModX = -Config.physics.gravity;
+          this.origModY = 0;
+          break;
+        case ArrowDirection.Up:
+          this.origModX = 0;
+          this.origModY = -Config.physics.gravity;
+          break;
+        case ArrowDirection.Right:
+          this.origModX = Config.physics.gravity;
+          this.origModY = 0;
+          break;
+        case ArrowDirection.Down:
+        default:
+          this.origModX = 0;
+          this.origModY = Config.physics.gravity;
+          break;
+      }
+
+      switch (delayed) {
+        case ArrowDirection.Left:
+          this.modX = -Config.physics.gravity;
+          this.modY = 0;
+          break;
+        case ArrowDirection.Up:
+          this.modX = 0;
+          this.modY = -Config.physics.gravity;
+          break;
+        case ArrowDirection.Right:
+          this.modX = Config.physics.gravity;
+          this.modY = 0;
+          break;
+        case ArrowDirection.Down:
+        default:
+          this.modX = 0;
+          this.modY = Config.physics.gravity;
+          break;
+      }
+    }
+
+    let movementX = 0, movementY = 0;
+
+    if(this.modY) {
+      movementX = this.horizontal;
+      movementY = 0;
+    }
+    else if(this.modX) {
+      movementX = 0;
+      movementY = this.vertical;
+    }
+    else {
+      movementX = this.horizontal;
+      movementY = this.vertical;
+    }
+    movementX *= this.speedMult;
+    movementY *= this.speedMult;
+    this.modX *= this.gravityMult;
+    this.modY *= this.gravityMult;
+
+    modifierX = (this.modX + movementX) / Config.physics.variable_multiplyer;
+    modifierY = (this.modY + movementY) / Config.physics.variable_multiplyer;
+
+    if(this.speedX || modifierX) {
+      this.speedX += modifierX;
+
+      this.speedX *= Config.physics.base_drag;
+      if((!movementX && this.modY) || (this.speedX < 0 && movementX > 0) || (this.speedX > 0 && movementX < 0)) {
+        this.speedX *= Config.physics.no_modifier_drag;
+      }
+
+      if(this.speedX > 16) {
+        this.speedX = 16;
+      } else if(this.speedX < -16) {
+        this.speedX = -16;
+      } else if(Math.abs(this.speedX) < 0.0001) {
+        this.speedX = 0;
+      }
+    }
+
+    if(this.speedY || modifierY) {
+      this.speedY += modifierY;
+
+      this.speedY *= Config.physics.base_drag;
+      if((!movementY && this.modX) || (this.speedY < 0 && movementY > 0) || (this.speedY > 0 && movementY < 0)) {
+        this.speedY *= Config.physics.no_modifier_drag;
+      }
+
+      if(this.speedY > 16) {
+        this.speedY = 16;
+      } else if(this.speedY < -16) {
+        this.speedY = -16;
+      } else if(Math.abs(this.speedY) < 0.0001) {
+        this.speedY = 0;
+      }
+    }
+
+    let remainderX = this.x % 1, remainderY = this.y % 1;
+    let currentSX = this.speedX, currentSY = this.speedY;
+    let oldSX = 0, oldSY = 0;
+    let oldX = 0, oldY = 0;
+
+    let doneX = false, doneY = false;
+
+    let grounded = false;
+
+    let stepX = () => {
+      if(currentSX > 0){
+        if(currentSX + remainderX >= 1){
+          this.x += (1-remainderX);
+          this.x >>= 0;
+          currentSX -= (1-remainderX);
+          remainderX = 0;
+        } else {
+          this.x += currentSX;
+          currentSX = 0;
+        }
+      }
+      else if(currentSX < 0){
+        if(remainderX + currentSX < 0 && (remainderX != 0)){
+          currentSX += remainderX;
+          this.x -= remainderX;
+          this.x >>= 0;
+          remainderX = 1;
+        }else{
+          this.x += currentSX;
+          currentSX = 0;
+        }
+      }
+      if (true) {
+        if (this.playerIsInFourSurroundingBlocks(game)) {
+      // if(this.playstate.world != null){
+        // if(this.playstate.world.overlaps(this)){
+          this.x = oldX;
+          if (this.speedX > 0 && (this.origModX > 0))
+            grounded = true;
+          if (this.speedX < 0 && (this.origModX < 0))
+            grounded = true;
+
+          this.speedX = 0;
+          currentSX = oldSX;
+          doneX = true;
+        }
+      }
+    }
+    let stepY = () => {
+      if(currentSY > 0){
+        if(currentSY + remainderY >= 1){
+          this.y += (1-remainderY);
+          this.y >>= 0;
+          currentSY -= (1-remainderY);
+          remainderY = 0;
+        } else {
+          this.y += currentSY;
+          currentSY = 0;
+        }
+      }
+      else if(currentSY < 0){
+        if(remainderY + currentSY < 0 && (remainderY != 0)){
+          currentSY += remainderY;
+          this.y -= remainderY;
+          this.y >>= 0;
+          remainderY = 1;
+        }else{
+          this.y += currentSY;
+          currentSY = 0;
+        }
+      }
+      if (true) {
+      if (this.playerIsInFourSurroundingBlocks(game)) {
+      // if(this.playstate.world != null){
+        // if(this.playstate.world.overlaps(this)){
+          this.y = oldY;
+          if (this.speedY > 0 && (this.origModY > 0))
+            grounded = true;
+          if (this.speedY < 0 && (this.origModY < 0))
+            grounded = true;
+
+          this.speedY = 0;
+          currentSY = oldSY;
+          doneY = true;
+        }
+      }
+    }
+
+    while((currentSX && !doneX) || (currentSY && !doneY)) {
+      oldX = this.x;
+      oldY = this.y;
+
+      oldSX = currentSX;
+      oldSY = currentSY;
+
+      stepX();
+      stepY();
+    }
+
+
+
+    // jumping
+    let mod = 1
+    let inJump = false;
+    if (this.isSpaceJustPressed){
+      this.lastJump = -this.ticks;
+      inJump = true;
+      mod = -1
+    }
+
+    if(this.isSpaceDown){
+        if(this.lastJump < 0){
+          if(this.ticks + this.lastJump > 75){
+            inJump = true;
+          }
+        }else{
+          if(this.ticks - this.lastJump > 15){
+            inJump = true;
+          }
+        }
+    }
+
+    if((this.speedX == 0 && this.origModX && this.modX || this.speedY == 0 && this.origModY && this.modY) && grounded) {
+      // On ground so reset jumps to 0
+      this.jumpCount = 0;
+    }
+
+    if(this.jumpCount == 0 && !grounded) this.jumpCount = 1; // Not on ground so first 'jump' removed
+
+    if(inJump) {
+      if(this.jumpCount < this.maxJumps && this.origModX && this.modX) { // Jump in x direction
+        if (this.maxJumps < 1000) { // Not infinite jumps
+          this.jumpCount += 1;
+        }
+        this.speedX = (-this.origModX * Config.physics.jump_height * this.jumpMult) / Config.physics.variable_multiplyer;
+        this.lastJump = this.ticks * mod;
+      }
+      if(this.jumpCount < this.maxJumps && this.origModY && this.modY) { // Jump in y direction
+        if (this.maxJumps < 1000) { // Not infinite jumps
+          this.jumpCount += 1;
+        }
+        this.speedY = (-this.origModY * Config.physics.jump_height * this.jumpMult) / Config.physics.variable_multiplyer;
+        this.lastJump = this.ticks * mod;
+      }
+    }
+
+    // touchBlock(cx, cy, isgodmod);
+    // sendMovement(cx, cy);
+
+
+
+    // autoalign
+    let imx = (this.speedX*256)>>0;
+    let imy = (this.speedY*256)>>0;
+
+    if(imx != 0) {
+      this.moving = true;
+    }
+    else if(Math.abs(modifierX) < 0.1) {
+      let tx = this.x % Config.blockSize;
+      if(tx < Config.physics.autoalign_range) {
+        if(tx < Config.physics.autoalign_snap_range) {
+          this.x >>= 0;
+        }
+        else this.x -= tx/(Config.blockSize-1);
+      }
+      else if(tx > Config.blockSize - Config.physics.autoalign_range) {
+        if(tx > Config.blockSize - Config.physics.autoalign_snap_range) {
+          this.x >>= 0;
+          this.x++;
+        }
+        else this.x += (tx-(Config.blockSize - Config.physics.autoalign_range))/(Config.blockSize-1);
+      }
+    }
+
+    if(imy != 0) {
+      this.moving = true;
+    }
+    else if(Math.abs(modifierY) < 0.1) {
+      let ty = this.y % Config.blockSize;
+      if(ty < Config.physics.autoalign_range) {
+        if(ty < Config.physics.autoalign_snap_range) {
+          this.y >>= 0;
+        }
+        else this.y -= ty/(Config.blockSize-1);
+      }
+      else if(ty > Config.blockSize - Config.physics.autoalign_range) {
+        if(ty > Config.blockSize - Config.physics.autoalign_snap_range) {
+          this.y >>= 0;
+          this.y++;
+        }
+        else this.y += (ty-(Config.blockSize - Config.physics.autoalign_range))/(Config.blockSize-1);
+      }
+    }
+
+    this.ticks++;
+
+  }
+
+  findGravityDirection(worldX: number, worldY: number, game: Game) {
+    // const worldX = Math.floor(this.center.x / 32);
+    // const worldY = Math.floor(this.center.y / 32);
     const actionBlock = game.world.blockAt(worldX, worldY, TileLayer.Action);
 
     return actionBlock === game.tileJson.id("arrow-up")
@@ -358,4 +488,82 @@ export default class Player implements PhysicsObject {
   }
 
   cleanup() { }
+
+  playerIsInFourSurroundingBlocks(game: Game): boolean {
+    function rectInRect(px: number, py: number, tx: number, ty: number) {
+      // lol, im lazy
+      tx *= 32;
+      ty *= 32;
+
+      // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+      return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
+    }
+
+    const worldX = Math.floor(this.position.x / 32);
+    const worldY = Math.floor(this.position.y / 32);
+
+    const has00 = game.world.blockAt(worldX, worldY, TileLayer.Foreground) !== 0;
+    const has10 = game.world.blockAt(worldX + 1, worldY, TileLayer.Foreground) !== 0;
+    const has01 = game.world.blockAt(worldX, worldY + 1, TileLayer.Foreground) !== 0;
+    const has11 = game.world.blockAt(worldX + 1, worldY + 1, TileLayer.Foreground) !== 0;
+    console.log(has00,has10,has01,has11);
+
+    return (has00 && rectInRect(this.position.x, this.position.y, worldX, worldY))
+      || (has10 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY))
+      || (has01 && rectInRect(this.position.x, this.position.y, worldX, worldY + 1))
+      || (has11 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY + 1))
+  }
 }
+
+class Config {
+  static blockSize = 16;
+  static smileySize = 26;
+  static godmodeSize = 64;
+
+  static fontVisitorSize = 8;
+  static fontNokiaSize = 13;
+
+  static smileyRows = 2;
+
+  static fullWidth = 850;
+  static fullHeight = 500;
+
+  static gameWidth = 640;
+  static gameHeight = 470;
+
+  //game width&height rounded up to the next multiple of block size
+  //prevents glitchy offsets when moving blocks in the game container
+  static gameWidthCeil = Config.blockSize*Math.ceil(Config.gameWidth/Config.blockSize);
+  static gameHeightCeil = Config.blockSize*Math.ceil(Config.gameHeight/Config.blockSize);
+
+  static camera_lag = 1/16;
+
+  static physics = {
+    ms_per_tick: 10,
+    max_ticks_per_frame: 150,
+    variable_multiplyer: 7.752,
+
+    base_drag: Math.pow(.9981, 10) * 1.00016093,
+    ice_no_mod_drag: Math.pow(.9993, 10) * 1.00016093,
+    ice_drag: Math.pow(.9998, 10) * 1.00016093,
+    //Multiplyer when not applying force by userkeys
+    no_modifier_drag: Math.pow(.9900, 10) * 1.00016093,
+    water_drag: Math.pow(.9950, 10) * 1.00016093,
+    mud_drag: Math.pow(.9750, 10) * 1.00016093,
+    lava_drag: Math.pow(.9800, 10) * 1.00016093,
+    toxic_drag: Math.pow(.9900, 10) * 1.00016093,
+    jump_height: 26,
+
+    autoalign_range: 2,
+    autoalign_snap_range: 0.2,
+
+    gravity: 2,
+    boost: 16,
+    water_buoyancy: -.5,
+    mud_buoyancy: .4,
+    lava_buoyancy: .2,
+    toxic_buoyancy: -.4,
+  }
+}
+Object.freeze(Config.physics);
+Object.freeze(Config);
