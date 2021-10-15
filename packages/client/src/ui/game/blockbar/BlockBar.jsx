@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import Block from "./Block";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { currentPlayerState, blockBarState } from "../../../state/";

@@ -1,5 +1,5 @@
 import inputEnabled from "../../bridge/inputEnabled";
-import Player from "../components/Player";
+import Player from "../Player";
 
 function handleKey(player: Player, key: string, pressed: boolean) {
   if (!inputEnabled()) return;

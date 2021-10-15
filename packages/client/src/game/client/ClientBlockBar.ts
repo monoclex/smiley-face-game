@@ -1,4 +1,4 @@
-import { resources } from "pixi.js";
+import { BaseImageResource } from "pixi.js";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { blockBarGlobal } from "../../state/";
 import textures from "../textures";
@@ -27,7 +27,7 @@ export default class ClientBlockBar {
     const textureFrame = findTexture(textureName);
 
     const resource = textures.block(id).baseTexture.resource;
-    if (!(resource instanceof resources.BaseImageResource)) {
+    if (!(resource instanceof BaseImageResource)) {
       throw new Error("atlas not png, huh?");
     }
 

@@ -1,15 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Button from "@material-ui/core/Button";
-import { Grid, Typography, Container } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import { Grid, Typography, Container } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import history from "../../ui/history";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    marginTop: theme.spacing(4),
-  },
-}));
+const useStyles = makeStyles((theme) => {
+  console.log("homePage makeStyles called:", theme);
+  ({
+    container: {
+      marginTop: theme.spacing(4),
+    },
+  });
+});
 
 const HomePage = () => {
   const classes = useStyles();

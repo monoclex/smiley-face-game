@@ -1,8 +1,8 @@
 import { Container } from "pixi.js";
 import Bullets from "../Bullets";
 import Timer from "../Timer";
-import ClientBullet from "./components/ClientBullet";
-import ClientPlayer from "./components/ClientPlayer";
+import ClientBullet from "./ClientBullet";
+import ClientPlayer from "./ClientPlayer";
 
 export default class ClientBullets extends Bullets {
   constructor(timer: Timer, private readonly bulletContainer: Container) {

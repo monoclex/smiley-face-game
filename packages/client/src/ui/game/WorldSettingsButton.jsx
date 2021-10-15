@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import { useRecoilValue, useRecoilState } from "recoil";
 import Cog from "mdi-material-ui/Cog";
-import IconButton from "@material-ui/core/IconButton";
+import IconButton from "@mui/material/IconButton";
 import WorldSettingsDialog from "./WorldSettingsDialog";
 import { settingsOpenState, currentPlayerState } from "../../state";
 
@@ -29,23 +29,21 @@ const WorldSettingsButton = ({}) => {
     return null;
   }
 
-  return (
-    <>
-      <IconButton
-        ref={ref}
-        variant="contained"
-        aria-haspopup="true"
-        onClick={doOpen}
-        className={classes.cog}
-        color="primary"
-        aria-label="world settings"
-        component="span"
-      >
-        <Cog />
-      </IconButton>
-      <WorldSettingsDialog open={open} onClose={onClose} />
-    </>
-  );
+  return <>
+    <IconButton
+      ref={ref}
+      variant="contained"
+      aria-haspopup="true"
+      onClick={doOpen}
+      className={classes.cog}
+      color="primary"
+      aria-label="world settings"
+      component="span"
+      size="large">
+      <Cog />
+    </IconButton>
+    <WorldSettingsDialog open={open} onClose={onClose} />
+  </>;
 };
 
 export default WorldSettingsButton;

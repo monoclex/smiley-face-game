@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import { format } from "date-fns/fp";
 
 const useStyles = makeStyles(() => ({

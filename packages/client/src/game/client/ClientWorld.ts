@@ -1,6 +1,6 @@
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
 import World from "../World";
-import Player from "../components/Player";
+import Player from "../Player";
 import Size from "../interfaces/Size";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { CompositeRectTileLayer } from "pixi-tilemap";

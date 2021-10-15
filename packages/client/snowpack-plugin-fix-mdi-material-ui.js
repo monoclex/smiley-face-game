@@ -58,7 +58,7 @@ module.exports = function fixMdiMaterialUiPlugin(config) {
       injectShim =
         `
 import React from "react";
-import SvgIcon from "@material-ui/core/SvgIcon";
+import SvgIcon from "@mui/material/SvgIcon";
 
 // silence weird errors
 var module = { exports: {} };

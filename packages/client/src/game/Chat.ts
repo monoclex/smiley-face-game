@@ -1,4 +1,4 @@
-import Player from "./components/Player";
+import Player from "./Player";
 import Message from "./interfaces/Message";
 
 export default class Chat {

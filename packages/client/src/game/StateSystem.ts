@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import Game from "./Game";
-import Player from "./components/Player";
+import Player from "./Player";
 import deep from "fast-deep-equal";
 import Message from "./interfaces/Message";
 

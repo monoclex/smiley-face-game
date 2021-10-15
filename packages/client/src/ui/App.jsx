@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useMemo } from "react";
 import { Router, Route } from "react-router-dom";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider as Muiv5ThemeProvider } from "@mui/styles";
 import { CssBaseline } from "@material-ui/core";
 import { deepPurple, indigo } from "@material-ui/core/colors";
 import { RecoilRoot } from "recoil";
@@ -34,37 +35,42 @@ export default function App() {
 
   const theme = useMemo(
     () =>
-      createMuiTheme({
+      createTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
           primary: indigo,
           secondary: deepPurple,
         },
+        spacing: 8,
       }),
     [prefersDarkMode]
   );
 
+  console.log("the theme we give to the theme provider is", theme);
+
   return (
-    <Router history={history}>
-      <RecoilRoot>
-        <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
-          <SnackbarUtilsConfigurator />
-          <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
-              <Suspense fallback={<Loading />}>
-                <Route exact path="/" component={HomePage} />
-                <Route exact path="/terms" component={TermsAndConditionsPage} />
-                <Route exact path="/guest" component={GuestPage} />
-                <Route exact path="/register" component={RegisterPage} />
-                <Route exact path="/login" component={LoginPage} />
-                <Route exact path="/lobby" component={LobbyPage} />
-                <Route exact path="/games/:id" component={PlayPage} />
-              </Suspense>
-            </ThemeProvider>
-          </StyledEngineProvider>
-        </SnackbarProvider>
-      </RecoilRoot>
-    </Router>
+    <Muiv5ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <Router history={history}>
+          <RecoilRoot>
+            <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
+              <SnackbarUtilsConfigurator />
+              <StyledEngineProvider injectFirst>
+                <CssBaseline />
+                <Suspense fallback={<Loading />}>
+                  <Route exact path="/" component={HomePage} />
+                  <Route exact path="/terms" component={TermsAndConditionsPage} />
+                  <Route exact path="/guest" component={GuestPage} />
+                  <Route exact path="/register" component={RegisterPage} />
+                  <Route exact path="/login" component={LoginPage} />
+                  <Route exact path="/lobby" component={LobbyPage} />
+                  <Route exact path="/games/:id" component={PlayPage} />
+                </Suspense>
+              </StyledEngineProvider>
+            </SnackbarProvider>
+          </RecoilRoot>
+        </Router>
+      </ThemeProvider>
+    </Muiv5ThemeProvider>
   );
 }

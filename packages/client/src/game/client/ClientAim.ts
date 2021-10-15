@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
 import Bullets from "../Bullets";
-import ClientPlayer from "./components/ClientPlayer";
+import ClientPlayer from "./ClientPlayer";
 
 const A_SECOND = 1000;
 const TEN_TIMES = 10;

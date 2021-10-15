@@ -1,7 +1,7 @@
 //@ts-check
 import React from "react";
-import Typography from "@material-ui/core/Typography";
-import Container from "@material-ui/core/Container";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 
 const TermsAndConditions = () => {
   // TODO: markdown to material-ui?
