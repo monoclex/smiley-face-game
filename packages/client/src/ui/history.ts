@@ -1,24 +1,13 @@
 import { createBrowserHistory, History } from "history";
+import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
 
-type Request<TRequest, TPayload> = { request: TRequest } & TPayload;
-type HistoryState = null | Request<"join", JoinRoomRequest> | Request<"create", CreateRoomRequest>;
-
-interface JoinRoomRequest {
-  roomId: string;
-  type: "dynamic" | "saved";
-}
-
-interface CreateRoomRequest {
-  name: string;
-  width: number;
-  height: number;
-}
+export type HistoryState = ZJoinRequest;
 
 interface ModifiedHistory<S = HistoryState> extends History<S> {
   home(): void;
   lobby(): void;
-  joinGame(options: JoinRoomRequest): void;
-  createGame(options: CreateRoomRequest): void;
+  joinGame(id: string): void;
+  createGame(name: string, width: number, height: number): void;
 }
 
 const history = createBrowserHistory<HistoryState>();
@@ -28,25 +17,25 @@ const modifiedHistory: ModifiedHistory = {
   home: () => {
     history.push({
       pathname: "/",
-      state: null,
+      state: undefined,
     });
   },
   lobby: () => {
     history.push({
       pathname: "/lobby",
-      state: null,
+      state: undefined,
     });
   },
-  joinGame: (options) => {
+  joinGame: (id) => {
     history.push({
-      pathname: `/games/${options.roomId}`,
-      state: { ...options, request: "join" },
+      pathname: `/games/${id}`,
+      state: { type: "join", id },
     });
   },
-  createGame: (options) => {
+  createGame: (name, width, height) => {
     history.push({
-      pathname: `/games/`,
-      state: { ...options, request: "create" },
+      pathname: `/games/loading`,
+      state: { type: "create", name, width, height },
     });
   },
 };

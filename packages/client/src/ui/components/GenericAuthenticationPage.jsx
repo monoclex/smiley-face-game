@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Container from "@material-ui/core/Container";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@mui/styles";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Container from "@mui/material/Container";
+import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
 import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
 
 const useStyles = makeStyles({
@@ -46,7 +46,7 @@ const validators = {
   password: wrapValidator(zPassword),
 };
 
-export default ({ smileyUrl, inputs, submit }) => {
+const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
   const styles = useStyles();
   const { handleSubmit, register, errors, watch } = useForm();
   const { enqueueSnackbar } = useSnackbar();
@@ -77,7 +77,7 @@ export default ({ smileyUrl, inputs, submit }) => {
         src={smileyUrl}
       />
       {isWorking && (
-        <Grid container direction="row" justify="center" alignItems="center">
+        <Grid container direction="row" justifyContent="center" alignItems="center">
           <Grid item>
             <CircularProgress />
           </Grid>
@@ -106,3 +106,5 @@ export default ({ smileyUrl, inputs, submit }) => {
     </Container>
   );
 };
+
+export default GenericAuthenticationPage;

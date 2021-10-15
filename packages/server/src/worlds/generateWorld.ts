@@ -1,5 +1,5 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import type { ZBlock } from "@smiley-face-game/api/types";
+import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/api/types";
 import { TileLayer } from "@smiley-face-game/api/types";
 
 export default function generateWorld(width: number, height: number, tileJson: TileRegistration): string {
@@ -7,7 +7,7 @@ export default function generateWorld(width: number, height: number, tileJson: T
   // but it allows this generator function to use less RAM, and if the user wants to use the blocks they can JSON.parse it
   const solid = tileJson.id("basic-white");
 
-  const layers = [];
+  const layers: ZWorldBlocks = [];
   const foreground: ZBlock[][] = [];
   layers[TileLayer.Foreground] = foreground;
 

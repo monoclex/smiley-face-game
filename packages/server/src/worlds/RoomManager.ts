@@ -19,34 +19,26 @@ interface JoinRoomRequest {
 export default class RoomManager {
   readonly #deps: Dependencies;
   readonly #queue: MPSC<JoinRoomRequest>;
-  readonly #savedRooms: Map<string, Room>;
-  readonly #dynamicRooms: Map<string, Room>;
+  readonly #rooms: Map<string, Room>;
   readonly #generator: UuidGenerator;
 
   constructor(deps: Dependencies) {
     this.#deps = deps;
     this.#queue = new MPSC<JoinRoomRequest>();
-    this.#savedRooms = new Map<string, Room>();
-    this.#dynamicRooms = new Map<string, Room>();
+    this.#rooms = new Map<string, Room>();
     this.#generator = this.#deps.uuidGenerator;
 
     this.lifetime();
   }
 
   getSaved(id: string): Room | undefined {
-    return this.#savedRooms.get(id);
+    return this.#rooms.get(id);
   }
 
   *listRooms() {
-    for (const room of this.#savedRooms.values()) {
+    for (const room of this.#rooms.values()) {
       if (room.status === "starting" || room.status === "running") {
-        yield { room, type: "saved" as const };
-      }
-    }
-
-    for (const room of this.#dynamicRooms.values()) {
-      if (room.status === "starting" || room.status === "running") {
-        yield { room, type: "dynamic" as const };
+        yield { room };
       }
     }
   }
@@ -87,7 +79,7 @@ export default class RoomManager {
 
       if (room.status === "stopped") {
         // generate a new room
-        this.#savedRooms.delete(room.id);
+        this.#rooms.delete(room.id);
         const newRoom = this.roomFor(message.roomDetails);
 
         if (newRoom === undefined) {
@@ -115,32 +107,22 @@ export default class RoomManager {
     ensureValidates(zJoinRequest, details);
     // TODO: this is omega wtf, surely there's a better way
 
-    if (details.type === "saved") {
-      const room = this.#savedRooms.get(details.id);
+    if (details.type === "join") {
+      const room = this.#rooms.get(details.id);
 
       if (room === undefined) {
         // "what if the room doesn't exist?" that's handled by room's run() function
         const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));
-        this.#savedRooms.set(details.id, newRoom);
+        this.#rooms.set(details.id, newRoom);
         return newRoom;
       } else {
         return room;
       }
-    } else if (details.type === "dynamic") {
-      if ("id" in details) {
-        const room = this.#dynamicRooms.get(details.id);
-
-        if (room === undefined) {
-          return undefined;
-        }
-
-        return room;
-      } else {
-        const id = this.#generator.genIdForDynamicWorld();
-        const newRoom = new Room(new DynamicBehaviour(details, id));
-        this.#dynamicRooms.set(id, newRoom);
-        return newRoom;
-      }
+    } else if (details.type === "create") {
+      const id = this.#generator.genIdForDynamicWorld();
+      const newRoom = new Room(new DynamicBehaviour(details, id));
+      this.#rooms.set(id, newRoom);
+      return newRoom;
     } else {
       // unexpected path
       return undefined;

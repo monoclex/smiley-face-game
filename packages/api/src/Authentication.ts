@@ -1,4 +1,3 @@
-
 import { zJoinRequest } from "./ws-api";
 import { zLobbyResp } from "./api";
 import { zPlayerResp } from "./api";
@@ -32,8 +31,7 @@ export default class Authentication {
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */  
   constructor(token: unknown, id?: unknown) {
     this.token = zToken.parse(token);
-    // @ts-ignore
-    this.id = id && zAccountId.parse(id);
+    if (id) this.id = zAccountId.parse(id);
   }
 
   /**
@@ -42,7 +40,7 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for connecting.
    * @returns A promise that resolves to a `Connection`, which can be used to control your in game player.
    */
-  connect(joinRequest: SchemaInput<typeof zJoinRequest>, endpoint?: Endpoint): Promise<Connection>
+  connect(joinRequest: SchemaInput<typeof zJoinRequest>, endpoint?: Endpoint): Promise<Connection>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   connect(argJoinRequest: unknown, argEndpoint?: unknown): Promise<Connection> {

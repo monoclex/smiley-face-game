@@ -24,34 +24,8 @@ function parseWebsocket(payload: any): Websocket {
 }
 
 export default class Connection {
-  /**
-   * Makes a connection to Smiley Face Game.
-   * @param endpoint The websocket endpoint to establish a connection with.
-   * @param token The token to use when connecting.
-   * @param joinRequest The join request to supply when making the connection.
-   */
-  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
-
-  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
-    const endpoint = zEndpoint.parse(argEndpoint);
-    const token = zToken.parse(argToken);
-    const joinRequest = zJoinRequest.parse(argJoinRequest);
-
-    const url = toUrl(endpoint, true);
-    url.searchParams.append("token", token);
-    url.searchParams.append("world", JSON.stringify(joinRequest));
-
-    return new Promise((resolve, reject) => {
-      const websocket = new Websocket(url.href);
-
-      // we've created a websocket, but did we really join?
-      // listen for either 'init' or an error
-      websocket.onclose = e => reject(e.reason);
-      websocket.onmessage = e => resolve(new Connection(websocket, JSON.parse(e.data as string)));
-    });
-  }
-
+  // TODO: put these variables below `establish`, see https://github.com/alangpierce/sucrase/issues/592
+  // === START
   /**
    * The validator for a `BlockPosition`.
    */
@@ -87,6 +61,35 @@ export default class Connection {
    * The state for registered tiles.
    */
   readonly tileJson: TileRegistration;
+  // === END
+
+  /**
+   * Makes a connection to Smiley Face Game.
+   * @param endpoint The websocket endpoint to establish a connection with.
+   * @param token The token to use when connecting.
+   * @param joinRequest The join request to supply when making the connection.
+   */
+  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
+
+  /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
+  static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
+    const endpoint = zEndpoint.parse(argEndpoint);
+    const token = zToken.parse(argToken);
+    const joinRequest = zJoinRequest.parse(argJoinRequest);
+
+    const url = toUrl(endpoint, true);
+    url.searchParams.append("token", token);
+    url.searchParams.append("world", JSON.stringify(joinRequest));
+
+    return new Promise((resolve, reject) => {
+      const websocket = new Websocket(url.href);
+
+      // we've created a websocket, but did we really join?
+      // listen for either 'init' or an error
+      websocket.onclose = (e) => reject(e.reason);
+      websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
+    });
+  }
 
   /**
    * Constructs a new `Connection`, given a `websocket` and an `init` message.
@@ -122,7 +125,9 @@ export default class Connection {
    */
   [Symbol.asyncIterator]() {
     const self = this;
-    return { next: () => self.messages.next().then(value => !!value ? ({ value, done: false }) : ({ done: true })) };
+    const next: () => Promise<{ done: false; value: ZSPacket } | { done: true }> = () =>
+      self.messages.next().then((value) => (!!value ? { value, done: false } : { done: true }));
+    return { next };
   }
 
   /**
@@ -175,7 +180,9 @@ export default class Connection {
 
     this._send({
       packetId: "MOVEMENT",
-      position, velocity, inputs
+      position,
+      velocity,
+      inputs,
     });
   }
 
@@ -210,7 +217,7 @@ export default class Connection {
 
     this._send({
       packetId: "EQUIP_GUN",
-      equipped
+      equipped,
     });
   }
 
@@ -226,7 +233,7 @@ export default class Connection {
 
     this._send({
       packetId: "FIRE_BULLET",
-      angle
+      angle,
     });
   }
 
@@ -246,7 +253,9 @@ export default class Connection {
 
     this._send({
       packetId: "BLOCK_SINGLE",
-      position, layer, block,
+      position,
+      layer,
+      block,
     });
   }
 
@@ -267,7 +276,10 @@ export default class Connection {
 
     this._send({
       packetId: "BLOCK_LINE",
-      block, start, end, layer
+      block,
+      start,
+      end,
+      layer,
     });
   }
 
@@ -282,7 +294,7 @@ export default class Connection {
 
     this._send({
       packetId: "CHAT",
-      message
+      message,
     });
   }
 
@@ -297,7 +309,7 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "give edit", playerId }
+      action: { action: "give edit", playerId },
     });
   }
 
@@ -312,7 +324,7 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "remove edit", playerId }
+      action: { action: "remove edit", playerId },
     });
   }
 
@@ -327,7 +339,17 @@ export default class Connection {
 
     this._send({
       packetId: "PLAYER_LIST_ACTION",
-      action: { action: "kick", playerId }
+      action: { action: "kick", playerId },
+    });
+  }
+
+  /**
+   * Clears the world. This may cause you to disconnect if you are not the owner.
+   */
+  clear() {
+    this._send({
+      packetId: "WORLD_ACTION",
+      action: { action: "clear" },
     });
   }
 
@@ -337,7 +359,7 @@ export default class Connection {
   save() {
     this._send({
       packetId: "WORLD_ACTION",
-      action: { action: "save" }
+      action: { action: "save" },
     });
   }
 
@@ -347,7 +369,7 @@ export default class Connection {
   load() {
     this._send({
       packetId: "WORLD_ACTION",
-      action: { action: "load" }
+      action: { action: "load" },
     });
   }
 }

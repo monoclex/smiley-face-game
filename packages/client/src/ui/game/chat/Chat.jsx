@@ -1,15 +1,14 @@
-//@ts-ignore
-
 import React, { useRef, useEffect } from "react";
-import { Grid, Input } from "@material-ui/core";
-import { makeStyles, fade } from "@material-ui/core/styles";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { Grid, Input } from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import { alpha } from "@mui/material/styles";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns/fp";
-
-import { messagesState, chatState } from "../../../recoil/atoms/chat";
+import { messagesState, chatOpenState } from "../../../state";
 import commonUIStyles from "../commonUIStyles";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
+import { Message } from "./Message";
+import state from "../../../bridge/state";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -21,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   chatListGrid: {
     color: theme.palette.text.primary,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     borderTopLeftRadius: theme.shape.borderRadius,
     borderTopRightRadius: theme.shape.borderRadius,
     paddingLeft: 5,
@@ -36,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   chatField: {
     borderBottomLeftRadius: theme.shape.borderRadius,
     borderBottomRightRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     pointerEvents: "all",
     width: "40%",
     padding: 5,
@@ -44,69 +43,41 @@ const useStyles = makeStyles((theme) => ({
   chatInput: {
     padding: theme.spacing(1, 1, 1, 1),
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-  },
-  message: {
-    paddingTop: 2,
-    paddingLeft: 4,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
   },
 }));
 
-const Message = ({ id }) => {
-  const classes = useStyles();
-  const message = useRecoilValue(messagesState)[id];
-
-  return (
-    <div key={id} className={classes.message}>
-      <small>{format("HH:mm:ss", message.timestamp)}</small>
-      <span>
-        <b>{` ${message.username}: `}</b>
-        {`${message.content}`}
-      </span>
-    </div>
-  );
-};
-
-export default () => {
+export default function Chat() {
   const classes = useStyles();
   const { register, handleSubmit, reset } = useForm();
 
   const inputRef = useRef();
 
-  const currentChatState = useRecoilValue(chatState);
-  const setChatState = useSetRecoilState(chatState);
+  const [isActive, setActive] = useRecoilState(chatOpenState);
 
   const onKeyDown = ({ keyCode }) => {
     // enter key
-    if (keyCode === 13 && !currentChatState.isActive) {
-      setChatState((old) => ({
-        ...old,
-        isActive: true,
-      }));
+    if (keyCode === 13 && !isActive) {
+      setActive(true);
     }
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", onKeyDown, true);
-
-    return () => window.removeEventListener("keydown", onKeyDown, true);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {
-    if (currentChatState.isActive) {
+    if (isActive) {
       inputRef.current.focus();
     }
-  }, [currentChatState.isActive]);
+  }, [isActive]);
 
   const messages = useRecoilValue(messagesState);
-  const setMessages = useSetRecoilState(messagesState);
 
   const onSubmit = (values) => {
     if (values.content !== "") {
-      window.gameScene.connection.chat(values.content);
+      state.game.connection.chat(values.content);
     }
 
     reset();
@@ -114,7 +85,7 @@ export default () => {
   };
 
   return (
-    <Grid container direction="column" justify="flex-end" alignItems="flex-start" className={classes.container}>
+    <Grid container direction="column" justifyContent="flex-end" alignItems="flex-start" className={classes.container}>
       <Grid item className={classes.chatListGrid}>
         <SpringScrollbars
           className={classes.chatList}
@@ -126,12 +97,12 @@ export default () => {
           autoHideDuration={200}
         >
           {messages.map((message) => (
-            <Message key={message.id} id={message.id} />
+            <Message key={message.id} message={message} />
           ))}
         </SpringScrollbars>
       </Grid>
 
-      {currentChatState.isActive && (
+      {isActive && (
         <Grid item className={classes.chatField}>
           <div>
             <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -142,8 +113,8 @@ export default () => {
                 id="content"
                 name="content"
                 placeholder="Press Enter to chat"
-                onFocus={() => setChatState((old) => ({ ...old, isActive: true }))}
-                onBlur={() => setChatState((old) => ({ ...old, isActive: false }))}
+                onFocus={() => setActive(true)}
+                onBlur={() => setActive(false)}
                 inputRef={(ref) => {
                   register(ref);
                   inputRef.current = ref;
@@ -155,4 +126,4 @@ export default () => {
       )}
     </Grid>
   );
-};
+}

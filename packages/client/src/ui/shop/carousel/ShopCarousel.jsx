@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
-import { Button, Grid, makeStyles, Slide } from "@material-ui/core";
+import { Button, Grid, Slide } from "@mui/material";
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import ShopItem from "../ShopItem";
 import ShopItemSkeleton from "../ShopItemSkeleton";

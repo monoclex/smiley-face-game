@@ -3,7 +3,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 import { SpringSystem } from "rebound";
 
 // turned into a FC from https://github.com/malte-wessel/react-custom-scrollbars/blob/master/examples/simple/components/SpringScrollbars/SpringScrollbars.js
-const SpringScollbars = (props: any) => {
+const SpringScrollbars = (props: any) => {
   const scrollbars = useRef<Scrollbars>();
 
   const [springSystem] = useState(new SpringSystem());
@@ -15,9 +15,7 @@ const SpringScollbars = (props: any) => {
 
     spring.addListener({
       onSpringUpdate: (spring) => {
-        console.log("onSpringUpdate", spring);
         const val = spring.getCurrentValue();
-        console.log("springUpdate", val);
         scrollbars.current!.scrollTop(val);
       },
     });
@@ -32,4 +30,4 @@ const SpringScollbars = (props: any) => {
   return <Scrollbars {...props} ref={scrollbars} />;
 };
 
-export default SpringScollbars;
+export default SpringScrollbars;

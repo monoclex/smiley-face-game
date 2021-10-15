@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Fade, Grid, Slide } from "@material-ui/core";
+import { Fade, Grid, Slide } from "@mui/material";
 import useInterval from "react-use/esm/useInterval";
 
 import { repeat, slice } from "../../helpers/iterables";

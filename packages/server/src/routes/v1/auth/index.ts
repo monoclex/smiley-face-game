@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { zLoginReq, zRegisterReq, zGuestReq } from "@smiley-face-game/api/api";
+import { zLoginReq, zRegisterReq, zGuestReq, ZLoginResp, ZRegisterResp, ZGuestResp } from "@smiley-face-game/api/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
@@ -31,7 +31,8 @@ export default function (deps: UsedDependencies): Router {
           // TODO: move this outside the try catch?
           const token = authProvider.allowAuthentication(account.id);
 
-          res.json({ token, id: account.id });
+          let resp: ZLoginResp = { token, id: account.id };
+          res.json(resp);
         } catch (error) {
           console.warn("Authentication attempt failed for user", body.email, error);
           res.status(400).json({ error: "Login failed." });
@@ -71,18 +72,22 @@ export default function (deps: UsedDependencies): Router {
         });
 
         // give registered users a world to save/load/play
-        const world = await worldRepo.create({
-          owner: account,
-          width: 50,
-          height: 50,
-        }, TileJson);
+        const world = await worldRepo.create(
+          {
+            owner: account,
+            width: 50,
+            height: 50,
+          },
+          TileJson
+        );
 
         account.worlds.push(world);
         await accountRepo.save(account);
 
         const token = authProvider.allowAuthentication(account.id);
 
-        res.status(201).json({ token, id: account.id });
+        const resp: ZRegisterResp = { token, id: account.id };
+        res.status(201).json(resp);
       })
     )
   );
@@ -95,7 +100,9 @@ export default function (deps: UsedDependencies): Router {
         const body = req.body;
 
         const token = authProvider.allowGuestAuthentication(body.username);
-        res.json({ token });
+
+        const resp: ZGuestResp = { token };
+        res.json(resp);
       })
     )
   );

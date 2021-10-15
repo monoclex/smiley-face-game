@@ -10,10 +10,10 @@ import {
   CardContent,
   CardMedia,
   Grid,
-  makeStyles,
   Typography,
-} from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import { Skeleton } from '@mui/material';
 
 const useStyles = makeStyles({
   root: {
@@ -34,7 +34,7 @@ export default () => {
   return (
     <motion.div whileHover={{ scale: 1.05 }}>
       <Card className={classes.root}>
-        <Skeleton animation="wave" variant="rect" width={256} height={196} />
+        <Skeleton animation="wave" variant="rectangular" width={256} height={196} />
 
         <CardContent>
           <Skeleton animation="pulse" height={30} style={{ marginBottom: 12 }} />

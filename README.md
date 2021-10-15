@@ -2,24 +2,27 @@
 
 Don't expect to be able to contribute, or even expect clean code for that matter. This is _very_ WIP, and everything is painful.
 
-Please join our [discord server](https://discord.gg/c68KMCs) for updates!
+Join our [discord server](https://discord.gg/c68KMCs) to get notified of updates!
 
-# Setup development environment
+# Contributing
 
-1. Run setup script (as adminstrator)
-2. [Install deno](https://deno.land/#installation)
-3. [Install vscode](https://code.visualstudio.com/Download)
-4. [Install deno extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno) for vscode
-5. [Install prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for vscode
+Before you get started, it might help to read about [Visual Studio Code development containers](https://code.visualstudio.com/docs/remote/containers). Then, after installing the [Visual Studio Code Remote - Containers](https://aka.ms/vscode-remote/download/containers) extension, open this repository in a development container and run `yarn dev` once inside.
 
-## Client
+### Don't want to use dev containers?
 
-1. Open the client folder in vscode
-2. Run `yarn` (or `npm install`) in a new terminal (press `` ctrl+` `` in vscode to open a new one)
-3. Set the TypeScript version to the workspace's version by pressing `ctrl+shift+p` and typing `>TypeScript: Select TypeScript Version...`
-4. To run the game, execute `yarn dev` (make sure the server is running)
+If you don't want to use dev containers, make sure you have the following setup:
 
-## Server
+- yarn *(There is a helper script! Check [./scripts/install-yarn.js](./scripts/install-yarn.js))*
+- eslint (VSCode Extension)
+- prettier (VSCode Extension)
+- postgres database at port `5432` with a user `sfg` with password `dev` *(There is a helper script! Check [./scripts/run-postgres-db.js](./scripts/run-postgres-db.js) **Requires `docker`**)*
 
-1. Open the server folder in vscode
-2. Run `deno run --allow-net ./server.ts` in a new terminal (press `` ctrl+` `` in vscode to open a new one)
+Overall, you should end up running the following:
+
+```shell
+# in a separate terminal
+node scripts/run-postgres-db.js
+
+# to start
+yarn dev
+```

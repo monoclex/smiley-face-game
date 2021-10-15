@@ -1,5 +1,5 @@
 import React from "react";
-import { Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, Grid } from "@material-ui/core";
+import { Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
 
 const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {

@@ -1,4 +1,3 @@
-import RingBuffer from "./RingBuffer";
 import PromiseCompletionSource from "./PromiseCompletionSource";
 
 /**
@@ -6,11 +5,13 @@ import PromiseCompletionSource from "./PromiseCompletionSource";
  * The only reason this is a multi-producer queue is because of JS event loop guarantees. Otherwise, this is a SPSC queue.
  */
 export default class MPSC<T> {
-  #buffer: RingBuffer<T>;
+  // it would be good for `#buffer` to be a ring buffer, but in V8
+  // this is an optimization automatically applied just by using `.shift()`
+  #buffer: T[];
   #completionSource: PromiseCompletionSource<void>;
 
   constructor() {
-    this.#buffer = new RingBuffer<T>();
+    this.#buffer = [];
     this.#completionSource = new PromiseCompletionSource<void>();
   }
 
@@ -46,10 +47,10 @@ export default class MPSC<T> {
    * If there are any messages in the queue, this will try to synchronously dequeue them.
    */
   tryTake(): T | undefined {
-    return this.#buffer.pop();
+    return this.#buffer.shift();
   }
 
-  peek(): boolean {
-    return this.#buffer.peek();
+  canPeek(): boolean {
+    return this.#buffer.length > 0;
   }
 }

@@ -1,8 +1,8 @@
 //@ts-check
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@mui/styles";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 
 const useStyles = makeStyles({
   fullScreen: {
@@ -12,12 +12,12 @@ const useStyles = makeStyles({
   },
 });
 
-export default ({ message = "Loading..." }) => {
+const Loading = ({ message = "Loading..." }) => {
   const styles = useStyles();
 
   return (
     // we don't want 100% because then Loading looks too far down, so we'll put it up a bit
-    <Grid className={styles.fullScreen} container alignItems="center" justify="center">
+    <Grid className={styles.fullScreen} container alignItems="center" justifyContent="center">
       <Grid item>
         <Typography variant="h1" component="h1">
           {message}
@@ -26,3 +26,5 @@ export default ({ message = "Loading..." }) => {
     </Grid>
   );
 };
+
+export default Loading;

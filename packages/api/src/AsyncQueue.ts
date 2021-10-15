@@ -1,4 +1,3 @@
-
 /**
  * To support the `for await` pattern of `Connection` when receiving messages, we need to have some kind of queue
  * structure that will handle incoming packets. This isn't meant to use publicly, but could be if need be.
@@ -44,8 +43,7 @@ export default class AsyncQueue<T> {
     if (this._prepared) {
       // `_next` is already prepared for a call to `next()`, we can't call `_resolve`
       this._buffer.push(value);
-    }
-    else {
+    } else {
       // we mark the queue as prepared after we resolve the promise so that no more entries
       // go into the queue
       this._prepared = true;
@@ -57,30 +55,32 @@ export default class AsyncQueue<T> {
     this._reject(error);
 
     // we don't want to call `_reject` again
-    this._reject = () => { };
+    this._reject = () => {};
   }
 
   next(): Promise<T | undefined> {
     const self = this;
-    return this._next.then(value => {
-      // once we consume the next value, we want to prepare `_next` again for the next iteration
-      if (self._buffer.length > 0) {
-        // if there's stuff in the buffer, we'll prepare an already resolve `_next` with stuff in the buffer.
-        self._prepared = true;
-        self._next = Promise.resolve(self._buffer[0]);
-        self._buffer.shift();
-      }
-      else {
-        // otherwise, prepare a `_next` to be resolved on the next `push`
-        self._prepared = false;
-        self._next = new Promise<T>((resolve, reject) => {
-          self._resolve = resolve;
-          self._reject = reject;
-        });
-      }
-      return value;
-    })
-      // when we get an error (`end` being called), we want to stop producing values
-      .catch(() => undefined);
+    return (
+      this._next
+        .then((value) => {
+          // once we consume the next value, we want to prepare `_next` again for the next iteration
+          if (self._buffer.length > 0) {
+            // if there's stuff in the buffer, we'll prepare an already resolve `_next` with stuff in the buffer.
+            self._prepared = true;
+            self._next = Promise.resolve(self._buffer[0]);
+            self._buffer.shift();
+          } else {
+            // otherwise, prepare a `_next` to be resolved on the next `push`
+            self._prepared = false;
+            self._next = new Promise<T>((resolve, reject) => {
+              self._resolve = resolve;
+              self._reject = reject;
+            });
+          }
+          return value;
+        })
+        // when we get an error (`end` being called), we want to stop producing values
+        .catch(() => undefined)
+    );
   }
 }

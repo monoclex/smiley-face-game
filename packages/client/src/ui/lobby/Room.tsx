@@ -1,13 +1,13 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@material-ui/core";
+import { makeStyles } from "@mui/styles";
+import { Card, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@mui/material";
 import ThumbUpIcon from "mdi-material-ui/ThumbUp";
 import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
-//@ts-ignore
 import minimapImage from "./minimap.png";
 import history from "../../ui/history";
+import type { ZGamePreview } from "@smiley-face-game/api/api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,13 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// TODO: import from libcore
-interface GamePreview {
-  id: string;
-  name: string;
-  type: "saved" | "dynamic";
-  playerCount: number;
-}
+type GamePreview = ZGamePreview;
 
 type RoomProps = {
   room: GamePreview;
@@ -48,7 +42,7 @@ type RoomProps = {
 
 export const Room = (props: RoomProps) => {
   const {
-    room: { id, name, type, playerCount },
+    room: { id, name, playerCount },
   } = props;
 
   const classes = useStyles();
@@ -68,19 +62,19 @@ export const Room = (props: RoomProps) => {
 
           <CardActions disableSpacing className={classes.controls}>
             <Tooltip title="Like">
-              <IconButton aria-label="add-or-remove">
+              <IconButton aria-label="add-or-remove" size="large">
                 <ThumbUpIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Add to favorites">
-              <IconButton aria-label="favorite">
+              <IconButton aria-label="favorite" size="large">
                 <HeartOutlineIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => history.joinGame({ type, roomId: id })}>
+              <IconButton aria-label="play" onClick={() => history.joinGame(id)} size="large">
                 <PlayIcon />
               </IconButton>
             </Tooltip>

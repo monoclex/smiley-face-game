@@ -1,10 +1,19 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import Account from "./Account";
+import UuidGenerator from "../../UuidGenerator";
 
 @Entity()
 export default class World {
-  @PrimaryGeneratedColumn("uuid")
+  // TODO: this is scary
+  // == begin scary ==
+  @BeforeInsert()
+  beforeInsert() {
+    this.id = new UuidGenerator().getnIdForSavedWorld();
+  }
+
+  @PrimaryColumn("uuid")
   id!: string;
+  // == end scary ==
 
   @ManyToOne(() => Account, (author) => author.worlds)
   owner!: Account;

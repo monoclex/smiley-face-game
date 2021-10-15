@@ -5,8 +5,11 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "allowJs": true,
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": "./src/",
+    "paths": {
+      "@smiley-face-game/api/*": ["../../api/src/*"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules/**/*", "../../node_modules/**/*"]
+  "include": ["src/**/*"]
 }

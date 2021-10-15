@@ -1,19 +1,20 @@
-//@ts-check
-
 import React from "react";
 import { Link } from "react-router-dom";
-import Button from "@material-ui/core/Button";
-import { Grid, Typography, Container } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import { Grid, Typography, Container } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import history from "../../ui/history";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    marginTop: theme.spacing(4),
-  },
-}));
+const useStyles = makeStyles((theme) => {
+  console.log("homePage makeStyles called:", theme);
+  ({
+    container: {
+      marginTop: theme.spacing(4),
+    },
+  });
+});
 
-export default () => {
+const HomePage = () => {
   const classes = useStyles();
 
   // if they have a token, they should go straight to the lobby
@@ -24,12 +25,12 @@ export default () => {
 
   return (
     <Container maxWidth={false} className={classes.container}>
-      <Grid container direction="column" justify="center" alignItems="center" spacing={2}>
+      <Grid container direction="column" justifyContent="center" alignItems="center" spacing={2}>
         <Grid item>
           <Typography variant="h3">Smiley Face Game</Typography>
         </Grid>
 
-        <Grid container justify="center" alignItems="center" item spacing={2}>
+        <Grid container justifyContent="center" alignItems="center" item spacing={2}>
           <Grid item>
             <Button variant="contained" color="primary" component={Link} to="/register">
               Register
@@ -55,3 +56,5 @@ export default () => {
     </Container>
   );
 };
+
+export default HomePage;

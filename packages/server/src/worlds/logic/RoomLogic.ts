@@ -102,7 +102,7 @@ export default class RoomLogic {
       username: connection.username,
       isGuest: connection.isGuest,
       tiles: tileJsonFile,
-      players: Array.from(this.#players.values()).map(otherUser => ({
+      players: Array.from(this.#players.values()).map((otherUser) => ({
         packetId: "SERVER_PLAYER_JOIN",
         playerId: otherUser.playerId!,
         username: otherUser.username,
@@ -111,7 +111,7 @@ export default class RoomLogic {
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
         gunEquipped: otherUser.gunEquipped,
-      }))
+      })),
     };
 
     connection.send(initPacket);

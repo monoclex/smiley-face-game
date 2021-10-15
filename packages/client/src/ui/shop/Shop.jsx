@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
-import { Box, Grid, makeStyles, Paper, Tab, Toolbar, Typography } from "@material-ui/core";
-import { TabContext, TabList, TabPanel } from "@material-ui/lab";
+import { Box, Grid, Paper, Tab, Toolbar, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
@@ -105,7 +106,7 @@ const Shop = () => {
 
   return (
     <Grid container>
-      <Grid item container justify="center">
+      <Grid item container justifyContent="center">
         <Grid item>
           <Paper className={classes.paper}>
             <ShopFeatured />

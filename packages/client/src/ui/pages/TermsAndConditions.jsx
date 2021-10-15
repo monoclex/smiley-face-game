@@ -1,9 +1,9 @@
 //@ts-check
 import React from "react";
-import Typography from "@material-ui/core/Typography";
-import Container from "@material-ui/core/Container";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 
-export default () => {
+const TermsAndConditions = () => {
   // TODO: markdown to material-ui?
   // some of the license borroed from https://storybird.com/terms-of-service
   // TODO: refine document to be "more legal" later i guess?
@@ -59,3 +59,5 @@ export default () => {
     </Container>
   );
 };
+
+export default TermsAndConditions;

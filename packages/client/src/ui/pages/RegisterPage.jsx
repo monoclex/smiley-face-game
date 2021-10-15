@@ -5,7 +5,7 @@ import history from "../../ui/history";
 import SnackbarUtils from "../../SnackbarUtils";
 import { register } from "@smiley-face-game/api";
 
-export default () => (
+const RegisterPage = () => (
   <GenericAuthenticationPage
     smileyUrl={urlPlayer}
     inputs={[
@@ -17,7 +17,10 @@ export default () => (
       register({ username, email, password }).then(({ token }) => {
         localStorage.setItem("token", token);
         history.push("/lobby");
+        SnackbarUtils.success("Registered account!");
       })
     }
   />
 );
+
+export default RegisterPage;

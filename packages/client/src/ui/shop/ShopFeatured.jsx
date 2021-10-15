@@ -1,6 +1,8 @@
 import React from "react";
 
-import { Grid, makeStyles, Paper, Typography } from "@material-ui/core";
+import { Grid, Paper, Typography } from "@mui/material";
+
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
 
@@ -76,10 +78,10 @@ export default () => {
   ];
 
   return (
-    <Grid container direction="column" justify="center">
+    <Grid container direction="column" justifyContent="center">
       <Grid item>
         <Paper square>
-          <Grid container justify="center">
+          <Grid container justifyContent="center">
             <Typography variant="h5">idk what title here</Typography>
           </Grid>
         </Paper>

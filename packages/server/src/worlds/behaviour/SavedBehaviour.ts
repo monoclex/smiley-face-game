@@ -31,11 +31,13 @@ export default class SavedBehaviour implements Behaviour {
     if (world.worldDataVersion === 0) {
       // uh oh! old version :'( have to upgrade the data to modern stuff
       const oldData = world.worldData as (
-        | undefined | null | { id: 0 }
-        | { id: 1, color?: "white" | "black" | "brown" | "red" | "orange" | "yellow" | "green" | "blue" | "purple" }
+        | undefined
+        | null
+        | { id: 0 }
+        | { id: 1; color?: "white" | "black" | "brown" | "red" | "orange" | "yellow" | "green" | "blue" | "purple" }
         | { id: 2 }
-        | { id: 3, rotation: 0 | 1 | 2 | 3 }
-        | { id: 4, variant: 0 | 1 | 2 | 3 | 4 }
+        | { id: 3; rotation: 0 | 1 | 2 | 3 }
+        | { id: 4; variant: 0 | 1 | 2 | 3 | 4 }
       )[][][];
 
       const newData = [];
@@ -62,47 +64,80 @@ export default class SavedBehaviour implements Behaviour {
                 let b: Behavior<any>;
                 let l;
                 switch (targetCol) {
-                  case "white": b = TileJson.for(l = "basic-white"); break;
-                  case "brown": b = TileJson.for(l = "basic-brown"); break;
-                  case "black": b = TileJson.for(l = "basic-black"); break;
-                  case "red": b = TileJson.for(l = "basic-red"); break;
-                  case "orange": b = TileJson.for(l = "basic-orange"); break;
-                  case "yellow": b = TileJson.for(l = "basic-yellow"); break;
-                  case "green": b = TileJson.for(l = "basic-green"); break;
-                  case "blue": b = TileJson.for(l = "basic-blue"); break;
-                  case "purple": b = TileJson.for(l = "basic-purple"); break;
+                  case "white":
+                    b = TileJson.for((l = "basic-white"));
+                    break;
+                  case "brown":
+                    b = TileJson.for((l = "basic-brown"));
+                    break;
+                  case "black":
+                    b = TileJson.for((l = "basic-black"));
+                    break;
+                  case "red":
+                    b = TileJson.for((l = "basic-red"));
+                    break;
+                  case "orange":
+                    b = TileJson.for((l = "basic-orange"));
+                    break;
+                  case "yellow":
+                    b = TileJson.for((l = "basic-yellow"));
+                    break;
+                  case "green":
+                    b = TileJson.for((l = "basic-green"));
+                    break;
+                  case "blue":
+                    b = TileJson.for((l = "basic-blue"));
+                    break;
+                  case "purple":
+                    b = TileJson.for((l = "basic-purple"));
+                    break;
                 }
 
                 newY.push(b.serialize(TileJson.id(l)));
-              }
-              else if (block.id === 2) {
+              } else if (block.id === 2) {
                 newY.push(TileJson.for("gun").serialize(TileJson.id("gun")));
-              }
-              else if (block.id === 3) {
+              } else if (block.id === 3) {
                 const targetRot = block.rotation;
 
                 let b: Behavior<any>;
                 let l;
                 switch (targetRot) {
-                  case 0: b = TileJson.for(l = "arrow-up"); break;
-                  case 1: b = TileJson.for(l = "arrow-right"); break;
-                  case 2: b = TileJson.for(l = "arrow-down"); break;
-                  case 3: b = TileJson.for(l = "arrow-left"); break;
+                  case 0:
+                    b = TileJson.for((l = "arrow-up"));
+                    break;
+                  case 1:
+                    b = TileJson.for((l = "arrow-right"));
+                    break;
+                  case 2:
+                    b = TileJson.for((l = "arrow-down"));
+                    break;
+                  case 3:
+                    b = TileJson.for((l = "arrow-left"));
+                    break;
                 }
 
                 newY.push(b.serialize(TileJson.id(l)));
-              }
-              else if (block.id === 4) {
+              } else if (block.id === 4) {
                 const targetV = block.variant;
 
                 let b: Behavior<any>;
                 let l;
                 switch (targetV) {
-                  case 0: b = TileJson.for(l = "prismarine-basic"); break;
-                  case 1: b = TileJson.for(l = "prismarine-anchor"); break;
-                  case 2: b = TileJson.for(l = "prismarine-brick"); break;
-                  case 3: b = TileJson.for(l = "prismarine-slab"); break;
-                  case 4: b = TileJson.for(l = "prismarine-crystal"); break;
+                  case 0:
+                    b = TileJson.for((l = "prismarine-basic"));
+                    break;
+                  case 1:
+                    b = TileJson.for((l = "prismarine-anchor"));
+                    break;
+                  case 2:
+                    b = TileJson.for((l = "prismarine-brick"));
+                    break;
+                  case 3:
+                    b = TileJson.for((l = "prismarine-slab"));
+                    break;
+                  case 4:
+                    b = TileJson.for((l = "prismarine-crystal"));
+                    break;
                 }
 
                 newY.push(b.serialize(TileJson.id(l)));
@@ -122,7 +157,7 @@ export default class SavedBehaviour implements Behaviour {
     }
 
     if (world.worldDataVersion === 1) {
-      const worldData = world.worldData as (number[])[][][];
+      const worldData = world.worldData as number[][][][];
       const desData = [];
 
       for (let l = 0; l < worldData.length; l++) {
