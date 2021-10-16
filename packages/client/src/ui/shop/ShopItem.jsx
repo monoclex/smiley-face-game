@@ -14,6 +14,10 @@ const BuyButton = styled(Button)({
   marginLeft: "auto !important",
 });
 
+const Strike = styled("span")({
+  textDecorationLine: "line-through",
+});
+
 export default function ShopItem({ image, title, description, owned, cost }) {
   const snackbar = useSnackbar();
 
@@ -30,7 +34,7 @@ export default function ShopItem({ image, title, description, owned, cost }) {
 
   const PriceLabel = () => {
     if (owned) {
-      return <strike>Price: {cost}</strike>;
+      return <Strike>Price: {cost}</Strike>;
     }
 
     return <span>Price: {cost}</span>;

@@ -4,7 +4,7 @@ import { Grid, Typography } from "@mui/material";
 
 import ShopItem from "./ShopItem";
 
-export default function ShopGroup({ items, category }) {
+export default function ShopGroup({ items, category = undefined }) {
   const filteredItems = category ? items.filter((item) => item.category === category) : items;
 
   if (filteredItems.length === 0)

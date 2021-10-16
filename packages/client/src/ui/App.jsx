@@ -6,10 +6,13 @@ import { deepPurple, indigo } from "@mui/material/colors";
 import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
 import Loading from "./Loading";
+import { useHistory } from "react-router";
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 
 const needToken = (Component) =>
   function NeedsTokenGuard(props) {
+    const history = useHistory();
+
     const token = localStorage.getItem("token");
     if (token === null) {
       history.push("/");

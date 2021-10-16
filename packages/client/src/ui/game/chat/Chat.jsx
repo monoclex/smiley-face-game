@@ -49,7 +49,7 @@ const ChatInput = styled(Input)(({ theme }) => ({
 export default function Chat() {
   const { register, handleSubmit, reset } = useForm();
 
-  const inputRef = useRef();
+  const inputRef = useRef(null);
 
   const [isActive, setActive] = useRecoilState(chatOpenState);
 

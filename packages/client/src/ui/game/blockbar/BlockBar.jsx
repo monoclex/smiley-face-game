@@ -8,6 +8,19 @@ import { currentPlayerState, blockBarState } from "../../../state/";
 import state from "../../../bridge/state";
 import inputEnabled from "../../../bridge/inputEnabled";
 
+/**
+ *
+ * @param {number} i
+ * @returns {import("../../../client/Slot").SelectedSlotId}
+ */
+function ensureIsSlotId(i) {
+  if (i >= 0 && i <= 12) {
+    //@ts-expect-error this is safe as of how SelectedSlotId is defined right now
+    return i;
+  }
+  throw new Error("is not slot id");
+}
+
 const BlockBar = ({ loader }) => {
   const keys = "`1234567890-=".split("");
 
@@ -78,7 +91,7 @@ const BlockBar = ({ loader }) => {
             const newTileState = state.game.tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
             setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
           }}
-          onClick={() => setBlockbar({ ...blockbar, selected: i })}
+          onClick={() => setBlockbar({ ...blockbar, selected: ensureIsSlotId(i) })}
           selected={blockbar.selected === i}
           loader={loader}
         />
