@@ -27,8 +27,8 @@ export default class ClientAim {
       // otherwise we'll create 2 intervals, one which will never get cleared (credit: @Seb135#7528)
       if (this.shootInterval) return;
 
-      //@ts-ignore this is using node types not DOM types
-      this.shootInterval = setInterval(() => {
+      // https://stackoverflow.com/a/55157673/3780113
+      this.shootInterval = window.setInterval(() => {
         if (!player.isGunHeld) return;
 
         const angle = this.calcAngle();

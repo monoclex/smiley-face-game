@@ -82,7 +82,7 @@ export default class RoomLogic {
     // at this point, broadcasting will send it to everyone EXCEPT the one who's joining
     this.broadcast({
       packetId: "SERVER_PLAYER_JOIN",
-      playerId: connection.playerId!,
+      playerId: connection.playerId,
       username: connection.username,
       role: connection.role,
       isGuest: connection.isGuest,
@@ -94,7 +94,7 @@ export default class RoomLogic {
     const initPacket: ZSPacket = {
       packetId: "SERVER_INIT",
       worldId: this.#id,
-      playerId: connection.playerId!,
+      playerId: connection.playerId,
       role: connection.role,
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },
@@ -104,7 +104,7 @@ export default class RoomLogic {
       tiles: tileJsonFile,
       players: Array.from(this.#players.values()).map((otherUser) => ({
         packetId: "SERVER_PLAYER_JOIN",
-        playerId: otherUser.playerId!,
+        playerId: otherUser.playerId,
         username: otherUser.username,
         role: otherUser.role,
         isGuest: otherUser.isGuest,
@@ -124,7 +124,7 @@ export default class RoomLogic {
     ensureHasId(connection);
     ensureNotDead(this.#shouldBeDead);
 
-    this.#players.delete(connection.playerId!);
+    this.#players.delete(connection.playerId);
 
     if (this.#players.size === 0) {
       this.#shouldBeDead = true;
@@ -136,14 +136,14 @@ export default class RoomLogic {
 
     this.broadcast({
       packetId: "SERVER_PLAYER_LEAVE",
-      playerId: connection.playerId!,
+      playerId: connection.playerId,
     });
   }
 
   handleMessage(sender: Connection, packet: ZPacket) {
     const handler = packetLookup[packet.packetId];
-
-    //@ts-expect-error
+    //@ts-expect-error typescript isn't smart enough to narrow `handler` properly.
+    // to make up for this, `packetLookup` is very well typed
     return handler(packet, [sender, this]);
   }
 

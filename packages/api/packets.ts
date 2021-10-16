@@ -23,65 +23,6 @@ import {
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
 
-/**
- * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
- * client packets, they are expected to add them to this union. At that point, typescript type checking will take over
- * to ensure that any new packets are properly handled in all places.
- * @param width The width of the world.
- * @param height The height of the world.
- */
-export const zPacket = (width: number, height: number) => {
-  const blockPosition = zBlockPosition(width, height);
-  const blockSingle = zBlockSingle(blockPosition);
-
-  return addParse(
-    Schema.either(
-      Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
-      zBlockLine
-    )
-  );
-};
-
-export type ZPacket = SchemaInput<ReturnType<typeof zPacket>>;
-export type ZPacketId = Pick<ZPacket, "packetId">;
-export type ZPacketValidator = ReturnType<typeof zPacket>;
-
-// thanks @nw#3386 on the Typescript Community Discord (https://discord.gg/typescript) for this!
-// convo: #help-willow https://discordapp.com/channels/508357248330760243/740274615770677319/744126507177345055
-type PickZPacket<K extends ZPacket["packetId"]> = Extract<ZPacket, { packetId: K }>;
-
-/**
- * A type which maps every possible key of Packet to a function that accepts the packet whose packetId matches the lookup key.
- */
-export type ZPacketLookup<TArgs, TResult> = {
-  [K in ZPacket["packetId"]]: (packet: PickZPacket<K>, args: TArgs) => TResult;
-};
-
-/**
- * Constructs a `zod` validator that will validate any packet that a server would send. When developers are adding new
- * server packets, they are expected to add them to this union. At that point, typescript type checking will take over
- * to ensure that any new packets are properly handled in all places.
- * @param width The width of the world.
- * @param height The height of the world.
- */
-export const zsPacket = (width: number, height: number) => {
-  const blockPosition = zBlockPosition(width, height);
-  const sBlockSingle = zsBlockSingle(blockPosition);
-
-  return addParse(
-    Schema.either(
-      Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
-      Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent)
-    )
-  );
-};
-
-export type ZSPacket = SchemaInput<ReturnType<typeof zsPacket>>;
-export type ZSPacketId = Pick<ZSPacket, "packetId">;
-
-// copied from above PickZPacket
-export type PickZSPacket<K extends ZSPacket["packetId"]> = Extract<ZSPacket, { packetId: K }>;
-
 export const zPickupGun = addParse(
   Schema({
     packetId: "PICKUP_GUN" as const,
@@ -282,3 +223,62 @@ export const zsEvent = addParse(
   })
 );
 export type ZSEvent = SchemaInput<typeof zsEvent>;
+
+/**
+ * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
+ * client packets, they are expected to add them to this union. At that point, typescript type checking will take over
+ * to ensure that any new packets are properly handled in all places.
+ * @param width The width of the world.
+ * @param height The height of the world.
+ */
+export const zPacket = (width: number, height: number) => {
+  const blockPosition = zBlockPosition(width, height);
+  const blockSingle = zBlockSingle(blockPosition);
+
+  return addParse(
+    Schema.either(
+      Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
+      zBlockLine
+    )
+  );
+};
+
+export type ZPacket = SchemaInput<ReturnType<typeof zPacket>>;
+export type ZPacketId = Pick<ZPacket, "packetId">;
+export type ZPacketValidator = ReturnType<typeof zPacket>;
+
+// thanks @nw#3386 on the Typescript Community Discord (https://discord.gg/typescript) for this!
+// convo: #help-willow https://discordapp.com/channels/508357248330760243/740274615770677319/744126507177345055
+type PickZPacket<K extends ZPacket["packetId"]> = Extract<ZPacket, { packetId: K }>;
+
+/**
+ * A type which maps every possible key of Packet to a function that accepts the packet whose packetId matches the lookup key.
+ */
+export type ZPacketLookup<TArgs, TResult> = {
+  [K in ZPacket["packetId"]]: (packet: PickZPacket<K>, args: TArgs) => TResult;
+};
+
+/**
+ * Constructs a `zod` validator that will validate any packet that a server would send. When developers are adding new
+ * server packets, they are expected to add them to this union. At that point, typescript type checking will take over
+ * to ensure that any new packets are properly handled in all places.
+ * @param width The width of the world.
+ * @param height The height of the world.
+ */
+export const zsPacket = (width: number, height: number) => {
+  const blockPosition = zBlockPosition(width, height);
+  const sBlockSingle = zsBlockSingle(blockPosition);
+
+  return addParse(
+    Schema.either(
+      Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
+      Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent)
+    )
+  );
+};
+
+export type ZSPacket = SchemaInput<ReturnType<typeof zsPacket>>;
+export type ZSPacketId = Pick<ZSPacket, "packetId">;
+
+// copied from above PickZPacket
+export type PickZSPacket<K extends ZSPacket["packetId"]> = Extract<ZSPacket, { packetId: K }>;

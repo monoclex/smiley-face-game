@@ -53,7 +53,7 @@ export class BlockHandler {
       return {
         ...packet,
         packetId: "SERVER_BLOCK_SINGLE",
-        playerId: sender.playerId!,
+        playerId: sender.playerId,
       };
     }
   }
@@ -85,7 +85,7 @@ export class BlockHandler {
       return {
         ...packet,
         packetId: "SERVER_BLOCK_LINE",
-        playerId: sender.playerId!,
+        playerId: sender.playerId,
       };
     }
   }

@@ -9,21 +9,21 @@ interface ParseSchema<T> {
 export type ParsableSchemaInput<T> = T & ParseSchema<T>;
 
 export function addParse<T>(input: T): ParsableSchemaInput<T> {
-  //@ts-ignore
+  //@ts-expect-error this is hell to type properly
   const validator = input.destruct();
-  //@ts-ignore
+  //@ts-expect-error this is hell to type properly
   input.parse = (thing) => {
     const [errors, body] = validator(thing);
     if (errors !== null) throw new Error(errors.toString());
     return body;
   };
-  //@ts-ignore
+  //@ts-expect-error this is hell to type properly
   input.safeParse = (thing) => {
     const [errors, body] = validator(thing);
     if (errors !== null) return { success: false, errors: errors };
     return { success: true, value: body };
   };
-  //@ts-ignore
+  //@ts-expect-error this is hell to type properly
   return input;
 }
 

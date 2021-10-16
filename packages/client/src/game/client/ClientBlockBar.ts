@@ -41,7 +41,8 @@ export default class ClientBlockBar {
     renderImageCanvas.width = TILE_WIDTH;
     renderImageCanvas.height = TILE_HEIGHT;
 
-    const context = renderImageCanvas.getContext("2d")!;
+    const context = renderImageCanvas.getContext("2d");
+    if (context === null) throw new Error("unable to make render image canvas");
 
     const { x, y, w, h } = textureFrame.frame;
     context.drawImage(resource.source, x, y, w, h, 0, 0, TILE_WIDTH, TILE_HEIGHT);

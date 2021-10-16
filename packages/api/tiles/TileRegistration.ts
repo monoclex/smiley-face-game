@@ -26,7 +26,9 @@ export default class TileRegistration {
   }
 
   texture(id: number): string {
-    return this.for(id).texture.get(id)!;
+    const texture = this.for(id).texture.get(id);
+    if (texture == undefined) throw new Error("could not get texture for " + id);
+    return texture;
   }
 
   id(texture: string): number {

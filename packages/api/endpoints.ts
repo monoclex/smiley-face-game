@@ -23,10 +23,11 @@ const ws: Endpoint = {
 const lobby: Endpoint = { host, path: "/game/lobby" };
 const player: Endpoint = { host, path: "/player" };
 export const endpoints = { auth, guestAuth, ws, lobby, player, register };
+// work around TS crud: https://fettblog.eu/typescript-better-object-keys/
+const endpointKeys: (keyof typeof endpoints)[] = ["auth", "guestAuth", "ws", "lobby", "player", "register"];
 
 export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
-  for (const endpointId of Object.keys(endpoints)) {
-    //@ts-ignore
+  for (const endpointId of endpointKeys) {
     endpoints[endpointId] = rewriter(endpoints[endpointId]);
   }
 }
@@ -39,24 +40,6 @@ export function useDev() {
   );
 }
 
-/**
- * Converts an `Endpoint` into a URL. The implementation of this method shouldn't be relied upon as it changes, but it
- * will use `coerceSecure` to convert the optional `secure` into `true` or `false`. Then, it'll concatenate the host
- * and path, using `websocket` to determine if it should prefix the URL with ws?:// or http?://.
- * @param endpoint The endpoint to convert into a URL.
- * @returns The endpoint converted to a URL.
- */
-export function toUrl(endpoint: Endpoint, websocket: boolean): URL;
-
-/** Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-export function toUrl(argEndpoint: unknown, argWebsocket: unknown): URL {
-  const endpoint = zEndpoint.parse(argEndpoint);
-  const websocket = zWebsocket.parse(argWebsocket);
-  const secure = coerceSecure(endpoint.secure);
-
-  const base = (websocket ? "ws" : "http") + (secure ? "s" : "") + "://";
-  return new URL(base + endpoint.host + endpoint.path);
-}
 const zWebsocket = addParse(boolean);
 
 /**
@@ -80,4 +63,23 @@ export function coerceSecure(argSecure: unknown): boolean {
   // so we use `globalThis["location"]` instead which will just return `undefined`, and not throw
   if (globalThis["location"] && location.protocol === "http:") return false;
   return true;
+}
+
+/**
+ * Converts an `Endpoint` into a URL. The implementation of this method shouldn't be relied upon as it changes, but it
+ * will use `coerceSecure` to convert the optional `secure` into `true` or `false`. Then, it'll concatenate the host
+ * and path, using `websocket` to determine if it should prefix the URL with ws?:// or http?://.
+ * @param endpoint The endpoint to convert into a URL.
+ * @returns The endpoint converted to a URL.
+ */
+export function toUrl(endpoint: Endpoint, websocket: boolean): URL;
+
+/** Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
+export function toUrl(argEndpoint: unknown, argWebsocket: unknown): URL {
+  const endpoint = zEndpoint.parse(argEndpoint);
+  const websocket = zWebsocket.parse(argWebsocket);
+  const secure = coerceSecure(endpoint.secure);
+
+  const base = (websocket ? "ws" : "http") + (secure ? "s" : "") + "://";
+  return new URL(base + endpoint.host + endpoint.path);
 }

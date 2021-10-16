@@ -3,7 +3,7 @@ import React from "react";
 
 import { motion } from "framer-motion";
 import { useSnackbar } from "notistack";
-import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
+import { Button, Card, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
 
 const ShopCard = styled(Card)({
   width: 256,

@@ -61,7 +61,7 @@ export default class SavedBehaviour implements Behaviour {
               else if (block.id === 1) {
                 const targetCol = block.color || "white";
 
-                let b: Behavior<any>;
+                let b: Behavior<unknown>;
                 let l;
                 switch (targetCol) {
                   case "white":
@@ -99,7 +99,7 @@ export default class SavedBehaviour implements Behaviour {
               } else if (block.id === 3) {
                 const targetRot = block.rotation;
 
-                let b: Behavior<any>;
+                let b: Behavior<unknown>;
                 let l;
                 switch (targetRot) {
                   case 0:
@@ -120,7 +120,7 @@ export default class SavedBehaviour implements Behaviour {
               } else if (block.id === 4) {
                 const targetV = block.variant;
 
-                let b: Behavior<any>;
+                let b: Behavior<unknown>;
                 let l;
                 switch (targetV) {
                   case 0:

@@ -6,7 +6,6 @@ import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { TileLayer } from "@smiley-face-game/api/types";
 import textures from "../textures";
-import newCompositeRectTileLayer from "../helpers/newCompositeRectTileLayer";
 
 export default class ClientWorld extends World {
   private readonly void: TilingSprite;
@@ -18,10 +17,10 @@ export default class ClientWorld extends World {
   constructor(tileJson: TileRegistration, size: Size, worldBehind: Container, worldInfront: Container) {
     super(tileJson, size);
     this.void = new TilingSprite(textures.block("empty"), size.width * 32, size.height * 32);
-    this.background = newCompositeRectTileLayer();
-    this.action = newCompositeRectTileLayer();
-    this.foreground = newCompositeRectTileLayer();
-    this.decoration = newCompositeRectTileLayer();
+    this.background = new CompositeRectTileLayer();
+    this.action = new CompositeRectTileLayer();
+    this.foreground = new CompositeRectTileLayer();
+    this.decoration = new CompositeRectTileLayer();
     worldBehind.addChild(this.void);
     worldBehind.addChild(this.background);
     worldBehind.addChild(this.action);
@@ -37,11 +36,12 @@ export default class ClientWorld extends World {
     const map = {
       [TileLayer.Foreground]: this.foreground,
       [TileLayer.Action]: this.action,
+      [TileLayer.Background]: undefined,
+      [TileLayer.Decoration]: undefined,
     };
 
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
-      //@ts-ignore
       const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
       if (tileLayer === undefined) continue;
       for (let yIdx = 0; yIdx < this.size.height; yIdx++) {
@@ -73,9 +73,13 @@ export default class ClientWorld extends World {
     const map = {
       [TileLayer.Foreground]: this.foreground,
       [TileLayer.Action]: this.action,
+      [TileLayer.Background]: undefined,
+      [TileLayer.Decoration]: undefined,
     };
 
-    //@ts-ignore
-    map[layer].addFrame(textures.block(id), x * 32, y * 32);
+    const pixiLayer = map[layer];
+    if (pixiLayer === undefined) throw new Error("cannot onPlace");
+
+    pixiLayer.addFrame(textures.block(id), x * 32, y * 32);
   }
 }

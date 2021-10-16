@@ -15,12 +15,12 @@ import createRegistration from "./tiles/createRegistration";
 const zEquipped = addParse(boolean);
 
 /** A very simple check just to make sure that a websocket is being passed in. */
-function parseWebsocket(payload: any): Websocket {
-  if ("send" in payload) {
-    return payload;
+function parseWebsocket(payload: unknown): payload is Websocket {
+  if (typeof payload === "object" && payload !== null && "send" in payload) {
+    return true;
   }
 
-  throw new Error(`Failed to interpret argument as 'Websocket'.`);
+  return false;
 }
 
 export default class Connection {
@@ -100,8 +100,8 @@ export default class Connection {
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   constructor(argWebsocket: unknown, argInit: unknown) {
-    const self = this;
-    this.websocket = parseWebsocket(argWebsocket);
+    if (parseWebsocket(argWebsocket)) this.websocket = argWebsocket;
+    else throw new Error(`Failed to interpret argument as 'Websocket'.`);
     this.init = zsInit.parse(argInit);
     this.tileJson = createRegistration(this.init.tiles);
 
@@ -114,9 +114,9 @@ export default class Connection {
 
     // this serves to both unhook the websocket.close from the promise earlier, and as a catch-all incase `onerror`
     // doesn't get something
-    this.websocket.onclose = (event) => self.messages.end(new Error(event.reason));
-    this.websocket.onerror = (event) => self.messages.end(event.error);
-    this.websocket.onmessage = (event) => self.messages.push(self.zsPacket.parse(JSON.parse(event.data as string)));
+    this.websocket.onclose = (event) => this.messages.end(new Error(event.reason));
+    this.websocket.onerror = (event) => this.messages.end(event.error);
+    this.websocket.onmessage = (event) => this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
   }
 
   /**
@@ -124,9 +124,8 @@ export default class Connection {
    * over every message, and makes the control flow and life of their application inherently more vivid.
    */
   [Symbol.asyncIterator]() {
-    const self = this;
     const next: () => Promise<{ done: false; value: ZSPacket } | { done: true }> = () =>
-      self.messages.next().then((value) => (value ? { value, done: false } : { done: true }));
+      this.messages.next().then((value) => (value ? { value, done: false } : { done: true }));
     return { next };
   }
 

@@ -32,6 +32,5 @@ export const blockBarGlobal = new SharedGlobal<BlockBar>(defaultBlockbarState);
 export const blockBarState = atom<BlockBar>({
   key: "blockBarState",
   default: defaultBlockbarState,
-  //@ts-ignore
   effects_UNSTABLE: [blockBarGlobal.initialize],
 });

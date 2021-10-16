@@ -41,7 +41,7 @@ export default class Connection {
   async load(accountRepo: AccountRepo) {
     if (this.authTokenPayload.aud === "") {
       this.isGuest = true;
-      this.username = this.authTokenPayload.name!;
+      this.username = this.authTokenPayload.name ?? "unknownguest";
     } else {
       const account = await accountRepo.findById(this.authTokenPayload.aud);
       this.isGuest = false;

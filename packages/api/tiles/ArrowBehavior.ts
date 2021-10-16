@@ -5,7 +5,7 @@ import TileRegistration from "./TileRegistration";
 export default class ArrowBehavior<S> extends Behavior<[S, Rotation]> {
   readonly arrows: [number, number, number, number];
 
-  constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
+  constructor(tileJson: ZTileJson, registration: TileRegistration, readonly sourceId: S) {
     super(tileJson, "arrow", TileLayer.Action);
     if (tileJson.behavior !== "arrow") throw new Error("passed non-gun tile json to gun behavior");
 

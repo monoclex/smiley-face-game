@@ -4,7 +4,6 @@ import player from "../assets/base.png";
 import bullet from "../assets/bullet.png";
 import atlas from "../assets/atlas.png";
 import select from "../assets/select.png";
-import atlasJson from "../assets/atlas_atlas.json";
 import gun from "../assets/held_gun.png";
 import smile from "../assets/smile.png";
 import findTexture from "./helpers/atlasFindFrame";

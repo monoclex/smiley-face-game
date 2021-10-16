@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { Paper, Grid, styled } from "@mui/material";
 import { motion } from "framer-motion";
-import clsx from "clsx";
 import withSize from "react-sizeme";
 const { SizeMe } = withSize;
 import { playerListState } from "../../../state/";
@@ -42,7 +41,7 @@ const ChatList = styled(SpringScrollbars)({
 //   },
 // }));
 
-const PlayerList = ({}) => {
+const PlayerList = () => {
   const [duration, setDuration] = useState(0);
 
   // for duration, we want to set the duration back to 0.3 once it's done

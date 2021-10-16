@@ -17,7 +17,10 @@ export type Credentials = AccountCredentials | GuestCredentials;
 export function auth(payload: Credentials, endpoint?: Endpoint): Promise<Authentication>;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-export function auth(argPayload: any, argEndpoint?: unknown): Promise<Authentication> {
+export function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authentication> {
+  if (typeof argPayload !== "object") throw new Error("auth got non object for payloaad");
+  if (argPayload === null) throw new Error("auth got null for payloaad");
+
   if ("email" in argPayload) {
     const payload = zLoginReq.parse(argPayload);
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.auth);

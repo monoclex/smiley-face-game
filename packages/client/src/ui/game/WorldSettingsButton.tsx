@@ -5,19 +5,21 @@ import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material";
 import WorldSettingsDialog from "./WorldSettingsDialog";
 import { settingsOpenState, currentPlayerState } from "../../state";
+import { Cog } from "mdi-material-ui";
 
 const CogIconButton = styled(IconButton)({
   pointerEvents: "all",
 });
 
-const WorldSettingsButton = ({}) => {
+const WorldSettingsButton = () => {
   const mainPlayer = useRecoilValue(currentPlayerState);
-  const ref = useRef();
+  const ref = useRef<HTMLButtonElement>(null);
 
   const [open, setOpen] = useRecoilState(settingsOpenState);
   const onClose = () => setOpen(false);
   const doOpen = () => {
-    ref.current.blur(); // un-focus cog
+    if (ref.current !== null) ref.current.blur();
+    else throw new Error("impossible");
     setOpen(true);
   };
 

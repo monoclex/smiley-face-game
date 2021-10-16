@@ -64,7 +64,7 @@ export default class World {
     if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
     layer = layer ?? this.tileJson.for(id).layer;
     this.state[layer][y][x] = id;
-    this.onPlace(layer, y, x, id);
+    // this.onPlace(layer, y, x, id);
   }
 
   placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layerParam?: number) {
@@ -73,7 +73,7 @@ export default class World {
     bresenhamsLine(x1, y1, x2, y2, (x, y) => {
       if (x < 0 || y < 0 || x >= this.size.width || y >= this.size.height) return;
       stateLayer[y][x] = id;
-      this.onPlace(layer, y, x, id);
+      // this.onPlace(layer, y, x, id);
     });
   }
 
@@ -87,15 +87,16 @@ export default class World {
     this.load(state);
   }
 
-  onSave(author: Player) {}
+  // onSave(author: Player) {}
 
   onLoad(author: Player, blocks: number[][][]) {
     this.load(blocks);
   }
 
-  onClear(author: Player) {
+  // onClear(author: Player) {
+  onClear() {
     this.clear();
   }
 
-  onPlace(layer: TileLayer, y: number, x: number, id: number) {}
+  // onPlace(layer: TileLayer, y: number, x: number, id: number) {}
 }

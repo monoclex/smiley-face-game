@@ -12,7 +12,6 @@ export const gameFocusGlobal = new SharedGlobal<GameFocus>(defaultGameFocusState
 export const gameFocusState = atom<GameFocus>({
   key: "gameFocusState",
   default: defaultGameFocusState,
-  //@ts-ignore
   effects_UNSTABLE: [gameFocusGlobal.initialize],
 });
 

@@ -11,8 +11,8 @@
     "url": "git+https://github.com/SirJosh3917/smiley-face-game.git"
   },
   "scripts": {
-    "lint": "eslint \"./src/**\"",
-    "lint:fix": "eslint --fix \"./src/**\"",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx --fix .",
     "build": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production",
     "serve": "webpack serve --mode=development --env mode=development",

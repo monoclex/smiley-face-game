@@ -31,11 +31,10 @@ export default class AsyncQueue<T> {
   private _buffer: T[] = [];
 
   constructor() {
-    const self = this;
     this._prepared = false;
     this._next = new Promise<T>((resolve, reject) => {
-      self._resolve = resolve;
-      self._reject = reject;
+      this._resolve = resolve;
+      this._reject = reject;
     });
   }
 
@@ -55,26 +54,27 @@ export default class AsyncQueue<T> {
     this._reject(error);
 
     // we don't want to call `_reject` again
-    this._reject = () => {};
+    this._reject = () => {
+      // function that does nothing in case we call it again
+    };
   }
 
   next(): Promise<T | undefined> {
-    const self = this;
     return (
       this._next
         .then((value) => {
           // once we consume the next value, we want to prepare `_next` again for the next iteration
-          if (self._buffer.length > 0) {
+          if (this._buffer.length > 0) {
             // if there's stuff in the buffer, we'll prepare an already resolve `_next` with stuff in the buffer.
-            self._prepared = true;
-            self._next = Promise.resolve(self._buffer[0]);
-            self._buffer.shift();
+            this._prepared = true;
+            this._next = Promise.resolve(this._buffer[0]);
+            this._buffer.shift();
           } else {
             // otherwise, prepare a `_next` to be resolved on the next `push`
-            self._prepared = false;
-            self._next = new Promise<T>((resolve, reject) => {
-              self._resolve = resolve;
-              self._reject = reject;
+            this._prepared = false;
+            this._next = new Promise<T>((resolve, reject) => {
+              this._resolve = resolve;
+              this._reject = reject;
             });
           }
           return value;

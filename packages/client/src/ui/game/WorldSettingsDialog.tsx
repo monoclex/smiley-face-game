@@ -4,19 +4,22 @@ import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import * as PropTypes from "prop-types";
 import state from "../../bridge/state";
 
-// eslint-disable-next-line @typescript-eslint/no-use-before-define
-WorldSettingsDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
+const panic = (message: string) => {
+  throw new Error(message);
 };
 
-export default function WorldSettingsDialog({ open, onClose }) {
-  const composeToClose = (callback) => () => {
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
+
+const WorldSettingsDialog = ({ open, onClose }: Props) => {
+  const composeToClose = (callback: () => void) => () => {
     callback();
     onClose();
   };
 
-  const game = state.game;
+  const game = state.game ?? panic("assertion failed");
   const save = composeToClose(() => game.connection.save());
   const load = composeToClose(() => game.connection.load());
 
@@ -27,7 +30,13 @@ export default function WorldSettingsDialog({ open, onClose }) {
         <Button onClick={save}>Save World</Button>
         <Button onClick={load}>Load World</Button>
       </DialogContent>
-      {/* <DialogActions></DialogActions> */}
     </Dialog>
   );
-}
+};
+
+WorldSettingsDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+export default WorldSettingsDialog;

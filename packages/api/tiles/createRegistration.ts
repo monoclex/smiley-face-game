@@ -10,10 +10,10 @@ import EmptyBehavior from "./EmptyBehavior";
  * @returns {TileRegistration} The tile registration instance to use to refer to whenever it is necessary to figure out the ID
  * or texture of a tile.
  */
-export default function createRegistration(tileJsonFile: ZTileJsonFile): TileRegistration;
+function createRegistration(tileJsonFile: ZTileJsonFile): TileRegistration;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-export default function createRegistration(argTileJsonFile: unknown): TileRegistration {
+function createRegistration(argTileJsonFile: unknown): TileRegistration {
   const tileJsonFile = zTileJsonFile.parse(argTileJsonFile);
   const registration = new TileRegistration();
 
@@ -22,8 +22,7 @@ export default function createRegistration(argTileJsonFile: unknown): TileRegist
     const behaviorCtor = tileBehaviorMap[tileJson.behavior];
 
     // constructing this should register the tiles as necessary. a bit weird to read yeah, but w/e
-    //@ts-ignore
-    const behavior = new behaviorCtor(tileJson, sourceId, registration);
+    const behavior = new behaviorCtor(tileJson, registration, sourceId);
     registration.registerSrc(behavior, sourceId);
 
     sourceId += 1;
@@ -33,3 +32,5 @@ export default function createRegistration(argTileJsonFile: unknown): TileRegist
 
   return registration;
 }
+
+export default createRegistration;

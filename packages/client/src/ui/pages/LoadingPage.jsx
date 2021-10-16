@@ -41,7 +41,9 @@ export default function LoadingPage({
         history.push(`/games/${game.connection.init.worldId}`, undefined);
       })
       .catch((error) => {
-        completion.resolve(() => {});
+        completion.resolve(() => {
+          // what we resolve the completion with must be callable
+        });
         setGame(error);
       });
 
