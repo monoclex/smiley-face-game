@@ -20,13 +20,12 @@ export const zLoginReq = addParse(
   })
 );
 
-export const zLoginResp = addParse(
+export const zTokenResp = addParse(
   Schema({
     token: zToken,
-    id: zAccountId,
   })
 );
-export type ZLoginResp = SchemaInput<typeof zLoginResp>;
+export type ZTokenResp = SchemaInput<typeof zTokenResp>;
 
 export const zRegisterReq = addParse(
   Schema({
@@ -49,13 +48,6 @@ export const zGuestReq = addParse(
     username: zUsername,
   })
 );
-
-export const zGuestResp = addParse(
-  Schema({
-    token: zToken,
-  })
-);
-export type ZGuestResp = SchemaInput<typeof zGuestResp>;
 
 export const zPlayerResp = addParse(
   Schema({

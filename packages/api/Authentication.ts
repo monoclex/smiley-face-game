@@ -16,21 +16,42 @@ export default class Authentication {
    */
   public readonly token: string;
 
+  private _idCached: string | undefined | null = null;
+
   /**
    * The ID of the account, if the account is logged in as an account.
    */
-  public readonly id?: string;
+  get id(): string | undefined {
+    if (this._idCached !== null) return this._idCached;
+
+    // TODO: use a polyfill for `atob`?
+    const data = JSON.parse(atob(this.token.split(".")[1]));
+
+    if (typeof data.aud === "string" && data.aud.length > 0) {
+      this._idCached = zAccountId.parse(data.aud);
+    } else {
+      this._idCached = undefined;
+    }
+
+    return this._idCached;
+  }
+
+  /**
+   * Determines if the token given is a guest token.
+   */
+  get isGuest(): boolean {
+    return this.id === undefined;
+  }
 
   /**
    * Creates a new `Authentication`. If you don't have a token, call the `auth` method instead.
    * @param token The token to use for authenticating with Smiley Face Game
    */
-  constructor(token: string, id?: string);
+  constructor(token: string);
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  constructor(token: unknown, id?: unknown) {
+  constructor(token: unknown) {
     this.token = zToken.parse(token);
-    if (id) this.id = zAccountId.parse(id);
   }
 
   /**

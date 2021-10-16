@@ -16,6 +16,7 @@ import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
 import { Authentication } from "@smiley-face-game/api";
 import { useHistory } from "react-router";
+import { useAuth } from "../hooks";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
@@ -29,14 +30,7 @@ const RotatedIcon = styled(IconButton)({
 
 const LobbyPage = () => {
   const history = useHistory();
-  const token = localStorage.getItem("token");
-
-  if (token === null) {
-    history.push("/");
-    return null;
-  }
-
-  const auth = new Authentication(token);
+  const auth = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
 

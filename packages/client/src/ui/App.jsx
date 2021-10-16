@@ -9,25 +9,24 @@ import Loading from "./Loading";
 import { useHistory } from "react-router";
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 
-const needToken = (Component) =>
-  function NeedsTokenGuard(props) {
-    const history = useHistory();
+const AuthRoute = ({ ...props }) => {
+  const history = useHistory();
 
-    const token = localStorage.getItem("token");
-    if (token === null) {
-      history.push("/");
-      return null;
-    }
+  const token = localStorage.getItem("token");
+  if (token === null) {
+    history.push("/");
+    return null;
+  }
 
-    return <Component {...props} token={token} />;
-  };
+  return <Route {...props} />;
+};
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
-const LobbyPage = needToken(lazy(() => import("./pages/LobbyPage")));
-const PlayPage = needToken(lazy(() => import("./pages/LoadingPage")));
+const LobbyPage = lazy(() => import("./pages/LobbyPage"));
+const PlayPage = lazy(() => import("./pages/LoadingPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
 
@@ -62,10 +61,9 @@ export default function App() {
               <Route exact path="/guest" component={GuestPage} />
               <Route exact path="/register" component={RegisterPage} />
               <Route exact path="/login" component={LoginPage} />
-              <Route exact path="/lobby" component={LobbyPage} />
-              <Route exact path="/games/:id" component={PlayPage} />
-              <Route exact path="/games/" component={PlayPage} />
-              <Route exact path="/shop" component={ShopPage} />
+              <AuthRoute exact path="/lobby" component={LobbyPage} />
+              <AuthRoute exact path="/games/:id" component={PlayPage} />
+              <AuthRoute exact path="/shop" component={ShopPage} />
             </Suspense>
           </SnackbarProvider>
         </RecoilRoot>

@@ -24,7 +24,8 @@ getConnectionOptions()
     app.use(bodyParser.json());
     app.use("/", routes(dependencies));
 
-    const errorRoute: ErrorRequestHandler = (err, req, res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const errorRoute: ErrorRequestHandler = (err, req, res, next) => {
       res.status(500).send(err);
     };
     app.use(errorRoute);

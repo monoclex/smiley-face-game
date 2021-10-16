@@ -17,12 +17,12 @@ function connectToRecoil(stateSystem: StateSystem) {
 }
 
 export default async function setupBridge(
-  token: string,
+  auth: Authentication,
   joinRequest: ZJoinRequest,
   renderer: Renderer,
   shutdown: (game: ClientGame) => void
 ): Promise<Bridge> {
-  const connection = await new Authentication(token).connect(joinRequest);
+  const connection = await auth.connect(joinRequest);
 
   await textures.load(connection.tileJson);
 

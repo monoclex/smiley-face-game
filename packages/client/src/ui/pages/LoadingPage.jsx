@@ -5,15 +5,16 @@ import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
 import { useHistory } from "react-router";
+import { useAuth } from "../hooks";
 
 export default function LoadingPage({
-  token,
   location: { state },
   match: {
     params: { id },
   },
 }) {
   const history = useHistory();
+  const auth = useAuth();
   const [gameElement] = useState(document.createElement("canvas"));
   const [game, setGame] = useState(undefined);
 
@@ -30,7 +31,7 @@ export default function LoadingPage({
 
     const completion = new PromiseCompletionSource();
 
-    setupBridge(token, state ?? { type: "join", id }, renderer, (game) => {
+    setupBridge(auth, state ?? { type: "join", id }, renderer, (game) => {
       if (game.running) {
         window.history.back();
       }
@@ -50,7 +51,7 @@ export default function LoadingPage({
     return () => {
       completion.handle.then((cleanup) => cleanup());
     };
-  }, [token]);
+  }, []);
 
   if (game === undefined) {
     return <h1>loadingeroooooooooo</h1>;

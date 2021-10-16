@@ -1,12 +1,10 @@
 //@ts-check
 import React, { useState } from "react";
-
 import { styled, Box, Grid, Paper, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
-
+import { useAuth } from "../hooks";
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
-
 import ShopGroup from "./ShopGroup";
 import ShopFeatured from "./ShopFeatured";
 
@@ -25,6 +23,11 @@ const Icon = ({ icon: TextIcon, text }) => {
 };
 
 const Shop = () => {
+  const auth = useAuth();
+
+  if (auth.isGuest) console.error("rendering shop but its a guest!!!!!!!! oh noes");
+  console.log(auth.id);
+
   // TODO:
   //  Give featured items a title bar (done, but not sure how i feel about it...)
   //  Grab shop content from API

@@ -554,7 +554,6 @@ export default class Player implements PhysicsObject {
     const has10 = game.world.blockAt(worldX + 1, worldY, TileLayer.Foreground) !== 0;
     const has01 = game.world.blockAt(worldX, worldY + 1, TileLayer.Foreground) !== 0;
     const has11 = game.world.blockAt(worldX + 1, worldY + 1, TileLayer.Foreground) !== 0;
-    console.log(has00, has10, has01, has11);
 
     return (
       (has00 && rectInRect(this.position.x, this.position.y, worldX, worldY)) ||
