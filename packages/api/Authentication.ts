@@ -1,5 +1,5 @@
 import { zJoinRequest } from "./ws-api";
-import { zLobbyResp, zPlayerResp } from "./api";
+import { ZLobbyResp, zLobbyResp, ZPlayerResp, zPlayerResp, ZShopItemsResp, zShopItemsResp } from "./api";
 import Connection from "./Connection";
 import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
@@ -74,10 +74,10 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a lobby request.
    */
-  lobby(endpoint?: Endpoint): Promise<SchemaInput<typeof zLobbyResp>>;
+  lobby(endpoint?: Endpoint): Promise<ZLobbyResp>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  lobby(argEndpoint?: unknown): Promise<SchemaInput<typeof zLobbyResp>> {
+  lobby(argEndpoint?: unknown): Promise<ZLobbyResp> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.lobby);
     return fetch(endpoint, undefined, zLobbyResp, this.token, "GET");
   }
@@ -87,11 +87,23 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a request for the current player.
    */
-  player(endpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>>;
+  player(endpoint?: Endpoint): Promise<ZPlayerResp>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  player(argEndpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>> {
+  player(argEndpoint?: unknown): Promise<ZPlayerResp> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.player);
     return fetch(endpoint, undefined, zPlayerResp, this.token, "GET");
+  }
+
+  /**
+   * Lists the items in the shop this player has.
+   * @param endpoint An optional custom endpoint to use for making the request
+   * @throws If the current account is a guest, this will throw an exception.
+   * @returns A promise that resolves to the response of the API, a list of shop items.
+   */
+  shopItems(endpoint?: Endpoint): Promise<ZShopItemsResp> {
+    if (this.isGuest) throw new Error("cannot list shop items for guest");
+    const parsedEndpoint = zEndpoint.parse(endpoint || endpoints.shopItems);
+    return fetch(parsedEndpoint, undefined, zShopItemsResp, this.token, "GET");
   }
 }

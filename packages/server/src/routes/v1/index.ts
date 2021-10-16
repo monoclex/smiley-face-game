@@ -4,6 +4,7 @@ import Dependencies from "../../dependencies";
 import authRouterFactory from "./auth";
 import gameRouterFactory from "./game";
 import playerRouterFactory from "./player";
+import shopRouterFactory from "./shop";
 
 export default function (deps: Dependencies): Router {
   const router = Router();
@@ -11,6 +12,7 @@ export default function (deps: Dependencies): Router {
   router.use("/auth", authRouterFactory(deps));
   router.use("/game", gameRouterFactory(deps));
   router.use("/player", playerRouterFactory(deps));
+  router.use("/shop", shopRouterFactory(deps));
   router.get(
     "/err",
     asyncHandler(() => {
