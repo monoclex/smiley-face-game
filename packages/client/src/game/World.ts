@@ -87,16 +87,22 @@ export default class World {
     this.load(state);
   }
 
-  // onSave(author: Player) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onSave(author: Player) {
+    // this method is called and might be overwritten later
+  }
 
   onLoad(author: Player, blocks: number[][][]) {
     this.load(blocks);
   }
 
-  // onClear(author: Player) {
-  onClear() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onClear(author: Player) {
     this.clear();
   }
 
-  // onPlace(layer: TileLayer, y: number, x: number, id: number) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onPlace(layer: TileLayer, y: number, x: number, id: number) {
+    //  this method is overwritten later
+  }
 }

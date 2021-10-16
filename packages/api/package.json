@@ -17,6 +17,7 @@
   },
   "scripts": {
     "check": "package-check",
+    "tsc": "tsc",
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
     "build": "webpack --env mode=development",

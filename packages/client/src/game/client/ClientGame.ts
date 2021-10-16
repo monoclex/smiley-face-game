@@ -76,7 +76,8 @@ export default class ClientGame extends Game {
       this.connection.fireBullet(angle);
     };
 
-    this.world.onPlace = (layer, x, y) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.world.onPlace = (layer, x, y, id) => {
       if (!self.pendingGunPickup) return;
       if (layer !== TileLayer.Action) return;
       if (self.probablyPickedUpGunAt === undefined) throw new Error("impossible");

@@ -18,3 +18,10 @@ declare module "*.svg" {
   const SvgComponent: () => JSX.Element;
   export = SvgComponent;
 }
+
+interface ImportMeta {
+  env: {
+    NODE_ENV: string;
+    DEV: boolean;
+  };
+}

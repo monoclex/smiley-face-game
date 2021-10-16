@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "tsc": "lerna run tsc --no-bail --parallel",
     "lint": "lerna run lint --no-bail --parallel",
     "lint:fix": "lerna run lint:fix --no-bail --parallel",
     "serve": "lerna run serve --parallel"

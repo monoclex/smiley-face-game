@@ -14,6 +14,7 @@
     "url": "git+https://github.com/SirJosh3917/smiley-face-game.git"
   },
   "scripts": {
+    "tsc": "tsc",
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
     "serve": "nodemon"

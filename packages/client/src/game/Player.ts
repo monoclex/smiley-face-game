@@ -164,7 +164,7 @@ export default class Player implements PhysicsObject {
 
     while (this.deltaAccum >= 10) {
       this.deltaAccum -= 10;
-      this.eetick(game, 0);
+      this.eetick(game);
     }
   }
 
@@ -533,7 +533,9 @@ export default class Player implements PhysicsObject {
     if (previousY !== this.position.y) this.velocity.y = 0;
   }
 
-  // cleanup() {}
+  cleanup() {
+    // this method is relied upon and expected to be called
+  }
 
   playerIsInFourSurroundingBlocks(game: Game): boolean {
     function rectInRect(px: number, py: number, tx: number, ty: number) {
