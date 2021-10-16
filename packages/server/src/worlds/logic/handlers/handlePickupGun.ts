@@ -16,6 +16,6 @@ export default function handlePickupGun(packet: ZPickupGun, [sender, logic]: [Co
 
   logic.broadcast({
     packetId: "SERVER_PICKUP_GUN",
-    playerId: sender.playerId!,
+    playerId: sender.playerId,
   });
 }

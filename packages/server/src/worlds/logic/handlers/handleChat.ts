@@ -40,7 +40,7 @@ export default async function handleChat(packet: ZChat, [sender, logic]: [Connec
 
   logic.broadcast({
     packetId: "SERVER_CHAT",
-    playerId: sender.playerId!,
+    playerId: sender.playerId,
     message: packet.message,
   });
 }

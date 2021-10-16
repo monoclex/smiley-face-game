@@ -26,9 +26,20 @@ const config = {
     ecmaVersion: 2020,
     sourceType: "module",
   },
-  plugins: ["@typescript-eslint", "prettier"],
+  plugins: ["@typescript-eslint", "prettier", "import"],
+  settings: {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts"],
+    },
+    "import/resolver": {
+      typescript: {
+        alwaysTryTypes: true,
+      },
+    },
+  },
   rules: {
     "prettier/prettier": ["error"],
+    "import/no-unresolved": "error",
     "no-undef": "error",
     // https://stackoverflow.com/a/64024916
     "no-use-before-define": "off",

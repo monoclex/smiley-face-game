@@ -3,7 +3,7 @@ import React from "react";
 
 import { motion } from "framer-motion";
 import { useSnackbar } from "notistack";
-import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
+import { Button, Card, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
 
 const ShopCard = styled(Card)({
   width: 256,
@@ -12,6 +12,10 @@ const ShopCard = styled(Card)({
 
 const BuyButton = styled(Button)({
   marginLeft: "auto !important",
+});
+
+const Strike = styled("span")({
+  textDecorationLine: "line-through",
 });
 
 export default function ShopItem({ image, title, description, owned, cost }) {
@@ -30,7 +34,7 @@ export default function ShopItem({ image, title, description, owned, cost }) {
 
   const PriceLabel = () => {
     if (owned) {
-      return <strike>Price: {cost}</strike>;
+      return <Strike>Price: {cost}</Strike>;
     }
 
     return <span>Price: {cost}</span>;

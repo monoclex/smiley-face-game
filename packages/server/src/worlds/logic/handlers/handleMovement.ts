@@ -9,6 +9,6 @@ export default function handleMovement(packet: ZMovement, [sender, logic]: [Conn
   logic.broadcastExcept(sender.playerId, {
     ...packet,
     packetId: "SERVER_MOVEMENT",
-    playerId: sender.playerId!,
+    playerId: sender.playerId,
   });
 }

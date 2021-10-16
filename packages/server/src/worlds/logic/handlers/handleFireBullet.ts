@@ -11,7 +11,7 @@ export default function handleFireBullet(packet: ZFireBullet, [sender, logic]: [
   logic.broadcast({
     packetId: "SERVER_FIRE_BULLET",
     angle: packet.angle,
-    playerId: sender.playerId!,
+    playerId: sender.playerId,
   });
 
   return;

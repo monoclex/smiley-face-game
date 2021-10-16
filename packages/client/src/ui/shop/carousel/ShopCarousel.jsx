@@ -1,10 +1,7 @@
 //@ts-check
-import React, { useState } from "react";
-
-import { Button, Grid, Slide } from "@mui/material";
+import React from "react";
 
 import ShopItem from "../ShopItem";
-import ShopItemSkeleton from "../ShopItemSkeleton";
 import Carousel from "../../components/Carousel";
 
 export default function ShopCarousel({ items }) {

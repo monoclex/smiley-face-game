@@ -76,10 +76,12 @@ export default class ClientGame extends Game {
       this.connection.fireBullet(angle);
     };
 
-    this.world.onPlace = (layer, x, y, _) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.world.onPlace = (layer, x, y, id) => {
       if (!self.pendingGunPickup) return;
       if (layer !== TileLayer.Action) return;
-      if (x !== self.probablyPickedUpGunAt!.x || y !== self.probablyPickedUpGunAt!.y) return;
+      if (self.probablyPickedUpGunAt === undefined) throw new Error("impossible");
+      if (x !== self.probablyPickedUpGunAt.x || y !== self.probablyPickedUpGunAt.y) return;
 
       // a modification to the tile we picked the gun up on most likely means failure
       self.setProbablyGunPickupLocation(undefined);

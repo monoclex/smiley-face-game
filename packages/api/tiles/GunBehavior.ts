@@ -5,7 +5,7 @@ import TileRegistration from "./TileRegistration";
 export default class GunBehavior<S extends number> extends Behavior<[S, number]> {
   readonly gunId: number;
 
-  constructor(tileJson: ZTileJson, readonly sourceId: S, registration: TileRegistration) {
+  constructor(tileJson: ZTileJson, registration: TileRegistration, readonly sourceId: S) {
     super(tileJson, "gun", TileLayer.Action);
     if (tileJson.behavior !== "gun") throw new Error("passed non-gun tile json to gun behavior");
 

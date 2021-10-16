@@ -19,7 +19,7 @@ export default async function handleEquipGun(packet: ZEquipGun, [sender, logic]:
 
   logic.broadcast({
     packetId: "SERVER_EQUIP_GUN",
-    playerId: sender.playerId!,
+    playerId: sender.playerId,
     equipped: sender.gunEquipped,
   });
 

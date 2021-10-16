@@ -80,13 +80,14 @@ export function captureGameState(game: Game, previous?: GameState): GameState {
       messages.push(captureMessageState(message));
     }
   } else {
-    const prevMsgs = previous!.messages;
+    const prevMsgs = previous.messages;
     const gameMsgs = game.chat.messages;
 
     const sharedStart = Math.max(prevMsgs[0].id, prevMsgs[0].id);
     const sharedEnd = Math.min(prevMsgs[gameMsgs.length - 1].id, prevMsgs[prevMsgs.length - 1].id);
 
-    let startIndex: number, endIndex: number;
+    let startIndex: number | undefined = undefined,
+      endIndex: number | undefined = undefined;
     for (let i = 0; i < prevMsgs.length; i++) {
       if (prevMsgs[i].id !== sharedStart) continue;
       startIndex = i;
@@ -99,8 +100,7 @@ export function captureGameState(game: Game, previous?: GameState): GameState {
       break;
     }
 
-    //@ts-ignore
-    if (!startIndex || !endIndex) throw new Error("didn't find wat");
+    if (startIndex === undefined || endIndex === undefined) throw new Error("didn't find wat");
 
     const shared = prevMsgs.slice(startIndex, endIndex);
 

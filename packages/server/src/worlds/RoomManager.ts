@@ -52,7 +52,7 @@ export default class RoomManager {
   }
 
   private async lifetime() {
-    while (true) {
+    for (;;) {
       const message = await this.#queue.next();
       const room = this.roomFor(message.roomDetails);
 

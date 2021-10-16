@@ -21,5 +21,7 @@ export default class Bullet implements PhysicsObject {
     this.position.y += this.velocity.y;
   }
 
-  cleanup() {}
+  cleanup() {
+    // method is necessary otherwise physics engine will fail to call method
+  }
 }

@@ -7,10 +7,10 @@ export function bresenhamsLine(x1: number, y1: number, x2: number, y2: number, p
   const width = x2 - x1;
   const height = y2 - y1;
 
-  let dirX1 = width < 0 ? -1 : width > 0 ? 1 : 0,
-    dirX2 = dirX1;
-  let dirY1 = height < 0 ? -1 : height > 0 ? 1 : 0,
-    dirY2 = dirY1;
+  const dirX1 = width < 0 ? -1 : width > 0 ? 1 : 0;
+  let dirX2 = dirX1;
+  const dirY1 = height < 0 ? -1 : height > 0 ? 1 : 0;
+  let dirY2 = dirY1;
 
   let longest = Math.abs(width);
   let shortest = Math.abs(height);

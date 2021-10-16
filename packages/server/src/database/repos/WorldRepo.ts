@@ -8,6 +8,34 @@ import World from "../../database/models/World";
 import generateWorld from "../../worlds/generateWorld";
 import ensureValidates from "../../ensureValidates";
 
+function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
+  return generateWorld(details.width, details.height, tileJson);
+}
+
+export function serialize(blocks: ZWorldBlocks, tileJson: TileRegistration) {
+  const newBlocks = [];
+
+  for (let l = 0; l < blocks.length; l++) {
+    const layers = blocks[l];
+    const newL = [];
+
+    for (let y = 0; y < layers.length; y++) {
+      const yMap = layers[y];
+      const newY = [];
+
+      for (let x = 0; x < yMap.length; x++) {
+        newY.push(tileJson.for(yMap[x] /* a 'null' block is empty */ || 0).serialize(yMap[x]));
+      }
+
+      newL.push(newY);
+    }
+
+    newBlocks.push(newL);
+  }
+
+  return newBlocks;
+}
+
 type QueryOptions = { withOwner: boolean };
 
 // TODO: should this be made a schema?
@@ -56,7 +84,7 @@ export default class WorldRepo {
     const name = details.name ? details.name : `${details.owner.username}'s World`;
 
     const world = this.#repo.create();
-    // @ts-expect-error
+    // @ts-expect-error typeorm doesn't care about missing the `worlds` field, i think. idk
     world.owner = details.owner;
     world.name = name;
     world.width = details.width;
@@ -76,32 +104,4 @@ export default class WorldRepo {
   save(world: World | WorldLike): Promise<World> {
     return this.#repo.save(world);
   }
-}
-
-function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
-  return generateWorld(details.width, details.height, tileJson);
-}
-
-export function serialize(blocks: ZWorldBlocks, tileJson: TileRegistration) {
-  const newBlocks = [];
-
-  for (let l = 0; l < blocks.length; l++) {
-    const layers = blocks[l];
-    const newL = [];
-
-    for (let y = 0; y < layers.length; y++) {
-      const yMap = layers[y];
-      const newY = [];
-
-      for (let x = 0; x < yMap.length; x++) {
-        newY.push(tileJson.for(yMap[x] /* a 'null' block is empty */ || 0).serialize(yMap[x]));
-      }
-
-      newL.push(newY);
-    }
-
-    newBlocks.push(newL);
-  }
-
-  return newBlocks;
 }

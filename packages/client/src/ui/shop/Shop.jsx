@@ -1,15 +1,13 @@
 //@ts-check
 import React, { useState } from "react";
 
-import { styled, Box, Grid, Paper, Tab, Toolbar, Typography } from "@mui/material";
+import { styled, Box, Grid, Paper, Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
 
-import ShopCarousel from "./carousel/ShopCarousel";
 import ShopGroup from "./ShopGroup";
-import ShopItem from "./ShopItem";
 import ShopFeatured from "./ShopFeatured";
 
 const SpacedPaper = styled(Paper)({

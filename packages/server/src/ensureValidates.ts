@@ -5,7 +5,7 @@
  */
 export default function ensureValidates<TData>(
   // really, a ValidatorProxy in "computed-types", but we've simplified the signature here.
-  validator: { parse: (data: any) => TData },
+  validator: { parse: (data: unknown) => TData },
   data: TData
 ) {
   validator.parse(data);

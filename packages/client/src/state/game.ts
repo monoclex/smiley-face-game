@@ -14,7 +14,6 @@ export const gameGlobal = new SharedGlobal<GameState>(defaultGameState);
 export const gameState = atom<GameState>({
   key: "gameState",
   default: defaultGameState,
-  //@ts-ignore
   effects_UNSTABLE: [gameGlobal.initialize],
 });
 

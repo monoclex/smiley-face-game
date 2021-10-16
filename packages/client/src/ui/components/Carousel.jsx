@@ -1,12 +1,12 @@
 //@ts-check
 import React, { useState } from "react";
 
-import { Fade, Grid, Slide } from "@mui/material";
+import { Fade, Grid } from "@mui/material";
 import useInterval from "react-use/esm/useInterval";
 
-import { repeat, slice } from "../../helpers/iterables";
+import { slice } from "../../helpers/iterables";
 
-export default function Carousel({ visibleItems, delay, timeout, children }) {
+export default function Carousel({ visibleItems, delay = 4000, timeout = 750, children }) {
   const [index, setSelectedItem] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 
@@ -19,7 +19,7 @@ export default function Carousel({ visibleItems, delay, timeout, children }) {
     setSelectedItem(index + visibleItems);
   };
 
-  useInterval(() => nextItem(), isHovering ? null : delay || 4000);
+  useInterval(() => nextItem(), isHovering ? null : delay);
 
   if (!Array.isArray(children)) {
     return children;
@@ -36,7 +36,7 @@ export default function Carousel({ visibleItems, delay, timeout, children }) {
 
           <Grid item key={index * visibleItems + i}>
             <div onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-              <Fade in={true} timeout={timeout || 750}>
+              <Fade in={true} timeout={timeout}>
                 <div>{x}</div>
               </Fade>
             </div>
