@@ -1,67 +1,63 @@
-//@ts-check
-import React from "react";
+import React, { useState } from "react";
 
 import { motion } from "framer-motion";
-import { useSnackbar } from "notistack";
-import { Button, Card, CardActions, CardContent, CardMedia, Typography, styled } from "@mui/material";
+import { Box, Card, CardContent, Typography, Chip, CardActionArea } from "@mui/material";
 
-const ShopCard = styled(Card)({
-  width: 256,
-  height: 384,
-});
+import EnergyIcon from "../icons/EnergyIcon";
+import { ShopItemDialog } from "./ShopItemDialog";
 
-const BuyButton = styled(Button)({
-  marginLeft: "auto !important",
-});
+export default function ShopItem({ image, size, title, description, cost }) {
+  // these are obviously just for testing...
+  description =
+    description ||
+    "You should totally buy it! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
-const Strike = styled("span")({
-  textDecorationLine: "line-through",
-});
+  title = title || "This new item is so good...";
+  image = image || "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi1.wp.com%2Fpopcat.click%2Fog-card.jpg&f=1&nofb=1";
+  // end testing
 
-export default function ShopItem({ image, title, description, owned, cost }) {
-  const snackbar = useSnackbar();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleClick = () => {
-    // TODO: send buy request
-    snackbar.enqueueSnackbar(`Item bought for ${cost} monies!`, {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "top",
-        horizontal: "center",
-      },
-    });
+  const CardHeader = ({ title, width, height, src }) => {
+    return (
+      <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+        <Box sx={{ position: "absolute", padding: 1 }}>
+          <Chip icon={<EnergyIcon />} label={<Box sx={{ color: "white", fontWeight: "bold" }}>{cost}</Box>} />
+        </Box>
+
+        <img title={title} width={width} height={height} src={src} />
+      </Box>
+    );
   };
 
-  const PriceLabel = () => {
-    if (owned) {
-      return <Strike>Price: {cost}</Strike>;
-    }
-
-    return <span>Price: {cost}</span>;
-  };
-
+  const width = 256 * size;
   return (
-    <motion.div whileHover={{ scale: 1.05 }}>
-      <ShopCard>
-        <CardMedia component="img" image={image} title={title} width={256} height={196} />
+    <>
+      <motion.div whileHover={{ scale: 1.05 }}>
+        <Card style={{ width }}>
+          <CardActionArea onClick={() => setIsOpen(true)}>
+            <CardHeader src={image} title={title} width={width} height={196} />
 
-        <CardContent>
-          <Typography gutterBottom variant="h6" component="h6">
-            {title}
-          </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {description}
-          </Typography>
-        </CardContent>
+            <CardContent>
+              <Typography gutterBottom>{title}</Typography>
+              <Typography variant="subtitle2" color="textSecondary">
+                {description}
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </motion.div>
 
-        <CardActions>
-          <PriceLabel />
-
-          <BuyButton size="small" color="primary" variant="contained" disabled={owned} onClick={handleClick}>
-            {owned ? "owned" : "buy"}
-          </BuyButton>
-        </CardActions>
-      </ShopCard>
-    </motion.div>
+      <ShopItemDialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        item={{
+          title,
+          description,
+          cost,
+          image,
+        }}
+      />
+    </>
   );
 }

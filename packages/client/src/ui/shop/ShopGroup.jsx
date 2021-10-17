@@ -18,7 +18,7 @@ export default function ShopGroup({ items, category = undefined }) {
     <Grid container spacing={3} justifyContent="center">
       {filteredItems.map((item) => (
         <Grid item key={item.id}>
-          <ShopItem {...item} key={item.id} />
+          <ShopItem key={item.id} {...item} />
         </Grid>
       ))}
     </Grid>

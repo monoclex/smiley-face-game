@@ -1,8 +1,6 @@
 //@ts-check
 import React, { useState } from "react";
 import { styled, Box, Grid, Paper, Tab } from "@mui/material";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
 import { useAuth } from "../hooks";
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
 import ShopGroup from "./ShopGroup";
@@ -36,8 +34,9 @@ const Shop = () => {
   const items = [
     {
       id: 1,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "Castle Package",
+      description: "Keeping the enemies out since the medieval times!",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Owned,
@@ -45,8 +44,9 @@ const Shop = () => {
     },
     {
       id: 2,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 2,
+      title: "",
+      description: "asdfasdf",
       image: "",
       category: Category.Character,
       categoryType: CategoryType.None,
@@ -54,8 +54,9 @@ const Shop = () => {
     },
     {
       id: 3,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.Character,
       categoryType: CategoryType.None,
@@ -63,8 +64,9 @@ const Shop = () => {
     },
     {
       id: 4,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      description: "",
       image: "",
       category: Category.Character,
       categoryType: CategoryType.Owned,
@@ -72,8 +74,9 @@ const Shop = () => {
     },
     {
       id: 5,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "Great Saved World",
+      description: "Worlds do not get much larger than this enormous 400x200 saved world!",
       image: "",
       category: Category.World,
       categoryType: CategoryType.None,
@@ -81,8 +84,9 @@ const Shop = () => {
     },
     {
       id: 6,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "Large Saved World",
+      description: "The 100x100 large world for those who really want to be creative.",
       image: "",
       category: Category.World,
       categoryType: CategoryType.None,
@@ -90,8 +94,9 @@ const Shop = () => {
     },
     {
       id: 13,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "Massive Saved World",
+      description: "Want some more beta sized worlds? Then buy this!",
       image: "",
       category: Category.World,
       categoryType: CategoryType.None,
@@ -99,40 +104,16 @@ const Shop = () => {
     },
   ];
 
-  const [value, setValue] = useState("1");
-
   return (
     <Grid container>
       <Grid item container justifyContent="center">
         <Grid item>
-          <SpacedPaper>
-            <ShopFeatured />
-          </SpacedPaper>
+          <ShopFeatured />
         </Grid>
       </Grid>
 
       <Grid item xs={12}>
-        <SpacedPaper>
-          <TabContext value={value}>
-            <Paper square>
-              <TabList onChange={(e, newValue) => setValue(newValue)} centered>
-                <Tab label={<Icon icon={WorldIcon} text="Worlds" />} value="1" />
-                <Tab label={<Icon icon={SmileyIcon} text="Smilies" />} value="2" />
-                <Tab label="Owned" value="3" />
-              </TabList>
-            </Paper>
-
-            <TabPanel value="1">
-              <ShopGroup items={items} category={Category.World} />
-            </TabPanel>
-            <TabPanel value="2">
-              <ShopGroup items={items} category={Category.Character} />
-            </TabPanel>
-            <TabPanel value="3">
-              <ShopGroup items={items.filter((item) => (item.categoryType & CategoryType.Owned) !== 0)} />
-            </TabPanel>
-          </TabContext>
-        </SpacedPaper>
+        <ShopGroup items={items} />
       </Grid>
     </Grid>
   );
