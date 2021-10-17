@@ -1,5 +1,5 @@
 //@ts-check
-import React from "react";
+import React, { useEffect } from "react";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -14,7 +14,9 @@ const HomePage = () => {
 
   // if they have a token, they should go straight to the lobby
   if (localStorage.getItem("token") !== null) {
-    history.push("/lobby");
+    console.log("HomePage getItem", localStorage.getItem("token"));
+    // can't perform transition within a render
+    useEffect(() => history.push("/lobby"), []);
     return null;
   }
 
