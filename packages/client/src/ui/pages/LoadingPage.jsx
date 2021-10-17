@@ -1,5 +1,7 @@
 //@ts-check
 import React, { useEffect, useState } from "react";
+
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
@@ -54,7 +56,7 @@ export default function LoadingPage({
   }, []);
 
   if (game === undefined) {
-    return <h1>loadingeroooooooooo</h1>;
+    return <FullscreenBackdropLoading />;
   } else if (game instanceof Error) {
     console.error(game);
     return (

@@ -17,8 +17,9 @@ export default () => {
   const items = [
     {
       id: 7,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured | CategoryType.Owned,
@@ -26,8 +27,9 @@ export default () => {
     },
     {
       id: 8,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured,
@@ -35,8 +37,9 @@ export default () => {
     },
     {
       id: 9,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured,
@@ -44,8 +47,9 @@ export default () => {
     },
     {
       id: 10,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured | CategoryType.Owned,
@@ -53,8 +57,9 @@ export default () => {
     },
     {
       id: 11,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured,
@@ -62,8 +67,19 @@ export default () => {
     },
     {
       id: 12,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
+      size: 1,
+      title: "",
+      description: "",
+      image: "",
+      category: Category.World,
+      categoryType: CategoryType.Featured,
+      cost: 425,
+    },
+    {
+      id: 14,
+      size: 3,
+      title: "big",
+      description: "asd",
       image: "",
       category: Category.World,
       categoryType: CategoryType.Featured,
@@ -74,11 +90,9 @@ export default () => {
   return (
     <Grid container direction="column" justifyContent="center">
       <Grid item>
-        <Paper square>
-          <Grid container justifyContent="center">
-            <Typography variant="h5">idk what title here</Typography>
-          </Grid>
-        </Paper>
+        <Grid container>
+          <Typography variant="h5">Featured items</Typography>
+        </Grid>
       </Grid>
       <CarouselContainer>
         <ShopCarousel items={items} />
