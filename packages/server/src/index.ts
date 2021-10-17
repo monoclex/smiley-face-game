@@ -1,4 +1,3 @@
-import * as bodyParser from "body-parser";
 import cors from "cors";
 import "reflect-metadata";
 import { createConnection, getConnectionOptions } from "typeorm";
@@ -6,6 +5,7 @@ import { app } from "./expressapp";
 import routes from "./routes";
 import Dependencies from "./dependencies";
 import dotenv from "dotenv";
+import express from "express";
 import type { ErrorRequestHandler } from "express-serve-static-core";
 
 dotenv.config();
@@ -21,12 +21,19 @@ getConnectionOptions()
     const dependencies = new Dependencies(connection, ACCESS_TOKEN_SECRET);
 
     app.use(cors());
-    app.use(bodyParser.json());
+    app.use(express.json());
     app.use("/", routes(dependencies));
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errorRoute: ErrorRequestHandler = (err, req, res, next) => {
-      res.status(500).send(err);
+      if (err instanceof Error) {
+        const { message, name, stack } = err;
+
+        // TODO: only show stack trace in debug mode maybe
+        res.status(500).json({ name, message, stack });
+      } else {
+        res.status(500).json(err);
+      }
     };
     app.use(errorRoute);
 
