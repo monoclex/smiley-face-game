@@ -23,9 +23,10 @@ const ws: Endpoint = {
 const lobby: Endpoint = { host, path: "/game/lobby" };
 const player: Endpoint = { host, path: "/player" };
 const shopItems: Endpoint = { host, path: "/shop/items" };
-export const endpoints = { auth, guestAuth, ws, lobby, player, register, shopItems };
+const shopBuy: Endpoint = { host, path: "/shop/buy" };
+export const endpoints = { auth, guestAuth, ws, lobby, player, register, shopItems, shopBuy };
 // work around TS crud: https://fettblog.eu/typescript-better-object-keys/
-const endpointKeys: (keyof typeof endpoints)[] = ["auth", "guestAuth", "ws", "lobby", "player", "register"];
+const endpointKeys: (keyof typeof endpoints)[] = ["auth", "guestAuth", "ws", "lobby", "player", "register", "shopItems", "shopBuy"];
 
 export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
   for (const endpointId of endpointKeys) {
