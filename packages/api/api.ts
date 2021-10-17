@@ -1,5 +1,5 @@
 import Schema, { SchemaInput, array, boolean, number, string, addParse } from "./computed-types-wrapper";
-import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail, zShopItem } from "./types";
+import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail, zShopItem, zShopItemId, zEnergy } from "./types";
 
 export const zGamePreview = addParse(
   Schema({
@@ -49,15 +49,22 @@ export const zGuestReq = addParse(
   })
 );
 
+export const zPlayerEnergy = addParse(
+  Schema({
+    energy: zEnergy.optional(),
+    maxEnergy: zEnergy.optional(),
+    energyRegenerationRateMs: number.integer().min(0).optional(),
+    lastEnergyAmount: zEnergy.optional(),
+    timeEnergyWasAtAmount: string.optional(),
+  })
+);
+export type ZPlayerEnergy = SchemaInput<typeof zPlayerEnergy>;
+
 export const zPlayerResp = addParse(
   Schema({
     isGuest: boolean,
     name: zUsername,
-    energy: number.optional(),
-    maxEnergy: number.optional(),
-    energyRegenerationRateMs: number.optional(),
-    lastEnergyAmount: number.optional(),
-    timeEnergyWasAtAmount: string.optional(),
+    energy: zPlayerEnergy,
     ownedWorlds: array
       .of({
         type: "saved" as const,
@@ -70,5 +77,27 @@ export const zPlayerResp = addParse(
 );
 export type ZPlayerResp = SchemaInput<typeof zPlayerResp>;
 
-export const zShopItemsResp = addParse(array.of(zShopItem));
+export const zShopItemsResp = addParse(
+  Schema({
+    items: array.of(zShopItem),
+  })
+);
 export type ZShopItemsResp = SchemaInput<typeof zShopItemsResp>;
+
+export const zShopBuyReq = addParse(
+  Schema({
+    id: zShopItemId,
+    spendEnergy: zEnergy,
+  })
+);
+export type ZShopBuyReq = SchemaInput<typeof zShopBuyReq>;
+
+export const zShopBuyResp = addParse(
+  Schema({
+    id: zShopItemId,
+    success: boolean,
+    item: zShopItem,
+    playerEnergy: zPlayerEnergy,
+  })
+);
+export type ZShopBuyResp = SchemaInput<typeof zShopBuyResp>;

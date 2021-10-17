@@ -1,3 +1,4 @@
+import { DateType } from "computed-types";
 import Schema, { string, number, boolean, array, SchemaInput, addParse } from "./computed-types-wrapper";
 import { zCategory, zCategoryType } from "./enums";
 
@@ -17,6 +18,7 @@ export const zGuid = addParse(string.regexp(guidRegex));
 export const zWorldId = addParse(zGuid);
 export const zAccountId = addParse(zGuid);
 export const zWorldName = addParse(string.min(1).max(64));
+export const zQuantity = addParse(number.integer().min(0));
 export const zShopItemId = addParse(number.integer().min(0)); // TODO: cap item ids?
 export const zUserId = addParse(number.integer().min(0));
 export type ZUserId = SchemaInput<typeof zUserId>;
@@ -27,6 +29,7 @@ export const zMessage = addParse(string.min(1).max(240));
 export const zEmail = addParse(string.regexp(emailRegex));
 // server uses bcrypt for storing passwords, https://security.stackexchange.com/a/184090
 export const zPassword = addParse(string.min(1).max(72));
+export const zEnergy = zQuantity;
 
 export const zDynWidth = addParse(number.integer().min(3).max(50));
 export const zDynHeight = addParse(number.integer().min(3).max(50));
@@ -225,11 +228,15 @@ export const zShopItem = addParse(
     id: zShopItemId,
     title: string.min(1).max(32),
     description: string.min(1).max(256),
-    // TODO: use a proper url parser?
-    imageUrl: string.min(0).max(256),
+    // used for sorting purposes
+    dateIntroduced: DateType,
     category: zCategory,
     categoryType: zCategoryType,
-    energyCost: number.min(1),
+    // 0 if no limit
+    limit: zQuantity,
+    owned: zQuantity,
+    energySpent: zEnergy,
+    energyCost: zEnergy.min(1),
   })
 );
 export type ZShopItem = SchemaInput<typeof zShopItem>;
