@@ -23,13 +23,13 @@ const Icon = ({ icon: TextIcon, text }) => {
 const Shop = () => {
   const auth = useAuth();
 
-  if (auth.isGuest) console.error("rendering shop but its a guest!!!!!!!! oh noes");
+  if (auth.isGuest) console.error("rendering shop but its a guest!!!!!!!! oh noes (this shouldn't happen because router should preventit)");
   console.log(auth.id);
 
   // TODO:
   //  Give featured items a title bar (done, but not sure how i feel about it...)
-  //  Grab shop content from API
-  //  Send request to API when buying an item
+  //  Grab shop content from API (done, but not polished)
+  //  Send request to API when buying an item (done, but not polished)
 
   const items = useShopItems();
 

@@ -3,89 +3,20 @@ import React from "react";
 import { Grid, Paper, Typography, styled } from "@mui/material";
 
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
-
+import { useShopItems } from "../hooks";
 import ShopCarousel from "./carousel/ShopCarousel";
 
 const CarouselContainer = styled("div")({
   padding: 10,
 });
 
-export default () => {
-  // TODO:
-  //  Fetch featured items
+const ShopFeatured = () => {
+  const shopItems = useShopItems();
 
-  const items = [
-    {
-      id: 7,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured | CategoryType.Owned,
-      cost: 420,
-    },
-    {
-      id: 8,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured,
-      cost: 421,
-    },
-    {
-      id: 9,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured,
-      cost: 422,
-    },
-    {
-      id: 10,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured | CategoryType.Owned,
-      cost: 423,
-    },
-    {
-      id: 11,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured,
-      cost: 424,
-    },
-    {
-      id: 12,
-      size: 1,
-      title: "",
-      description: "",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured,
-      cost: 425,
-    },
-    {
-      id: 14,
-      size: 3,
-      title: "big",
-      description: "asd",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Featured,
-      cost: 425,
-    },
-  ];
+  if (shopItems === undefined) return <h1>laoding</h1>;
+  if (shopItems instanceof Error) return <h1>error loading</h1>;
+
+  const items = shopItems.filter((item) => (item.categoryType & CategoryType.Featured) != 0);
 
   return (
     <Grid container direction="column" justifyContent="center">
@@ -100,3 +31,5 @@ export default () => {
     </Grid>
   );
 };
+
+export default ShopFeatured;
