@@ -1,5 +1,15 @@
 import { zJoinRequest } from "./ws-api";
-import { ZLobbyResp, zLobbyResp, ZPlayerResp, zPlayerResp, ZShopItemsResp, zShopItemsResp } from "./api";
+import {
+  ZLobbyResp,
+  zLobbyResp,
+  ZPlayerResp,
+  zPlayerResp,
+  ZShopBuyReq,
+  zShopBuyResp,
+  ZShopBuyResp,
+  ZShopItemsResp,
+  zShopItemsResp,
+} from "./api";
 import Connection from "./Connection";
 import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
@@ -105,5 +115,17 @@ export default class Authentication {
     if (this.isGuest) throw new Error("cannot list shop items for guest");
     const parsedEndpoint = zEndpoint.parse(endpoint || endpoints.shopItems);
     return fetch(parsedEndpoint, undefined, zShopItemsResp, this.token, "GET");
+  }
+
+  /**
+   * Spends energy in the shop.
+   * @param item The item to buy.
+   * @param endpoint An optional endpoint to use when making the request.
+   * @returns A promise that resolves to the bought item response.
+   */
+  buy(item: ZShopBuyReq, endpoint?: Endpoint): Promise<ZShopBuyResp> {
+    if (this.isGuest) throw new Error("cannot buy shop items as guest");
+    const parsedEndpoint = zEndpoint.parse(endpoint || endpoints.shopBuy);
+    return fetch(parsedEndpoint, item, zShopBuyResp, this.token, "POST");
   }
 }
