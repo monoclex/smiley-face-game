@@ -61,7 +61,7 @@ export default class AccountRepo {
     account.password = password;
     account.maxEnergy = 100;
     account.lastEnergyAmount = 100;
-    account.timeEnergyWasAtAmount = Date.now();
+    account.timeEnergyWasAtAmount = "" + Date.now();
     account.energyRegenerationRateMs = 1 * 60 * 1000;
     account.worlds = worlds;
 

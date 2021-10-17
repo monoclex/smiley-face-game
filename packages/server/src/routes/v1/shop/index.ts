@@ -125,10 +125,10 @@ export default function (deps: UsedDependencies): Router {
           // account & item at the last known "good" state
 
           const response: ZShopBuyResp = {
-            id: item.id,
+            id: shopItemInfo.id,
             purchased,
             item: {
-              id: item.id,
+              id: shopItemInfo.id,
               title: shopItemInfo.title,
               description: shopItemInfo.description,
               dateIntroduced: shopItemInfo.dateIntroduced,
@@ -144,7 +144,8 @@ export default function (deps: UsedDependencies): Router {
               energyRegenerationRateMs: account.energyRegenerationRateMs,
               maxEnergy: account.maxEnergy,
               lastEnergyAmount: account.lastEnergyAmount,
-              timeEnergyWasAtAmount: account.timeEnergyWasAtAmount,
+              // TODO: don't have database store unix epoch timestamp as bigint lol
+              timeEnergyWasAtAmount: parseInt(account.timeEnergyWasAtAmount),
             },
           };
 

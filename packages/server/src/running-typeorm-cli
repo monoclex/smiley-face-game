@@ -6,3 +6,18 @@ uhh not sure why `typeorm` doesn't run just fine but if you're tryna run a migra
 making migrations:
 1. apply them `npx ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:run`
 2. generate them `npx ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:generate -n CoolMigration`
+
+===
+2021 update:
+
+1. from the root of this project:
+
+   cd packages/server
+
+2. copy ormconfig.json
+
+   cp ../../ormconfig.json .
+
+3. generate migration or run command
+
+   ts-node --project tsconfig.json $(yarn bin typeorm) migration:generate -n CoolMigration

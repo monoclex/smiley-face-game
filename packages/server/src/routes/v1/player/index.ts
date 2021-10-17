@@ -28,7 +28,8 @@ export default function (deps: UsedDependencies): Router {
           maxEnergy: account.maxEnergy,
           energyRegenerationRateMs: account.energyRegenerationRateMs,
           lastEnergyAmount: account.lastEnergyAmount,
-          timeEnergyWasAtAmount: account.timeEnergyWasAtAmount,
+          // TODO: don't use a bigint for unix epoch timestamp lol
+          timeEnergyWasAtAmount: parseInt(account.timeEnergyWasAtAmount),
         },
         ownedWorlds: account.worlds.map((world) => ({
           type: "saved",
