@@ -5,24 +5,47 @@ import { Typography, Grid, Slider, IconButton, Tooltip, Button } from "@mui/mate
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
+import { useAuth } from "../hooks";
 
 // TODO not hardcode height, i think
+/** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
 export const ShopItemDialog = ({ open, onClose, item }) => {
   const [spendingEnergy, setSpendingEnergy] = useState(30);
   const snackbar = useSnackbar();
+  const auth = useAuth();
 
-  const { title, description, image, cost } = item;
+  const { id, title, description, image, energyCost } = item;
 
   const handleClick = () => {
-    // TODO send buy request
-    // TODO make nice little animation for adding energy instead of unhealthy snacks
-    snackbar.enqueueSnackbar(`Added ${spendingEnergy} energy!`, {
-      variant: "success",
-      anchorOrigin: {
-        vertical: "top",
-        horizontal: "center",
-      },
-    });
+    // TODO: loading animation
+    auth
+      .buy({
+        id,
+        spendEnergy: spendingEnergy,
+      })
+      .then((response) => {
+        // TODO: update information about the player with `response`
+        console.log(response);
+
+        // TODO make nice little animation for adding energy instead of unhealthy snacks
+        snackbar.enqueueSnackbar(`Added ${spendingEnergy} energy!`, {
+          variant: "success",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        snackbar.enqueueSnackbar(`Error spending energy: ${error}`, {
+          variant: "error",
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "center",
+          },
+        });
+      });
   };
 
   return (
@@ -55,7 +78,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
               defaultValue={30}
               step={10}
               min={10}
-              max={cost}
+              max={energyCost}
               value={spendingEnergy}
               onChange={(_, value) => setSpendingEnergy(value)}
             />

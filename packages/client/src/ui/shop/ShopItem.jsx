@@ -18,7 +18,10 @@ const ClampedTypography = styled(Typography)({
   overflow: "hidden",
 });
 
-export default function ShopItem({ image, size, title, description, cost }) {
+/** @param {import("@smiley-face-game/api/types").ZShopItem} props */
+export default function ShopItem(item) {
+  let { image, size, title, description, energyCost } = item;
+
   // these are obviously just for testing...
   description =
     description ||
@@ -34,7 +37,7 @@ export default function ShopItem({ image, size, title, description, cost }) {
     return (
       <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
         <Box sx={{ position: "absolute", padding: 1 }}>
-          <Chip icon={<EnergyIcon />} label={<Box sx={{ color: "white", fontWeight: "bold" }}>{cost}</Box>} />
+          <Chip icon={<EnergyIcon />} label={<Box sx={{ color: "white", fontWeight: "bold" }}>{energyCost}</Box>} />
         </Box>
 
         <img title={title} width={width} height={height} src={src} />
@@ -62,16 +65,7 @@ export default function ShopItem({ image, size, title, description, cost }) {
         </CardActionArea>
       </motion.div>
 
-      <ShopItemDialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        item={{
-          title,
-          description,
-          image,
-          cost,
-        }}
-      />
+      <ShopItemDialog open={isOpen} onClose={() => setIsOpen(false)} item={{ ...item, image }} />
     </>
   );
 }

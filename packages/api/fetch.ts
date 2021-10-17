@@ -21,11 +21,24 @@ export default function <D>(
 
   return fetch(toUrl(endpoint, false).toString(), { method, headers, body })
     .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Error contacting API: '${response.statusText}'`);
-      }
+      return (
+        response
+          .json()
+          // we want to first try parse the response as json incase it has anything
+          // more detailed to say
+          .catch(() => {
+            if (!response.ok) {
+              throw new Error(`Error contacting API: '${response.statusText}'`);
+            }
+          })
+          .then((json) => {
+            if (!response.ok) {
+              throw new Error(`Error contacting API: '${json.message}'`);
+            }
 
-      return response.json();
+            return json;
+          })
+      );
     })
     .then(zResponse.parse);
 }
