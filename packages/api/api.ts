@@ -55,7 +55,8 @@ export const zPlayerEnergy = addParse(
     maxEnergy: zEnergy.optional(),
     energyRegenerationRateMs: number.integer().min(0).optional(),
     lastEnergyAmount: zEnergy.optional(),
-    timeEnergyWasAtAmount: string.optional(),
+    // TODO: change to `Date`?
+    timeEnergyWasAtAmount: number.integer(),
   })
 );
 export type ZPlayerEnergy = SchemaInput<typeof zPlayerEnergy>;

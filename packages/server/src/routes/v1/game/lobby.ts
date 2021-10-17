@@ -2,6 +2,7 @@ import { Router } from "express";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import jwt from "../../../middlewares/jwt";
 import Dependencies from "../../../dependencies";
+import { ZLobbyResp } from "@smiley-face-game/api/api";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "roomManager">;
 
@@ -24,7 +25,8 @@ export default async function (router: Router, deps: UsedDependencies) {
           });
         }
 
-        res.json(previews);
+        const response: ZLobbyResp = previews;
+        res.json(response);
       })
     )
   );
