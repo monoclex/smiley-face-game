@@ -3,11 +3,13 @@ import type * as core from "express-serve-static-core";
 import extractJwt from "../jwt/extractJwt";
 import JwtVerifier from "../jwt/JwtVerifier";
 
-type JwtHandler<TPayload, P extends core.Params = core.ParamsDictionary, ResBody = unknown, ReqBody = unknown, ReqQuery = core.Query> = (
-  req: Request<P, ResBody, ReqBody, ReqQuery> & { jwt: TPayload },
-  res: Response<ResBody>,
-  next: NextFunction
-) => unknown;
+export type JwtHandler<
+  TPayload,
+  P extends core.Params = core.ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = core.Query
+> = (req: Request<P, ResBody, ReqBody, ReqQuery> & { jwt: TPayload }, res: Response<ResBody>, next: NextFunction) => unknown;
 
 /**
  * Offers a strongly typed way to apply a "proxy" middleware to the request pipeline to make accessing JWT payload easier.

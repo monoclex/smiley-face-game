@@ -1,4 +1,7 @@
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
+import { EntityManager } from "typeorm";
+import AccountLike from "../database/modelishs/AccountLike";
+import makePurchaser from "./purchaseWorld";
 
 /**
  * Interface that defines what one a potential shop item is.
@@ -13,6 +16,7 @@ export interface ShopItem {
   categoryType: CategoryType;
   limited: boolean;
   energyCost: number;
+  purchase: (user: AccountLike, entityManager: EntityManager) => Promise<void>;
 }
 
 export const shopItems: ShopItem[] = [
@@ -25,6 +29,7 @@ export const shopItems: ShopItem[] = [
     categoryType: CategoryType.Featured,
     limited: false,
     energyCost: 5000,
+    purchase: makePurchaser(200, 200),
   },
   {
     id: 1,
@@ -35,5 +40,17 @@ export const shopItems: ShopItem[] = [
     categoryType: CategoryType.None,
     limited: false,
     energyCost: 360,
+    purchase: makePurchaser(30, 30),
+  },
+  {
+    id: 2,
+    title: "6 x 9",
+    description: "a really tiny world just as a test for development (will be deleted later)",
+    dateIntroduced: new Date("Sun, 18 Oct 2021 00:04:20 GMT"),
+    category: Category.World,
+    categoryType: CategoryType.Featured,
+    limited: false,
+    energyCost: 21,
+    purchase: makePurchaser(6, 9),
   },
 ];

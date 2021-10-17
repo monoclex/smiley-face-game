@@ -50,8 +50,8 @@ interface WorldDetails {
 export default class WorldRepo {
   readonly #repo: Repository<World>;
 
-  constructor(connection: Connection) {
-    this.#repo = connection.getRepository(World);
+  constructor(repo: Repository<World>) {
+    this.#repo = repo;
   }
 
   /* === queries === */
