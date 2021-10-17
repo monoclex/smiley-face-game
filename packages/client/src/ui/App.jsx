@@ -1,54 +1,41 @@
-//@ts-check
-import React, { Suspense, lazy, useMemo, useEffect } from "react";
-import { BrowserRouter, Route } from "react-router-dom";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+// todo fix ^
+
+import React, { Suspense, lazy, useMemo } from "react";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
 import { RecoilRoot } from "recoil";
-import { SnackbarProvider, useSnackbar } from "notistack";
+import { SnackbarProvider } from "notistack";
 import Loading from "./Loading";
-import { useHistory } from "react-router";
+
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import { useAuth } from "./hooks";
+import { Box } from "@mui/system";
 
-const AuthRoute = ({ ...props }) => {
-  function RouteInner({ ...routeProps }) {
-    const history = useHistory();
-
-    const token = localStorage.getItem("token");
-    if (token === null) {
-      // we can't perform a transition (history.push) while rendering
-      useEffect(() => history.push("/"), []);
-      return null;
-    }
-
-    const auth = useAuth();
-    const notistack = useSnackbar();
-
-    console.log("authroute props", props);
-    const { needAccount } = props;
-    if (needAccount === true) {
-      if (auth.isGuest) {
-        console.log("n", needAccount);
-        // we can't perform a transition (history.push) while rendering
-        useEffect(() => {
-          history.push("/lobby");
-          notistack.enqueueSnackbar("Cannot access this route as a guest!", {
-            variant: "error",
-          });
-        }, []);
-        return null;
-      }
-    }
-
-    const Component = props.component;
-    return (
-      <>
-        <Component {...routeProps} />
-      </>
-    );
+const AuthRoute = ({ needAccount, ignoreLayout, component: Component }) => {
+  const token = localStorage.getItem("token");
+  if (token === null) {
+    return <Redirect to="/" />;
   }
 
-  return <Route {...props} component={RouteInner} />;
+  if (needAccount) {
+    const auth = useAuth();
+    if (auth.isGuest) {
+      return <Redirect to="/lobby" />;
+    }
+  }
+
+  if (ignoreLayout) {
+    return <Component />;
+  }
+
+  return (
+    <Box sx={{ padding: 2 }}>
+      <Component />
+    </Box>
+  );
 };
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -86,14 +73,17 @@ export default function App() {
             <SnackbarUtilsConfigurator />
             <CssBaseline />
             <Suspense fallback={<Loading />}>
-              <Route exact path="/" component={HomePage} />
-              <Route exact path="/terms" component={TermsAndConditionsPage} />
-              <Route exact path="/guest" component={GuestPage} />
-              <Route exact path="/register" component={RegisterPage} />
-              <Route exact path="/login" component={LoginPage} />
-              <AuthRoute exact path="/lobby" component={LobbyPage} />
-              <AuthRoute exact path="/games/:id" component={PlayPage} />
-              <AuthRoute needAccount exact path="/shop" component={ShopPage} />
+              <Switch>
+                <Route exact path="/" component={HomePage} />
+                <Route exact path="/terms" component={TermsAndConditionsPage} />
+                <Route exact path="/guest" component={GuestPage} />
+                <Route exact path="/register" component={RegisterPage} />
+                <Route exact path="/login" component={LoginPage} />
+
+                <AuthRoute exact path="/lobby" component={LobbyPage} />
+                <AuthRoute ignoreLayout exact path="/games/:id" component={PlayPage} />
+                <AuthRoute needAccount exact path="/shop" component={ShopPage} />
+              </Switch>
             </Suspense>
           </SnackbarProvider>
         </RecoilRoot>

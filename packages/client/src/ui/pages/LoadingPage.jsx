@@ -6,17 +6,15 @@ import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
-import { useHistory } from "react-router";
+import { useHistory, useLocation, useRouteMatch } from "react-router";
 import { useAuth } from "../hooks";
 
-export default function LoadingPage({
-  location: { state },
-  match: {
-    params: { id },
-  },
-}) {
+export default function LoadingPage() {
   const history = useHistory();
+  const location = useLocation();
+  const match = useRouteMatch("/games/:id");
   const auth = useAuth();
+
   const [gameElement] = useState(document.createElement("canvas"));
   const [game, setGame] = useState(undefined);
 
@@ -33,7 +31,9 @@ export default function LoadingPage({
 
     const completion = new PromiseCompletionSource();
 
-    setupBridge(auth, state ?? { type: "join", id }, renderer, (game) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
       if (game.running) {
         window.history.back();
       }
