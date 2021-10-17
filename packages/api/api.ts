@@ -95,7 +95,10 @@ export type ZShopBuyReq = SchemaInput<typeof zShopBuyReq>;
 export const zShopBuyResp = addParse(
   Schema({
     id: zShopItemId,
-    success: boolean,
+    // will get an http error if we could not spend,
+    // false if the item didn't get purchased (i.e. energy was spent),
+    // true if the item got purchased
+    purchased: boolean,
     item: zShopItem,
     playerEnergy: zPlayerEnergy,
   })

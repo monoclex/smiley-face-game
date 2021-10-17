@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import Account from "./Account";
 
 @Entity()
+@Unique("user_to_item", ["user", "shopItemId"]) // https://github.com/typeorm/typeorm/issues/1616#issuecomment-657022282
 export default class ShopItem {
   /**
    * A random ID for every shop item

@@ -8,14 +8,18 @@ import RoomManager from "./worlds/RoomManager";
 import UuidGenerator from "./UuidGenerator";
 import ValidateAuthPayload from "./jwt/ValidateAuthPayload";
 import ShopRepo from "./database/repos/ShopRepo";
+import ShopItem from "./database/models/ShopItem";
+import Account from "./database/models/Account";
+import World from "./database/models/World";
 
 export default class Dependencies {
   constructor(connection: Connection, jwtSecret: string) {
     this.uuidGenerator = new UuidGenerator();
 
-    this.accountRepo = new AccountRepo(connection);
-    this.worldRepo = new WorldRepo(connection);
-    this.shopRepo = new ShopRepo(connection);
+    this.connection = connection;
+    this.accountRepo = new AccountRepo(connection.getRepository(Account));
+    this.worldRepo = new WorldRepo(connection.getRepository(World));
+    this.shopRepo = new ShopRepo(connection.getRepository(ShopItem));
 
     this.authVerifier = new JwtVerifier(ValidateAuthPayload, jwtSecret);
     this.authProvider = new AuthProvider(jwtSecret);
@@ -25,6 +29,7 @@ export default class Dependencies {
 
   readonly uuidGenerator: UuidGenerator;
 
+  readonly connection: Connection;
   readonly accountRepo: AccountRepo;
   readonly worldRepo: WorldRepo;
   readonly shopRepo: ShopRepo;

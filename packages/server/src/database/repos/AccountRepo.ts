@@ -17,8 +17,8 @@ interface AccountDetails {
 export default class AccountRepo {
   readonly #repo: Repository<Account>;
 
-  constructor(connection: Connection) {
-    this.#repo = connection.getRepository(Account);
+  constructor(repo: Repository<Account>) {
+    this.#repo = repo;
   }
 
   /* === queries === */
@@ -75,10 +75,6 @@ export default class AccountRepo {
 
   /* === modification === */
 
-  /**
-   * @deprecated
-   * Not actually deprecated, just highly suggested not to use until an alternative is propely thought about.
-   */
   save(account: Account | AccountLike): Promise<Account> {
     return this.#repo.save(account);
   }
