@@ -16,9 +16,8 @@ const AuthRoute = ({ ...props }) => {
 
     const token = localStorage.getItem("token");
     if (token === null) {
-      console.log("token", token);
       // we can't perform a transition (history.push) while rendering
-      useEffect(() => history.push(((() => console.log("pushing to route /"))(), "/")), []);
+      useEffect(() => history.push("/"), []);
       return null;
     }
 

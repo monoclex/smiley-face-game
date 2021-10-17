@@ -223,13 +223,26 @@ export type ZTileJson = SchemaInput<typeof zTileJson>;
 export const zTileJsonFile = addParse(array.of(zTileJson));
 export type ZTileJsonFile = SchemaInput<typeof zTileJsonFile>;
 
+const DateStringType = (arg: unknown): Date => {
+  if (typeof arg === "string") {
+    const parsedDate = Date.parse(arg);
+    if (Number.isNaN(parsedDate)) throw new TypeError("Expected valid date");
+
+    return new Date(parsedDate);
+  } else if (arg instanceof Date) {
+    return arg;
+  } else {
+    throw new TypeError("Got neither Date nor string");
+  }
+};
+
 export const zShopItem = addParse(
   Schema({
     id: zShopItemId,
     title: string.min(1).max(32),
     description: string.min(1).max(256),
     // used for sorting purposes
-    dateIntroduced: DateType,
+    dateIntroduced: DateStringType,
     category: zCategory,
     categoryType: zCategoryType,
     // 0 if no limit
