@@ -62,19 +62,24 @@ export const zPlayerEnergy = addParse(
 export type ZPlayerEnergy = SchemaInput<typeof zPlayerEnergy>;
 
 export const zPlayerResp = addParse(
-  Schema({
-    isGuest: boolean,
-    name: zUsername,
-    energy: zPlayerEnergy,
-    ownedWorlds: array
-      .of({
+  Schema.either(
+    {
+      isGuest: true,
+      name: zUsername,
+    },
+    {
+      isGuest: false,
+      name: zUsername,
+      // TODO: make
+      energy: zPlayerEnergy,
+      ownedWorlds: array.of({
         type: "saved" as const,
         id: zWorldId,
         name: zWorldName,
         playerCount: number.integer().min(0),
-      })
-      .optional(),
-  })
+      }),
+    }
+  )
 );
 export type ZPlayerResp = SchemaInput<typeof zPlayerResp>;
 
