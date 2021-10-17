@@ -14,7 +14,9 @@ export default function (deps: UsedDependencies): Router {
     "/",
     jwt(authVerifier, async (req, res) => {
       if (req.jwt.aud === "") {
-        res.json({ isGuest: true, name: req.jwt.name });
+        if (req.jwt.name === undefined) throw new Error("name can't be undefined how");
+        const response: ZPlayerResp = { isGuest: true, name: req.jwt.name };
+        res.json(response);
         return;
       }
 

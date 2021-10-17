@@ -67,6 +67,8 @@ export default function (deps: UsedDependencies): Router {
         zShopBuyReq,
         //@ts-expect-error help
         handleJwtAsync(async (req, res) => {
+          if (req.jwt.aud === "") throw new Error("guests cant buy items");
+
           const body: ZShopBuyReq = req.body as unknown as ZShopBuyReq;
 
           const shopItemInfo = shopItems.find((item) => item.id === body.id);
