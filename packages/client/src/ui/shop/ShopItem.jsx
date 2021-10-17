@@ -5,14 +5,26 @@ import { Box, Card, CardContent, Typography, Chip, CardActionArea } from "@mui/m
 
 import EnergyIcon from "../icons/EnergyIcon";
 import { ShopItemDialog } from "./ShopItemDialog";
+import { styled } from "@mui/system";
+
+const StyledCard = styled(Card)({
+  height: 384,
+});
+
+const ClampedTypography = styled(Typography)({
+  ["-webkit-box-orient"]: "vertical",
+  display: "-webkit-box",
+  WebkitLineClamp: 4,
+  overflow: "hidden",
+});
 
 export default function ShopItem({ image, size, title, description, cost }) {
   // these are obviously just for testing...
   description =
     description ||
-    "You should totally buy it! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    "You should totally buy it! Lorem pop ipsum pop dolor pop sit pop amet, consectetur pop adipiscing pop elit, sed pop do pop eiusmod pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop.";
 
-  title = title || "This new item is so good...";
+  title = title || "pop";
   image = image || "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi1.wp.com%2Fpopcat.click%2Fog-card.jpg&f=1&nofb=1";
   // end testing
 
@@ -34,18 +46,20 @@ export default function ShopItem({ image, size, title, description, cost }) {
   return (
     <>
       <motion.div whileHover={{ scale: 1.05 }}>
-        <Card style={{ width }}>
-          <CardActionArea onClick={() => setIsOpen(true)}>
+        <CardActionArea onClick={() => setIsOpen(true)}>
+          <StyledCard style={{ width }}>
             <CardHeader src={image} title={title} width={width} height={196} />
 
             <CardContent>
-              <Typography gutterBottom>{title}</Typography>
-              <Typography variant="subtitle2" color="textSecondary">
-                {description}
+              <Typography gutterBottom noWrap>
+                {title}
               </Typography>
+              <ClampedTypography variant="subtitle2" color="textSecondary">
+                {description}
+              </ClampedTypography>
             </CardContent>
-          </CardActionArea>
-        </Card>
+          </StyledCard>
+        </CardActionArea>
       </motion.div>
 
       <ShopItemDialog
@@ -54,8 +68,8 @@ export default function ShopItem({ image, size, title, description, cost }) {
         item={{
           title,
           description,
-          cost,
           image,
+          cost,
         }}
       />
     </>
