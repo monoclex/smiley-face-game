@@ -144,8 +144,7 @@ export default function (deps: UsedDependencies): Router {
               energyRegenerationRateMs: account.energyRegenerationRateMs,
               maxEnergy: account.maxEnergy,
               lastEnergyAmount: account.lastEnergyAmount,
-              // TODO: fix `timeEnergyWasAtAmount`
-              timeEnergyWasAtAmount: "" + account.timeEnergyWasAtAmount,
+              timeEnergyWasAtAmount: account.timeEnergyWasAtAmount,
             },
           };
 
