@@ -2,12 +2,13 @@ import { Router } from "express";
 import jwt from "../../../middlewares/jwt";
 import Dependencies from "../../../dependencies";
 import { ZShopItem } from "@smiley-face-game/api/types";
-import { Category, CategoryType } from "@smiley-face-game/api/enums";
+import { shopItems } from "../../../shop/items";
+import { ZShopItemsResp } from "@smiley-face-game/api/api";
 
-type UsedDependencies = Pick<Dependencies, "authVerifier" | "accountRepo" | "roomManager">;
+type UsedDependencies = Pick<Dependencies, "authVerifier" | "accountRepo" | "shopRepo">;
 
 export default function (deps: UsedDependencies): Router {
-  const { authVerifier, accountRepo } = deps;
+  const { authVerifier, accountRepo, shopRepo } = deps;
 
   const router = Router();
 
@@ -19,39 +20,24 @@ export default function (deps: UsedDependencies): Router {
         return;
       }
 
-      const account = await accountRepo.findByIdWithWorlds(req.jwt.aud);
+      const account = await accountRepo.findById(req.jwt.aud);
+      const spentItems = await shopRepo.findItemInfo(account);
 
-      const items: ZShopItem[] = [
-        {
-          id: 1,
-          title: "200 x 200 World",
-          description: "what an epic world",
-          imageUrl: "",
-          category: Category.World,
-          categoryType: CategoryType.None,
-          energyCost: 420,
-        },
-        {
-          id: 2,
-          title: "Smiley Face",
-          description: "omg another circle how epic",
-          imageUrl: "",
-          category: Category.Character,
-          categoryType: CategoryType.Owned,
-          energyCost: 123,
-        },
-        {
-          id: 3,
-          title: "69 x 420",
-          description: "lol, funni number",
-          imageUrl: "",
-          category: Category.World,
-          categoryType: CategoryType.Featured,
-          energyCost: 1337,
-        },
-      ];
+      const items: ZShopItem[] = [];
 
-      res.json(items);
+      for (const item of shopItems) {
+        const spentItem = spentItems.find((spentItem) => spentItem.shopItemId === item.id);
+
+        items.push({
+          ...item,
+          limit: item.limited ? 1 : 0,
+          owned: spentItem?.purchased ?? 0,
+          energySpent: spentItem?.spentEnergy ?? 0,
+        });
+      }
+
+      const response: ZShopItemsResp = { items };
+      res.json(response);
     })
   );
 

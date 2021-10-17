@@ -21,4 +21,10 @@ export default class ShopRepo {
   constructor(connection: Connection) {
     this.#repo = connection.getRepository(ShopItem);
   }
+
+  findItemInfo(account: AccountLike): Promise<ShopItem[]> {
+    ensureValidates(zAccountId, account.id);
+
+    return this.#repo.find({ where: { user: { id: account.id } } });
+  }
 }

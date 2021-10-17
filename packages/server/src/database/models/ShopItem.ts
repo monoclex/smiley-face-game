@@ -26,4 +26,10 @@ export default class ShopItem {
    */
   @Column({ nullable: false })
   spentEnergy!: number;
+
+  /**
+   * The quantity of this item that has been purchased
+   */
+  @Column({ nullable: false })
+  purchased!: number;
 }
