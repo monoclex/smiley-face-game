@@ -10,11 +10,11 @@ import { useAuth } from "../hooks";
 // TODO not hardcode height, i think
 /** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
 export const ShopItemDialog = ({ open, onClose, item }) => {
-  const [spendingEnergy, setSpendingEnergy] = useState(30);
+  const { id, title, description, image, energyCost } = item;
+
+  const [spendingEnergy, setSpendingEnergy] = useState(energyCost);
   const snackbar = useSnackbar();
   const auth = useAuth();
-
-  const { id, title, description, image, energyCost } = item;
 
   const handleClick = () => {
     // TODO: loading animation
@@ -75,8 +75,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
             <Slider
               marks
               valueLabelDisplay="auto"
-              defaultValue={30}
-              step={10}
+              step={energyCost / 8}
               min={10}
               max={energyCost}
               value={spendingEnergy}

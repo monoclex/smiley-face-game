@@ -5,6 +5,8 @@ import { Grid, Paper, Typography, styled } from "@mui/material";
 import { Category, CategoryType } from "@smiley-face-game/api/enums";
 import { useShopItems } from "../hooks";
 import ShopCarousel from "./carousel/ShopCarousel";
+import { ShopFeaturedItem } from "./ShopFeaturedItem";
+import Carousel from "../components/Carousel";
 
 const CarouselContainer = styled("div")({
   padding: 10,
@@ -25,9 +27,14 @@ const ShopFeatured = () => {
           <Typography variant="h5">Featured items</Typography>
         </Grid>
       </Grid>
-      <CarouselContainer>
-        <ShopCarousel items={items} />
-      </CarouselContainer>
+
+      <div sx={{ padding: 8 }}>
+        <Carousel visibleItems={1}>
+          {items.map((x) => (
+            <ShopFeaturedItem key={x.id} {...x} />
+          ))}
+        </Carousel>
+      </div>
     </Grid>
   );
 };

@@ -6,18 +6,25 @@ import React, { Suspense, lazy, useMemo } from "react";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
-import { RecoilRoot } from "recoil";
 import { SnackbarProvider } from "notistack";
-import Loading from "./Loading";
+import { RecoilRoot } from "recoil";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import { useAuth } from "./hooks";
 import { Box } from "@mui/system";
+import Loading from "./Loading";
 
 const AuthRoute = ({ needAccount, ignoreLayout, component: Component }) => {
   const token = localStorage.getItem("token");
   if (token === null) {
     return <Redirect to="/" />;
+  }
+
+  const decoded = JSON.parse(atob(token.split(".")[1]));
+  const currentEpochSeconds = Date.now() / 1000;
+
+  if (decoded.exp < currentEpochSeconds) {
+    return <Redirect to="/login" />;
   }
 
   if (needAccount) {

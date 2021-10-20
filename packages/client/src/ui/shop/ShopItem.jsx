@@ -20,7 +20,7 @@ const ClampedTypography = styled(Typography)({
 
 /** @param {import("@smiley-face-game/api/types").ZShopItem} props */
 export default function ShopItem(item) {
-  let { image, size, title, description, energyCost } = item;
+  let { image, title, description, energyCost } = item;
 
   // these are obviously just for testing...
   description =
@@ -45,9 +45,10 @@ export default function ShopItem(item) {
     );
   };
 
-  const width = 256 * size;
+  const width = "100%";
+  const minWidth = 0;
   return (
-    <>
+    <Box sx={{ minWidth, width }}>
       <motion.div whileHover={{ scale: 1.05 }}>
         <CardActionArea onClick={() => setIsOpen(true)}>
           <StyledCard style={{ width }}>
@@ -66,6 +67,6 @@ export default function ShopItem(item) {
       </motion.div>
 
       <ShopItemDialog open={isOpen} onClose={() => setIsOpen(false)} item={{ ...item, image }} />
-    </>
+    </Box>
   );
 }

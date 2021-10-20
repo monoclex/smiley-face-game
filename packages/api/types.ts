@@ -250,6 +250,7 @@ export const zShopItem = addParse(
     owned: zQuantity,
     energySpent: zEnergy,
     energyCost: zEnergy.min(1),
+    columnSpan: zQuantity.optional(),
   })
 );
 export type ZShopItem = SchemaInput<typeof zShopItem>;

@@ -50,6 +50,7 @@ export default function (deps: UsedDependencies): Router {
             owned: spentItem?.purchased ?? 0,
             energySpent: spentItem?.spentEnergy ?? 0,
             energyCost: item.energyCost,
+            columnSpan: item.columnSpan,
           });
         }
 
@@ -140,6 +141,7 @@ export default function (deps: UsedDependencies): Router {
               owned: item.purchased,
               energySpent: item.spentEnergy,
               energyCost: shopItemInfo.energyCost,
+              columnSpan: shopItemInfo.columnSpan,
             },
             playerEnergy: {
               energy: account.currentEnergy,
