@@ -18,9 +18,9 @@ const ClampedTypography = styled(Typography)({
   overflow: "hidden",
 });
 
-/** @param {import("@smiley-face-game/api/types").ZShopItem} props */
+/** @param {import("@smiley-face-game/api/types").ZShopItem} item */
 export default function ShopItem(item) {
-  let { image, title, description, energyCost } = item;
+  let { image, title, description, energyCost, isVertical } = item;
 
   // these are obviously just for testing...
   description =
@@ -33,14 +33,14 @@ export default function ShopItem(item) {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const CardHeader = ({ title, width, height, src }) => {
+  const CardHeader = ({ title, width, height, src, isVertical }) => {
     return (
-      <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+      <Box sx={{ display: "flex", alignItems: isVertical && "flex-end", justifyContent: isVertical && "flex-end" }}>
         <Box sx={{ position: "absolute", padding: 1 }}>
           <Chip icon={<EnergyIcon />} label={<Box sx={{ color: "white", fontWeight: "bold" }}>{energyCost}</Box>} />
         </Box>
 
-        <img title={title} width={width} height={height} src={src} />
+        <img title={title} width={width} height={height * (isVertical ? 2 : 1)} src={src} />
       </Box>
     );
   };
@@ -51,8 +51,8 @@ export default function ShopItem(item) {
     <Box sx={{ minWidth, width }}>
       <motion.div whileHover={{ scale: 1.05 }}>
         <CardActionArea onClick={() => setIsOpen(true)}>
-          <StyledCard style={{ width }}>
-            <CardHeader src={image} title={title} width={width} height={196} />
+          <StyledCard style={{ width, display: isVertical && "flex", flexDirection: "row" }}>
+            <CardHeader src={image} title={title} width={width} height={196} isVertical={isVertical} />
 
             <CardContent>
               <Typography gutterBottom noWrap>
