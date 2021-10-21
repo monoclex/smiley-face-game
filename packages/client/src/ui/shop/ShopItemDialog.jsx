@@ -10,14 +10,19 @@ import { useAuth } from "../hooks";
 // TODO not hardcode height, i think
 /** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
 export const ShopItemDialog = ({ open, onClose, item }) => {
+  // TODO: choose the amount of energy based on:
+  // - how much energy has already been spent
+  // - how much energy is available
+  // - some sort of reasonable step
   const { id, title, description, image, energyCost } = item;
 
-  const [spendingEnergy, setSpendingEnergy] = useState(energyCost);
+  const [spendingEnergy, setSpendingEnergy] = useState(Math.min(25, energyCost));
   const snackbar = useSnackbar();
   const auth = useAuth();
 
   const handleClick = () => {
     // TODO: loading animation
+    // TODO: **IMPORTANT** update `useShopItems()` on setting shop item
     auth
       .buy({
         id,
@@ -75,8 +80,8 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
             <Slider
               marks
               valueLabelDisplay="auto"
-              step={energyCost / 8}
-              min={10}
+              step={energyCost < 50 ? 1 : Math.round(energyCost / 50)}
+              min={0}
               max={energyCost}
               value={spendingEnergy}
               onChange={(_, value) => setSpendingEnergy(value)}

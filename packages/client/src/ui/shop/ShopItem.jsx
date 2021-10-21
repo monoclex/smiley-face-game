@@ -6,6 +6,7 @@ import { Grid, Box, Card, CardContent, Typography, Chip, CardActionArea, CardAct
 import EnergyIcon from "../icons/EnergyIcon";
 import { ShopItemDialog } from "./ShopItemDialog";
 import { styled } from "@mui/system";
+import { Category, CategoryType } from "@smiley-face-game/api/enums";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
@@ -24,7 +25,7 @@ const ClampedTypography = styled(Typography)({
 
 /** @param {import("@smiley-face-game/api/types").ZShopItem} item */
 export default function ShopItem(item) {
-  let { image, title, description, energySpent, energyCost, isVertical } = item;
+  let { image, title, description, energySpent, energyCost, isVertical, categoryType } = item;
 
   // these are obviously just for testing...
   description =
@@ -40,9 +41,11 @@ export default function ShopItem(item) {
   const CardHeader = ({ title, width, height, src, isVertical }) => {
     return (
       <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
-        <Box sx={{ position: "absolute", padding: 1 }}>
-          <Chip icon={<EnergyIcon />} label={<Box sx={{ color: "white", fontWeight: "bold" }}>{energyCost}</Box>} />
-        </Box>
+        {(categoryType & CategoryType.Featured) != 0 ? (
+          <Box sx={{ position: "absolute", padding: 1 }}>
+            <Chip style={{ backgroundColor: "red" }} label={<Box sx={{ color: "white", fontWeight: "bold" }}>FEAT</Box>} />
+          </Box>
+        ) : null}
 
         <img title={title} width={width} height={height * (isVertical ? 2 : 1)} src={src} />
       </Box>
