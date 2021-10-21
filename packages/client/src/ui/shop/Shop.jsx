@@ -27,7 +27,7 @@ const Shop = () => {
   return (
     <Grid container>
       <Grid item container justifyContent="center">
-        <Grid item>
+        <Grid item style={!isLarge ? { paddingBottom: "1em" } : {}}>
           <ShopFeatured />
         </Grid>
       </Grid>

@@ -19,7 +19,7 @@ export const ShopFeaturedItem = (item) => {
       <Grid item>
         {isLarge ? (
           <Grid container item xs={12}>
-            <Grid item md={12} xl={8}>
+            <Grid item md={12} xl={12}>
               {/* TODO: it's not the same size as the grid below it, but it's close enough */}
               <Grid container columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }} justifyContent="center">
                 <Grid item xs={4}>
@@ -36,7 +36,7 @@ export const ShopFeaturedItem = (item) => {
           </Grid>
         ) : (
           <Grid container item spacing={2} xs={12} justifyContent="center">
-            <Grid key={x.id} item xs={6} sm={4} justifyContent="center">
+            <Grid key={x.id} item xs={12} sm={12} justifyContent="center">
               <ShopItem isVertical={true} {...item} />
             </Grid>
           </Grid>
