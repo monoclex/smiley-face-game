@@ -17,7 +17,7 @@ const StyledCard = styled(Card)({
 });
 
 const ClampedTypography = styled(Typography)({
-  ["-webkit-box-orient"]: "vertical",
+  WebkitBoxOrient: "vertical",
   display: "-webkit-box",
   WebkitLineClamp: 4,
   overflow: "hidden",

@@ -3,6 +3,7 @@ import GenericAuthenticationPage from "../../ui/components/GenericAuthentication
 import urlPlayer from "../../assets/mmmyep.png";
 import { auth } from "@smiley-face-game/api";
 import { useHistory } from "react-router";
+import { tokenGlobal } from "../../state";
 
 const GuestPage = () => {
   const history = useHistory();
@@ -12,7 +13,7 @@ const GuestPage = () => {
       inputs={[{ name: "username", text: (value) => (!value ? "Enter your preferred username" : `Hello, ${value}!`) }]}
       submit={({ username }) =>
         auth({ username }).then(({ token }) => {
-          localStorage.setItem("token", token);
+          tokenGlobal.set(token);
           history.push("/lobby");
         })
       }

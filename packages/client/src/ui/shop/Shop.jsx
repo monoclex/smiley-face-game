@@ -6,6 +6,7 @@ import { useShopItems } from "../hooks";
 import ShopFeatured from "./ShopFeatured";
 import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import ShopItem from "./ShopItem";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 import Masonry from "@mui/lab/Masonry";
 import MasonryItem from "@mui/lab/MasonryItem";
@@ -21,9 +22,6 @@ const Shop = () => {
 
   const items = useShopItems();
 
-  if (items === undefined) return <FullscreenBackdropLoading />;
-  if (items instanceof Error) return <h1>error: {items.message}</h1>;
-
   return (
     <Grid container>
       <Grid item container justifyContent="center">
@@ -34,7 +32,7 @@ const Shop = () => {
 
       {isLarge ? (
         <Grid container item xs={12}>
-          <Grid item md={0} xl={2} />
+          {/* <Grid item md={0} xl={2} /> */}
           <Grid item md={12} xl={8}>
             <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
               {items.map((x) => (
@@ -58,4 +56,14 @@ const Shop = () => {
   );
 };
 
-export default Shop;
+const ShopWrapper = () => {
+  return (
+    <React.Suspense fallback={<FullscreenBackdropLoading />}>
+      <ErrorBoundary>
+        <Shop />
+      </ErrorBoundary>
+    </React.Suspense>
+  );
+};
+
+export default ShopWrapper;

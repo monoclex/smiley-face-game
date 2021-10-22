@@ -6,6 +6,8 @@ import { Typography, Grid, Slider, IconButton, Tooltip, Button } from "@mui/mate
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
 import { useAuth } from "../hooks";
+import { useRecoilState } from "recoil";
+import { shopItemQuery } from "../../state";
 
 // TODO not hardcode height, i think
 /** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
@@ -15,6 +17,8 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
   // - how much energy is available
   // - some sort of reasonable step
   const { id, title, description, image, energyCost } = item;
+
+  const [shopItem, setShopItem] = useRecoilState(shopItemQuery(id));
 
   const [spendingEnergy, setSpendingEnergy] = useState(Math.min(25, energyCost));
   const snackbar = useSnackbar();
@@ -31,6 +35,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
       .then((response) => {
         // TODO: update information about the player with `response`
         console.log(response);
+        setShopItem(response.item);
 
         // TODO make nice little animation for adding energy instead of unhealthy snacks
         snackbar.enqueueSnackbar(`Added ${spendingEnergy} energy!`, {
@@ -73,7 +78,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
       }
       actions={
         <Grid container spacing={3}>
-          <Grid item sx={1} />
+          <Grid item xs={1} />
 
           {/* TODO fix sx flexgrow1 here, slider should have some sort of width based on space left */}
           <Grid item sx={{ flexGrow: 1 }}>

@@ -20,6 +20,7 @@ export const zAccountId = addParse(zGuid);
 export const zWorldName = addParse(string.min(1).max(64));
 export const zQuantity = addParse(number.integer().min(0));
 export const zShopItemId = addParse(number.integer().min(0)); // TODO: cap item ids?
+export type ZShopItemId = SchemaInput<typeof zShopItemId>;
 export const zUserId = addParse(number.integer().min(0));
 export type ZUserId = SchemaInput<typeof zUserId>;
 export const zUsername = addParse(string.regexp(usernameRegex).min(3).max(20));
