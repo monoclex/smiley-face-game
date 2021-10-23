@@ -32,7 +32,7 @@ const Shop = () => {
 
       {isLarge ? (
         <Grid container item xs={12}>
-          {/* <Grid item md={0} xl={2} /> */}
+          <Grid item xl={2} />
           <Grid item md={12} xl={8}>
             <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
               {items.map((x) => (

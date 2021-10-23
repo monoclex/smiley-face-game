@@ -16,7 +16,7 @@ export default function Carousel({ visibleItems, delay = 4000, timeout = 1250, c
     setTimeout(() => {
       setFadeIn(true);
 
-      if (index + visibleItems >= children.length - 1) {
+      if (index + visibleItems >= children.length) {
         setSelectedItem(0);
         return;
       }

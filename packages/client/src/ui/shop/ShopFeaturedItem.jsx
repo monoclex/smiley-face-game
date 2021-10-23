@@ -11,7 +11,6 @@ export const ShopFeaturedItem = (item) => {
 
   const isLarge = useMediaQuery("(min-width:900px)");
   const isHuge = useMediaQuery("(min-width:1921px)");
-  console.log(isLarge, isHuge, "s");
   const x = item;
 
   return (

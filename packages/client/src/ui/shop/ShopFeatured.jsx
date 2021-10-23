@@ -30,8 +30,8 @@ const ShopFeatured = () => {
 
       <div sx={{ padding: 8 }}>
         <Carousel visibleItems={1}>
-          {items.map((x) => (
-            <ShopFeaturedItem key={x.id} {...x} />
+          {items.map((x, idx) => (
+            <ShopFeaturedItem key={idx} {...x} />
           ))}
         </Carousel>
       </div>

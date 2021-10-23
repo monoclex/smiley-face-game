@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 
 import { useSnackbar } from "notistack";
-import { Typography, Grid, Slider, IconButton, Tooltip, Button } from "@mui/material";
+import { styled, LinearProgress, Typography, Grid, Slider, IconButton, Tooltip, Button } from "@mui/material";
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
 import { useAuth } from "../hooks";
 import { useRecoilState } from "recoil";
 import { shopItemQuery } from "../../state";
+
+const PaddedDiv = styled("div")(({ theme }) => ({
+  padding: theme.spacing(2),
+}));
 
 // TODO not hardcode height, i think
 /** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
@@ -16,7 +20,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
   // - how much energy has already been spent
   // - how much energy is available
   // - some sort of reasonable step
-  const { id, title, description, image, energyCost } = item;
+  const { id, title, description, image, energySpent, energyCost } = item;
 
   const [shopItem, setShopItem] = useRecoilState(shopItemQuery(id));
 
@@ -34,7 +38,6 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
       })
       .then((response) => {
         // TODO: update information about the player with `response`
-        console.log(response);
         setShopItem(response.item);
 
         // TODO make nice little animation for adding energy instead of unhealthy snacks
@@ -72,6 +75,19 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
           <Grid container direction="column" justifyContent="space-between" item xs>
             <Grid item>
               <Typography variant="body1">{description}</Typography>
+            </Grid>
+            <Grid item>
+              <PaddedDiv>
+                <Grid container direction="row" wrap="nowrap">
+                  <div style={{ width: "100%" }}>
+                    <LinearProgress variant="determinate" style={{ height: 15 }} value={(energySpent / energyCost) * 100} />
+                  </div>
+                  <div style={{ paddingLeft: "1em", display: "flex", alignItems: "center", wrap: "nowrap", justifyContent: "flex-end" }}>
+                    {energySpent}/{energyCost}
+                    <EnergyIcon style={{ paddingLeft: "0.25em" }} />
+                  </div>
+                </Grid>
+              </PaddedDiv>
             </Grid>
           </Grid>
         </Grid>
