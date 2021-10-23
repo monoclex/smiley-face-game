@@ -1,19 +1,20 @@
 //@ts-check
 import React, { useEffect, useState } from "react";
+
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
 import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
-import { useHistory } from "react-router";
+import { useHistory, useLocation, useRouteMatch } from "react-router";
+import { useAuth } from "../hooks";
 
-export default function LoadingPage({
-  token,
-  location: { state },
-  match: {
-    params: { id },
-  },
-}) {
+export default function LoadingPage() {
   const history = useHistory();
+  const location = useLocation();
+  const match = useRouteMatch("/games/:id");
+  const auth = useAuth();
+
   const [gameElement] = useState(document.createElement("canvas"));
   const [game, setGame] = useState(undefined);
 
@@ -30,7 +31,9 @@ export default function LoadingPage({
 
     const completion = new PromiseCompletionSource();
 
-    setupBridge(token, state ?? { type: "join", id }, renderer, (game) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
       if (game.running) {
         window.history.back();
       }
@@ -50,10 +53,10 @@ export default function LoadingPage({
     return () => {
       completion.handle.then((cleanup) => cleanup());
     };
-  }, [token]);
+  }, []);
 
   if (game === undefined) {
-    return <h1>loadingeroooooooooo</h1>;
+    return <FullscreenBackdropLoading />;
   } else if (game instanceof Error) {
     console.error(game);
     return (

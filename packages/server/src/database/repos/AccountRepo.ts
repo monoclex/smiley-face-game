@@ -1,4 +1,4 @@
-import { Connection, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import bcrypt from "bcrypt";
 import Account from "../../database/models/Account";
 import World from "../../database/models/World";
@@ -17,8 +17,8 @@ interface AccountDetails {
 export default class AccountRepo {
   readonly #repo: Repository<Account>;
 
-  constructor(connection: Connection) {
-    this.#repo = connection.getRepository(Account);
+  constructor(repo: Repository<Account>) {
+    this.#repo = repo;
   }
 
   /* === queries === */
@@ -61,8 +61,8 @@ export default class AccountRepo {
     account.password = password;
     account.maxEnergy = 100;
     account.lastEnergyAmount = 100;
-    account.timeEnergyWasAtAmount = Date.now();
-    account.energyRegenerationRateMs = 1 * 60 * 1000; // 5 minutes
+    account.timeEnergyWasAtAmount = "" + Date.now();
+    account.energyRegenerationRateMs = 5 * 60 * 1000;
     account.worlds = worlds;
 
     return await this.#repo.save(account);
@@ -75,10 +75,6 @@ export default class AccountRepo {
 
   /* === modification === */
 
-  /**
-   * @deprecated
-   * Not actually deprecated, just highly suggested not to use until an alternative is propely thought about.
-   */
   save(account: Account | AccountLike): Promise<Account> {
     return this.#repo.save(account);
   }

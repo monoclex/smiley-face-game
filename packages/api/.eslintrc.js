@@ -1,9 +1,8 @@
+/*eslint-env node*/
 /** @type {import("eslint").Linter.Config} */
 const config = {
   env: {
-    browser: true,
     es2021: true,
-    node: true,
   },
   extends: [
     "eslint:recommended",
@@ -28,8 +27,9 @@ const config = {
   },
   plugins: ["@typescript-eslint", "prettier", "import"],
   settings: {
+    "import/extensions": [".js", ".jsx", ".ts", ".tsx"],
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts"],
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
     "import/resolver": {
       typescript: {

@@ -1,5 +1,7 @@
 import type * as core from "express-serve-static-core";
 import * as ws from "express-ws";
+import AuthPayload from "../jwt/payloads/AuthPayload";
+import { JwtHandler } from "./jwt";
 
 function handleAsync<TRouteHandler extends core.RequestHandler>(handler: TRouteHandler): TRouteHandler;
 function handleAsync<TRouteHandler extends ws.WebsocketRequestHandler>(handler: TRouteHandler): TRouteHandler;
@@ -13,6 +15,18 @@ function handleAsync<A extends { originalUrl: string }, B extends { originalUrl:
       next(err);
     });
   };
+}
+
+export function handleJwtAsync<
+  H extends JwtHandler<TPayload, P, ResBody, ReqBody, ReqQuery>,
+  TPayload = AuthPayload,
+  P extends core.Params = core.ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = core.Query
+>(handler: H): H {
+  //@ts-expect-error typing this is hella cringe tbh
+  return handleAsync(handler);
 }
 
 export default handleAsync;

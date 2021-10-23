@@ -550,11 +550,15 @@ export default class Player implements PhysicsObject {
     const worldX = Math.floor(this.position.x / 32);
     const worldY = Math.floor(this.position.y / 32);
 
-    const has00 = game.world.blockAt(worldX, worldY, TileLayer.Foreground) !== 0;
-    const has10 = game.world.blockAt(worldX + 1, worldY, TileLayer.Foreground) !== 0;
-    const has01 = game.world.blockAt(worldX, worldY + 1, TileLayer.Foreground) !== 0;
-    const has11 = game.world.blockAt(worldX + 1, worldY + 1, TileLayer.Foreground) !== 0;
-    console.log(has00, has10, has01, has11);
+    const maxX = game.world.size.width;
+    const maxY = game.world.size.height;
+    const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
+
+    const has = (x: number, y: number) => (inBounds(x, y) ? game.world.blockAt(x, y, TileLayer.Foreground) !== 0 : true);
+    const has00 = has(worldX, worldY);
+    const has10 = has(worldX + 1, worldY);
+    const has01 = has(worldX, worldY + 1);
+    const has11 = has(worldX + 1, worldY + 1);
 
     return (
       (has00 && rectInRect(this.position.x, this.position.y, worldX, worldY)) ||

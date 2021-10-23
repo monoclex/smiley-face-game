@@ -6,17 +6,23 @@ import useInterval from "react-use/esm/useInterval";
 
 import { slice } from "../../helpers/iterables";
 
-export default function Carousel({ visibleItems, delay = 4000, timeout = 750, children }) {
+export default function Carousel({ visibleItems, delay = 4000, timeout = 1250, children }) {
   const [index, setSelectedItem] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const [fadeIn, setFadeIn] = useState(true);
 
   const nextItem = () => {
-    if (index + visibleItems >= children.length - 1) {
-      setSelectedItem(0);
-      return;
-    }
+    setFadeIn(false);
+    setTimeout(() => {
+      setFadeIn(true);
 
-    setSelectedItem(index + visibleItems);
+      if (index + visibleItems >= children.length) {
+        setSelectedItem(0);
+        return;
+      }
+
+      setSelectedItem(index + visibleItems);
+    }, timeout);
   };
 
   useInterval(() => nextItem(), isHovering ? null : delay);
@@ -36,7 +42,7 @@ export default function Carousel({ visibleItems, delay = 4000, timeout = 750, ch
 
           <Grid item key={index * visibleItems + i}>
             <div onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-              <Fade in={true} timeout={timeout}>
+              <Fade in={fadeIn} timeout={timeout}>
                 <div>{x}</div>
               </Fade>
             </div>

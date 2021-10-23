@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./ui/App";
 import { rewriteHost } from "@smiley-face-game/api/endpoints";
 import isProduction, { isDev } from "./isProduction";
+import { routesRewritten } from "./rewritten";
 
 if (isProduction) {
   rewriteHost((endpoint) =>
@@ -13,6 +14,8 @@ if (isProduction) {
 } else {
   rewriteHost((endpoint) => ({ ...endpoint, host: "localhost:8080/v1" }));
 }
+
+routesRewritten.resolve(undefined);
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

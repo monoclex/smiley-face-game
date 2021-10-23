@@ -1,5 +1,15 @@
 import { zJoinRequest } from "./ws-api";
-import { zLobbyResp, zPlayerResp } from "./api";
+import {
+  ZLobbyResp,
+  zLobbyResp,
+  ZPlayerResp,
+  zPlayerResp,
+  ZShopBuyReq,
+  zShopBuyResp,
+  ZShopBuyResp,
+  ZShopItemsResp,
+  zShopItemsResp,
+} from "./api";
 import Connection from "./Connection";
 import { zToken, zAccountId } from "./types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
@@ -16,21 +26,42 @@ export default class Authentication {
    */
   public readonly token: string;
 
+  private _idCached: string | undefined | null = null;
+
   /**
    * The ID of the account, if the account is logged in as an account.
    */
-  public readonly id?: string;
+  get id(): string | undefined {
+    if (this._idCached !== null) return this._idCached;
+
+    // TODO: use a polyfill for `atob`?
+    const data = JSON.parse(atob(this.token.split(".")[1]));
+
+    if (typeof data.aud === "string" && data.aud.length > 0) {
+      this._idCached = zAccountId.parse(data.aud);
+    } else {
+      this._idCached = undefined;
+    }
+
+    return this._idCached;
+  }
+
+  /**
+   * Determines if the token given is a guest token.
+   */
+  get isGuest(): boolean {
+    return this.id === undefined;
+  }
 
   /**
    * Creates a new `Authentication`. If you don't have a token, call the `auth` method instead.
    * @param token The token to use for authenticating with Smiley Face Game
    */
-  constructor(token: string, id?: string);
+  constructor(token: string);
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  constructor(token: unknown, id?: unknown) {
+  constructor(token: unknown) {
     this.token = zToken.parse(token);
-    if (id) this.id = zAccountId.parse(id);
   }
 
   /**
@@ -53,10 +84,10 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a lobby request.
    */
-  lobby(endpoint?: Endpoint): Promise<SchemaInput<typeof zLobbyResp>>;
+  lobby(endpoint?: Endpoint): Promise<ZLobbyResp>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  lobby(argEndpoint?: unknown): Promise<SchemaInput<typeof zLobbyResp>> {
+  lobby(argEndpoint?: unknown): Promise<ZLobbyResp> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.lobby);
     return fetch(endpoint, undefined, zLobbyResp, this.token, "GET");
   }
@@ -66,11 +97,35 @@ export default class Authentication {
    * @param endpoint An optional custom endpoint to use for making the request.
    * @returns A promise that resolves to the response of the API when making a request for the current player.
    */
-  player(endpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>>;
+  player(endpoint?: Endpoint): Promise<ZPlayerResp>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  player(argEndpoint?: Endpoint): Promise<SchemaInput<typeof zPlayerResp>> {
+  player(argEndpoint?: unknown): Promise<ZPlayerResp> {
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.player);
     return fetch(endpoint, undefined, zPlayerResp, this.token, "GET");
+  }
+
+  /**
+   * Lists the items in the shop this player has.
+   * @param endpoint An optional custom endpoint to use for making the request
+   * @throws If the current account is a guest, this will throw an exception.
+   * @returns A promise that resolves to the response of the API, a list of shop items.
+   */
+  shopItems(endpoint?: Endpoint): Promise<ZShopItemsResp> {
+    if (this.isGuest) throw new Error("cannot list shop items for guest");
+    const parsedEndpoint = zEndpoint.parse(endpoint || endpoints.shopItems);
+    return fetch(parsedEndpoint, undefined, zShopItemsResp, this.token, "GET");
+  }
+
+  /**
+   * Spends energy in the shop.
+   * @param item The item to buy.
+   * @param endpoint An optional endpoint to use when making the request.
+   * @returns A promise that resolves to the bought item response.
+   */
+  buy(item: ZShopBuyReq, endpoint?: Endpoint): Promise<ZShopBuyResp> {
+    if (this.isGuest) throw new Error("cannot buy shop items as guest");
+    const parsedEndpoint = zEndpoint.parse(endpoint || endpoints.shopBuy);
+    return fetch(parsedEndpoint, item, zShopBuyResp, this.token, "POST");
   }
 }

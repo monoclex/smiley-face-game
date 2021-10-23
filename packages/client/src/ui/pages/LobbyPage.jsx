@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { styled } from "@mui/material";
 import Grid from "@mui/material/Grid";
@@ -7,36 +7,27 @@ import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
 import Plus from "mdi-material-ui/Plus";
 import Refresh from "mdi-material-ui/Refresh";
+import Cart from "mdi-material-ui/Cart";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
-import Loading from "../../ui/Loading";
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
-import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
-import { Authentication } from "@smiley-face-game/api";
 import { useHistory } from "react-router";
+import { useAuth, useToken } from "../hooks";
+import ErrorBoundary from "../components/ErrorBoundary";
+import LogoutIcon from "../icons/LogoutIcon";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
   padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
 });
 
-const RotatedIcon = styled(IconButton)({
-  // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
-  transform: "rotate(180deg)",
-});
-
 const LobbyPage = () => {
   const history = useHistory();
-  const token = localStorage.getItem("token");
-
-  if (token === null) {
-    history.push("/");
-    return null;
-  }
-
-  const auth = new Authentication(token);
+  const [_, setToken] = useToken();
+  const auth = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -59,7 +50,7 @@ const LobbyPage = () => {
         autoHideDuration: 3000,
       });
 
-      localStorage.removeItem("token");
+      setToken(false);
       history.push("/");
     };
 
@@ -76,7 +67,7 @@ const LobbyPage = () => {
 
   const logout = () => {
     // TODO: ask the server to invalidate the token
-    localStorage.removeItem("token");
+    setToken(false);
     history.push("/");
   };
 
@@ -88,9 +79,9 @@ const LobbyPage = () => {
   return (
     <>
       <Grid container item justifyContent="center" alignItems="center">
-        <RotatedIcon onClick={logout} size="large">
-          <ExitToAppIcon />
-        </RotatedIcon>
+        <IconButton onClick={logout} size="large">
+          <LogoutIcon />
+        </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()} size="large">
             <Refresh />
@@ -99,13 +90,16 @@ const LobbyPage = () => {
         <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
           <Plus />
         </IconButton>
+        <IconButton onClick={() => history.push("/shop")} size="large">
+          <Cart />
+        </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
         </IconButton>
       </Grid>
       <PaddedContainer>
         <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-          {!roomPreviews && <Loading message={"Loading rooms..."} />}
+          {!roomPreviews && <FullscreenBackdropLoading message={"Loading rooms..."} />}
           {!!roomPreviews &&
             roomPreviews.map((room) => (
               <Grid item key={room.id}>
@@ -122,7 +116,7 @@ const LobbyPage = () => {
 
         {myRooms && (
           <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-            {!myRooms && <Loading message={"Loading your rooms..."} />}
+            {!myRooms && <FullscreenBackdropLoading message={"Loading your rooms..."} />}
             {!!myRooms &&
               myRooms.map((room) => (
                 <Grid item key={room.id}>
@@ -145,4 +139,14 @@ const LobbyPage = () => {
   );
 };
 
-export default LobbyPage;
+const LobbyPageWrapper = () => {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<FullscreenBackdropLoading />}>
+        <LobbyPage />
+      </Suspense>
+    </ErrorBoundary>
+  );
+};
+
+export default LobbyPageWrapper;

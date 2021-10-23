@@ -1,7 +1,5 @@
 import React from "react";
-
 import { Grid, Typography } from "@mui/material";
-
 import ShopItem from "./ShopItem";
 
 export default function ShopGroup({ items, category = undefined }) {
@@ -18,7 +16,7 @@ export default function ShopGroup({ items, category = undefined }) {
     <Grid container spacing={3} justifyContent="center">
       {filteredItems.map((item) => (
         <Grid item key={item.id}>
-          <ShopItem {...item} key={item.id} />
+          <ShopItem key={item.id} {...item} />
         </Grid>
       ))}
     </Grid>

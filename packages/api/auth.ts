@@ -1,6 +1,6 @@
 import type { SchemaInput } from "computed-types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
-import { zLoginReq, zLoginResp, zGuestReq, zGuestResp, zRegisterReq } from "./api";
+import { zLoginReq, zTokenResp, zGuestReq, zRegisterReq } from "./api";
 import fetch from "./fetch";
 import Authentication from "./Authentication";
 
@@ -21,21 +21,23 @@ export function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authen
   if (typeof argPayload !== "object") throw new Error("auth got non object for payloaad");
   if (argPayload === null) throw new Error("auth got null for payloaad");
 
+  let payloadParser;
+  let defaultEndpoint;
   if ("email" in argPayload) {
-    const payload = zLoginReq.parse(argPayload);
-    const endpoint = zEndpoint.parse(argEndpoint || endpoints.auth);
-
-    return fetch(endpoint, payload, zLoginResp).then((payload) => new Authentication(payload.token, payload.id));
+    payloadParser = zLoginReq;
+    defaultEndpoint = endpoints.auth;
   } else if ("username" in argPayload) {
-    const payload = zGuestReq.parse(argPayload);
-    const endpoint = zEndpoint.parse(argEndpoint || endpoints.guestAuth);
-
-    return fetch(endpoint, payload, zGuestResp).then((payload) => new Authentication(payload.token));
+    payloadParser = zGuestReq;
+    defaultEndpoint = endpoints.guestAuth;
   } else
     throw new Error(
       "Couldn't determine if `auth` payload was a guest or user login request." +
         " Do you have `email` or `username` as one of the keys in `payload`?"
     );
+
+  const payload = payloadParser.parse(argPayload);
+  const endpoint = zEndpoint.parse(argEndpoint || defaultEndpoint);
+  return fetch(endpoint, payload, zTokenResp).then((payload) => new Authentication(payload.token));
 }
 
 /**
@@ -51,5 +53,5 @@ export function register(argPayload: unknown, argEndpoint?: unknown): Promise<Au
   const payload = zRegisterReq.parse(argPayload);
   const endpoint = zEndpoint.parse(argEndpoint || endpoints.register);
 
-  return fetch(endpoint, payload, zLoginResp).then((payload) => new Authentication(payload.token, payload.id));
+  return fetch(endpoint, payload, zTokenResp).then((payload) => new Authentication(payload.token));
 }

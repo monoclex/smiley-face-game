@@ -5,6 +5,7 @@ import urlPlayer from "../../assets/mmmnop.png";
 import { useHistory } from "react-router";
 import SnackbarUtils from "../../SnackbarUtils";
 import { auth } from "@smiley-face-game/api";
+import { tokenGlobal } from "../../state";
 
 const LoginPage = () => {
   const history = useHistory();
@@ -17,7 +18,7 @@ const LoginPage = () => {
       ]}
       submit={({ email, password }) =>
         auth({ email: email.toLowerCase(), password }).then(({ token }) => {
-          localStorage.setItem("token", token);
+          tokenGlobal.set(token);
           history.push("/lobby");
           SnackbarUtils.success("Logged in!");
         })

@@ -1,21 +1,22 @@
 //@ts-check
 import React from "react";
-import { useHistory } from "react-router";
+import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { Grid, Typography, Container, styled } from "@mui/material";
+import { useToken } from "../hooks";
 
 const PaddedContainer = styled(Container)(({ theme }) => ({
   marginTop: theme.spacing(4),
 }));
 
 const HomePage = () => {
-  const history = useHistory();
+  const [token] = useToken();
 
   // if they have a token, they should go straight to the lobby
-  if (localStorage.getItem("token") !== null) {
-    history.push("/lobby");
-    return null;
+  if (token) {
+    // can't perform transition within a render
+    return <Redirect to="/lobby" />;
   }
 
   return (

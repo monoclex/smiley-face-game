@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { zLoginReq, zRegisterReq, zGuestReq, ZLoginResp, ZRegisterResp, ZGuestResp } from "@smiley-face-game/api/api";
+import { zLoginReq, zRegisterReq, zGuestReq, ZRegisterResp, ZTokenResp } from "@smiley-face-game/api/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
@@ -31,7 +31,7 @@ export default function (deps: UsedDependencies): Router {
           // TODO: move this outside the try catch?
           const token = authProvider.allowAuthentication(account.id);
 
-          const resp: ZLoginResp = { token, id: account.id };
+          const resp: ZTokenResp = { token };
           res.json(resp);
         } catch (error) {
           console.warn("Authentication attempt failed for user", body.email, error);
@@ -101,7 +101,7 @@ export default function (deps: UsedDependencies): Router {
 
         const token = authProvider.allowGuestAuthentication(body.username);
 
-        const resp: ZGuestResp = { token };
+        const resp: ZTokenResp = { token };
         res.json(resp);
       })
     )

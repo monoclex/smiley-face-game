@@ -1,4 +1,5 @@
 import Schema, { string, number, boolean, array, SchemaInput, addParse } from "./computed-types-wrapper";
+import { zCategory, zCategoryType } from "./enums";
 
 // TODO: validate JWT with zod
 export const zToken = addParse(string.min(1));
@@ -16,6 +17,9 @@ export const zGuid = addParse(string.regexp(guidRegex));
 export const zWorldId = addParse(zGuid);
 export const zAccountId = addParse(zGuid);
 export const zWorldName = addParse(string.min(1).max(64));
+export const zQuantity = addParse(number.integer().min(0));
+export const zShopItemId = addParse(number.integer().min(0)); // TODO: cap item ids?
+export type ZShopItemId = SchemaInput<typeof zShopItemId>;
 export const zUserId = addParse(number.integer().min(0));
 export type ZUserId = SchemaInput<typeof zUserId>;
 export const zUsername = addParse(string.regexp(usernameRegex).min(3).max(20));
@@ -25,6 +29,7 @@ export const zMessage = addParse(string.min(1).max(240));
 export const zEmail = addParse(string.regexp(emailRegex));
 // server uses bcrypt for storing passwords, https://security.stackexchange.com/a/184090
 export const zPassword = addParse(string.min(1).max(72));
+export const zEnergy = zQuantity;
 
 export const zDynWidth = addParse(number.integer().min(3).max(50));
 export const zDynHeight = addParse(number.integer().min(3).max(50));
@@ -217,3 +222,35 @@ export type ZTileJson = SchemaInput<typeof zTileJson>;
 
 export const zTileJsonFile = addParse(array.of(zTileJson));
 export type ZTileJsonFile = SchemaInput<typeof zTileJsonFile>;
+
+const DateStringType = (arg: unknown): Date => {
+  if (typeof arg === "string") {
+    const parsedDate = Date.parse(arg);
+    if (Number.isNaN(parsedDate)) throw new TypeError("Expected valid date");
+
+    return new Date(parsedDate);
+  } else if (arg instanceof Date) {
+    return arg;
+  } else {
+    throw new TypeError("Got neither Date nor string");
+  }
+};
+
+export const zShopItem = addParse(
+  Schema({
+    id: zShopItemId,
+    title: string.min(1).max(32),
+    description: string.min(1).max(256),
+    // used for sorting purposes
+    dateIntroduced: DateStringType,
+    category: zCategory,
+    categoryType: zCategoryType,
+    // 0 if no limit
+    limit: zQuantity,
+    owned: zQuantity,
+    energySpent: zEnergy,
+    energyCost: zEnergy.min(1),
+    columnSpan: zQuantity.optional(),
+  })
+);
+export type ZShopItem = SchemaInput<typeof zShopItem>;

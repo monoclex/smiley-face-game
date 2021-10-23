@@ -1,138 +1,97 @@
 //@ts-check
-import React, { useState } from "react";
-
-import { styled, Box, Grid, Paper, Tab } from "@mui/material";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Earth as WorldIcon, EmoticonTongueOutline as SmileyIcon } from "mdi-material-ui";
-
-import { Category, CategoryType } from "@smiley-face-game/api/enums";
-
-import ShopGroup from "./ShopGroup";
+import React, { Suspense } from "react";
+import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useHistory } from "react-router";
+import { useShopItems, useEnergy } from "../hooks";
 import ShopFeatured from "./ShopFeatured";
 
-const SpacedPaper = styled(Paper)({
-  margin: 20,
-  marginBottom: 0,
-});
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
+import ShopItem from "./ShopItem";
+import ErrorBoundary from "../components/ErrorBoundary";
 
-const Icon = ({ icon: TextIcon, text }) => {
-  return (
-    <Box alignItems="center" display="flex">
-      <TextIcon style={{ marginRight: 5 }} />
-      {text}
-    </Box>
-  );
-};
+import LogoutIcon from "../icons/LogoutIcon";
+import Masonry from "@mui/lab/Masonry";
+import MasonryItem from "@mui/lab/MasonryItem";
+import { Box } from "@mui/system";
+import EnergyIcon from "../icons/EnergyIcon";
 
 const Shop = () => {
-  // TODO:
-  //  Give featured items a title bar (done, but not sure how i feel about it...)
-  //  Grab shop content from API
-  //  Send request to API when buying an item
+  const isLarge = useMediaQuery("(min-width:900px)");
+  const isHuge = useMediaQuery("(min-width:1921px)");
 
-  const items = [
-    {
-      id: 1,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.Owned,
-      cost: 420,
-    },
-    {
-      id: 2,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.Character,
-      categoryType: CategoryType.None,
-      cost: 421,
-    },
-    {
-      id: 3,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.Character,
-      categoryType: CategoryType.None,
-      cost: 422,
-    },
-    {
-      id: 4,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.Character,
-      categoryType: CategoryType.Owned,
-      cost: 423,
-    },
-    {
-      id: 5,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.None,
-      cost: 424,
-    },
-    {
-      id: 6,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.None,
-      cost: 425,
-    },
-    {
-      id: 13,
-      title: "This new item is so good...",
-      description: "You should totally buy it!",
-      image: "",
-      category: Category.World,
-      categoryType: CategoryType.None,
-      cost: 425,
-    },
-  ];
+  // TODO: Give featured items a title bar (done, but not sure how i feel about it...)
 
-  const [value, setValue] = useState("1");
+  const items = useShopItems();
 
   return (
     <Grid container>
       <Grid item container justifyContent="center">
-        <Grid item>
-          <SpacedPaper>
-            <ShopFeatured />
-          </SpacedPaper>
+        <Grid item style={!isLarge ? { paddingBottom: "1em" } : {}}>
+          <ShopFeatured />
         </Grid>
       </Grid>
 
-      <Grid item xs={12}>
-        <SpacedPaper>
-          <TabContext value={value}>
-            <Paper square>
-              <TabList onChange={(e, newValue) => setValue(newValue)} centered>
-                <Tab label={<Icon icon={WorldIcon} text="Worlds" />} value="1" />
-                <Tab label={<Icon icon={SmileyIcon} text="Smilies" />} value="2" />
-                <Tab label="Owned" value="3" />
-              </TabList>
-            </Paper>
+      <Typography variant="h5">All Items</Typography>
 
-            <TabPanel value="1">
-              <ShopGroup items={items} category={Category.World} />
-            </TabPanel>
-            <TabPanel value="2">
-              <ShopGroup items={items} category={Category.Character} />
-            </TabPanel>
-            <TabPanel value="3">
-              <ShopGroup items={items.filter((item) => (item.categoryType & CategoryType.Owned) !== 0)} />
-            </TabPanel>
-          </TabContext>
-        </SpacedPaper>
-      </Grid>
+      {isLarge ? (
+        <Grid container item xs={12}>
+          <Grid item xl={2} />
+          <Grid item md={12} xl={8}>
+            <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
+              {items.map((x) => (
+                <MasonryItem key={x.id} columnSpan={x.columnSpan || 1}>
+                  <ShopItem id={x.id} />
+                </MasonryItem>
+              ))}
+            </Masonry>
+          </Grid>
+        </Grid>
+      ) : (
+        <Grid container item spacing={2} xs={12}>
+          {items.map((x) => (
+            <Grid key={x.id} item xs={6} sm={4}>
+              <ShopItem id={x.id} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Grid>
   );
 };
 
-export default Shop;
+const ShopWrapper = () => {
+  const history = useHistory();
+  const { energy, maxEnergy, timeLeft } = useEnergy();
+
+  return (
+    <>
+      <Box sx={{ flexGrow: 1, paddingBottom: "4em" }}>
+        <AppBar position="fixed">
+          <Toolbar>
+            <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
+              <LogoutIcon />
+            </IconButton>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Shop
+            </Typography>
+            <Typography variant="subtitle1" style={{ paddingRight: "1em" }}>
+              {energy}/{maxEnergy}
+            </Typography>
+            <EnergyIcon />
+            <Typography variant="caption" style={{ paddingLeft: "1em" }}>
+              {timeLeft}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <Suspense fallback={<FullscreenBackdropLoading />}>
+        <ErrorBoundary>
+          <Shop />
+        </ErrorBoundary>
+      </Suspense>
+    </>
+  );
+};
+
+export default ShopWrapper;

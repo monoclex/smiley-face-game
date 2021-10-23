@@ -1,5 +1,5 @@
 import Schema, { SchemaInput, array, boolean, number, string, addParse } from "./computed-types-wrapper";
-import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail } from "./types";
+import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail, zShopItem, zShopItemId, zEnergy } from "./types";
 
 export const zGamePreview = addParse(
   Schema({
@@ -20,13 +20,12 @@ export const zLoginReq = addParse(
   })
 );
 
-export const zLoginResp = addParse(
+export const zTokenResp = addParse(
   Schema({
     token: zToken,
-    id: zAccountId,
   })
 );
-export type ZLoginResp = SchemaInput<typeof zLoginResp>;
+export type ZTokenResp = SchemaInput<typeof zTokenResp>;
 
 export const zRegisterReq = addParse(
   Schema({
@@ -50,30 +49,64 @@ export const zGuestReq = addParse(
   })
 );
 
-export const zGuestResp = addParse(
+export const zPlayerEnergy = addParse(
   Schema({
-    token: zToken,
+    energy: zEnergy,
+    maxEnergy: zEnergy,
+    energyRegenerationRateMs: number.integer().min(0),
+    lastEnergyAmount: zEnergy,
+    // TODO: change to `Date`?
+    timeEnergyWasAtAmount: number.integer(),
   })
 );
-export type ZGuestResp = SchemaInput<typeof zGuestResp>;
+export type ZPlayerEnergy = SchemaInput<typeof zPlayerEnergy>;
 
 export const zPlayerResp = addParse(
-  Schema({
-    isGuest: boolean,
-    name: zUsername,
-    energy: number.optional(),
-    maxEnergy: number.optional(),
-    energyRegenerationRateMs: number.optional(),
-    lastEnergyAmount: number.optional(),
-    timeEnergyWasAtAmount: string.optional(),
-    ownedWorlds: array
-      .of({
+  Schema.either(
+    {
+      isGuest: true as const,
+      name: zUsername,
+    },
+    {
+      isGuest: false as const,
+      name: zUsername,
+      // TODO: make
+      energy: zPlayerEnergy,
+      ownedWorlds: array.of({
         type: "saved" as const,
         id: zWorldId,
         name: zWorldName,
         playerCount: number.integer().min(0),
-      })
-      .optional(),
-  })
+      }),
+    }
+  )
 );
 export type ZPlayerResp = SchemaInput<typeof zPlayerResp>;
+
+export const zShopItemsResp = addParse(
+  Schema({
+    items: array.of(zShopItem),
+  })
+);
+export type ZShopItemsResp = SchemaInput<typeof zShopItemsResp>;
+
+export const zShopBuyReq = addParse(
+  Schema({
+    id: zShopItemId,
+    spendEnergy: zEnergy,
+  })
+);
+export type ZShopBuyReq = SchemaInput<typeof zShopBuyReq>;
+
+export const zShopBuyResp = addParse(
+  Schema({
+    id: zShopItemId,
+    // will get an http error if we could not spend,
+    // false if the item didn't get purchased (i.e. energy was spent),
+    // true if the item got purchased
+    purchased: boolean,
+    item: zShopItem,
+    playerEnergy: zPlayerEnergy,
+  })
+);
+export type ZShopBuyResp = SchemaInput<typeof zShopBuyResp>;

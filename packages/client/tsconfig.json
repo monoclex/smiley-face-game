@@ -4,5 +4,6 @@
         "lib": ["es2020", "dom"],
         "jsx": "react",
         "types": ["webpack-env"]
-    }
+    },
+    "include": ["./src"]
 }

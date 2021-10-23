@@ -31,7 +31,7 @@ export default class Account {
    * The amount of milliseconds since the Unix epoch, that points to the point in time of which lastEnergyAmount was set.
    */
   @Column({ type: "bigint" })
-  timeEnergyWasAtAmount!: number;
+  timeEnergyWasAtAmount!: string;
 
   /**
    * Describes how many milliseconds must go by for a single energy to be regenerated.
@@ -46,7 +46,7 @@ export default class Account {
     }
 
     const millisecondsSinceUnixEpoch = Date.now();
-    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - this.timeEnergyWasAtAmount;
+    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - parseInt(this.timeEnergyWasAtAmount);
     const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
     const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
 
@@ -55,10 +55,19 @@ export default class Account {
   }
 
   set currentEnergy(energy: number) {
-    this.lastEnergyAmount = energy;
-
     const millisecondsSinceUnixEpoch = Date.now();
-    this.timeEnergyWasAtAmount = millisecondsSinceUnixEpoch;
+    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - parseInt(this.timeEnergyWasAtAmount);
+    const amountOfRegeneratedEnergyPrecise = Math.min(
+      this.maxEnergy,
+      millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs
+    );
+    const exactRemains = amountOfRegeneratedEnergyPrecise % 1;
+    const timeSpentGeneratingPartialEnergy = exactRemains * this.energyRegenerationRateMs;
+
+    const nowWithRemains = millisecondsSinceUnixEpoch - timeSpentGeneratingPartialEnergy;
+
+    this.lastEnergyAmount = energy;
+    this.timeEnergyWasAtAmount = "" + nowWithRemains;
   }
 
   @OneToMany(() => World, (world) => world.owner)

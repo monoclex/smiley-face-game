@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import type { ZBlock } from "@smiley-face-game/api/src/types";
+import type { ZBlock } from "@smiley-face-game/api/types";
 import { SelectedSlotId } from "../client/Slot";
 import SharedGlobal from "./SharedGlobal";
 

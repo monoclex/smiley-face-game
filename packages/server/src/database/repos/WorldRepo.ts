@@ -1,5 +1,5 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { Connection, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/api/types";
 import { zAccountId, zWorldId } from "@smiley-face-game/api/types";
 import AccountLike from "../../database/modelishs/AccountLike";
@@ -50,8 +50,8 @@ interface WorldDetails {
 export default class WorldRepo {
   readonly #repo: Repository<World>;
 
-  constructor(connection: Connection) {
-    this.#repo = connection.getRepository(World);
+  constructor(repo: Repository<World>) {
+    this.#repo = repo;
   }
 
   /* === queries === */
