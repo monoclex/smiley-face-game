@@ -2,12 +2,12 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useAuth, useToken } from "../hooks";
+import { useToken } from "../hooks";
+import { Authentication } from "@smiley-face-game/api";
 
 export const AuthRoute = ({ needAccount = false, component: Component, ...props }) => {
   const [token, setToken] = useToken();
   const notistack = useSnackbar();
-  const auth = useAuth();
 
   if (!token) {
     return <Redirect to="/" />;
@@ -28,6 +28,7 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
   }
 
   if (needAccount) {
+    const auth = new Authentication(token);
     if (auth.isGuest) {
       notistack.enqueueSnackbar("You must create an account to access this!", {
         variant: "error",
