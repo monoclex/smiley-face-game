@@ -14,7 +14,7 @@ import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router";
-import { useAuth } from "../hooks";
+import { useAuth, useToken } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
 
@@ -25,6 +25,7 @@ const PaddedContainer = styled("div")({
 
 const LobbyPage = () => {
   const history = useHistory();
+  const [_, setToken] = useToken();
   const auth = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -48,7 +49,7 @@ const LobbyPage = () => {
         autoHideDuration: 3000,
       });
 
-      localStorage.removeItem("token");
+      setToken(false);
       history.push("/");
     };
 
@@ -65,7 +66,7 @@ const LobbyPage = () => {
 
   const logout = () => {
     // TODO: ask the server to invalidate the token
-    localStorage.removeItem("token");
+    setToken(false);
     history.push("/");
   };
 

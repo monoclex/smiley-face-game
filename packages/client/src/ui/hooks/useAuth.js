@@ -2,9 +2,9 @@ import { Authentication } from "@smiley-face-game/api";
 import { useToken } from "./useToken";
 
 export function useAuth() {
-  const token = useToken();
+  const [token] = useToken();
 
-  if (token === null) {
+  if (!token) {
     throw new Error("`useAuth` should only be called from authenticated routes");
   }
 

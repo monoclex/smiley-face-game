@@ -1,7 +1,6 @@
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { tokenState } from "../../state";
 
-/** @returns {string | null} */
 export function useToken() {
-  return useRecoilValue(tokenState);
+  return useRecoilState(tokenState);
 }

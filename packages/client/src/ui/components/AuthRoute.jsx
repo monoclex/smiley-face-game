@@ -1,12 +1,12 @@
 //@ts-check
-import React, { useEffect } from "react";
+import React from "react";
 import { Redirect } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useAuth } from "../hooks";
+import { useAuth, useToken } from "../hooks";
 
 export const AuthRoute = ({ needAccount = false, component: Component, ...props }) => {
-  const token = localStorage.getItem("token");
-  if (token === null) {
+  const [token, setToken] = useToken();
+  if (!token) {
     return <Redirect to="/" />;
   }
 
@@ -20,14 +20,9 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
       variant: "error",
     });
 
-    // don't actually remove the item in local storage here, otherwise we will
-    // have different renders - do the rendering in an effect
-    useEffect(() => {
-      localStorage.removeItem("token");
-    }, []);
+    setToken(false);
 
     return <Redirect to="/" />;
-    // return <Redirect to="/login" />;
   }
 
   if (needAccount) {
