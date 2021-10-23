@@ -1,6 +1,4 @@
 //@ts-check
-import React from "react";
-
 import ShopItem from "../ShopItem";
 import Carousel from "../../components/Carousel";
 

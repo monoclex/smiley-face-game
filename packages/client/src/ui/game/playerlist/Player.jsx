@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useState } from "react";
+import { useState } from "react";
 import { Grid, MenuItem, styled, ToggleButton } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import Menu from "@mui/material/Menu/Menu";

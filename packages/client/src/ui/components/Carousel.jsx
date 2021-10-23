@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Fade, Grid } from "@mui/material";
 import useInterval from "react-use/esm/useInterval";

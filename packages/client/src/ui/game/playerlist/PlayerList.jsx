@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Paper, Grid, styled } from "@mui/material";
 import { motion } from "framer-motion";
 import withSize from "react-sizeme";

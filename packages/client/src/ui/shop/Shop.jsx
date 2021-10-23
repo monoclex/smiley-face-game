@@ -1,4 +1,4 @@
-import React from "react";
+import { Suspense } from "react";
 import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useHistory } from "react-router";
@@ -85,11 +85,11 @@ const ShopWrapper = () => {
           </Toolbar>
         </AppBar>
       </Box>
-      <React.Suspense fallback={<FullscreenBackdropLoading />}>
+      <Suspense fallback={<FullscreenBackdropLoading />}>
         <ErrorBoundary>
           <Shop />
         </ErrorBoundary>
-      </React.Suspense>
+      </Suspense>
     </>
   );
 };

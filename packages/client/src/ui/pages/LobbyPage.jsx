@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { styled } from "@mui/material";
 import Grid from "@mui/material/Grid";
@@ -137,9 +137,9 @@ const LobbyPage = () => {
 const LobbyPageWrapper = () => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading />}>
         <LobbyPage />
-      </React.Suspense>
+      </Suspense>
     </ErrorBoundary>
   );
 };

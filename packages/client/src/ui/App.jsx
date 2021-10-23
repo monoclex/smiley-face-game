@@ -2,7 +2,7 @@
 //@ts-ignore
 // todo fix ^
 
-import React, { Suspense, lazy, useMemo, useEffect } from "react";
+import { Suspense, lazy, useMemo, useEffect } from "react";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";

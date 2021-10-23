@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import setupBridge from "../../bridge/setupBridge";

@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Grid, Typography } from "@mui/material";
 
 import { CategoryType } from "@smiley-face-game/api/enums";

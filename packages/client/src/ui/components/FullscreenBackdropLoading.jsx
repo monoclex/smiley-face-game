@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Backdrop, CircularProgress, Typography } from "@mui/material";
 
 export default function FullscreenBackdropLoading({ message }) {

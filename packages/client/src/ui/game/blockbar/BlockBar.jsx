@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import { Grid } from "@mui/material";
 import Block from "./Block";

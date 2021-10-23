@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Grid, Input, styled } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { useRecoilState, useRecoilValue } from "recoil";

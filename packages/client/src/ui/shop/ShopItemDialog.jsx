@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { useSnackbar } from "notistack";
 import { styled, LinearProgress, Typography, Grid, Slider, Button } from "@mui/material";
