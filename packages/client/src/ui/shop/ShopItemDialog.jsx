@@ -1,3 +1,4 @@
+//@ts-check
 import { useState } from "react";
 
 import { useSnackbar } from "notistack";
@@ -5,22 +6,24 @@ import { styled, LinearProgress, Typography, Grid, Slider, Button } from "@mui/m
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
-import { useAuth } from "../hooks";
+import { useAuth, useShopItem } from "../hooks";
 import { useRecoilState } from "recoil";
 import { shopItemQuery, playerInfoState } from "../../state";
+import { mapImageUrl } from "../../assets/shop/mapImageUrl";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
 // TODO not hardcode height, i think
-/** @param {{ open: boolean, onClose: () => void, item: import("@smiley-face-game/api/types").ZShopItem }} props */
-export const ShopItemDialog = ({ open, onClose, item }) => {
+/** @param {{ id: number, open: boolean, onClose: () => void }} props */
+export const ShopItemDialog = ({ id, open, onClose }) => {
   // TODO: choose the amount of energy based on:
   // - how much energy has already been spent
   // - how much energy is available
   // - some sort of reasonable step
-  const { id, title, description, image, energySpent, energyCost } = item;
+  const [{ title, description, energySpent, energyCost }] = useShopItem(id);
+  const image = mapImageUrl(id);
 
   const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
   const [_, setShopItem] = useRecoilState(shopItemQuery(id));
@@ -107,7 +110,10 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
               min={0}
               max={energyCost}
               value={spendingEnergy}
-              onChange={(_, value) => setSpendingEnergy(value)}
+              onChange={(_, value) => {
+                if (Array.isArray(value)) throw new Error("should not be getting multiple values");
+                setSpendingEnergy(value);
+              }}
             />
           </Grid>
           <Grid item xs={2}>

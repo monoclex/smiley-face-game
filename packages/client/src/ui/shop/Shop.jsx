@@ -1,10 +1,11 @@
+//@ts-check
 import { Suspense } from "react";
 import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useHistory } from "react-router";
-
 import { useShopItems, useEnergy } from "../hooks";
 import ShopFeatured from "./ShopFeatured";
+
 import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import ShopItem from "./ShopItem";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -19,10 +20,7 @@ const Shop = () => {
   const isLarge = useMediaQuery("(min-width:900px)");
   const isHuge = useMediaQuery("(min-width:1921px)");
 
-  // TODO:
-  //  Give featured items a title bar (done, but not sure how i feel about it...)
-  //  Grab shop content from API (done, but not polished)
-  //  Send request to API when buying an item (done, but not polished)
+  // TODO: Give featured items a title bar (done, but not sure how i feel about it...)
 
   const items = useShopItems();
 
@@ -41,7 +39,7 @@ const Shop = () => {
             <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
               {items.map((x) => (
                 <MasonryItem key={x.id} columnSpan={x.columnSpan || 1}>
-                  <ShopItem {...x} />
+                  <ShopItem id={x.id} />
                 </MasonryItem>
               ))}
             </Masonry>
@@ -51,7 +49,7 @@ const Shop = () => {
         <Grid container item spacing={2} xs={12}>
           {items.map((x) => (
             <Grid key={x.id} item xs={6} sm={4}>
-              <ShopItem {...x} />
+              <ShopItem id={x.id} />
             </Grid>
           ))}
         </Grid>

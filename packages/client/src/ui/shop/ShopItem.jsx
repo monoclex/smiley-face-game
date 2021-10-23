@@ -7,6 +7,8 @@ import EnergyIcon from "../icons/EnergyIcon";
 import { ShopItemDialog } from "./ShopItemDialog";
 import { styled } from "@mui/system";
 import { CategoryType } from "@smiley-face-game/api/enums";
+import { useShopItem } from "../hooks";
+import { mapImageUrl } from "../../assets/shop/mapImageUrl";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
@@ -23,18 +25,12 @@ const ClampedTypography = styled(Typography)({
   overflow: "hidden",
 });
 
-/** @param {import("@smiley-face-game/api/types").ZShopItem} item */
-export default function ShopItem(item) {
-  let { image, title, description, energySpent, energyCost, isVertical, categoryType } = item;
+/** @param {{ id: number, isVertical?: boolean }} props */
+export default function ShopItem({ id, isVertical = false }) {
+  // image = image || "https://media.discordapp.net/attachments/883149522862227507/883454824614625340/image0_4.gif";
 
-  // these are obviously just for testing...
-  description =
-    description ||
-    "You should totally buy it! Lorem pop ipsum pop dolor pop sit pop amet, consectetur pop adipiscing pop elit, sed pop do pop eiusmod pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop.";
-
-  title = title || "pop";
-  image = image || "https://media.discordapp.net/attachments/883149522862227507/883454824614625340/image0_4.gif";
-  // end testing
+  const [{ title, description, energySpent, energyCost, categoryType }] = useShopItem(id);
+  const image = mapImageUrl(id);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -87,7 +83,7 @@ export default function ShopItem(item) {
         </CardActionArea>
       </motion.div>
 
-      <ShopItemDialog open={isOpen} onClose={() => setIsOpen(false)} item={{ ...item, image }} />
+      <ShopItemDialog open={isOpen} onClose={() => setIsOpen(false)} id={id} />
     </Box>
   );
 }

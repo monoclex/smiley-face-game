@@ -1,58 +1,14 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-// todo fix ^
-
-import { Suspense, lazy, useMemo, useEffect } from "react";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+//@ts-check
+import { Suspense, lazy, useMemo } from "react";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
-import { SnackbarProvider, useSnackbar } from "notistack";
+import { SnackbarProvider } from "notistack";
 import { RecoilRoot } from "recoil";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
-import { useAuth } from "./hooks";
-import Loading from "./Loading";
-
-const AuthRoute = ({ needAccount, component: Component }) => {
-  const token = localStorage.getItem("token");
-  if (token === null) {
-    return <Redirect to="/" />;
-  }
-
-  const decoded = JSON.parse(atob(token.split(".")[1]));
-  const currentEpochSeconds = Date.now() / 1000;
-
-  if (decoded.exp < currentEpochSeconds) {
-    // token expired, kill it
-    const notistack = useSnackbar();
-    notistack.enqueueSnackbar("Your token has expired!", {
-      variant: "error",
-    });
-
-    // don't actually remove the item in local storage here, otherwise we will
-    // have different renders - do the rendering in an effect
-    useEffect(() => {
-      localStorage.removeItem("token");
-    }, []);
-
-    return <Redirect to="/" />;
-    // return <Redirect to="/login" />;
-  }
-
-  if (needAccount) {
-    const auth = useAuth();
-    if (auth.isGuest) {
-      const notistack = useSnackbar();
-
-      notistack.enqueueSnackbar("You must create an account to access this!", {
-        variant: "error",
-      });
-      return <Redirect to="/lobby" />;
-    }
-  }
-
-  return <Component />;
-};
+import FullscreenBackdropLoading from "./components/FullscreenBackdropLoading";
+import { AuthRoute } from "./components/AuthRoute";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -79,8 +35,6 @@ export default function App() {
     [prefersDarkMode]
   );
 
-  console.log("the theme we give to the theme provider is", theme);
-
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -88,7 +42,7 @@ export default function App() {
           <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
             <SnackbarUtilsConfigurator />
             <CssBaseline />
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<FullscreenBackdropLoading />}>
               <Switch>
                 <Route exact path="/" component={HomePage} />
                 <Route exact path="/terms" component={TermsAndConditionsPage} />

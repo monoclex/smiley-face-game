@@ -52,7 +52,7 @@ function config(env) {
           test: /\.(ts|tsx|jsx)$/,
           use: {
             loader: "@sucrase/webpack-loader",
-            options: { transforms: ["typescript", "jsx"] },
+            options: { transforms: ["typescript", "jsx", "react-hot-loader"] },
           },
           exclude: /node_modules/,
         },

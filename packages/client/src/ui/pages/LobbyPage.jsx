@@ -10,7 +10,7 @@ import Refresh from "mdi-material-ui/Refresh";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
-import Loading from "../../ui/Loading";
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router";
@@ -94,7 +94,7 @@ const LobbyPage = () => {
       </Grid>
       <PaddedContainer>
         <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-          {!roomPreviews && <Loading message={"Loading rooms..."} />}
+          {!roomPreviews && <FullscreenBackdropLoading message={"Loading rooms..."} />}
           {!!roomPreviews &&
             roomPreviews.map((room) => (
               <Grid item key={room.id}>
@@ -111,7 +111,7 @@ const LobbyPage = () => {
 
         {myRooms && (
           <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-            {!myRooms && <Loading message={"Loading your rooms..."} />}
+            {!myRooms && <FullscreenBackdropLoading message={"Loading your rooms..."} />}
             {!!myRooms &&
               myRooms.map((room) => (
                 <Grid item key={room.id}>
@@ -137,7 +137,7 @@ const LobbyPage = () => {
 const LobbyPageWrapper = () => {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<FullscreenBackdropLoading />}>
         <LobbyPage />
       </Suspense>
     </ErrorBoundary>

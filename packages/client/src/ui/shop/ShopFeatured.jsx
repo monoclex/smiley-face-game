@@ -1,3 +1,4 @@
+//@ts-check
 import { Grid, Typography } from "@mui/material";
 
 import { CategoryType } from "@smiley-face-game/api/enums";
