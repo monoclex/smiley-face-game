@@ -1,5 +1,5 @@
 //@ts-check
-import { Suspense, useState, useEffect } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { styled } from "@mui/material";
 import Grid from "@mui/material/Grid";

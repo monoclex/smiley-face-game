@@ -1,5 +1,5 @@
+import React from "react";
 import { Grid, Typography } from "@mui/material";
-
 import ShopItem from "./ShopItem";
 
 export default function ShopGroup({ items, category = undefined }) {

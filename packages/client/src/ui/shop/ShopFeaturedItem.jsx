@@ -1,3 +1,4 @@
+import React from "react";
 import { Grid, useMediaQuery } from "@mui/material";
 import ShopItem from "./ShopItem";
 

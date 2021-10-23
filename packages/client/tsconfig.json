@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "lib": ["es2020", "dom"],
-        "jsx": "react-jsx",
+        "jsx": "react",
         "types": ["webpack-env"]
     },
     "include": ["./src"]

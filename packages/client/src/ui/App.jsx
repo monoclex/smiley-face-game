@@ -1,5 +1,5 @@
 //@ts-check
-import { Suspense, lazy, useMemo } from "react";
+import React, { Suspense, lazy, useMemo } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";

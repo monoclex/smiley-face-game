@@ -1,5 +1,5 @@
 //@ts-check
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Grid, styled } from "@mui/material";
 import Chat from "../../ui/game/chat/Chat";
 import BlockBar from "../../ui/game/blockbar/BlockBar";

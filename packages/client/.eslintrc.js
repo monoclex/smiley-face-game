@@ -55,9 +55,6 @@ const config = {
     "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "_.*" }],
     // this rule uses *70% of the time* in eslint
     "import/namespace": "off",
-    // for new jsx: https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html
-    "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off",
     "import/no-named-as-default-member": "off", // usually annoying and not helpful
   },
 };

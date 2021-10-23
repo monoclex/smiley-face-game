@@ -1,5 +1,5 @@
 //@ts-check
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useHistory } from "react-router";
