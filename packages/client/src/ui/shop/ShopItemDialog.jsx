@@ -18,17 +18,20 @@ const PaddedDiv = styled("div")(({ theme }) => ({
 // TODO not hardcode height, i think
 /** @param {{ id: number, open: boolean, onClose: () => void }} props */
 export const ShopItemDialog = ({ id, open, onClose }) => {
-  // TODO: choose the amount of energy based on:
-  // - how much energy has already been spent
-  // - how much energy is available
-  // - some sort of reasonable step
   const [{ title, description, energySpent, energyCost }] = useShopItem(id);
   const image = mapImageUrl(id);
 
   const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
   const [_, setShopItem] = useRecoilState(shopItemQuery(id));
 
-  const [spendingEnergy, setSpendingEnergy] = useState(Math.min(25, energyCost));
+  if (playerInfo.isGuest !== false) throw new Error("impossible");
+
+  const min = 0;
+  const max = playerInfo.energy.maxEnergy;
+  // we want to aim for 25 ticks
+  const step = Math.floor((max - min) / 25);
+
+  const [spendingEnergy, setSpendingEnergy] = useState(playerInfo.energy.energy);
   const snackbar = useSnackbar();
   const auth = useAuth();
 
@@ -106,9 +109,9 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
             <Slider
               marks
               valueLabelDisplay="auto"
-              step={energyCost < 50 ? 1 : Math.round(energyCost / 50)}
-              min={0}
-              max={energyCost}
+              step={step}
+              min={min}
+              max={max}
               value={spendingEnergy}
               onChange={(_, value) => {
                 if (Array.isArray(value)) throw new Error("should not be getting multiple values");
