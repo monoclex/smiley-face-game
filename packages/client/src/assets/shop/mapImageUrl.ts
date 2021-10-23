@@ -8,6 +8,8 @@ export function mapImageUrl(shopItemId: number): string {
       return preview200x200;
     case 1:
       return preview30x30;
+    case 2:
+      return preview200x200;
     default:
       throw new Error(`Unknown shop item ${shopItemId}`);
   }

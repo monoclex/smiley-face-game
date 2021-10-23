@@ -64,7 +64,7 @@ const ShopWrapper = () => {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1, paddingBottom: "1em" }}>
+      <Box sx={{ flexGrow: 1, paddingBottom: "3em" }}>
         <AppBar position="fixed">
           <Toolbar>
             <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
