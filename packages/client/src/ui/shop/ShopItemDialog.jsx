@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { useSnackbar } from "notistack";
-import { styled, LinearProgress, Typography, Grid, Slider, IconButton, Tooltip, Button } from "@mui/material";
+import { styled, LinearProgress, Typography, Grid, Slider, Button } from "@mui/material";
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
@@ -23,7 +23,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
   const { id, title, description, image, energySpent, energyCost } = item;
 
   const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
-  const [shopItem, setShopItem] = useRecoilState(shopItemQuery(id));
+  const [_, setShopItem] = useRecoilState(shopItemQuery(id));
 
   const [spendingEnergy, setSpendingEnergy] = useState(Math.min(25, energyCost));
   const snackbar = useSnackbar();

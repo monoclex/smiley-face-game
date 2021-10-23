@@ -1,8 +1,5 @@
-import { ZShopItem, ZShopItemId } from "@smiley-face-game/api/types";
-import { atom, DefaultValue, selector, selectorFamily } from "recoil";
+import { atom } from "recoil";
 import { tokenGlobal } from "./auth";
-import { GameState } from "../game/StateSystem";
-import SharedGlobal from "./SharedGlobal";
 import { Authentication } from "@smiley-face-game/api";
 import { routesRewritten } from "../rewritten";
 import { ZPlayerResp } from "@smiley-face-game/api/api";

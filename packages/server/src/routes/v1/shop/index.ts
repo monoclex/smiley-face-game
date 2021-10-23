@@ -4,14 +4,12 @@ import Dependencies from "../../../dependencies";
 import { ZShopItem } from "@smiley-face-game/api/types";
 import { shopItems } from "../../../shop/items";
 import { ZShopBuyReq, zShopBuyReq, ZShopBuyResp, ZShopItemsResp } from "@smiley-face-game/api/api";
-import asyncHandler, { handleJwtAsync } from "../../../middlewares/asyncHandler";
-import AuthPayload from "../../../jwt/payloads/AuthPayload";
+import { handleJwtAsync } from "../../../middlewares/asyncHandler";
 import schema from "../../../middlewares/schema";
 import ShopRepo from "../../../database/repos/ShopRepo";
 import ShopItem from "../../../database/models/ShopItem";
 import AccountRepo from "../../../database/repos/AccountRepo";
 import Account from "../../../database/models/Account";
-import AccountLike from "../../../database/modelishs/AccountLike";
 
 type UsedDependencies = Pick<Dependencies, "authVerifier" | "accountRepo" | "shopRepo" | "connection">;
 

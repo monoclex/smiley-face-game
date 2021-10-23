@@ -11,7 +11,6 @@ import { RecoilRoot } from "recoil";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import { useAuth } from "./hooks";
-import { Box } from "@mui/system";
 import Loading from "./Loading";
 
 const AuthRoute = ({ needAccount, component: Component }) => {

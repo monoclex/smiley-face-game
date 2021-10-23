@@ -1,10 +1,7 @@
-import { Connection, Repository } from "typeorm";
-import bcrypt from "bcrypt";
-import Account from "../../database/models/Account";
-import World from "../../database/models/World";
+import { Repository } from "typeorm";
 import AccountLike from "../../database/modelishs/AccountLike";
 import ensureValidates from "../../ensureValidates";
-import { zAccountId, zEmail, zPassword, zShopItemId, zUsername } from "@smiley-face-game/api/types";
+import { zAccountId, zShopItemId } from "@smiley-face-game/api/types";
 import ShopItem from "../models/ShopItem";
 
 export default class ShopRepo {

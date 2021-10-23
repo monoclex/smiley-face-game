@@ -1,8 +1,6 @@
 import { Grid, useMediaQuery } from "@mui/material";
 import React from "react";
 import ShopItem from "./ShopItem";
-import Masonry from "@mui/lab/Masonry";
-import MasonryItem from "@mui/lab/MasonryItem";
 
 export const ShopFeaturedItem = (item) => {
   // image =

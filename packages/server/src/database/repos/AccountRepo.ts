@@ -1,4 +1,4 @@
-import { Connection, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import bcrypt from "bcrypt";
 import Account from "../../database/models/Account";
 import World from "../../database/models/World";

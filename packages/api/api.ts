@@ -51,10 +51,10 @@ export const zGuestReq = addParse(
 
 export const zPlayerEnergy = addParse(
   Schema({
-    energy: zEnergy.optional(),
-    maxEnergy: zEnergy.optional(),
-    energyRegenerationRateMs: number.integer().min(0).optional(),
-    lastEnergyAmount: zEnergy.optional(),
+    energy: zEnergy,
+    maxEnergy: zEnergy,
+    energyRegenerationRateMs: number.integer().min(0),
+    lastEnergyAmount: zEnergy,
     // TODO: change to `Date`?
     timeEnergyWasAtAmount: number.integer(),
   })
@@ -64,11 +64,11 @@ export type ZPlayerEnergy = SchemaInput<typeof zPlayerEnergy>;
 export const zPlayerResp = addParse(
   Schema.either(
     {
-      isGuest: true,
+      isGuest: true as const,
       name: zUsername,
     },
     {
-      isGuest: false,
+      isGuest: false as const,
       name: zUsername,
       // TODO: make
       energy: zPlayerEnergy,

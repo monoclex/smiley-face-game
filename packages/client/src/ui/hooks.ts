@@ -1,7 +1,7 @@
 import { Authentication } from "@smiley-face-game/api";
-import { ZPlayerResp } from "@smiley-face-game/api/api";
+import { ZPlayerEnergy, ZPlayerResp } from "@smiley-face-game/api/api";
 import { ZShopItem } from "@smiley-face-game/api/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useInterval } from "react-use";
 import { useRecoilValue } from "recoil";
 import { shopItemsState, playerInfoState } from "../state";
@@ -34,54 +34,64 @@ interface EnergyInfo {
 }
 
 export function useEnergy(): EnergyInfo {
-  const {
-    energy: { energy: initialEnergy, maxEnergy, lastEnergyAmount, timeEnergyWasAtAmount, energyRegenerationRateMs },
-  } = usePlayer();
+  const player = usePlayer();
 
-  function computeCurrentEnergy() {
-    // a literal copy and pate of the algorithm found in packages/server/src/database/models/Account.ts
-    // TODO: deduplicate this code
+  if (player.isGuest) throw new Error("Player cannot be guest!");
 
-    // if they have more than the maximum amount of energy, don't bother counting it.
-    if (lastEnergyAmount >= maxEnergy) {
-      return lastEnergyAmount;
+  function useEnergyWithEnergy({
+    energy: initialEnergy,
+    maxEnergy,
+    lastEnergyAmount,
+    timeEnergyWasAtAmount,
+    energyRegenerationRateMs,
+  }: ZPlayerEnergy): EnergyInfo {
+    function computeCurrentEnergy() {
+      // a literal copy and pate of the algorithm found in packages/server/src/database/models/Account.ts
+      // TODO: deduplicate this code
+
+      // if they have more than the maximum amount of energy, don't bother counting it.
+      if (lastEnergyAmount >= maxEnergy) {
+        return lastEnergyAmount;
+      }
+
+      const millisecondsSinceUnixEpoch = Date.now();
+      const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - timeEnergyWasAtAmount;
+      const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / energyRegenerationRateMs;
+      const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
+
+      // cap the energy to maxEnergy
+      return Math.min(lastEnergyAmount + amountOfRegeneratedEnergy, maxEnergy);
     }
 
-    const millisecondsSinceUnixEpoch = Date.now();
-    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - timeEnergyWasAtAmount;
-    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / energyRegenerationRateMs;
-    const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
+    function computeTimeLeft() {
+      // if they have more than the maximum amount of energy, don't bother counting it.
+      if (lastEnergyAmount >= maxEnergy) {
+        return "Energy full!";
+      }
 
-    // cap the energy to maxEnergy
-    return Math.min(lastEnergyAmount + amountOfRegeneratedEnergy, maxEnergy);
-  }
+      const millisecondsSinceUnixEpoch = Date.now();
+      const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - timeEnergyWasAtAmount;
+      const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / energyRegenerationRateMs;
+      const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
+      const timeSpentRegeneratingEnergy = amountOfRegeneratedEnergyPrecise * energyRegenerationRateMs;
+      const timeSpentRegeneratingNextEnergy = (amountOfRegeneratedEnergy + 1) * energyRegenerationRateMs;
+      const timeUntilNextEnergyMs = timeSpentRegeneratingNextEnergy - timeSpentRegeneratingEnergy;
+      const timeUntilNextEnergyS = Math.floor(timeUntilNextEnergyMs / 1000);
 
-  function computeTimeLeft() {
-    // if they have more than the maximum amount of energy, don't bother counting it.
-    if (lastEnergyAmount >= maxEnergy) {
-      return "Energy full!";
+      // cap the energy to maxEnergy
+      return `Energy in ${timeUntilNextEnergyS}s`;
     }
 
-    const millisecondsSinceUnixEpoch = Date.now();
-    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - timeEnergyWasAtAmount;
-    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / energyRegenerationRateMs;
-    const amountOfRegeneratedEnergy = Math.trunc(amountOfRegeneratedEnergyPrecise); // | 0 would also work here
-    const timeSpentRegeneratingEnergy = amountOfRegeneratedEnergyPrecise * energyRegenerationRateMs;
-    const timeSpentRegeneratingNextEnergy = (amountOfRegeneratedEnergy + 1) * energyRegenerationRateMs;
-    const timeUntilNextEnergyMs = timeSpentRegeneratingNextEnergy - timeSpentRegeneratingEnergy;
-    const timeUntilNextEnergyS = Math.floor(timeUntilNextEnergyMs / 1000);
+    const [energy, setEnergy] = useState(initialEnergy);
+    const [timeLeft, setTimeLeft] = useState(computeTimeLeft());
 
-    // cap the energy to maxEnergy
-    return `Energy in ${timeUntilNextEnergyS}s`;
+    useInterval(() => {
+      setEnergy(computeCurrentEnergy());
+      setTimeLeft(computeTimeLeft());
+    }, 1000);
+
+    return { energy, maxEnergy, timeLeft };
   }
 
-  const [energy, setEnergy] = useState(initialEnergy);
-  const [timeLeft, setTimeLeft] = useState(computeTimeLeft());
-
-  useInterval(() => {
-    setEnergy(computeCurrentEnergy());
-    setTimeLeft(computeTimeLeft());
-  }, 1000);
-
-  return { energy, maxEnergy, timeLeft };
+  return useEnergyWithEnergy(player.energy);
 }

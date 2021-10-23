@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Grid, Typography } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
 import { Close as CloseIcon } from "mdi-material-ui";
 
 export const BasicDialog = ({ open, onClose, title, content, fullWidth = true, maxWidth = "md", actions = null }) => {

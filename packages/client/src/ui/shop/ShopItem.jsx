@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
 import { motion } from "framer-motion";
-import { Grid, Box, Card, CardContent, Typography, Chip, CardActionArea, CardActions, LinearProgress } from "@mui/material";
+import { Grid, Box, Card, CardContent, Typography, Chip, CardActionArea, LinearProgress } from "@mui/material";
 
 import EnergyIcon from "../icons/EnergyIcon";
 import { ShopItemDialog } from "./ShopItemDialog";
 import { styled } from "@mui/system";
-import { Category, CategoryType } from "@smiley-face-game/api/enums";
+import { CategoryType } from "@smiley-face-game/api/enums";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),

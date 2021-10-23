@@ -9,7 +9,7 @@ import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import ShopItem from "./ShopItem";
 import ErrorBoundary from "../components/ErrorBoundary";
 
-import { ExitToApp, ExitToApp as ExitToAppIcon } from "mdi-material-ui";
+import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import Masonry from "@mui/lab/Masonry";
 import MasonryItem from "@mui/lab/MasonryItem";
 import { Box } from "@mui/system";

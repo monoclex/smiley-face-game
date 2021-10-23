@@ -14,7 +14,6 @@ import Loading from "../../ui/Loading";
 import Typography from "@mui/material/Typography";
 import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
-import { Authentication } from "@smiley-face-game/api";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";

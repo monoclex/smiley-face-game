@@ -42,6 +42,7 @@ const config = {
     // https://stackoverflow.com/a/64024916
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "_.*" }],
   },
 };
 
