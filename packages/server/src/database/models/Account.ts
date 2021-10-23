@@ -57,7 +57,10 @@ export default class Account {
   set currentEnergy(energy: number) {
     const millisecondsSinceUnixEpoch = Date.now();
     const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - parseInt(this.timeEnergyWasAtAmount);
-    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
+    const amountOfRegeneratedEnergyPrecise = Math.min(
+      this.maxEnergy,
+      millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs
+    );
     const exactRemains = amountOfRegeneratedEnergyPrecise % 1;
     const timeSpentGeneratingPartialEnergy = exactRemains * this.energyRegenerationRateMs;
 
