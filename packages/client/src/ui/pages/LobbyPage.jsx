@@ -17,6 +17,8 @@ import { useSnackbar } from "notistack";
 import { Authentication } from "@smiley-face-game/api";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks";
+import ErrorBoundary from "../components/ErrorBoundary";
+import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
@@ -139,4 +141,14 @@ const LobbyPage = () => {
   );
 };
 
-export default LobbyPage;
+const LobbyPageWrapper = () => {
+  return (
+    <ErrorBoundary>
+      <React.Suspense fallback={<FullscreenBackdropLoading />}>
+        <LobbyPage />
+      </React.Suspense>
+    </ErrorBoundary>
+  );
+};
+
+export default LobbyPageWrapper;

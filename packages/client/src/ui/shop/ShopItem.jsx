@@ -33,7 +33,7 @@ export default function ShopItem(item) {
     "You should totally buy it! Lorem pop ipsum pop dolor pop sit pop amet, consectetur pop adipiscing pop elit, sed pop do pop eiusmod pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop pop.";
 
   title = title || "pop";
-  image = image || "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi1.wp.com%2Fpopcat.click%2Fog-card.jpg&f=1&nofb=1";
+  image = image || "https://media.discordapp.net/attachments/883149522862227507/883454824614625340/image0_4.gif";
   // end testing
 
   const [isOpen, setIsOpen] = useState(false);

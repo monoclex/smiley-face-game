@@ -1,15 +1,24 @@
 import React from "react";
-import { Grid } from "@mui/material";
+import { styled, Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useHistory } from "react-router";
 
-import { useShopItems } from "../hooks";
+import { useShopItems, useEnergy } from "../hooks";
 import ShopFeatured from "./ShopFeatured";
 import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import ShopItem from "./ShopItem";
 import ErrorBoundary from "../components/ErrorBoundary";
 
+import { ExitToApp, ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import Masonry from "@mui/lab/Masonry";
 import MasonryItem from "@mui/lab/MasonryItem";
+import { Box } from "@mui/system";
+import EnergyIcon from "../icons/EnergyIcon";
+
+const RotatedIcon = styled(IconButton)({
+  // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
+  transform: "rotate(180deg)",
+});
 
 const Shop = () => {
   const isLarge = useMediaQuery("(min-width:900px)");
@@ -57,12 +66,36 @@ const Shop = () => {
 };
 
 const ShopWrapper = () => {
+  const history = useHistory();
+  const { energy, maxEnergy, timeLeft } = useEnergy();
+
   return (
-    <React.Suspense fallback={<FullscreenBackdropLoading />}>
-      <ErrorBoundary>
-        <Shop />
-      </ErrorBoundary>
-    </React.Suspense>
+    <>
+      <Box sx={{ flexGrow: 1, paddingBottom: "1em" }}>
+        <AppBar position="fixed">
+          <Toolbar>
+            <RotatedIcon size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
+              <ExitToAppIcon />
+            </RotatedIcon>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Shop
+            </Typography>
+            <Typography variant="subtitle1" style={{ paddingRight: "1em" }}>
+              {energy}/{maxEnergy}
+            </Typography>
+            <EnergyIcon />
+            <Typography variant="caption" style={{ paddingLeft: "1em" }}>
+              {timeLeft}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <React.Suspense fallback={<FullscreenBackdropLoading />}>
+        <ErrorBoundary>
+          <Shop />
+        </ErrorBoundary>
+      </React.Suspense>
+    </>
   );
 };
 

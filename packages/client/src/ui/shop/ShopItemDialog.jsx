@@ -7,7 +7,7 @@ import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
 import { useAuth } from "../hooks";
 import { useRecoilState } from "recoil";
-import { shopItemQuery } from "../../state";
+import { shopItemQuery, playerInfoState } from "../../state";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
@@ -22,6 +22,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
   // - some sort of reasonable step
   const { id, title, description, image, energySpent, energyCost } = item;
 
+  const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
   const [shopItem, setShopItem] = useRecoilState(shopItemQuery(id));
 
   const [spendingEnergy, setSpendingEnergy] = useState(Math.min(25, energyCost));
@@ -39,6 +40,7 @@ export const ShopItemDialog = ({ open, onClose, item }) => {
       .then((response) => {
         // TODO: update information about the player with `response`
         setShopItem(response.item);
+        setPlayerInfo({ ...playerInfo, energy: response.playerEnergy });
 
         // TODO make nice little animation for adding energy instead of unhealthy snacks
         snackbar.enqueueSnackbar(`Added ${spendingEnergy} energy!`, {

@@ -14,7 +14,7 @@ import { useAuth } from "./hooks";
 import { Box } from "@mui/system";
 import Loading from "./Loading";
 
-const AuthRoute = ({ needAccount, ignoreLayout, component: Component }) => {
+const AuthRoute = ({ needAccount, component: Component }) => {
   const token = localStorage.getItem("token");
   if (token === null) {
     return <Redirect to="/" />;
@@ -52,15 +52,7 @@ const AuthRoute = ({ needAccount, ignoreLayout, component: Component }) => {
     }
   }
 
-  if (ignoreLayout) {
-    return <Component />;
-  }
-
-  return (
-    <Box sx={{ padding: 2 }}>
-      <Component />
-    </Box>
-  );
+  return <Component />;
 };
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -106,7 +98,7 @@ export default function App() {
                 <Route exact path="/login" component={LoginPage} />
 
                 <AuthRoute exact path="/lobby" component={LobbyPage} />
-                <AuthRoute ignoreLayout exact path="/games/:id" component={PlayPage} />
+                <AuthRoute exact path="/games/:id" component={PlayPage} />
                 <AuthRoute needAccount exact path="/shop" component={ShopPage} />
               </Switch>
             </Suspense>
