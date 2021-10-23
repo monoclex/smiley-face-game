@@ -12,21 +12,15 @@ import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
 import Loading from "../../ui/Loading";
 import Typography from "@mui/material/Typography";
-import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
 import { useSnackbar } from "notistack";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
-import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
+import LogoutIcon from "../icons/LogoutIcon";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
   padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
-});
-
-const RotatedIcon = styled(IconButton)({
-  // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
-  transform: "rotate(180deg)",
 });
 
 const LobbyPage = () => {
@@ -83,9 +77,9 @@ const LobbyPage = () => {
   return (
     <>
       <Grid container item justifyContent="center" alignItems="center">
-        <RotatedIcon onClick={logout} size="large">
-          <ExitToAppIcon />
-        </RotatedIcon>
+        <IconButton onClick={logout} size="large">
+          <LogoutIcon />
+        </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()} size="large">
             <Refresh />
@@ -143,7 +137,7 @@ const LobbyPage = () => {
 const LobbyPageWrapper = () => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={<FullscreenBackdropLoading />}>
+      <React.Suspense fallback={<Loading />}>
         <LobbyPage />
       </React.Suspense>
     </ErrorBoundary>

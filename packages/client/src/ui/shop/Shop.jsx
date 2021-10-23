@@ -1,5 +1,5 @@
 import React from "react";
-import { styled, Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
+import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useHistory } from "react-router";
 
@@ -9,16 +9,11 @@ import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import ShopItem from "./ShopItem";
 import ErrorBoundary from "../components/ErrorBoundary";
 
-import { ExitToApp as ExitToAppIcon } from "mdi-material-ui";
+import LogoutIcon from "../icons/LogoutIcon";
 import Masonry from "@mui/lab/Masonry";
 import MasonryItem from "@mui/lab/MasonryItem";
 import { Box } from "@mui/system";
 import EnergyIcon from "../icons/EnergyIcon";
-
-const RotatedIcon = styled(IconButton)({
-  // https://github.com/Dogfalo/materialize/issues/3732#issuecomment-251741094
-  transform: "rotate(180deg)",
-});
 
 const Shop = () => {
   const isLarge = useMediaQuery("(min-width:900px)");
@@ -74,9 +69,9 @@ const ShopWrapper = () => {
       <Box sx={{ flexGrow: 1, paddingBottom: "1em" }}>
         <AppBar position="fixed">
           <Toolbar>
-            <RotatedIcon size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
-              <ExitToAppIcon />
-            </RotatedIcon>
+            <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
+              <LogoutIcon />
+            </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Shop
             </Typography>

@@ -1,7 +1,6 @@
 /** @type {import("eslint").Linter.Config} */
 const config = {
   env: {
-    browser: true,
     es2021: true,
     node: true,
   },

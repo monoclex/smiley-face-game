@@ -1,9 +1,9 @@
+/*eslint-env node*/
 /** @type {import("eslint").Linter.Config} */
 const config = {
   env: {
     browser: true,
     es2021: true,
-    node: true,
   },
   extends: [
     "eslint:recommended",
@@ -27,13 +27,23 @@ const config = {
     ecmaVersion: 2020,
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "prettier"],
+  plugins: ["react", "@typescript-eslint", "prettier", "import"],
   settings: {
+    "import/extensions": [".js", ".jsx", ".ts", ".tsx", ".svg", ".json"],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
+    },
+    "import/resolver": {
+      typescript: {
+        alwaysTryTypes: true,
+      },
+    },
     react: {
       version: "17.0.2",
     },
   },
   rules: {
+    "import/no-unresolved": "error",
     "prettier/prettier": ["error"],
     "react/no-unescaped-entities": "off",
     "react/prop-types": "off",
@@ -43,6 +53,12 @@ const config = {
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "_.*" }],
+    // this rule uses *70% of the time* in eslint
+    "import/namespace": "off",
+    // for new jsx: https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off",
+    "import/no-named-as-default-member": "off", // usually annoying and not helpful
   },
 };
 

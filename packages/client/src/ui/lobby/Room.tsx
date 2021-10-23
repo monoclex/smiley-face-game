@@ -1,5 +1,5 @@
 //@ts-check
-import * as React from "react";
+import React from "react";
 import { Card, styled, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@mui/material";
 import ThumbUpIcon from "mdi-material-ui/ThumbUp";
 import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
