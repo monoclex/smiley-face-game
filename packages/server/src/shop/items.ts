@@ -29,7 +29,7 @@ export const shopItems: ShopItem[] = [
     category: Category.World,
     categoryType: CategoryType.Featured,
     limited: false,
-    energyCost: 5000,
+    energyCost: 1000,
     purchase: makePurchaser(200, 200),
   },
   {
@@ -40,7 +40,7 @@ export const shopItems: ShopItem[] = [
     category: Category.World,
     categoryType: CategoryType.None,
     limited: false,
-    energyCost: 360,
+    energyCost: 72,
     columnSpan: 2,
     purchase: makePurchaser(30, 30),
   },
@@ -52,7 +52,7 @@ export const shopItems: ShopItem[] = [
     category: Category.World,
     categoryType: CategoryType.Featured,
     limited: false,
-    energyCost: 21,
+    energyCost: 4,
     purchase: makePurchaser(6, 9),
   },
 ];

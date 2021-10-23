@@ -10,6 +10,11 @@ export class ImplementShop1634458799080 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "shop_item" ADD CONSTRAINT "FK_a4fd65108e87639f9b2c626bbff" FOREIGN KEY ("userId") REFERENCES "account"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
+
+    // set the default regeneration rate to 5 minutes per energy
+    const SECOND = 1000;
+    const MINUTE = SECOND * 60;
+    await queryRunner.query(`UPDATE "account" SET "energyRegenerationRateMs" = $1`, [5 * MINUTE]);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
