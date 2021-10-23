@@ -8,7 +8,7 @@ import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
 import { useAuth, useShopItem } from "../hooks";
 import { useRecoilState } from "recoil";
-import { shopItemQuery, playerInfoState } from "../../state";
+import { shopItemQuery, playerInfoSelector } from "../../state";
 import { mapImageUrl } from "../../assets/shop/mapImageUrl";
 
 const PaddedDiv = styled("div")(({ theme }) => ({
@@ -21,7 +21,7 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
   const [{ title, description, energySpent, energyCost }] = useShopItem(id);
   const image = mapImageUrl(id);
 
-  const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
+  const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoSelector);
   const [_, setShopItem] = useRecoilState(shopItemQuery(id));
 
   if (playerInfo.isGuest !== false) throw new Error("impossible");

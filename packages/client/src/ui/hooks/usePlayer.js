@@ -1,6 +1,6 @@
 import { useRecoilValue } from "recoil";
-import { playerInfoState } from "../../state";
+import { playerInfoSelector } from "../../state";
 
 export function usePlayer() {
-  return useRecoilValue(playerInfoState);
+  return useRecoilValue(playerInfoSelector);
 }
