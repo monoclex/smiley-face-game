@@ -55,10 +55,16 @@ export default class Account {
   }
 
   set currentEnergy(energy: number) {
-    this.lastEnergyAmount = energy;
-
     const millisecondsSinceUnixEpoch = Date.now();
-    this.timeEnergyWasAtAmount = "" + millisecondsSinceUnixEpoch;
+    const millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - parseInt(this.timeEnergyWasAtAmount);
+    const amountOfRegeneratedEnergyPrecise = millisecondsEnergyHasBeenRegenerating / this.energyRegenerationRateMs;
+    const exactRemains = amountOfRegeneratedEnergyPrecise % 1;
+    const timeSpentGeneratingPartialEnergy = exactRemains * this.energyRegenerationRateMs;
+
+    const nowWithRemains = millisecondsSinceUnixEpoch - timeSpentGeneratingPartialEnergy;
+
+    this.lastEnergyAmount = energy;
+    this.timeEnergyWasAtAmount = "" + nowWithRemains;
   }
 
   @OneToMany(() => World, (world) => world.owner)
