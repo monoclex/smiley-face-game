@@ -10,7 +10,7 @@ export const shopItemsState = atom<ZShopItem[]>({
     await routesRewritten.handle;
 
     const token = tokenGlobal.state;
-    if (token === null) throw new Error("Not authenticated!");
+    if (!token) throw new Error("Not authenticated!");
 
     // in theory, tree shaking should make this only happen on /shop
     // but i don't think that will happen as bundlers will generally

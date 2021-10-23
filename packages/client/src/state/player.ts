@@ -10,7 +10,7 @@ export const playerInfoState = atom<ZPlayerResp>({
     await routesRewritten.handle;
 
     const token = tokenGlobal.state;
-    if (token === null) throw new Error("Not authenticated!");
+    if (!token) throw new Error("Not authenticated!");
 
     const auth = new Authentication(token);
     return await auth.player();

@@ -6,6 +6,9 @@ import { useAuth, useToken } from "../hooks";
 
 export const AuthRoute = ({ needAccount = false, component: Component, ...props }) => {
   const [token, setToken] = useToken();
+  const notistack = useSnackbar();
+  const auth = useAuth();
+
   if (!token) {
     return <Redirect to="/" />;
   }
@@ -15,7 +18,6 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
 
   if (decoded.exp < currentEpochSeconds) {
     // token expired, kill it
-    const notistack = useSnackbar();
     notistack.enqueueSnackbar("Your token has expired!", {
       variant: "error",
     });
@@ -26,10 +28,7 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
   }
 
   if (needAccount) {
-    const auth = useAuth();
     if (auth.isGuest) {
-      const notistack = useSnackbar();
-
       notistack.enqueueSnackbar("You must create an account to access this!", {
         variant: "error",
       });

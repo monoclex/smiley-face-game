@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
 import Plus from "mdi-material-ui/Plus";
 import Refresh from "mdi-material-ui/Refresh";
+import Cart from "mdi-material-ui/Cart";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
@@ -88,6 +89,9 @@ const LobbyPage = () => {
         </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
           <Plus />
+        </IconButton>
+        <IconButton onClick={() => history.push("/shop")} size="large">
+          <Cart />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />

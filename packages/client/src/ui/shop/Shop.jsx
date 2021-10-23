@@ -32,6 +32,8 @@ const Shop = () => {
         </Grid>
       </Grid>
 
+      <Typography variant="h5">All Items</Typography>
+
       {isLarge ? (
         <Grid container item xs={12}>
           <Grid item xl={2} />
