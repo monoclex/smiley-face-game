@@ -14,10 +14,9 @@
     "tsc": "tsc",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx --fix .",
-    "build": "webpack --env mode=development",
-    "build:prod": "webpack --env mode=production",
-    "serve": "webpack serve --mode=development --env mode=development",
-    "serve:prod": "webpack serve --mode=production --env mode=production"
+    "build:dev": "webpack --mode=production --env serverMode=development",
+    "build:prod": "webpack --mode=production --env serverMode=production",
+    "serve": "webpack serve --mode=development --env serverMode=localhost"
   },
   "bugs": {
     "url": "https://github.com/SirJosh3917/smiley-face-game/issues"

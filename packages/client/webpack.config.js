@@ -6,33 +6,16 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const atlas = require("rust-atlas-generator-webpack-plugin");
 
-const isProd = (mode) => mode === "production";
-const isDev = (mode) => mode === "development";
-
 /**
- * @param {unknown} mode
- * @returns {"production" | "development"}
- */
-function parseMode(mode) {
-  if (isProd(mode)) return "production";
-  else if (isDev(mode)) return "development";
-  else throw new Error(`mode '${mode}' not "production" | "development"`);
-}
-
-/**
- * @typedef {{[index: string]: string | boolean | Env}} Env
- */
-
-/**
- * @param {Env} env
+ * @param {{ serverMode: string }} env
+ * @param {{ mode: "production" | "development"}} argv
  * @returns {import("webpack").Configuration}
  */
-function config(env) {
-  const mode = parseMode(env.mode);
-
+function config({ serverMode }, { mode }) {
+  console.log("webpack running with", serverMode, mode);
   return {
     mode,
-    devtool: isProd(mode) ? false : "eval-source-map",
+    devtool: mode === "development" ? "eval-source-map" : false,
     entry: "./src/index.tsx",
     resolve: {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
@@ -68,8 +51,7 @@ function config(env) {
         height: 32,
       }),
       new DefinePlugin({
-        "import.meta.env.DEV": JSON.stringify(isDev(mode)),
-        "import.meta.env.NODE_ENV": JSON.stringify(mode),
+        "import.meta.env.SERVER_MODE": JSON.stringify(serverMode),
       }),
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
@@ -77,9 +59,6 @@ function config(env) {
         hash: true,
       }),
     ],
-    optimization: {
-      minimize: isProd(mode),
-    },
   };
 }
 

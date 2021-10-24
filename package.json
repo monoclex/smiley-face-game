@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "tsc": "lerna run tsc --no-bail --parallel",
+    "build:dev": "lerna run build:dev --no-bail --parallel",
+    "build:prod": "lerna run build:prod --no-bail --parallel",
     "lint": "lerna run lint --no-bail --parallel",
     "lint:fix": "lerna run lint:fix --no-bail --parallel",
     "serve": "lerna run serve --parallel"

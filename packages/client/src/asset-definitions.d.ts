@@ -22,6 +22,6 @@ declare module "*.svg" {
 interface ImportMeta {
   env: {
     NODE_ENV: string;
-    DEV: boolean;
+    SERVER_MODE: string;
   };
 }
