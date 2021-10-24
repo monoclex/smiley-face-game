@@ -7,7 +7,7 @@ const Selected = styled(Grid)({
   marginBottom: 8,
 });
 // so that this doesn't get ripped out, cuz we need it later for refactors
-console.log(Selected);
+globalThis["refactorMeLater"] = Selected;
 
 const LineheightlessGrid = styled(Grid)({
   // the line height on grid item that contains the image causes the size of the div to be 32x35.(...), which is a result of the

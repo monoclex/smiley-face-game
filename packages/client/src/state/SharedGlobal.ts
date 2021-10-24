@@ -14,7 +14,6 @@ export default class SharedGlobal<T> {
   }
 
   initialize({ setSelf, onSet }: RecoilEffects<T>): void {
-    console.log("init", this);
     if (this._valueSynchronized === false) {
       setSelf(this._value);
     }
@@ -22,12 +21,10 @@ export default class SharedGlobal<T> {
     this._setSelf = setSelf;
     this._onSet = onSet;
     this._onSet((value: T) => {
-      console.log("onSet fired");
       this._value = value;
       if (this._userOnValue) this._userOnValue(value);
       this._valueSynchronized = true;
     });
-    console.log("doneinit", this);
   }
 
   get state(): T {
@@ -35,14 +32,11 @@ export default class SharedGlobal<T> {
   }
 
   set(payload: T) {
-    console.log("set fired");
     this._value = payload;
     if (this._userOnValue) this._userOnValue(payload);
     this._valueSynchronized = false;
 
-    console.log("check setting self", this._setSelf);
     if (!this._setSelf) return;
-    console.log("setting self!");
     this._setSelf(this._value);
   }
 
