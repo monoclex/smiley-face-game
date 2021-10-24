@@ -53,10 +53,21 @@ export default function Chat() {
 
   const [isActive, setActive] = useRecoilState(chatOpenState);
 
+  const closeChat = () => {
+    console.log("chat closed");
+    reset();
+    inputRef.current.blur();
+    setActive(false);
+  };
+
   const onKeyDown = ({ keyCode }) => {
     // enter key
     if (keyCode === 13 && !isActive) {
       setActive(true);
+    }
+    // escape key
+    else if (keyCode === 27 && !isActive) {
+      closeChat();
     }
   };
 
@@ -78,9 +89,7 @@ export default function Chat() {
       state.game.connection.chat(values.content);
     }
 
-    reset();
-    inputRef.current.blur();
-    setActive(false);
+    closeChat();
   };
 
   return (
@@ -104,12 +113,9 @@ export default function Chat() {
                 name="content"
                 placeholder="Press Enter to chat"
                 onFocus={() => setActive(true)}
-                onBlur={() => setActive(false)}
+                onBlur={closeChat}
                 {...register("content")}
-                inputRef={(ref) => {
-                  // register(ref);
-                  inputRef.current = ref;
-                }}
+                inputRef={(ref) => (inputRef.current = ref)}
               />
             </form>
           </div>
