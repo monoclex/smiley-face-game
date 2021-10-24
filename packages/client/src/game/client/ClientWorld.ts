@@ -47,6 +47,8 @@ export default class ClientWorld extends World {
       for (let yIdx = 0; yIdx < this.size.height; yIdx++) {
         const y = layer[yIdx];
         for (let x = 0; x < this.size.width; x++) {
+          // because we've cleared the world, we don't want to place an empty tile
+          // when we already have an *actual* empty tile
           if (y[x] === 0) continue;
           const textureName = this.tileJson.texture(y[x]);
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
@@ -57,6 +59,10 @@ export default class ClientWorld extends World {
 
   placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
     super.placeBlock(author, x, y, id, layer);
+
+    // TODO: the reason we clear the world is because there's some fun fiddlyness
+    // regarding placing the empty tile atop over arrow tiles and whatnot
+
     this.foreground.clear();
     this.decoration.clear();
     this.load(this.state);

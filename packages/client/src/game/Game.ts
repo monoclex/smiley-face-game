@@ -56,7 +56,7 @@ export default class Game {
    * @param deltaMs The amount of milliseconds that have elapsed since the last tick.
    */
   tick(deltaMs: number) {
-    // TO-DON'T: account for deltaMs and operate ticks at a fixed interval
+    // TODON'T: account for deltaMs and operate ticks at a fixed interval
     // ^ going to end up using LukeM physics, so no need
     for (const p of this.players) {
       p.tick(this, deltaMs);
