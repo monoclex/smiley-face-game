@@ -80,6 +80,7 @@ export default function Chat() {
 
     reset();
     inputRef.current.blur();
+    setActive(false);
   };
 
   return (
@@ -104,8 +105,9 @@ export default function Chat() {
                 placeholder="Press Enter to chat"
                 onFocus={() => setActive(true)}
                 onBlur={() => setActive(false)}
+                {...register("content")}
                 inputRef={(ref) => {
-                  register(ref);
+                  // register(ref);
                   inputRef.current = ref;
                 }}
               />
