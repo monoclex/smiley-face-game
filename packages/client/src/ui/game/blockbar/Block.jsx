@@ -3,12 +3,6 @@ import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material";
 
-const Selected = styled(Grid)({
-  marginBottom: 8,
-});
-// so that this doesn't get ripped out, cuz we need it later for refactors
-globalThis["refactorMeLater"] = Selected;
-
 const LineheightlessGrid = styled(Grid)({
   // the line height on grid item that contains the image causes the size of the div to be 32x35.(...), which is a result of the
   // line height affecting the height
@@ -21,12 +15,7 @@ const BlockPreview = styled("img")({
   height: 32,
   pointerEvents: "all",
   imageRendering: "pixelated",
-  // TODO: include this for selected blocks
-  // hover: {
-  //   "&:hover": {
-  //     marginBottom: 8,
-  //   },
-  // },
+  "&:hover": { marginBottom: "8px" },
 });
 
 const Block = (props) => {
@@ -54,12 +43,7 @@ const Block = (props) => {
   };
 
   return (
-    <Grid
-    // TODO: conditionally apply "Selected"
-    // className={clsx({
-    //   [classes.selected]: props.selected,
-    // })}
-    >
+    <Grid sx={{ marginBottom: props.selected ? "8px" : 0 }}>
       <Grid item container justifyContent="center">
         <span>{props.slot}</span>
       </Grid>
