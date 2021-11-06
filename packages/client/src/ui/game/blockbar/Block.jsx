@@ -48,7 +48,6 @@ const Block = (props) => {
         <span>{props.slot}</span>
       </Grid>
       <LineheightlessGrid item>
-        {/* TODO: for block previews, add code if they're selected */}
         <BlockPreview onClick={handleClick} src={imageSource} />
       </LineheightlessGrid>
     </Grid>
