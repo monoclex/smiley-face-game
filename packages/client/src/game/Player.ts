@@ -73,6 +73,13 @@ const ArrowDirection = {
   Down: 2,
   Left: 3,
 };
+const BoostDirection = {
+  Up: 4,
+  Right: 5,
+  Down: 6,
+  Left: 7,
+};
+const isBoost = (boostDirection: number) => boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
 
 function hackyMapGunStateToString(g: GunState): "none" | "carrying" | "held" {
   if (g === GunState.None) return "none";
@@ -222,6 +229,7 @@ export default class Player implements PhysicsObject {
       this.origModX = this.modX;
       this.origModY = this.modY;
 
+      // EE comment: "Process gravity"
       switch (current) {
         case ArrowDirection.Left:
           this.origModX = -Config.physics.gravity;
@@ -239,6 +247,13 @@ export default class Player implements PhysicsObject {
         default:
           this.origModX = 0;
           this.origModY = Config.physics.gravity;
+          break;
+        case BoostDirection.Left:
+        case BoostDirection.Up:
+        case BoostDirection.Right:
+        case BoostDirection.Down:
+          this.origModX = 0;
+          this.origModY = 0;
           break;
       }
 
@@ -259,6 +274,13 @@ export default class Player implements PhysicsObject {
         default:
           this.modX = 0;
           this.modY = Config.physics.gravity;
+          break;
+        case BoostDirection.Left:
+        case BoostDirection.Up:
+        case BoostDirection.Right:
+        case BoostDirection.Down:
+          this.modX = 0;
+          this.modY = 0;
           break;
       }
     }
@@ -318,6 +340,29 @@ export default class Player implements PhysicsObject {
       }
     }
 
+    if (!isFlying) {
+      switch (this.findBoostDirection(blockX, blockY, game)) {
+        case BoostDirection.Left:
+          this.speedX = -Config.physics.boost;
+          break;
+        case BoostDirection.Right:
+          this.speedX = Config.physics.boost;
+          break;
+        case BoostDirection.Up:
+          this.speedY = -Config.physics.boost;
+          break;
+        case BoostDirection.Down:
+          this.speedY = Config.physics.boost;
+          break;
+      }
+
+      const isDead = false;
+      if (isDead) {
+        this.speedX = 0;
+        this.speedY = 0;
+      }
+    }
+
     let remainderX = this.x % 1,
       remainderY = this.y % 1;
     let currentSX = this.speedX,
@@ -344,7 +389,7 @@ export default class Player implements PhysicsObject {
           currentSX = 0;
         }
       } else if (currentSX < 0) {
-        if (remainderX + currentSX < 0 && remainderX != 0) {
+        if (remainderX + currentSX < 0 && (remainderX != 0 || isBoost(current))) {
           currentSX += remainderX;
           this.x -= remainderX;
           this.x >>= 0;
@@ -378,7 +423,7 @@ export default class Player implements PhysicsObject {
           currentSY = 0;
         }
       } else if (currentSY < 0) {
-        if (remainderY + currentSY < 0 && remainderY != 0) {
+        if (remainderY + currentSY < 0 && (remainderY != 0 || isBoost(current))) {
           currentSY += remainderY;
           this.y -= remainderY;
           this.y >>= 0;
@@ -516,7 +561,21 @@ export default class Player implements PhysicsObject {
       ? ArrowDirection.Down
       : actionBlock === game.tileJson.id("arrow-left")
       ? ArrowDirection.Left
-      : ArrowDirection.Down;
+      : this.findBoostDirection(worldX, worldY, game) || ArrowDirection.Down;
+  }
+
+  findBoostDirection(blockX: number, blockY: number, game: Game) {
+    const actionBlock = game.world.blockAt(blockX, blockY, TileLayer.Action);
+
+    return actionBlock === game.tileJson.id("boost-up")
+      ? BoostDirection.Up
+      : actionBlock === game.tileJson.id("boost-right")
+      ? BoostDirection.Right
+      : actionBlock === game.tileJson.id("boost-down")
+      ? BoostDirection.Down
+      : actionBlock === game.tileJson.id("boost-left")
+      ? BoostDirection.Left
+      : undefined;
   }
 
   capIntoWorldBoundaries(game: Game) {
