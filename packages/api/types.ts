@@ -177,7 +177,8 @@ export const zTileBehavior = addParse(
     "empty" as const,
     "solid" as const,
     "gun" as const,
-    "arrow" as const
+    "arrow" as const,
+    "boost" as const
   )
 );
 export type ZTileBehavior = SchemaInput<typeof zTileBehavior>;
@@ -215,6 +216,9 @@ export const zTileJson = addParse(
     },
     {
       behavior: "empty" as const,
+    },
+    {
+      behavior: "boost" as const,
     }
   )
 );
