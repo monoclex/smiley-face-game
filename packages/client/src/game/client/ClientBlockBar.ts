@@ -18,6 +18,7 @@ export default class ClientBlockBar {
         [6]: tileJson.id("tshell-white"),
         [7]: tileJson.id("pyramid-white"),
         [8]: tileJson.id("choc-l0"),
+        [9]: tileJson.id("boost-up"),
       },
     });
   }
