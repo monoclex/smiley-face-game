@@ -110,6 +110,14 @@ export default class RoomManager {
     if (details.type === "join") {
       const room = this.#rooms.get(details.id);
 
+      // useful for development
+      if (details.id.startsWith("D")) {
+        const id = this.#generator.genIdForDynamicWorld();
+        const newRoom = new Room(new DynamicBehaviour({ type: "create", width: 25, height: 25, name: "gaming" }, id));
+        this.#rooms.set(id, newRoom);
+        return newRoom;
+      }
+
       if (room === undefined) {
         // "what if the room doesn't exist?" that's handled by room's run() function
         const newRoom = new Room(new SavedBehaviour(this.#deps.worldRepo, details.id));

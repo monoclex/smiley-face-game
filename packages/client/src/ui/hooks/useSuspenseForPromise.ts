@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import useTeardown from "./useTeardown";
 
 const cache = new Map<unknown, SuspenseState<unknown>>();

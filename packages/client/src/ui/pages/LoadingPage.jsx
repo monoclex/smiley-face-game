@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useLayoutEffect, useState } from "react";
 
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
@@ -10,6 +10,9 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
 import { styled } from "@mui/material";
 import useTeardown from "../hooks/useTeardown";
+import useResize from "../hooks/useResize";
+import PlayPage from "./NewPlayPage";
+import { BigLoading } from "../components/FullscreenBackdropLoading";
 
 const GameContainer = styled("div")({
   lineHeight: "1px",
@@ -23,9 +26,10 @@ function LoadingPage({ gameElement }) {
   const auth = useAuth();
 
   const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
+    console.log("Renderer made");
     const renderer = new Renderer({
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: gameElement.width,
+      height: gameElement.height,
       view: gameElement,
       antialias: true,
     });
@@ -46,12 +50,10 @@ function LoadingPage({ gameElement }) {
   // run `cleanup` on component removal
   useEffect(() => cleanup, [cleanup]);
 
-  return (
-    <>
-      <NewPlayPage game={game} gameElement={gameElement} />
-    </>
-  );
+  return null;
 }
+
+// function
 
 export default function LoadingPageWrapper() {
   const [callback, setCallback] = useState(() => () => {
@@ -62,13 +64,18 @@ export default function LoadingPageWrapper() {
   // run `callback` on component teardown
   useTeardown(() => callback, [callback]);
 
-  const [gameElement] = useState(document.createElement("canvas"));
-  gameElement.oncontextmenu = () => false; // don't show inspect on right click
+  const [gameElement] = useState(() => {
+    const gameElement = document.createElement("canvas");
+    gameElement.oncontextmenu = () => false; // don't show inspect on right click
+    return gameElement;
+  });
 
   return (
-    <ErrorBoundary callback={setCallback}>
-      <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
-      <LoadingPage gameElement={gameElement} />
+    <ErrorBoundary callback={(recover) => setCallback(() => recover)}>
+      <PlayPage>
+        <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
+        <LoadingPage gameElement={gameElement} />
+      </PlayPage>
     </ErrorBoundary>
   );
 }

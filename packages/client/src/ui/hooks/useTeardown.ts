@@ -1,5 +1,5 @@
 // "stolen" from myself :) https://stackoverflow.com/a/69931123/3780113
-import React, { useEffect, useMemo } from "react";
+import React, { useLayoutEffect, useMemo } from "react";
 import { isDebugMode } from "../../isProduction";
 
 const teardowns: (() => void)[] = [];
@@ -34,7 +34,7 @@ export default function useTeardown(onTeardown: () => Teardown, deps: React.Depe
   // Here, we register a `useEffect` hook to run. This will be the "happy path" for
   // our teardown function, as if the component renders, we can let React guarantee
   // us for the cleanup function to be ran.
-  useEffect(() => {
+  useLayoutEffect(() => {
     // If the effect gets called, that means we can rely on React to run our cleanup
     // handler.
     teardown.registered = true;
