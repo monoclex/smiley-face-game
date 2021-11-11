@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import useTeardown from "./useTeardown";
 
 const cache = new Map<unknown, SuspenseState<unknown>>();
 
@@ -28,16 +29,15 @@ export default function useSuspenseForPromise<T>(key: string, promiseFactory: ()
     throw makePromise();
   }
 
+  useTeardown(
+    () => () => {
+      cache.delete(key);
+    },
+    []
+  );
+
   if ("error" in state) throw state.error;
-  if ("value" in state) {
-    useEffect(
-      () => () => {
-        cache.delete(key);
-      },
-      []
-    );
-    return state.value;
-  }
+  if ("value" in state) return state.value;
 
   throw new Error("impossible");
 }

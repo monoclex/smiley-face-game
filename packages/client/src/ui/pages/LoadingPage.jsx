@@ -9,6 +9,7 @@ import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
 import { styled } from "@mui/material";
+import useTeardown from "../hooks/useTeardown";
 
 const GameContainer = styled("div")({
   lineHeight: "1px",
@@ -59,7 +60,7 @@ export default function LoadingPageWrapper() {
   });
 
   // run `callback` on component teardown
-  useEffect(() => callback, [callback]);
+  useTeardown(() => callback, [callback]);
 
   const [gameElement] = useState(document.createElement("canvas"));
   gameElement.oncontextmenu = () => false; // don't show inspect on right click
