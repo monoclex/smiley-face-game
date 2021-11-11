@@ -4,8 +4,16 @@ import App from "./ui/App";
 import { rewriteHost, useDev } from "@smiley-face-game/api/endpoints";
 import { serverMode } from "./isProduction";
 import { routesRewritten } from "./rewritten";
+import whyDidYouRender from "@welldone-software/why-did-you-render";
 
 if (serverMode === "localhost") {
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+    titleColor: "red",
+    trackHooks: true,
+    logOwnerReasons: true,
+    logOnDifferentValues: true,
+  });
   rewriteHost((endpoint) => ({ ...endpoint, host: "localhost:8080/v1" }));
 } else if (serverMode === "development") {
   useDev();

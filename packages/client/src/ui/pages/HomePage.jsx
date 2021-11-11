@@ -15,7 +15,6 @@ const HomePage = () => {
 
   // if they have a token, they should go straight to the lobby
   if (token) {
-    // can't perform transition within a render
     return <Redirect to="/lobby" />;
   }
 

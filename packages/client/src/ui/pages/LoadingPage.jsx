@@ -13,6 +13,7 @@ export default function LoadingPage() {
   const history = useHistory();
   const location = useLocation();
   const match = useRouteMatch("/games/:id");
+
   const auth = useAuth();
 
   const [gameElement] = useState(document.createElement("canvas"));
@@ -41,7 +42,7 @@ export default function LoadingPage() {
       .then(({ game, cleanup }) => {
         completion.resolve(cleanup);
         setGame(game);
-        history.push(`/games/${game.connection.init.worldId}`, undefined);
+        history.replace(`/games/${game.connection.init.worldId}`, undefined);
       })
       .catch((error) => {
         completion.resolve(() => {
