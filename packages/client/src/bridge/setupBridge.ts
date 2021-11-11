@@ -53,9 +53,14 @@ export default async function setupBridge(
     requestAnimationFrame(loop);
   };
 
+  requestAnimationFrame((elapsed) => {
+    timeStart = elapsed;
+    game.tick(0);
+    requestAnimationFrame(loop);
+  });
+
   // connect game to `state` so react components can call methods on it
   state.game = game;
-  state.loop = loop;
 
   return {
     game,

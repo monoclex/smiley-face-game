@@ -21,10 +21,6 @@ function LoadingPage({ gameElement }) {
 
   const auth = useAuth();
 
-  // const [game, setGame] = useState(undefined);
-
-  // don't show inspect on right click
-
   const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: window.innerWidth,
@@ -32,8 +28,6 @@ function LoadingPage({ gameElement }) {
       view: gameElement,
       antialias: true,
     });
-
-    // const completion = new PromiseCompletionSource();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -49,9 +43,8 @@ function LoadingPage({ gameElement }) {
   });
 
   // run `cleanup` on component removal
-  useEffect(() => () => cleanup(), [cleanup]);
+  useEffect(() => cleanup, [cleanup]);
 
-  console.log("rendering game", game);
   return (
     <>
       <NewPlayPage game={game} gameElement={gameElement} />
@@ -61,24 +54,18 @@ function LoadingPage({ gameElement }) {
 
 export default function LoadingPageWrapper() {
   const [callback, setCallback] = useState(() => () => {
-    // for types
+    // we give a factory to an empty callback
+    // this is so we infer the type of `callback` correctly
   });
-  const [gameElement] = useState(document.createElement("canvas"));
-  gameElement.oncontextmenu = () => false;
 
-  useEffect(
-    () => () => {
-      if (callback) callback();
-    },
-    [callback]
-  );
+  // run `callback` on component teardown
+  useEffect(() => callback, [callback]);
+
+  const [gameElement] = useState(document.createElement("canvas"));
+  gameElement.oncontextmenu = () => false; // don't show inspect on right click
 
   return (
-    <ErrorBoundary
-      callback={(errorBoundary, recover) => {
-        setCallback(recover.bind(errorBoundary));
-      }}
-    >
+    <ErrorBoundary callback={setCallback}>
       <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
       <LoadingPage gameElement={gameElement} />
     </ErrorBoundary>
