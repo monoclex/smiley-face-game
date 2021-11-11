@@ -15,7 +15,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const GuestPage = lazy(() => import("./pages/GuestPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const LobbyPage = lazy(() => import("./pages/LobbyPage"));
-const PlayPage = lazy(() => import("./pages/LoadingPage"));
+const PlayPage = lazy(() => import("./pages/PlayPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
 

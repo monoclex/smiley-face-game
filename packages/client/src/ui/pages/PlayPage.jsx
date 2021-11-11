@@ -3,17 +3,17 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
-import NewPlayPage from "./NewPlayPage";
 import { useHistory, useLocation, useRouteMatch } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
 import { styled } from "@mui/material";
 import useTeardown from "../hooks/useTeardown";
-import PlayPage from "./NewPlayPage";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
+import GameUI from "../game/GameUI";
 
-function LoadingPage({ gameElement, size: { width, height } }) {
+// TODO: this is weird as a component, but it WORKS and im TIRED of touching this code
+function ConnectToGame({ gameElement, size: { width, height } }) {
   const history = useHistory();
   const location = useLocation();
   const match = useRouteMatch("/games/:id");
@@ -94,13 +94,13 @@ function GameArea() {
   return (
     <EntireDiv ref={divRef}>
       <Suspense fallback={<BigLoading />}>
-        <LoadingPage gameElement={gameElement} size={size} />
+        <ConnectToGame gameElement={gameElement} size={size} />
       </Suspense>
     </EntireDiv>
   );
 }
 
-export default function LoadingPageWrapper() {
+export default function PlayPage() {
   const [callback, setCallback] = useState(() => () => {
     // we give a factory to an empty callback
     // this is so we infer the type of `callback` correctly
@@ -111,9 +111,9 @@ export default function LoadingPageWrapper() {
 
   return (
     <ErrorBoundary callback={(recover) => setCallback(() => recover)}>
-      <PlayPage>
+      <GameUI>
         <GameArea />
-      </PlayPage>
+      </GameUI>
     </ErrorBoundary>
   );
 }

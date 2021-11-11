@@ -1,21 +1,11 @@
 //@ts-check
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React from "react";
 import { Grid, styled } from "@mui/material";
-import Chat from "../../ui/game/chat/Chat";
-import BlockBar from "../../ui/game/blockbar/BlockBar";
-import PlayerList from "../../ui/game/playerlist/PlayerList";
-import MobileControls from "../game/MobileControls";
-import WorldSettingsButton from "../game/WorldSettingsButton";
-import { isDebugMode } from "../../isProduction";
-
-const UiOverlay = styled(Grid)({
-  // position: "absolute",
-  // top: 0,
-  // left: 0,
-  // right: 0,
-  // bottom: 0,
-  // pointerEvents: "none",
-});
+import Chat from "./chat/Chat";
+import BlockBar from "./blockbar/BlockBar";
+import PlayerList from "./playerlist/PlayerList";
+import MobileControls from "./MobileControls";
+import WorldSettingsButton from "./WorldSettingsButton";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -51,7 +41,7 @@ const PlayWindow = styled(Grid)({
   backgroundColor: "black",
 });
 
-export default function PlayPage({ children }) {
+export default function GameUI({ children: gameCanvas }) {
   // if you're trying to do UI design, see "uncomment me" in packages/server/src/RoomManager.ts
   // that way you don't have to constanttly create a new room
 
@@ -60,7 +50,7 @@ export default function PlayPage({ children }) {
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
           <PlayWindow item xs>
-            {children}
+            {gameCanvas}
           </PlayWindow>
           <GrayFilled item xs={2}>
             <Grid container item direction="row" alignItems="stretch">
