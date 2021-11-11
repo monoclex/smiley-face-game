@@ -63,90 +63,28 @@ export default function PlayPage({ children }) {
             {children}
           </PlayWindow>
           <GrayFilled item xs={2}>
-            <h1> block bar </h1>
+            <Grid container item direction="row" alignItems="stretch">
+              <Grid container item xs={3} justifyContent="center">
+                <MobileControls />
+              </Grid>
+              <Grid container item xs={6} justifyContent="flex-end">
+                <BlockBar />
+              </Grid>
+              <Grid container item xs={3} alignItems="flex-end">
+                <WorldSettingsButton />
+              </Grid>
+            </Grid>
           </GrayFilled>
         </Grid>
         <Grid item xs={2} container direction="column" alignItems="stretch" justifyContent="">
           <BlackFilled item xs={2}>
-            <h1> chat window </h1>
+            <PlayerList />
           </BlackFilled>
           <BlackFilledScrollDiv item xs>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
-            <p>a</p>
+            <Chat />
           </BlackFilledScrollDiv>
         </Grid>
       </RootGrid>
     </>
-    // <>
-    //   <UiOverlay container alignItems="stretch">
-    //     <Grid container item direction="row" alignItems="stretch">
-    //       <Grid container item xs={3} justifyContent="center">
-    //         <MobileControls />
-    //       </Grid>
-    //       <Grid container item xs={6} justifyContent="flex-end">
-    //         <BlockBar loader={(id) => game.blockBar.load(id)} />
-    //       </Grid>
-    //       <Grid container item xs={3} alignItems="flex-end">
-    //         <WorldSettingsButton />
-    //       </Grid>
-    //     </Grid>
-    //     {/* the 100% - 100px comes from the joystick which is 100px. this is awful */}
-    //     {/* oh, and to add to the awfulness, we subtract like 13 more pixels just incase it overflows because why not */}
-    //     <Grid container item direction="row" alignItems="stretch" style={{ height: "calc(100% - 100px - 13px)" }}>
-    //       <Grid item xs={6} container alignItems="flex-end">
-    //         <Chat />
-    //       </Grid>
-    //       <Grid item xs={6} container direction="column" justifyContent="center" alignItems="flex-end">
-    //         <PlayerList />
-    //       </Grid>
-    //     </Grid>
-    //   </UiOverlay>
-    // </>
   );
 }

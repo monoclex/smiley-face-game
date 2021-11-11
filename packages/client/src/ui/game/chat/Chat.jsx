@@ -20,9 +20,6 @@ const ChatListGrid = styled(Grid)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   borderTopLeftRadius: theme.shape.borderRadius,
   borderTopRightRadius: theme.shape.borderRadius,
-  paddingLeft: 5,
-  paddingRight: 5,
-  width: "40%",
 }));
 
 const ChatList = styled(SpringScrollbars)({
@@ -36,7 +33,6 @@ const ChatField = styled(Grid)(({ theme }) => ({
   borderBottomRightRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   pointerEvents: "all",
-  width: "40%",
   padding: 5,
 }));
 

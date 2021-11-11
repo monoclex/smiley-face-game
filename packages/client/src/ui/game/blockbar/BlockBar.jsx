@@ -21,7 +21,7 @@ function ensureIsSlotId(i) {
   throw new Error("is not slot id");
 }
 
-const BlockBar = ({ loader }) => {
+const BlockBar = () => {
   const keys = "`1234567890-=".split("");
 
   const [blockbar, setBlockbar] = useRecoilState(blockBarState);
@@ -93,7 +93,7 @@ const BlockBar = ({ loader }) => {
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: ensureIsSlotId(i) })}
           selected={blockbar.selected === i}
-          loader={loader}
+          loader={(id) => state.game.blockBar.load(id)}
         />
       ))}
     </Grid>
