@@ -3,7 +3,7 @@ import useTeardown from "./useTeardown";
 const cache = new Map<unknown, SuspenseState<unknown>>();
 
 type SuspenseState<T> = SuspenseNone | SuspenseError | SuspenseValue<T>;
-type SuspenseNone = [];
+type SuspenseNone = { loading: Promise<T> };
 type SuspenseError = { error: Error };
 type SuspenseValue<T> = { value: T };
 
@@ -25,8 +25,11 @@ export default function useSuspenseForPromise<T>(key: string, promiseFactory: ()
 
   const state = cache.get(key) as SuspenseState<T> | undefined;
   if (!state) {
-    throw makePromise();
+    const promise = makePromise();
+    cache.set(key, { loading: promise });
+    throw promise;
   }
+  if ("loading" in state) throw state.loading;
 
   useTeardown(
     () => () => {
