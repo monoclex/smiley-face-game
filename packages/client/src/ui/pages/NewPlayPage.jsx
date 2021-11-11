@@ -6,6 +6,7 @@ import BlockBar from "../../ui/game/blockbar/BlockBar";
 import PlayerList from "../../ui/game/playerlist/PlayerList";
 import MobileControls from "../game/MobileControls";
 import WorldSettingsButton from "../game/WorldSettingsButton";
+import state from "../../bridge/state";
 
 // TODO: better name
 const GameContainer = styled("div")({
@@ -30,6 +31,16 @@ export default function PlayPage({ game, gameElement }) {
 
     window.addEventListener("resize", listener);
     return () => window.removeEventListener("resize", listener);
+  }, []);
+
+  useEffect(() => {
+    const loop = state.loop;
+
+    requestAnimationFrame((elapsed) => {
+      // timeStart = elapsed;
+      game.tick(0);
+      requestAnimationFrame(loop);
+    });
   }, []);
 
   return (

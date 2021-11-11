@@ -141,11 +141,11 @@ const LobbyPage = () => {
 
 const LobbyPageWrapper = () => {
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<FullscreenBackdropLoading />}>
+    <Suspense fallback={<FullscreenBackdropLoading />}>
+      <ErrorBoundary>
         <LobbyPage />
-      </Suspense>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </Suspense>
   );
 };
 

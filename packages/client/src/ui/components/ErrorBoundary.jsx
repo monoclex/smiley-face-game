@@ -30,8 +30,8 @@ export default class ErrorBoundary extends Component {
     return (
       <>
         <h1>Something went wrong</h1>
-        <span>{error.toString()}</span>
-        <span>{error.stack}</span>
+        <p>{error.toString()}</p>
+        <code>{error.stack}</code>
       </>
     );
   }

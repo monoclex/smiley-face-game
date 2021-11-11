@@ -40,7 +40,7 @@ export default async function setupBridge(
 
   connectToRecoil(game.stateSystem);
 
-  let timeStart: number;
+  let timeStart: number = new Date().getDate();
 
   // eslint-disable-next-line no-undef
   const loop: FrameRequestCallback = (elapsed) => {
@@ -53,14 +53,9 @@ export default async function setupBridge(
     requestAnimationFrame(loop);
   };
 
-  requestAnimationFrame((elapsed) => {
-    timeStart = elapsed;
-    game.tick(0);
-    requestAnimationFrame(loop);
-  });
-
   // connect game to `state` so react components can call methods on it
   state.game = game;
+  state.loop = loop;
 
   return {
     game,

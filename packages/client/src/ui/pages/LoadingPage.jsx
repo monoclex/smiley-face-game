@@ -1,15 +1,15 @@
 //@ts-check
 import React, { useEffect, useState } from "react";
 
-import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
-import PromiseCompletionSource from "../../PromiseCompletionSource";
 import NewPlayPage from "./NewPlayPage";
 import { useHistory, useLocation, useRouteMatch } from "react-router";
 import { useAuth } from "../hooks";
+import ErrorBoundary from "../components/ErrorBoundary";
+import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
 
-export default function LoadingPage() {
+function LoadingPage() {
   const history = useHistory();
   const location = useLocation();
   const match = useRouteMatch("/games/:id");
@@ -17,12 +17,12 @@ export default function LoadingPage() {
   const auth = useAuth();
 
   const [gameElement] = useState(document.createElement("canvas"));
-  const [game, setGame] = useState(undefined);
+  // const [game, setGame] = useState(undefined);
 
   // don't show inspect on right click
   gameElement.oncontextmenu = () => false;
 
-  useEffect(() => {
+  const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -30,43 +30,32 @@ export default function LoadingPage() {
       antialias: true,
     });
 
-    const completion = new PromiseCompletionSource();
+    // const completion = new PromiseCompletionSource();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
+    const { game, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
       if (game.running) {
         window.history.back();
       }
-    })
-      .then(({ game, cleanup }) => {
-        completion.resolve(cleanup);
-        setGame(game);
-        history.replace(`/games/${game.connection.init.worldId}`, undefined);
-      })
-      .catch((error) => {
-        completion.resolve(() => {
-          // what we resolve the completion with must be callable
-        });
-        setGame(error);
-      });
+    });
 
-    return () => {
-      completion.handle.then((cleanup) => cleanup());
-    };
-  }, []);
+    history.replace(`/games/${game.connection.init.worldId}`, undefined);
 
-  if (game === undefined) {
-    return <FullscreenBackdropLoading />;
-  } else if (game instanceof Error) {
-    console.error(game);
-    return (
-      <>
-        <h1>errrooooooooooooo</h1>
-        {game.toString()} at <code>{game.stack}</code>
-      </>
-    );
-  } else {
-    return <NewPlayPage game={game} gameElement={gameElement} />;
-  }
+    return { game, cleanup };
+  });
+
+  // run `cleanup` on component removal
+  useEffect(() => () => cleanup(), [cleanup]);
+
+  console.log("rendering game", game);
+  return <NewPlayPage game={game} gameElement={gameElement} />;
+}
+
+export default function LoadingPageWrapper() {
+  return (
+    <ErrorBoundary>
+      <LoadingPage />
+    </ErrorBoundary>
+  );
 }
