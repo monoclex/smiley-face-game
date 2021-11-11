@@ -45,7 +45,7 @@ export default function PlayPage({ game, gameElement }) {
 
   return (
     <>
-      <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
+      {/* <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} /> */}
       <UiOverlay container direction="column-reverse" alignItems="stretch">
         <Grid container item direction="row" alignItems="stretch">
           <Grid container item xs={3} justifyContent="center">

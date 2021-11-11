@@ -8,19 +8,22 @@ import { useHistory, useLocation, useRouteMatch } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
+import { styled } from "@mui/material";
 
-function LoadingPage() {
+const GameContainer = styled("div")({
+  lineHeight: "1px",
+});
+
+function LoadingPage({ gameElement }) {
   const history = useHistory();
   const location = useLocation();
   const match = useRouteMatch("/games/:id");
 
   const auth = useAuth();
 
-  const [gameElement] = useState(document.createElement("canvas"));
   // const [game, setGame] = useState(undefined);
 
   // don't show inspect on right click
-  gameElement.oncontextmenu = () => false;
 
   const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
@@ -49,13 +52,35 @@ function LoadingPage() {
   useEffect(() => () => cleanup(), [cleanup]);
 
   console.log("rendering game", game);
-  return <NewPlayPage game={game} gameElement={gameElement} />;
+  return (
+    <>
+      <NewPlayPage game={game} gameElement={gameElement} />
+    </>
+  );
 }
 
 export default function LoadingPageWrapper() {
+  const [callback, setCallback] = useState(() => () => {
+    // for types
+  });
+  const [gameElement] = useState(document.createElement("canvas"));
+  gameElement.oncontextmenu = () => false;
+
+  useEffect(
+    () => () => {
+      if (callback) callback();
+    },
+    [callback]
+  );
+
   return (
-    <ErrorBoundary>
-      <LoadingPage />
+    <ErrorBoundary
+      callback={(errorBoundary, recover) => {
+        setCallback(recover.bind(errorBoundary));
+      }}
+    >
+      <GameContainer ref={(elem) => elem && elem.appendChild(gameElement)} />
+      <LoadingPage gameElement={gameElement} />
     </ErrorBoundary>
   );
 }
