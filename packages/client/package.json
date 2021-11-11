@@ -47,7 +47,7 @@
     "react-sizeme": "^3.0.2",
     "react-use": "^17.3.1",
     "rebound": "^0.1.0",
-    "recoil": "^0.4.1"
+    "recoil": "^0.5.2"
   },
   "devDependencies": {
     "@sucrase/webpack-loader": "^2.0.0",

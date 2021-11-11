@@ -44,7 +44,8 @@ export default function useTeardown(onTeardown: () => Teardown, deps: React.Depe
         // We want to ensure that this impossible state is never reached. When the
         // `runTeardowns` function is called, it should only be ran for teardowns
         // that have not been able to be hook into `useEffect`.
-        if (teardown.called) throw new Error("teardown already called, but unregistering in useEffect");
+        if (teardown.called) console.warn("teardown already called, but unregistering in useEffect");
+        return;
       }
 
       teardown();

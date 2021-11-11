@@ -30,6 +30,11 @@ export default class ErrorBoundary extends Component {
     // eslint-disable-next-line no-console
     console.error("error boundary caught:", error);
 
+    if (this.props.render) {
+      const Render = this.props.render;
+      return <Render error={error} />;
+    }
+
     return (
       <>
         <h1>Something went wrong</h1>
