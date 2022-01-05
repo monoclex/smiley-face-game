@@ -101,6 +101,14 @@ export const zBlockLine = addParse(
 );
 export type ZBlockLine = SchemaInput<typeof zBlockLine>;
 
+export const zKeyTouch = addParse(
+  Schema({
+    packetId: "KEY_TOUCH" as const,
+    kind: "red" as const,
+  })
+);
+export type ZKeyTouch = SchemaInput<typeof zKeyTouch>;
+
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = addParse(
   Schema({
@@ -224,6 +232,17 @@ export const zsEvent = addParse(
 );
 export type ZSEvent = SchemaInput<typeof zsEvent>;
 
+export const zsKeyTouch = addParse(
+  Schema({
+    packetId: "SERVER_KEY_TOUCH" as const,
+    playerId: zUserId,
+    kind: "red" as const,
+    // TODO: change to some kind of date?
+    deactivateTime: number.integer(),
+  })
+);
+export type ZSKeyTouch = SchemaInput<typeof zsKeyTouch>;
+
 /**
  * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
  * client packets, they are expected to add them to this union. At that point, typescript type checking will take over
@@ -238,7 +257,7 @@ export const zPacket = (width: number, height: number) => {
   return addParse(
     Schema.either(
       Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
-      zBlockLine
+      Schema.either(zBlockLine, zKeyTouch)
     )
   );
 };
@@ -272,7 +291,7 @@ export const zsPacket = (width: number, height: number) => {
   return addParse(
     Schema.either(
       Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
-      Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent)
+      Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent, zsKeyTouch)
     )
   );
 };

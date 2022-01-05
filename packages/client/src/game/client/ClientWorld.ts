@@ -50,29 +50,41 @@ export default class ClientWorld extends World {
           // because we've cleared the world, we don't want to place an empty tile
           // when we already have an *actual* empty tile
           if (y[x] === 0) continue;
-          const textureName = this.tileJson.texture(y[x]);
+          const textureName = this.mapTextureName(this.tileJson.texture(y[x]));
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }
       }
     }
   }
 
-  placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
-    super.placeBlock(author, x, y, id, layer);
+  mapTextureName(name: string): string {
+    // TODO: there's got to be a better way to render different tiles depending
+    //   on if the key is pressed or not
+    if (this.redKeyTouched) {
+      if (name === "keys-red-door") return "keys-red-gate";
+      if (name === "keys-red-gate") return "keys-red-door";
+    }
+    return name;
+  }
 
+  refresh() {
     // TODO: the reason we clear the world is because there's some fun fiddlyness
     // regarding placing the empty tile atop over arrow tiles and whatnot
 
     this.foreground.clear();
     this.decoration.clear();
+    this.action.clear();
     this.load(this.state);
+  }
+
+  placeBlock(author: Player, x: number, y: number, id: number, layer?: number) {
+    super.placeBlock(author, x, y, id, layer);
+    this.refresh();
   }
 
   placeLine(author: Player, x1: number, y1: number, x2: number, y2: number, id: number, layer?: number) {
     super.placeLine(author, x1, y1, x2, y2, id, layer);
-    this.foreground.clear();
-    this.decoration.clear();
-    this.load(this.state);
+    this.refresh();
   }
 
   onPlace(layer: TileLayer, y: number, x: number, id: number) {
@@ -87,5 +99,10 @@ export default class ClientWorld extends World {
     if (pixiLayer === undefined) throw new Error("cannot onPlace");
 
     pixiLayer.addFrame(textures.block(id), x * 32, y * 32);
+  }
+
+  toggleKeyTouched(kind: "red", isTouched: boolean): void {
+    super.toggleKeyTouched(kind, isTouched);
+    this.refresh();
   }
 }

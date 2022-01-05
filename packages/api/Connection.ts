@@ -371,4 +371,14 @@ export default class Connection {
       action: { action: "load" },
     });
   }
+
+  /**
+   * Touches a red key. Players receive the ID of the user triggering a key touch, and the time at which the key effect is to wear off.
+   */
+  touchRedKey() {
+    this._send({
+      packetId: "KEY_TOUCH",
+      kind: "red",
+    });
+  }
 }

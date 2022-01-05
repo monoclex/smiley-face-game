@@ -161,6 +161,12 @@ export default class Game {
         this.handleWorldAction(player, packet.action);
         return 1;
       }
+
+      case "SERVER_KEY_TOUCH": {
+        const toucher = this.players.getPlayer(packet.playerId);
+        this.world.onKeyTouch(packet.kind, packet.deactivateTime, toucher);
+        return 1;
+      }
     }
   }
 

@@ -87,6 +87,10 @@ export default class ClientGame extends Game {
       self.setProbablyGunPickupLocation(undefined);
     };
 
+    this.world.touchRedKey = () => {
+      this.connection.touchRedKey();
+    };
+
     for (const playerInfo of connection.init.players) {
       this.players.addPlayer(playerInfo);
     }

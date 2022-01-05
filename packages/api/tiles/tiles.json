@@ -37,5 +37,10 @@
   },
   {
     "behavior": "boost"
+  },
+  {
+    "behavior": "keys",
+    "name": "keys",
+    "tiles": ["red"]
   }
 ]
