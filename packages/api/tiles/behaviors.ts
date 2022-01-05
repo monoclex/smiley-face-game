@@ -6,6 +6,7 @@ import type { ZTileBehavior, ZTileJson } from "../types";
 import type TileRegistration from "./TileRegistration";
 import type Behavior from "./Behavior";
 import BoostBehavior from "./BoostBehavior";
+import KeysBehavior from "./KeysBehavior";
 
 interface TileBehaviorConstructor {
   new (tileJson: ZTileJson, registration: TileRegistration, sourceId: number): Behavior<unknown>;
@@ -19,6 +20,7 @@ const tileBehaviorMap: TileBehaviorMap = {
   arrow: ArrowBehavior,
   gun: GunBehavior,
   boost: BoostBehavior,
+  keys: KeysBehavior,
 };
 
 export default tileBehaviorMap;

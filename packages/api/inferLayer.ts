@@ -5,6 +5,7 @@ import GunBehavior from "./tiles/GunBehavior";
 import ArrowBehavior from "./tiles/ArrowBehavior";
 import SolidBehavior from "./tiles/SolidBehavior";
 import BoostBehavior from "./tiles/BoostBehavior";
+import KeysBehavior from "./tiles/KeysBehavior";
 
 export default function inferLayer(behavior: Behavior<unknown>): TileLayer {
   if (behavior instanceof EmptyBehavior) return TileLayer.Foreground; // best guess
@@ -12,5 +13,6 @@ export default function inferLayer(behavior: Behavior<unknown>): TileLayer {
   if (behavior instanceof GunBehavior) return TileLayer.Action;
   if (behavior instanceof ArrowBehavior) return TileLayer.Action;
   if (behavior instanceof BoostBehavior) return TileLayer.Action;
+  if (behavior instanceof KeysBehavior) return TileLayer.Action;
   throw new Error("can't infer tile layer " + behavior);
 }

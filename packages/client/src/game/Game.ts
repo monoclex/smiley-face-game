@@ -56,7 +56,7 @@ export default class Game {
    * @param deltaMs The amount of milliseconds that have elapsed since the last tick.
    */
   tick(deltaMs: number) {
-    // TO-DON'T: account for deltaMs and operate ticks at a fixed interval
+    // TODON'T: account for deltaMs and operate ticks at a fixed interval
     // ^ going to end up using LukeM physics, so no need
     for (const p of this.players) {
       p.tick(this, deltaMs);
@@ -159,6 +159,12 @@ export default class Game {
       case "SERVER_WORLD_ACTION": {
         const player = this.players.getPlayer(packet.playerId);
         this.handleWorldAction(player, packet.action);
+        return 1;
+      }
+
+      case "SERVER_KEY_TOUCH": {
+        const toucher = this.players.getPlayer(packet.playerId);
+        this.world.onKeyTouch(packet.kind, packet.deactivateTime, toucher);
         return 1;
       }
     }

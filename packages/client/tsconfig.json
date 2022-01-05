@@ -3,7 +3,8 @@
     "compilerOptions": {
         "lib": ["es2020", "dom"],
         "jsx": "react",
-        "types": ["webpack-env"]
+        "types": ["webpack-env"],
+        "allowJs": true
     },
     "include": ["./src"]
 }

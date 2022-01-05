@@ -6,3 +6,4 @@ function getMode() {
 }
 
 export const serverMode = getMode();
+export const isDebugMode = serverMode === "localhost";

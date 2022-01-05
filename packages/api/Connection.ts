@@ -86,7 +86,7 @@ export default class Connection {
 
       // we've created a websocket, but did we really join?
       // listen for either 'init' or an error
-      websocket.onclose = (e) => reject(e.reason);
+      websocket.onclose = (e) => reject(new Error("WebSocket Rejection Error: " + e.reason));
       websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
     });
   }
@@ -369,6 +369,16 @@ export default class Connection {
     this._send({
       packetId: "WORLD_ACTION",
       action: { action: "load" },
+    });
+  }
+
+  /**
+   * Touches a red key. Players receive the ID of the user triggering a key touch, and the time at which the key effect is to wear off.
+   */
+  touchRedKey() {
+    this._send({
+      packetId: "KEY_TOUCH",
+      kind: "red",
     });
   }
 }

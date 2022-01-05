@@ -42,11 +42,15 @@ export default function (router: expressWs.Router, deps: UsedDependencies) {
         const room = await roomManager.join(connection, worldTokenPayload);
         await connection.play(room);
       } catch (err) {
+        let payload;
         if (typeof err === "object" && err !== null) {
-          ws.send(JSON.stringify({ error: err.toString() }));
+          payload = err.toString();
         } else {
-          ws.send(JSON.stringify({ error: err }));
+          payload = "" + err;
         }
+
+        const INTERNAL_SERVER_ERROR = 1011; // https://github.com/Luka967/websocket-close-codes
+        ws.close(INTERNAL_SERVER_ERROR, payload);
       } finally {
         if (ws.readyState === ws.OPEN) {
           ws.close();

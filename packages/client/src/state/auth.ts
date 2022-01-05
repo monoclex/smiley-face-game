@@ -12,10 +12,5 @@ export const tokenGlobal = new SharedGlobal<Token>(localStorage.getItem("token")
 export const tokenState = atom<Token>({
   key: "tokenState",
   default: false,
-  effects_UNSTABLE: [
-    tokenGlobal.initialize,
-    (s) => {
-      console.log("tokenState effects_UNSTABLE", s);
-    },
-  ],
+  effects_UNSTABLE: [tokenGlobal.initialize],
 });

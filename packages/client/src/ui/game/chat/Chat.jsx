@@ -20,9 +20,6 @@ const ChatListGrid = styled(Grid)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   borderTopLeftRadius: theme.shape.borderRadius,
   borderTopRightRadius: theme.shape.borderRadius,
-  paddingLeft: 5,
-  paddingRight: 5,
-  width: "40%",
 }));
 
 const ChatList = styled(SpringScrollbars)({
@@ -36,7 +33,6 @@ const ChatField = styled(Grid)(({ theme }) => ({
   borderBottomRightRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   pointerEvents: "all",
-  width: "40%",
   padding: 5,
 }));
 
@@ -53,10 +49,21 @@ export default function Chat() {
 
   const [isActive, setActive] = useRecoilState(chatOpenState);
 
+  const closeChat = () => {
+    console.log("chat closed");
+    reset();
+    inputRef.current.blur();
+    setActive(false);
+  };
+
   const onKeyDown = ({ keyCode }) => {
     // enter key
     if (keyCode === 13 && !isActive) {
       setActive(true);
+    }
+    // escape key
+    else if (keyCode === 27 && !isActive) {
+      closeChat();
     }
   };
 
@@ -78,8 +85,7 @@ export default function Chat() {
       state.game.connection.chat(values.content);
     }
 
-    reset();
-    inputRef.current.blur();
+    closeChat();
   };
 
   return (
@@ -103,11 +109,9 @@ export default function Chat() {
                 name="content"
                 placeholder="Press Enter to chat"
                 onFocus={() => setActive(true)}
-                onBlur={() => setActive(false)}
-                inputRef={(ref) => {
-                  register(ref);
-                  inputRef.current = ref;
-                }}
+                onBlur={closeChat}
+                {...register("content")}
+                inputRef={(ref) => (inputRef.current = ref)}
               />
             </form>
           </div>

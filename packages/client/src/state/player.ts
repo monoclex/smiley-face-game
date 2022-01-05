@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, DefaultValue, selector } from "recoil";
 import { tokenState } from "./auth";
 import { Authentication } from "@smiley-face-game/api";
 import { routesRewritten } from "../rewritten";
@@ -23,7 +23,13 @@ export const playerInfoSelector = selector<ZPlayerResp>({
     const auth = new Authentication(token);
     return await auth.player();
   },
-  set: ({ get, set }, player) => {
+  set: ({ get, set, reset }, player) => {
+    if (player instanceof DefaultValue) {
+      // reset(playerInfoSelector);
+      reset(playerInfoCacheAtom);
+      return;
+    }
+
     const token = get(tokenState);
     if (!token) throw new Error("Not authenticated!");
 

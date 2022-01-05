@@ -506,7 +506,9 @@ export default class Player implements PhysicsObject {
       }
     }
 
-    // touchBlock(cx, cy, isgodmod);
+    if (!isFlying) {
+      this.hoveringOver(game, this.center.x, this.center.y);
+    }
     // sendMovement(cx, cy);
 
     // autoalign
@@ -613,7 +615,7 @@ export default class Player implements PhysicsObject {
     const maxY = game.world.size.height;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
-    const has = (x: number, y: number) => (inBounds(x, y) ? game.world.blockAt(x, y, TileLayer.Foreground) !== 0 : true);
+    const has = (x: number, y: number) => (inBounds(x, y) ? !this.noCollision(game, game.world.blockAt(x, y, TileLayer.Foreground)) : true);
     const has00 = has(worldX, worldY);
     const has10 = has(worldX + 1, worldY);
     const has01 = has(worldX, worldY + 1);
@@ -625,5 +627,82 @@ export default class Player implements PhysicsObject {
       (has01 && rectInRect(this.position.x, this.position.y, worldX, worldY + 1)) ||
       (has11 && rectInRect(this.position.x, this.position.y, worldX + 1, worldY + 1))
     );
+  }
+
+  // TODO: this should be somewhere else lol
+  noCollision(game: Game, blockId: number): boolean {
+    const [isInsideKeyBlock, redKeyTouchedState] = this.insideKeyBlock;
+
+    let redKeyTouched = game.world.redKeyTouched;
+    if (isInsideKeyBlock) {
+      redKeyTouched = redKeyTouchedState;
+    }
+
+    // TODO: there's got to be a better way to switch the solid-ness of a gate/door
+    const keySolid = redKeyTouched ? "keys-red-door" : "keys-red-gate";
+    return blockId === 0 || blockId === game.tileJson.id("keys-red-key") || blockId === game.tileJson.id(keySolid);
+  }
+
+  insideRedKey = false;
+  insideKeyBlock = [false, false];
+
+  hoveringOver(game: Game, inX: number, inY: number) {
+    const x = Math.floor(inX / 32);
+    const y = Math.floor(inY / 32);
+
+    const maxX = game.world.size.width;
+    const maxY = game.world.size.height;
+    const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
+
+    if (!inBounds(x, y)) {
+      this.insideRedKey = false;
+      return;
+    }
+
+    const foregroundBlock = game.world.blockAt(x, y, TileLayer.Foreground);
+
+    if (game.tileJson.id("keys-red-key") === foregroundBlock) {
+      if (!this.insideRedKey) {
+        this.touchRedKey(game);
+      }
+
+      this.insideRedKey = true;
+    } else {
+      this.insideRedKey = false;
+    }
+
+    const checkInsideKey = (x: number, y: number) => {
+      x = Math.floor(x / 32);
+      y = Math.floor(y / 32);
+      if (!inBounds(x, y)) return false;
+
+      const actionBlock = game.world.blockAt(x, y, TileLayer.Action);
+
+      if (game.tileJson.id("keys-red-door") === actionBlock || game.tileJson.id("keys-red-gate") === actionBlock) {
+        const [prevInsideKeyBlock, _] = this.insideKeyBlock;
+
+        if (!prevInsideKeyBlock) {
+          this.insideKeyBlock = [true, game.world.redKeyTouched];
+        }
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    // lol this is such a hack
+    const didUpdateInsideKey =
+      checkInsideKey(inX - 16, inY - 16) ||
+      checkInsideKey(inX + 15.9, inY - 16) ||
+      checkInsideKey(inX - 16, inY + 15.9) ||
+      checkInsideKey(inX + 15.9, inY + 15.9);
+
+    if (!didUpdateInsideKey) {
+      this.insideKeyBlock = [false, false];
+    }
+  }
+
+  touchRedKey(game: Game) {
+    game.world.touchRedKey(this);
   }
 }

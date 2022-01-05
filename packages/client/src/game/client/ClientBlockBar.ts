@@ -19,6 +19,7 @@ export default class ClientBlockBar {
         [7]: tileJson.id("pyramid-white"),
         [8]: tileJson.id("choc-l0"),
         [9]: tileJson.id("boost-up"),
+        [10]: tileJson.id("keys-red-key"),
       },
     });
   }

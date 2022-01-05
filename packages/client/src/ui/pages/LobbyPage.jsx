@@ -11,65 +11,91 @@ import Cart from "mdi-material-ui/Cart";
 import DiscordLogo from "../../assets/discord.svg";
 import CreateRoomDialog from "../../ui/components/CreateRoomDialog";
 import { Room } from "../../ui/lobby/Room";
-import FullscreenBackdropLoading from "../components/FullscreenBackdropLoading";
+import FullscreenBackdropLoading, { BigLoading } from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
 import { useSnackbar } from "notistack";
-import { useHistory } from "react-router";
-import { useAuth, useToken } from "../hooks";
+import { Redirect, useHistory } from "react-router";
+import { useAuth, usePlayer, useSetToken, useLobby, useRefresher } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
+import useTeardown from "../hooks/useTeardown";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
   padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
 });
 
-const LobbyPage = () => {
-  const history = useHistory();
-  const [_, setToken] = useToken();
+function MyRooms() {
   const auth = useAuth();
+  if (auth.isGuest) return null;
 
+  const { ownedWorlds } = usePlayer();
+
+  return (
+    <>
+      <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
+        Your Rooms
+      </Typography>
+
+      <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
+        {ownedWorlds.map((room) => (
+          <Grid item key={room.id}>
+            <Room room={room} />
+          </Grid>
+        ))}
+      </Grid>
+    </>
+  );
+}
+
+function LobbyRooms() {
+  const rooms = useLobby();
+
+  return (
+    <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
+      {rooms.map((room) => (
+        <Grid item key={room.id}>
+          <Room room={room} />
+        </Grid>
+      ))}
+    </Grid>
+  );
+}
+
+function RoomInfo() {
+  return (
+    <PaddedContainer>
+      <Suspense fallback={<BigLoading message="Loading public rooms..." />}>
+        <LobbyRooms />
+      </Suspense>
+      <Suspense fallback={<BigLoading message="Loading your rooms..." />}>
+        <MyRooms />
+      </Suspense>
+    </PaddedContainer>
+  );
+}
+
+function useLogout() {
+  const history = useHistory();
+  const setToken = useSetToken();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [roomPreviews, setRoomPreviews] = useState(undefined);
-  const [myRooms, setMyRooms] = useState(undefined);
-  const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
-
-  const refresh = () => {
-    setRoomPreviews(undefined);
-    setMyRooms(undefined);
-
-    let didExit = false;
-    const exit = (err) => {
-      if (didExit) return;
-      didExit = true;
-
-      console.warn("one GET yielded error", err, err.issues);
-      enqueueSnackbar("Logged out - invalid token", {
-        variant: "error",
-        autoHideDuration: 3000,
-      });
-
-      setToken(false);
-      history.push("/");
-    };
-
-    auth.lobby().then(setRoomPreviews).catch(exit);
-    auth
-      .player()
-      .then(({ ownedWorlds }) => {
-        if (Array.isArray(ownedWorlds)) {
-          setMyRooms(ownedWorlds);
-        }
-      })
-      .catch(exit);
-  };
-
-  const logout = () => {
-    // TODO: ask the server to invalidate the token
+  return () => {
     setToken(false);
     history.push("/");
+
+    enqueueSnackbar("Logged out!", {
+      variant: "success",
+      autoHideDuration: 3000,
+    });
   };
+}
+
+const LobbyPage = () => {
+  const history = useHistory();
+  const logout = useLogout();
+  const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
+  const refresh = useRefresher();
 
   // TODO: bring in stuff from old lobby component to here
   useEffect(() => {
@@ -97,35 +123,7 @@ const LobbyPage = () => {
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
         </IconButton>
       </Grid>
-      <PaddedContainer>
-        <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-          {!roomPreviews && <FullscreenBackdropLoading message={"Loading rooms..."} />}
-          {!!roomPreviews &&
-            roomPreviews.map((room) => (
-              <Grid item key={room.id}>
-                <Room room={room} />
-              </Grid>
-            ))}
-        </Grid>
-
-        {myRooms && (
-          <Typography variant="h3" component="h1" style={{ textAlign: "center" }}>
-            Your Rooms
-          </Typography>
-        )}
-
-        {myRooms && (
-          <Grid container spacing={3} justifyContent="center" alignItems="flex-start">
-            {!myRooms && <FullscreenBackdropLoading message={"Loading your rooms..."} />}
-            {!!myRooms &&
-              myRooms.map((room) => (
-                <Grid item key={room.id}>
-                  <Room room={room} />
-                </Grid>
-              ))}
-          </Grid>
-        )}
-      </PaddedContainer>
+      <RoomInfo />
 
       <CreateRoomDialog
         open={createRoomDialogOpen}
@@ -139,13 +137,35 @@ const LobbyPage = () => {
   );
 };
 
+function HandleError({ error }) {
+  const setToken = useSetToken();
+  const { enqueueSnackbar } = useSnackbar();
+
+  console.warn("one GET yielded error", error, error.issues);
+  enqueueSnackbar("Logged out - invalid token", {
+    variant: "error",
+    autoHideDuration: 3000,
+  });
+
+  setToken(false);
+  return <Redirect to="/" />;
+}
+
 const LobbyPageWrapper = () => {
+  const [callback, setCallback] = useState(() => () => {
+    // we give a factory to an empty callback
+    // this is so we infer the type of `callback` correctly
+  });
+
+  // run `callback` on component teardown
+  useTeardown(() => callback, [callback]);
+
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<FullscreenBackdropLoading />}>
+    <Suspense fallback={<FullscreenBackdropLoading />}>
+      <ErrorBoundary callback={(recover) => setCallback(() => recover)} render={HandleError}>
         <LobbyPage />
-      </Suspense>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </Suspense>
   );
 };
 

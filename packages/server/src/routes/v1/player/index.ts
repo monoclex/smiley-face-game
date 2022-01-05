@@ -14,16 +14,13 @@ export default function (deps: UsedDependencies): Router {
     "/",
     jwt(authVerifier, async (req, res) => {
       if (req.jwt.aud === "") {
-        if (req.jwt.name === undefined) throw new Error("name can't be undefined how");
-        const response: ZPlayerResp = { isGuest: true, name: req.jwt.name };
-        res.json(response);
+        res.status(400).json({ error: "Cannot load player information for guest" });
         return;
       }
 
       const account = await accountRepo.findByIdWithWorlds(req.jwt.aud);
 
       const response: ZPlayerResp = {
-        isGuest: false,
         name: account.username,
         energy: {
           energy: account.currentEnergy,

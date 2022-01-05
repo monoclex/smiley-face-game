@@ -40,7 +40,7 @@ export default async function setupBridge(
 
   connectToRecoil(game.stateSystem);
 
-  let timeStart: number;
+  let timeStart: number = new Date().getDate();
 
   // eslint-disable-next-line no-undef
   const loop: FrameRequestCallback = (elapsed) => {

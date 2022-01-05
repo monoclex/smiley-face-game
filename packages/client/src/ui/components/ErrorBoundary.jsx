@@ -1,11 +1,13 @@
 //@ts-check
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { runTeardowns } from "../hooks/useTeardown";
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: undefined };
+    this.props.callback && this.props.callback(this.recover.bind(this));
   }
 
   static getDerivedStateFromError(error) {
@@ -13,6 +15,7 @@ export default class ErrorBoundary extends Component {
   }
 
   recover() {
+    runTeardowns();
     this.setState({ hasError: false, error: undefined });
   }
 
@@ -27,11 +30,16 @@ export default class ErrorBoundary extends Component {
     // eslint-disable-next-line no-console
     console.error("error boundary caught:", error);
 
+    if (this.props.render) {
+      const Render = this.props.render;
+      return <Render error={error} />;
+    }
+
     return (
       <>
         <h1>Something went wrong</h1>
-        <span>{error.toString()}</span>
-        <span>{error.stack}</span>
+        <p>{error.toString()}</p>
+        <code>{error.stack}</code>
       </>
     );
   }

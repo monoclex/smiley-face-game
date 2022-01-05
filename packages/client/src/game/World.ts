@@ -43,6 +43,8 @@ export default class World {
     }
   }
 
+  redKeyTouched = false;
+
   constructor(protected readonly tileJson: TileRegistration, readonly size: Size) {
     this.state = World.emptyWorld(size);
   }
@@ -104,5 +106,37 @@ export default class World {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPlace(layer: TileLayer, y: number, x: number, id: number) {
     //  this method is overwritten later
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  touchRedKey(player: Player) {
+    // `player` parameter is so that simulations can pass `toucher`
+    //  this method is overwritten later
+  }
+
+  redTimeout?: ReturnType<typeof setTimeout>;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onKeyTouch(kind: "red", deactivateTime: number, toucher: Player) {
+    if (!this.redKeyTouched) {
+      this.toggleKeyTouched(kind, true);
+    }
+
+    const time = new Date();
+    time.setTime(deactivateTime);
+
+    if (this.redTimeout) {
+      clearTimeout(this.redTimeout);
+      this.redTimeout = undefined;
+    }
+
+    this.redTimeout = setTimeout(() => {
+      this.toggleKeyTouched(kind, false);
+    }, deactivateTime - Date.now());
+  }
+
+  toggleKeyTouched(kind: "red", isTouched: boolean) {
+    this.redKeyTouched = isTouched;
+    // this method is overwritten
   }
 }
