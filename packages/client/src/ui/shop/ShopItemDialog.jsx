@@ -24,8 +24,6 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
   const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoSelector);
   const [_, setShopItem] = useRecoilState(shopItemQuery(id));
 
-  if (playerInfo.isGuest !== false) throw new Error("impossible");
-
   const min = 0;
   const max = playerInfo.energy.maxEnergy;
   // we want to aim for 25 ticks
