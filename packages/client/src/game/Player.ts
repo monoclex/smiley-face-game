@@ -6,6 +6,7 @@ import PhysicsObject from "./interfaces/PhysicsObject";
 import defaultInputs from "./helpers/defaultInputs";
 import Game from "./Game";
 import clamp from "./helpers/clamp";
+import Vector from "./physics/Vector";
 
 class Config {
   static blockSize = 16;
@@ -80,6 +81,24 @@ const BoostDirection = {
   Left: 7,
 };
 const isBoost = (boostDirection: number) => boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
+const ZoostDirection = {
+  Up: 8,
+  Right: 9,
+  Down: 10,
+  Left: 11,
+};
+const isZoost = (zoostDirection: number) => zoostDirection >= ZoostDirection.Up && zoostDirection <= ZoostDirection.Left;
+const zoostDirToVec = (zoostDirection: number): Vector => {
+  // prettier-ignore
+  switch (zoostDirection) {
+    case ZoostDirection.Up:    return Vector.Up;
+    case ZoostDirection.Down:  return Vector.Down;
+    case ZoostDirection.Left:  return Vector.Left;
+    case ZoostDirection.Right: return Vector.Right;
+    default:
+      throw new Error("should not reach this");
+  }
+};
 
 function hackyMapGunStateToString(g: GunState): "none" | "carrying" | "held" {
   if (g === GunState.None) return "none";
@@ -219,6 +238,73 @@ export default class Player implements PhysicsObject {
     if (delayed === undefined) throw new Error("impossible");
     const current = this.findGravityDirection(blockX, blockY, game);
     this.queue.push(current);
+
+    if (isZoost(current)) {
+      // snap player to zoost
+      let position = new Vector(blockX, blockY);
+
+      const eePos = position.mults(Config.blockSize);
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+      this.x = eePos.x;
+      this.y = eePos.y;
+      this.modX = 0;
+      this.modY = 0;
+      this.origModX = 0;
+      this.origModY = 0;
+
+      let direction = zoostDirToVec(current);
+
+      const tryDirs: Vector[] = [];
+
+      // only allowed to advance at most 10 times per ee tick
+      let advanceNum = 10;
+      while (advanceNum > 0) {
+        position = position.add(direction);
+        position = new Vector(clamp(position.x, 0, game.world.size.width - 1), clamp(position.y, 0, game.world.size.height - 1));
+
+        const eePos = position.mults(Config.blockSize);
+        this.x = eePos.x;
+        this.y = eePos.y;
+
+        // this is already done cuz we clamp the `position`
+        // this.capIntoWorldBoundaries(game);
+
+        // if we're colliding with a solid block, we need to not to that
+        const block = game.world.blockAt(position.x, position.y, TileLayer.Foreground);
+        if (!this.noCollision(game, block)) {
+          // take a step back
+          position = position.sub(direction);
+          position = new Vector(clamp(position.x, 0, game.world.size.width - 1), clamp(position.y, 0, game.world.size.height - 1));
+          const eePos = position.mults(Config.blockSize);
+          this.x = eePos.x;
+          this.y = eePos.y;
+
+          // do we have any other directions we could go?
+          const nextDir = tryDirs.shift();
+          if (nextDir) {
+            // we'll try that direction instead then
+            direction = nextDir;
+            advanceNum--;
+            continue;
+          }
+        }
+
+        // if this is a zoost, record it as a possible direction to take
+        const newDir = this.findGravityDirection(position.x, position.y, game);
+        if (isZoost(newDir)) {
+          tryDirs.push(zoostDirToVec(newDir));
+          advanceNum--;
+          continue;
+        }
+
+        // otherwise, perform actions (trigger keys/etc)
+        this.hoveringOver(game, this.x, this.y);
+        advanceNum--;
+      }
+
+      return;
+    }
 
     let modifierX = 0,
       modifierY = 0;
@@ -553,7 +639,17 @@ export default class Player implements PhysicsObject {
   findGravityDirection(worldX: number, worldY: number, game: Game) {
     // const worldX = Math.floor(this.center.x / 32);
     // const worldY = Math.floor(this.center.y / 32);
-    const actionBlock = game.world.blockAt(worldX, worldY, TileLayer.Action);
+
+    return (
+      this.findBoostDirection(worldX, worldY, game) ||
+      this.findZoostDirection(worldX, worldY, game) ||
+      this.findArrowDirection(worldX, worldY, game) ||
+      ArrowDirection.Down
+    );
+  }
+
+  findArrowDirection(blockX: number, blockY: number, game: Game) {
+    const actionBlock = game.world.blockAt(blockX, blockY, TileLayer.Action);
 
     return actionBlock === game.tileJson.id("arrow-up")
       ? ArrowDirection.Up
@@ -563,7 +659,7 @@ export default class Player implements PhysicsObject {
       ? ArrowDirection.Down
       : actionBlock === game.tileJson.id("arrow-left")
       ? ArrowDirection.Left
-      : this.findBoostDirection(worldX, worldY, game) || ArrowDirection.Down;
+      : undefined;
   }
 
   findBoostDirection(blockX: number, blockY: number, game: Game) {
@@ -577,6 +673,20 @@ export default class Player implements PhysicsObject {
       ? BoostDirection.Down
       : actionBlock === game.tileJson.id("boost-left")
       ? BoostDirection.Left
+      : undefined;
+  }
+
+  findZoostDirection(blockX: number, blockY: number, game: Game) {
+    const actionBlock = game.world.blockAt(blockX, blockY, TileLayer.Action);
+
+    return actionBlock === game.tileJson.id("zoost-up")
+      ? ZoostDirection.Up
+      : actionBlock === game.tileJson.id("zoost-right")
+      ? ZoostDirection.Right
+      : actionBlock === game.tileJson.id("zoost-down")
+      ? ZoostDirection.Down
+      : actionBlock === game.tileJson.id("zoost-left")
+      ? ZoostDirection.Left
       : undefined;
   }
 
@@ -647,8 +757,8 @@ export default class Player implements PhysicsObject {
   insideKeyBlock = [false, false];
 
   hoveringOver(game: Game, inX: number, inY: number) {
-    const x = Math.floor(inX / 32);
-    const y = Math.floor(inY / 32);
+    const x = Math.floor(inX / Config.blockSize);
+    const y = Math.floor(inY / Config.blockSize);
 
     const maxX = game.world.size.width;
     const maxY = game.world.size.height;
@@ -672,8 +782,8 @@ export default class Player implements PhysicsObject {
     }
 
     const checkInsideKey = (x: number, y: number) => {
-      x = Math.floor(x / 32);
-      y = Math.floor(y / 32);
+      x = Math.floor(x / Config.blockSize);
+      y = Math.floor(y / Config.blockSize);
       if (!inBounds(x, y)) return false;
 
       const actionBlock = game.world.blockAt(x, y, TileLayer.Action);

@@ -179,7 +179,8 @@ export const zTileBehavior = addParse(
     "gun" as const,
     "arrow" as const,
     "boost" as const,
-    "keys" as const
+    "keys" as const,
+    "zoost" as const
   )
 );
 export type ZTileBehavior = SchemaInput<typeof zTileBehavior>;
@@ -225,6 +226,9 @@ export const zTileJson = addParse(
       behavior: "keys" as const,
       name: string,
       tiles: array.of(string),
+    },
+    {
+      behavior: "zoost" as const,
     }
   )
 );
