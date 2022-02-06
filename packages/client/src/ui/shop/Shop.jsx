@@ -39,6 +39,9 @@ const Shop = () => {
           <Grid item md={12} xl={8}>
             <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
               {items.map((x) => (
+                // TODO: the `columnSpan` option use to be present in MasonryItem,
+                //   but it seems like MasonryItem was removed and i have no idea
+                //   how we should do column span anymore
                 <ShopItem key={x.id} columnSpan={x.columnSpan || 1} id={x.id} />
               ))}
             </Masonry>
