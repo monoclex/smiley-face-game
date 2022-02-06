@@ -7,7 +7,7 @@ import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
 import type { ZGamePreview } from "@smiley-face-game/api/api";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 
 const CardRoot = styled(Card)({
   display: "flex",
@@ -43,7 +43,7 @@ type RoomProps = {
 };
 
 export const Room = (props: RoomProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     room: { id, name, playerCount },
   } = props;
@@ -75,7 +75,7 @@ export const Room = (props: RoomProps) => {
             </Tooltip>
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => history.push(`/games/${id}`, { type: "join", id })} size="large">
+              <IconButton aria-label="play" onClick={() => navigate(`/games/${id}`, { state: { type: "join", id } })} size="large">
                 <PlayIcon />
               </IconButton>
             </Tooltip>

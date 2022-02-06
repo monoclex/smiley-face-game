@@ -1,19 +1,15 @@
 {
   "name": "root",
   "private": true,
-  "devDependencies": {
-    "lerna": "^4.0.0"
-  },
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "tsc": "lerna run tsc --no-bail --parallel",
-    "build:dev": "lerna run build:dev --no-bail --parallel",
-    "build:prod": "lerna run build:prod --no-bail --parallel",
-    "lint": "lerna run lint --no-bail --parallel",
-    "lint:fix": "lerna run lint:fix --no-bail --parallel",
-    "serve": "lerna run serve --parallel"
-  },
-  "dependencies": {}
+    "tsc": "pnpm run --recursive --parallel tsc",
+    "build:dev": "pnpm run --recursive --parallel build:dev",
+    "build:prod": "pnpm run --recursive --parallel build:prod",
+    "lint": "pnpm run --recursive --parallel lint",
+    "lint:fix": "pnpm run --recursive --parallel lint:fix",
+    "serve": "pnpm run --recursive --parallel serve "
+  }
 }

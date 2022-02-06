@@ -1,6 +1,6 @@
 //@ts-check
 import React from "react";
-import { Redirect } from "react-router";
+import { Navigate } from "react-router";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { Grid, Typography, Container, styled } from "@mui/material";
@@ -15,7 +15,7 @@ const HomePage = () => {
 
   // if they have a token, they should go straight to the lobby
   if (token) {
-    return <Redirect to="/lobby" />;
+    return <Navigate to="/lobby" />;
   }
 
   return (

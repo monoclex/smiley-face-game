@@ -14,7 +14,7 @@ import { Room } from "../../ui/lobby/Room";
 import FullscreenBackdropLoading, { BigLoading } from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
 import { useSnackbar } from "notistack";
-import { Redirect, useHistory } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { useAuth, usePlayer, useSetToken, useLobby, useRefresher } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
@@ -76,13 +76,13 @@ function RoomInfo() {
 }
 
 function useLogout() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const setToken = useSetToken();
   const { enqueueSnackbar } = useSnackbar();
 
   return () => {
     setToken(false);
-    history.push("/");
+    navigate("/");
 
     enqueueSnackbar("Logged out!", {
       variant: "success",
@@ -92,7 +92,8 @@ function useLogout() {
 }
 
 const LobbyPage = () => {
-  const history = useHistory();
+  console.log("hey we're at the lobby");
+  const navigate = useNavigate();
   const logout = useLogout();
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
   const refresh = useRefresher();
@@ -116,7 +117,7 @@ const LobbyPage = () => {
         <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
           <Plus />
         </IconButton>
-        <IconButton onClick={() => history.push("/shop")} size="large">
+        <IconButton onClick={() => navigate("/shop")} size="large">
           <Cart />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
@@ -129,7 +130,7 @@ const LobbyPage = () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          history.push(`/games/loading`, { type: "create", name, width: parseInt(width), height: parseInt(height) });
+          navigate(`/games/loading`, { state: { type: "create", name, width: parseInt(width), height: parseInt(height) } });
           setCreateRoomDialogOpen(false);
         }}
       />
@@ -148,7 +149,7 @@ function HandleError({ error }) {
   });
 
   setToken(false);
-  return <Redirect to="/" />;
+  return <Navigate to="/" />;
 }
 
 const LobbyPageWrapper = () => {
