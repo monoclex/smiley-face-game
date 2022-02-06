@@ -1,7 +1,7 @@
 import type { SchemaInput } from "computed-types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
-import { zLoginReq, zTokenResp, zGuestReq, zRegisterReq } from "./api";
-import fetch from "./fetch";
+import { zLoginReq, zTokenResp, zGuestReq, zRegisterReq } from "../api";
+import fetch from "../fetch";
 import Authentication from "./Authentication";
 
 export type AccountCredentials = SchemaInput<typeof zLoginReq>;

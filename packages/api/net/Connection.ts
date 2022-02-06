@@ -1,16 +1,16 @@
 import Websocket from "isomorphic-ws";
 import { Endpoint, zEndpoint, toUrl } from "./endpoints";
-import type { ZJoinRequest } from "./ws-api";
-import { zJoinRequest } from "./ws-api";
-import type { ZTileLayer, ZBlockPosition, ZBlock, ZUserId, ZPlayerPosition, ZVelocity, ZInputs, ZAngle } from "./types";
-import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, zMessage, zUserId } from "./types";
-import inferLayer from "./inferLayer";
-import type { ZSPacket, ZPacket, ZSInit } from "./packets";
-import { zsInit, zPacket, zsPacket } from "./packets";
-import AsyncQueue from "./AsyncQueue";
-import { boolean, addParse } from "./computed-types-wrapper";
-import TileRegistration from "./tiles/TileRegistration";
-import createRegistration from "./tiles/createRegistration";
+import type { ZJoinRequest } from "../ws-api";
+import { zJoinRequest } from "../ws-api";
+import type { ZTileLayer, ZBlockPosition, ZBlock, ZUserId, ZPlayerPosition, ZVelocity, ZInputs, ZAngle } from "../types";
+import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, zMessage, zUserId } from "../types";
+import inferLayer from "../inferLayer";
+import type { ZSPacket, ZPacket, ZSInit } from "../packets";
+import { zsInit, zPacket, zsPacket } from "../packets";
+import AsyncQueue from "../AsyncQueue";
+import { boolean, addParse } from "../computed-types-wrapper";
+import TileRegistration from "../tiles/TileRegistration";
+import createRegistration from "../tiles/createRegistration";
 
 const zEquipped = addParse(boolean);
 

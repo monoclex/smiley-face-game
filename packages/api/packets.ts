@@ -183,6 +183,7 @@ export const zsMovement = addParse(
     inputs: zInputs,
   })
 );
+export type ZSMovement = SchemaInput<typeof zsMovement>;
 
 export const zsInit = addParse(
   Schema.merge(zs, {

@@ -1,4 +1,4 @@
-import Schema, { boolean, string, SchemaInput, addParse } from "./computed-types-wrapper";
+import Schema, { boolean, string, SchemaInput, addParse } from "../computed-types-wrapper";
 
 const zSecure = addParse(boolean.optional());
 
@@ -63,7 +63,7 @@ export function coerceSecure(argSecure: unknown): boolean {
 
   // in node, just referencing `location` will throw an error
   // so we use `globalThis["location"]` instead which will just return `undefined`, and not throw
-  if (globalThis["location"] && location.protocol === "http:") return false;
+  if (globalThis["location"] && globalThis["location"].protocol === "http:") return false;
   return true;
 }
 

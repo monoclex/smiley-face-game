@@ -1,4 +1,4 @@
-import { zJoinRequest } from "./ws-api";
+import { zJoinRequest } from "../ws-api";
 import {
   ZLobbyResp,
   zLobbyResp,
@@ -9,12 +9,12 @@ import {
   ZShopBuyResp,
   ZShopItemsResp,
   zShopItemsResp,
-} from "./api";
+} from "../api";
 import Connection from "./Connection";
-import { zToken, zAccountId } from "./types";
+import { zToken, zAccountId } from "../types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
-import fetch from "./fetch";
-import type { SchemaInput } from "./computed-types-wrapper";
+import fetch from "../fetch";
+import type { SchemaInput } from "../computed-types-wrapper";
 
 /**
  * The `Authentication` class represents an authenticated user. It provides methods that query the game for

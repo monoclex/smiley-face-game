@@ -1,6 +1,6 @@
 import type { ParsableSchemaInput, SchemaInput } from "./computed-types-wrapper";
 import fetch from "cross-fetch";
-import { Endpoint, toUrl } from "./endpoints";
+import { Endpoint, toUrl } from "./net/endpoints";
 
 export default function <D>(
   endpoint: Endpoint,
