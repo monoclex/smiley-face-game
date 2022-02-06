@@ -2,7 +2,7 @@
 import React, { Suspense } from "react";
 import { Grid, AppBar, Toolbar, Typography, IconButton } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 import { useShopItems, useEnergy } from "../hooks";
 import ShopFeatured from "./ShopFeatured";
 
@@ -12,7 +12,6 @@ import ErrorBoundary from "../components/ErrorBoundary";
 
 import LogoutIcon from "../icons/LogoutIcon";
 import Masonry from "@mui/lab/Masonry";
-import MasonryItem from "@mui/lab/MasonryItem";
 import { Box } from "@mui/system";
 import EnergyIcon from "../icons/EnergyIcon";
 
@@ -40,9 +39,7 @@ const Shop = () => {
           <Grid item md={12} xl={8}>
             <Masonry columns={isHuge ? 6 : 4} spacing={3} sx={{ padding: 4 }}>
               {items.map((x) => (
-                <MasonryItem key={x.id} columnSpan={x.columnSpan || 1}>
-                  <ShopItem id={x.id} />
-                </MasonryItem>
+                <ShopItem key={x.id} columnSpan={x.columnSpan || 1} id={x.id} />
               ))}
             </Masonry>
           </Grid>
@@ -61,7 +58,7 @@ const Shop = () => {
 };
 
 const ShopWrapper = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { energy, maxEnergy, timeLeft } = useEnergy();
 
   return (
@@ -69,7 +66,7 @@ const ShopWrapper = () => {
       <Box sx={{ flexGrow: 1, paddingBottom: "4em" }}>
         <AppBar position="fixed">
           <Toolbar>
-            <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => history.push("/lobby")}>
+            <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => navigate("/lobby")}>
               <LogoutIcon />
             </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

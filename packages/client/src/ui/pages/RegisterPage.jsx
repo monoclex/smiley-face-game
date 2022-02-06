@@ -2,13 +2,13 @@
 import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmnop.png";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 import SnackbarUtils from "../../SnackbarUtils";
 import { register } from "@smiley-face-game/api";
 import { tokenGlobal } from "../../state";
 
 const RegisterPage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <GenericAuthenticationPage
       smileyUrl={urlPlayer}
@@ -20,7 +20,7 @@ const RegisterPage = () => {
       submit={({ username, email, password }) =>
         register({ username, email, password }).then(({ token }) => {
           tokenGlobal.set(token);
-          history.push("/lobby");
+          navigate("/lobby");
           SnackbarUtils.success("Registered account!");
         })
       }
