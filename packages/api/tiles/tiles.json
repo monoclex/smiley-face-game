@@ -42,5 +42,8 @@
     "behavior": "keys",
     "name": "keys",
     "tiles": ["red"]
+  },
+  {
+    "behavior": "zoost"
   }
 ]

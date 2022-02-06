@@ -1,16 +1,16 @@
 //@ts-check
-import React from "react";
-import { Redirect } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Navigate } from "react-router";
 import { useSnackbar } from "notistack";
 import { useToken } from "../hooks";
 import { Authentication } from "@smiley-face-game/api";
 
-export const AuthRoute = ({ needAccount = false, component: Component, ...props }) => {
+export const AuthRoute = ({ needAccount = false, element }) => {
   const [token, setToken] = useToken();
   const notistack = useSnackbar();
 
   if (!token) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   const decoded = JSON.parse(atob(token.split(".")[1]));
@@ -24,7 +24,7 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
 
     setToken(false);
 
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   if (needAccount) {
@@ -33,9 +33,10 @@ export const AuthRoute = ({ needAccount = false, component: Component, ...props 
       notistack.enqueueSnackbar("You must create an account to access this!", {
         variant: "error",
       });
-      return <Redirect to="/lobby" />;
+
+      return <Navigate to="/lobby" />;
     }
   }
 
-  return <Component {...props} />;
+  return element;
 };

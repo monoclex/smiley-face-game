@@ -3,7 +3,7 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
-import { useHistory, useLocation, useRouteMatch } from "react-router";
+import { useNavigate, useLocation, useMatch } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
@@ -14,9 +14,9 @@ import GameUI from "../game/GameUI";
 
 // TODO: this is weird as a component, but it WORKS and im TIRED of touching this code
 function ConnectToGame({ gameElement, size: { width, height } }) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
-  const match = useRouteMatch("/games/:id");
+  const match = useMatch("/games/:id");
 
   const auth = useAuth();
 
@@ -36,7 +36,7 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
       }
     });
 
-    history.replace(`/games/${game.connection.init.worldId}`, undefined);
+    navigate(`/games/${game.connection.init.worldId}`, { replace: true });
 
     return { game, cleanup };
   });

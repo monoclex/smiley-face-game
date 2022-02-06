@@ -2,11 +2,11 @@ import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmyep.png";
 import { auth } from "@smiley-face-game/api";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 import { tokenGlobal } from "../../state";
 
 const GuestPage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <GenericAuthenticationPage
       smileyUrl={urlPlayer}
@@ -14,7 +14,7 @@ const GuestPage = () => {
       submit={({ username }) =>
         auth({ username }).then(({ token }) => {
           tokenGlobal.set(token);
-          history.push("/lobby");
+          navigate("/lobby");
         })
       }
     />

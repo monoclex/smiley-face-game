@@ -26,7 +26,7 @@ const ClampedTypography = styled(Typography)({
 });
 
 /** @param {{ id: number, isVertical?: boolean }} props */
-export default function ShopItem({ id, isVertical = false }) {
+export default function ShopItem({ id, isVertical = false, columnSpan }) {
   // image = image || "https://media.discordapp.net/attachments/883149522862227507/883454824614625340/image0_4.gif";
 
   const [{ title, description, energySpent, energyCost, categoryType }] = useShopItem(id);
