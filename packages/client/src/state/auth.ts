@@ -2,7 +2,7 @@ import { atom } from "recoil";
 import SharedGlobal from "./SharedGlobal";
 
 // typescript likes to maul `token` and coerce `string | null` to `string` which is BD
-type Token = string | false;
+export type Token = string | false;
 
 export const tokenGlobal = new SharedGlobal<Token>(localStorage.getItem("token") ?? false, (token) => {
   if (token === false) localStorage.removeItem("token");

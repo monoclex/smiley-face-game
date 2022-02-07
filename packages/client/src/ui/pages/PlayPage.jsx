@@ -12,8 +12,13 @@ import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 
+let isPlaying = false;
+
 // TODO: this is weird as a component, but it WORKS and im TIRED of touching this code
 function ConnectToGame({ gameElement, size: { width, height } }) {
+  isPlaying = true;
+  useTeardown(() => (isPlaying = false), [], "playing the game");
+
   const navigate = useNavigate();
   const location = useLocation();
   const match = useMatch("/games/:id");
@@ -30,11 +35,15 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { game, connection, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, () => {
-      window.history.back();
-    });
+    const { game, connection, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer);
 
-    navigate(`/games/${connection.init.worldId}`, { replace: true });
+    // if we navigated away while loading, close the connection
+    // it's possible that we could navigate back, and then navigate back to here
+    // while we are still loading the other connection, but unlikely, so i won't deal with it
+    // actually i think the `useSuspenseForPromise` would prevent that. or nah, on teardown
+    // the cachce entry gets deleted so nvm
+    if (!isPlaying) connection.close();
+    else navigate(`/games/${connection.init.worldId}`, { replace: true });
 
     return { game, cleanup, renderer };
   });

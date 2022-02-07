@@ -6,7 +6,7 @@ import state from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./GameRenderer";
-import { handleTimestep, loopRequestAnimationFrame } from "./RegisterTickLoop";
+import { loopRequestAnimationFrame } from "./RegisterTickLoop";
 
 interface Bridge {
   game: Game;
@@ -15,12 +15,7 @@ interface Bridge {
   cleanup: () => void;
 }
 
-export default async function setupBridge(
-  auth: Authentication,
-  joinRequest: ZJoinRequest,
-  renderer: Renderer,
-  shutdown: (game: Game) => void
-): Promise<Bridge> {
+export default async function setupBridge(auth: Authentication, joinRequest: ZJoinRequest, renderer: Renderer): Promise<Bridge> {
   const connection = await auth.connect(joinRequest);
 
   await textures.load(connection.tileJson);
@@ -56,8 +51,6 @@ export default async function setupBridge(
       chat.handleEvent(message);
       playerList.handleEvent(message);
     }
-
-    shutdown(game);
   })();
 
   loopRequestAnimationFrame((elapsed) => {

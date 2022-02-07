@@ -8,7 +8,7 @@ import { RecoilRoot } from "recoil";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import FullscreenBackdropLoading from "./components/FullscreenBackdropLoading";
-import { AccountRoute, AuthRoute } from "./components/AuthRoute";
+import { AuthRoute, AccountRoute } from "./components/AuthRoute";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));

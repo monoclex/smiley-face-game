@@ -1,75 +1,43 @@
 //@ts-check
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate } from "react-router";
 import { useSnackbar } from "notistack";
-import { useToken } from "../hooks";
-import { Authentication } from "@smiley-face-game/api";
-import { useEffectOnce } from "react-use";
+import { useToken, computeAuthStatus } from "../hooks";
 
 // TODO: clean this up
 // this is kinda hard and painful cuz we conditionally call hooks
 
-export const AuthRoute = ({ element }) => {
+// do NOT pass `needAccount` as true to `AuthRoute`
+// for some reason, react router v6 is weird
+// it makes react think that when you switch to a route with needaccount=true,
+// that you're trying to rerender the same unauthenticated authroute and doesn't
+// run the use effect hook. very weird stuff
+export const AuthRoute = ({ needAccount = false, element }) => {
   const [token, setToken] = useToken();
+  const status = computeAuthStatus(token);
+
   const notistack = useSnackbar();
 
-  if (!token) {
-    return <Navigate to="/" />;
-  }
+  useEffect(() => {
+    let message;
 
-  const decoded = JSON.parse(atob(token.split(".")[1]));
-  const currentEpochSeconds = Date.now() / 1000;
+    if (status === "expired") {
+      message = "Your token has expired!";
+      setToken(false);
+    }
 
-  if (decoded.exp < currentEpochSeconds) {
-    // token expired, kill it
-    useEffectOnce(() => {
-      notistack.enqueueSnackbar("Your token has expired!", {
-        variant: "error",
-      });
-    });
+    if (needAccount && status === "guest") {
+      message = "You must create an account to access this!";
+    }
 
-    setToken(false);
+    if (message) {
+      notistack.enqueueSnackbar(message, { variant: "error" });
+    }
+  }, [status]);
 
-    return <Navigate to="/" />;
-  }
-
+  if (status === "not logged in" || status === "expired") return <Navigate to="/" />;
+  if (status === "guest" && needAccount) return <Navigate to="/lobby" />;
   return element;
 };
 
-export const AccountRoute = ({ element }) => {
-  const [token, setToken] = useToken();
-  const notistack = useSnackbar();
-
-  if (!token) {
-    return <Navigate to="/" />;
-  }
-
-  const decoded = JSON.parse(atob(token.split(".")[1]));
-  const currentEpochSeconds = Date.now() / 1000;
-
-  if (decoded.exp < currentEpochSeconds) {
-    // token expired, kill it
-    useEffectOnce(() => {
-      notistack.enqueueSnackbar("Your token has expired!", {
-        variant: "error",
-      });
-    });
-
-    setToken(false);
-
-    return <Navigate to="/" />;
-  }
-
-  const auth = new Authentication(token);
-  if (auth.isGuest) {
-    useEffectOnce(() => {
-      notistack.enqueueSnackbar("You must create an account to access this!", {
-        variant: "error",
-      });
-    });
-
-    return <Navigate to="/lobby" />;
-  }
-
-  return element;
-};
+export const AccountRoute = ({ element }) => <AuthRoute needAccount element={element} />;

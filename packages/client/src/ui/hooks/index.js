@@ -6,3 +6,4 @@ export * from "./useShopItems";
 export * from "./useToken";
 export * from "./useLobby";
 export * from "./useRefresher";
+export * from "./computeAuthStatus";
