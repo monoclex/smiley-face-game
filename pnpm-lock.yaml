@@ -20,6 +20,7 @@ importers:
       eslint-plugin-import: ^2.25.4
       eslint-plugin-prettier: ^4.0.0
       isomorphic-ws: ^4.0.1
+      nanoevents: ^6.0.2
       prettier: ^2.5.1
       sucrase: ^3.20.3
       typescript: ^4.5.5
@@ -31,6 +32,7 @@ importers:
       computed-types: 1.11.1
       cross-fetch: 3.1.5
       isomorphic-ws: 4.0.1_ws@8.4.2
+      nanoevents: 6.0.2
     optionalDependencies:
       ws: 8.4.2
     devDependencies:
@@ -5967,6 +5969,11 @@ packages:
       sourcemap-codec: 1.4.8
       stacktrace-js: 2.0.2
       stylis: 4.0.13
+    dev: false
+
+  /nanoevents/6.0.2:
+    resolution: {integrity: sha512-FRS2otuFcPPYDPYViNWQ42+1iZqbXydinkRHTHFxrF4a1CpBfmydR9zkI44WSXAXCyPrkcGtPk5CnpW6Y3lFKQ==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: false
 
   /natural-compare/1.4.0:

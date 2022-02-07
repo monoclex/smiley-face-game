@@ -1,24 +1,27 @@
-import { ZSPlayerJoin } from "../packets";
+import { createNanoEvents } from "nanoevents";
+import { ZSInit, ZSPlayerJoin } from "../packets";
 import { Player } from "../physics/Player";
 import { ZRole } from "../types";
 
+interface PlayerEvents {
+  add(player: Player): void;
+  remove(player: Player): void;
+}
+
 export class Players {
   readonly map: Map<number, Player> = new Map();
+  readonly events = createNanoEvents<PlayerEvents>();
 
   _list: Player[] = [];
   get list(): Player[] {
     return this._list;
   }
 
-  /**
-   * Event handler that gets fired when a player is added.
-   */
-  onPlayerAdd?: (player: Player) => void;
-
-  /**
-   * Event handler that gets fired when a player is removed.
-   */
-  onPlayerRemove?: (player: Player) => void;
+  constructor(init: ZSInit) {
+    for (const player of init.players) {
+      this.add(player);
+    }
+  }
 
   get(id: number): Player {
     const player = this.map.get(id);
@@ -31,13 +34,13 @@ export class Players {
     const player = new Player(event.playerId, event.username, event.role, event.isGuest, event.joinLocation);
     this.map.set(event.playerId, player);
     this._list = Array.from(this.map.values());
-    if (this.onPlayerAdd) this.onPlayerAdd(player);
+    this.events.emit("add", player);
     return player;
   }
 
   remove(id: number) {
     const player = this.get(id);
-    if (this.onPlayerRemove) this.onPlayerRemove(player);
+    this.events.emit("remove", player);
     this.map.delete(id);
     this._list = Array.from(this.map.values());
   }

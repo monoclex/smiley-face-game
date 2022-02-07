@@ -28,13 +28,8 @@ export default class WorldRendering {
     this.worldBehind.addChild(this.foreground);
     this.worldInfront.addChild(this.decoration);
 
-    game.blocks.onBlock = () => {
-      this.dirty = true;
-    };
-
-    game.blocks.onLoad = () => {
-      this.dirty = true;
-    };
+    game.blocks.events.on("block", () => (this.dirty = true));
+    game.blocks.events.on("load", () => (this.dirty = true));
   }
 
   draw() {

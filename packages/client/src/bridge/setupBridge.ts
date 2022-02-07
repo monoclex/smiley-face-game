@@ -7,6 +7,7 @@ import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./rendering/GameRenderer";
 import { loopRequestAnimationFrame } from "./RegisterTickLoop";
+import Keyboard from "./Keyboard";
 
 interface Bridge {
   game: Game;
@@ -43,10 +44,12 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
     gunEquipped: false,
   });
 
+  const keyboard = new Keyboard(self, connection);
   gameRenderer.focus = self;
 
   (async () => {
     for await (const message of connection) {
+      console.log("got message", message);
       game.handleEvent(message);
       chat.handleEvent(message);
       playerList.handleEvent(message);
@@ -60,6 +63,7 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
   });
 
   state.gameRenderer = gameRenderer;
+  state.keyboard = keyboard;
 
   return {
     game,

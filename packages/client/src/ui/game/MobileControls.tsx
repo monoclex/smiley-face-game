@@ -15,14 +15,14 @@ export default function MobileControls() {
   const [moving, setMoving] = useState(notMoving);
 
   useEffect(() => {
-    if (!state.game) return;
+    if (!state.keyboard) return;
 
     // TODO: maybe have a "jump" button?
-    // state.game.keyboard.simulateKey(" ", moving.up);
-    // state.game.keyboard.simulateKey("w", moving.up);
-    // state.game.keyboard.simulateKey("a", moving.left);
-    // state.game.keyboard.simulateKey("s", moving.down);
-    // state.game.keyboard.simulateKey("d", moving.right);
+    state.keyboard.simulateKey(" ", moving.up);
+    state.keyboard.simulateKey("w", moving.up);
+    state.keyboard.simulateKey("a", moving.left);
+    state.keyboard.simulateKey("s", moving.down);
+    state.keyboard.simulateKey("d", moving.right);
   }, [moving]);
 
   return (

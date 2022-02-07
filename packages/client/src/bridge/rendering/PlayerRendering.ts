@@ -8,20 +8,28 @@ export default class PlayerRenderer {
   focus!: Player;
 
   constructor(readonly game: Game, readonly root: Container, readonly renderer: Renderer) {
-    game.players.onPlayerAdd = (player) => {
+    // todo: make this a function lol
+    for (const player of game.players.list) {
       const gamePlayer = new GamePlayer();
       this.gamePlayers.set(player.id, gamePlayer);
 
       this.players.addChild(gamePlayer.container);
-    };
+    }
 
-    game.players.onPlayerRemove = (player) => {
+    game.players.events.on("add", (player) => {
+      const gamePlayer = new GamePlayer();
+      this.gamePlayers.set(player.id, gamePlayer);
+
+      this.players.addChild(gamePlayer.container);
+    });
+
+    game.players.events.on("remove", (player) => {
       const gamePlayer = this.gamePlayers.get(player.id);
       if (!gamePlayer) throw new Error("impossible player remove");
 
       const index = this.players.getChildIndex(gamePlayer.container);
       this.players.removeChildAt(index);
-    };
+    });
   }
 
   readonly players: Container = new Container();

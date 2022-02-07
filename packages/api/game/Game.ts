@@ -28,7 +28,7 @@ export class Game {
   onPhysicsEvent?: (event: PhysicsEvent) => void;
 
   constructor(readonly tiles: TileRegistration, init: ZSInit) {
-    this.players = new Players();
+    this.players = new Players(init);
     this.blocks = new Blocks(tiles, init.blocks, new Vector(init.size.width, init.size.height));
 
     const onPhysicsEvent = (event: PhysicsEvent) => {

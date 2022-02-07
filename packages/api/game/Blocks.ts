@@ -2,20 +2,17 @@ import { TileLayer, ZWorldBlocks } from "../types";
 import { Vector } from "../physics/Vector";
 import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
+import { createNanoEvents } from "nanoevents";
+
+interface BlockEvents {
+  load(blocks: ZWorldBlocks): void;
+  block(layer: TileLayer, position: Vector, blockId: number, playerId: number): void;
+}
 
 export class Blocks {
   state: number[][][];
 
-  /**
-   * Event handler that gets fired whenever the state of the world gets
-   * completely changed.
-   */
-  onLoad?: (blocks: ZWorldBlocks) => void;
-
-  /**
-   * Event handler that gets fired whenever a block is placed.
-   */
-  onBlock?: (layer: TileLayer, position: Vector, blockId: number, playerId: number) => void;
+  readonly events = createNanoEvents<BlockEvents>();
 
   constructor(readonly tiles: TileRegistration, blocks: ZWorldBlocks, readonly size: Vector) {
     this.state = blocks;
@@ -23,7 +20,7 @@ export class Blocks {
 
   load(blocks: ZWorldBlocks) {
     this.state = blocks;
-    if (this.onLoad) this.onLoad(this.state);
+    this.events.emit("load", this.state);
   }
 
   clear() {
@@ -43,7 +40,7 @@ export class Blocks {
     if (position.x >= this.size.x || position.y >= this.size.y) return;
 
     this.state[layer][position.y][position.x] = blockId;
-    if (this.onBlock) this.onBlock(layer, position, blockId, playerId);
+    this.events.emit("block", layer, position, blockId, playerId);
   }
 
   blockAt(x: number, y: number, tileLayer: TileLayer): number {
