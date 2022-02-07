@@ -19,6 +19,8 @@ export interface PhysicsSystem {
    */
   readonly optimalTickRate: number | 0;
 
+  get redKeyOn(): boolean;
+
   update(elapsedMs: number, players: Player[]): void;
 
   triggerKey(kind: "red", deactivateTime: number, player: Player): void;

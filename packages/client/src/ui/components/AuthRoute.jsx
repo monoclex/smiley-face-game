@@ -4,9 +4,6 @@ import { Navigate } from "react-router";
 import { useSnackbar } from "notistack";
 import { useToken, computeAuthStatus } from "../hooks";
 
-// TODO: clean this up
-// this is kinda hard and painful cuz we conditionally call hooks
-
 // do NOT pass `needAccount` as true to `AuthRoute`
 // for some reason, react router v6 is weird
 // it makes react think that when you switch to a route with needaccount=true,

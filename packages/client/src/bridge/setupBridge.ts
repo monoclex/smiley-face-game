@@ -5,7 +5,7 @@ import textures from "../game/textures";
 import state from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
-import GameRenderer from "./GameRenderer";
+import GameRenderer from "./rendering/GameRenderer";
 import { loopRequestAnimationFrame } from "./RegisterTickLoop";
 
 interface Bridge {

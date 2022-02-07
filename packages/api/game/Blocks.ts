@@ -4,7 +4,7 @@ import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
 
 export class Blocks {
-  private state: number[][][];
+  state: number[][][];
 
   /**
    * Event handler that gets fired whenever the state of the world gets

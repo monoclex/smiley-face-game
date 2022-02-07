@@ -1,22 +1,13 @@
 import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
-import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { Container, Renderer } from "pixi.js";
-import GamePlayer from "./GamePlayer";
+import GamePlayer from "../GamePlayer";
 
-export default class GameRenderer {
+export default class PlayerRenderer {
   gamePlayers: Map<number, GamePlayer> = new Map();
   focus!: Player;
 
-  constructor(readonly game: Game, readonly renderer: Renderer) {
-    // <-- most behind
-    this.root.addChild(this.worldBehind);
-    this.root.addChild(this.players);
-    this.root.addChild(this.bullets);
-    this.root.addChild(this.worldInfront);
-    // selection gets added here too (in `ClientSelector`)
-    // <-- closest to viewer
-
+  constructor(readonly game: Game, readonly root: Container, readonly renderer: Renderer) {
     game.players.onPlayerAdd = (player) => {
       const gamePlayer = new GamePlayer();
       this.gamePlayers.set(player.id, gamePlayer);
@@ -33,12 +24,7 @@ export default class GameRenderer {
     };
   }
 
-  readonly root: Container = new Container();
-  readonly worldBehind: Container = new Container();
   readonly players: Container = new Container();
-  readonly bullets: Container = new Container();
-  readonly worldInfront: Container = new Container();
-  private mouse: Vector = Vector.Zero;
 
   draw(): void {
     // update game containers and stuff from game data
@@ -51,7 +37,6 @@ export default class GameRenderer {
     }
 
     this.updateCameraView();
-    this.renderer.render(this.root);
   }
 
   updateCameraView() {
