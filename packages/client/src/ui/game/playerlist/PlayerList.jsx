@@ -42,16 +42,6 @@ const ChatList = styled(SpringScrollbars)({
 // }));
 
 const PlayerList = () => {
-  const [duration, setDuration] = useState(0);
-
-  // for duration, we want to set the duration back to 0.3 once it's done
-  // so we set the duration to 0.3 at some point *later*, so that the animation duration is correct
-  useEffect(() => {
-    setTimeout(() => {
-      setDuration(0.3);
-    });
-  }, []);
-
   const players = useRecoilValue(playerListState);
 
   return (

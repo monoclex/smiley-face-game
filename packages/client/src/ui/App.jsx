@@ -8,7 +8,7 @@ import { RecoilRoot } from "recoil";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import FullscreenBackdropLoading from "./components/FullscreenBackdropLoading";
-import { AuthRoute } from "./components/AuthRoute";
+import { AccountRoute, AuthRoute } from "./components/AuthRoute";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -54,7 +54,7 @@ export default function App() {
                   <Route path="games">
                     <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
                   </Route>
-                  <Route path="shop" element={<AuthRoute needAccount element={<ShopPage />} />} />
+                  <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
                 </Route>
               </Routes>
             </Suspense>

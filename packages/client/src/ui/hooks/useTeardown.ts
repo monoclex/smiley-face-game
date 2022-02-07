@@ -1,5 +1,5 @@
 // "stolen" from myself :) https://stackoverflow.com/a/69931123/3780113
-import React, { useLayoutEffect, useMemo } from "react";
+import React, { useLayoutEffect } from "react";
 import { isDebugMode } from "../../isProduction";
 
 const teardowns: (() => void)[] = [];
@@ -14,6 +14,8 @@ export function runTeardowns() {
 
 type Teardown = { registered?: boolean; called?: boolean; pushed?: boolean } & (() => unknown);
 
+const cache: Map<string, Teardown> = new Map();
+
 /**
  * Guarantees a function to run on teardown, even when errors occur.
  *
@@ -24,12 +26,13 @@ type Teardown = { registered?: boolean; called?: boolean; pushed?: boolean } & (
  * This works by telling `ErrorBoundary` that we have a function we would like to call on teardown.
  * However, if we register a `useEffect` hook, then we don't tell `ErrorBoundary` that.
  */
-export default function useTeardown(onTeardown: () => Teardown, deps: React.DependencyList) {
+export default function useTeardown(performTeardown: Teardown, deps: React.DependencyList, name: string) {
   // We have state we need to maintain about our teardown that we need to persist
   // to other layers of the application. To do that, we store state on the callback
   // itself - but to do that, we need to guarantee that the callback is stable. We
-  // achieve this by memoizing the teardown function.
-  const teardown = useMemo(onTeardown, deps);
+  // achieve this by caching the teardown function by name.
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const teardown = cache.get(name) ?? cache.set(name, performTeardown).get(name)!;
 
   // Here, we register a `useEffect` hook to run. This will be the "happy path" for
   // our teardown function, as if the component renders, we can let React guarantee
@@ -44,11 +47,14 @@ export default function useTeardown(onTeardown: () => Teardown, deps: React.Depe
         // We want to ensure that this impossible state is never reached. When the
         // `runTeardowns` function is called, it should only be ran for teardowns
         // that have not been able to be hook into `useEffect`.
-        if (teardown.called) console.warn("teardown already called, but unregistering in useEffect");
-        return;
+        if (teardown.called) {
+          console.warn("teardown already called, but unregistering in useEffect");
+          return;
+        }
       }
 
       teardown();
+      cache.delete(name);
 
       if (isDebugMode) {
         // Because `teardown.registered` will already cover the case where the effect
@@ -85,6 +91,7 @@ export default function useTeardown(onTeardown: () => Teardown, deps: React.Depe
         }
 
         teardown();
+        cache.delete(name);
 
         if (isDebugMode) {
           // Notify that this teardown has been called - useful for ensuring that we

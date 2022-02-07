@@ -31,12 +31,7 @@ export default function useSuspenseForPromise<T>(key: string, promiseFactory: ()
   }
   if ("loading" in state) throw state.loading;
 
-  useTeardown(
-    () => () => {
-      cache.delete(key);
-    },
-    []
-  );
+  useTeardown(() => cache.delete(key), [], `suspense-${key}`);
 
   if ("error" in state) throw state.error;
   if ("value" in state) return state.value;

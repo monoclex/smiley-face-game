@@ -40,7 +40,14 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
   });
 
   // run `cleanup` on component removal
-  useEffect(() => cleanup, [cleanup]);
+  useTeardown(
+    () => {
+      renderer.destroy(false);
+      cleanup();
+    },
+    [],
+    "game cleanup"
+  );
 
   renderer.resize(width, height);
 
@@ -104,16 +111,8 @@ function GameArea() {
 }
 
 export default function PlayPage() {
-  const [callback, setCallback] = useState(() => () => {
-    // we give a factory to an empty callback
-    // this is so we infer the type of `callback` correctly
-  });
-
-  // run `callback` on component teardown
-  useTeardown(() => callback, [callback]);
-
   return (
-    <ErrorBoundary callback={(recover) => setCallback(() => recover)}>
+    <ErrorBoundary>
       <GameUI>
         <GameArea />
       </GameUI>

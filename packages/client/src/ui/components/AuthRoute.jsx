@@ -1,11 +1,15 @@
 //@ts-check
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate } from "react-router";
 import { useSnackbar } from "notistack";
 import { useToken } from "../hooks";
 import { Authentication } from "@smiley-face-game/api";
+import { useEffectOnce } from "react-use";
 
-export const AuthRoute = ({ needAccount = false, element }) => {
+// TODO: clean this up
+// this is kinda hard and painful cuz we conditionally call hooks
+
+export const AuthRoute = ({ element }) => {
   const [token, setToken] = useToken();
   const notistack = useSnackbar();
 
@@ -18,8 +22,10 @@ export const AuthRoute = ({ needAccount = false, element }) => {
 
   if (decoded.exp < currentEpochSeconds) {
     // token expired, kill it
-    notistack.enqueueSnackbar("Your token has expired!", {
-      variant: "error",
+    useEffectOnce(() => {
+      notistack.enqueueSnackbar("Your token has expired!", {
+        variant: "error",
+      });
     });
 
     setToken(false);
@@ -27,15 +33,42 @@ export const AuthRoute = ({ needAccount = false, element }) => {
     return <Navigate to="/" />;
   }
 
-  if (needAccount) {
-    const auth = new Authentication(token);
-    if (auth.isGuest) {
+  return element;
+};
+
+export const AccountRoute = ({ element }) => {
+  const [token, setToken] = useToken();
+  const notistack = useSnackbar();
+
+  if (!token) {
+    return <Navigate to="/" />;
+  }
+
+  const decoded = JSON.parse(atob(token.split(".")[1]));
+  const currentEpochSeconds = Date.now() / 1000;
+
+  if (decoded.exp < currentEpochSeconds) {
+    // token expired, kill it
+    useEffectOnce(() => {
+      notistack.enqueueSnackbar("Your token has expired!", {
+        variant: "error",
+      });
+    });
+
+    setToken(false);
+
+    return <Navigate to="/" />;
+  }
+
+  const auth = new Authentication(token);
+  if (auth.isGuest) {
+    useEffectOnce(() => {
       notistack.enqueueSnackbar("You must create an account to access this!", {
         variant: "error",
       });
+    });
 
-      return <Navigate to="/lobby" />;
-    }
+    return <Navigate to="/lobby" />;
   }
 
   return element;

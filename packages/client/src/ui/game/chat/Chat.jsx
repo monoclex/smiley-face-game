@@ -50,7 +50,6 @@ export default function Chat() {
   const [isActive, setActive] = useRecoilState(chatOpenState);
 
   const closeChat = () => {
-    console.log("chat closed");
     reset();
     inputRef.current.blur();
     setActive(false);
