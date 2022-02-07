@@ -20,7 +20,7 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
   const auth = useAuth();
 
-  const { game, cleanup, renderer } = useSuspenseForPromise("gaming", async () => {
+  const { cleanup, renderer } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: gameElement.width,
       height: gameElement.height,

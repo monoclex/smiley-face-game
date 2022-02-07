@@ -5,10 +5,13 @@ import textures from "../game/textures";
 import state from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
+import GameRenderer from "./GameRenderer";
+import { handleTimestep, loopRequestAnimationFrame } from "./RegisterTickLoop";
 
 interface Bridge {
   game: Game;
   connection: Connection;
+  gameRenderer: GameRenderer;
   cleanup: () => void;
 }
 
@@ -28,8 +31,13 @@ export default async function setupBridge(
   state.game = game;
   state.connection = connection;
 
+  // add game ui components
+  const chat = new Chat(game, connection.init);
+  const playerList = new PlayerList(game);
+  const gameRenderer = new GameRenderer(game, renderer);
+
   // add ourselves
-  const _self = game.players.add({
+  const self = game.players.add({
     playerId: connection.init.playerId,
     packetId: "SERVER_PLAYER_JOIN",
     username: connection.init.username,
@@ -40,9 +48,7 @@ export default async function setupBridge(
     gunEquipped: false,
   });
 
-  // add game ui components
-  const chat = new Chat(game, connection.init);
-  const playerList = new PlayerList(game);
+  gameRenderer.focus = self;
 
   (async () => {
     for await (const message of connection) {
@@ -54,28 +60,24 @@ export default async function setupBridge(
     shutdown(game);
   })();
 
-  let timeStart: number = new Date().getDate();
-
-  // eslint-disable-next-line no-undef
-  const loop: FrameRequestCallback = (elapsed) => {
-    if (!connection.connected) return;
-
-    const delta = elapsed - timeStart;
+  // tick game physics
+  handleTimestep((delta) => {
+    if (!connection.connected) return "halt";
     game.update(delta);
-    timeStart = elapsed;
+  }, game.physics.optimalTickRate);
 
-    requestAnimationFrame(loop);
-  };
-
-  requestAnimationFrame((elapsed) => {
-    timeStart = elapsed;
-    game.update(0);
-    requestAnimationFrame(loop);
+  // render game
+  loopRequestAnimationFrame(() => {
+    if (!connection.connected) return "halt";
+    gameRenderer.draw();
   });
+
+  state.gameRenderer = gameRenderer;
 
   return {
     game,
     connection,
+    gameRenderer,
     cleanup: () => {
       if (connection.connected) {
         connection.close();

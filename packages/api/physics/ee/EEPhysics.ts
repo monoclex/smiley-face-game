@@ -11,7 +11,7 @@ import { Config } from "./Config";
 import { ArrowDirection, BoostDirection, ZoostDirection, isBoost, isZoost, zoostDirToVec } from "./Directions";
 
 export class EEPhysics implements PhysicsSystem {
-  private msPerTick: number;
+  readonly optimalTickRate: number;
 
   private delta = 0;
   private ticks = 0;
@@ -29,16 +29,16 @@ export class EEPhysics implements PhysicsSystem {
     ticksPerSecond: number,
     readonly onPhysicsEvent: (event: PhysicsEvent) => void
   ) {
-    this.msPerTick = 1000 / ticksPerSecond;
+    this.optimalTickRate = 1000 / ticksPerSecond;
     this.ids = new BlockIdCache(tiles);
   }
 
   update(deltaMs: number, players: Player[]) {
     this.delta += deltaMs;
 
-    while (this.delta >= this.msPerTick) {
+    while (this.delta >= this.optimalTickRate) {
       this.tick(players);
-      this.delta -= this.msPerTick;
+      this.delta -= this.optimalTickRate;
     }
   }
 

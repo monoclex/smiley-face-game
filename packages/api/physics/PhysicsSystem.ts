@@ -13,6 +13,13 @@ export interface KeyEvent {
 }
 
 export interface PhysicsSystem {
+  /**
+   * Specifies an optimal tick rate, in milliseconds per tick.
+   * This must be a whole number.
+   * A value of `0` means that there is no optimal tick rate.
+   */
+  readonly optimalTickRate: number | 0;
+
   update(deltaMs: number, players: Player[]): void;
 
   triggerKey(kind: "red", deactivateTime: number, player: Player): void;

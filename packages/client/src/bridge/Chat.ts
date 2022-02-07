@@ -23,10 +23,10 @@ export default class Chat {
   }
 
   handleEvent(event: ZSPacket) {
-    if (event.packetId === "SERVER_CHAT") this.onChat(event);
+    if (event.packetId === "SERVER_CHAT") this.handleChat(event);
   }
 
-  onChat(event: ZSChat) {
+  handleChat(event: ZSChat) {
     const time = new Date();
     const sender = this.game.players.get(event.playerId);
     const content = event.message;
