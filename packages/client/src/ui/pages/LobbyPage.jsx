@@ -92,7 +92,6 @@ function useLogout() {
 }
 
 const LobbyPage = () => {
-  console.log("hey we're at the lobby");
   const navigate = useNavigate();
   const logout = useLogout();
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);

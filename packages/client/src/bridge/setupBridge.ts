@@ -1,26 +1,22 @@
-import { Authentication, ZJoinRequest } from "@smiley-face-game/api";
+import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
-import ClientGame from "../game/client/ClientGame";
 import makeClientConnectedGame from "../game/helpers/makeClientConnectedGame";
-import StateSystem from "../game/StateSystem";
 import textures from "../game/textures";
-import { gameGlobal } from "../state";
 import state from "./state";
+import Chat from "./Chat";
+import { PlayerList } from "./PlayerList";
 
 interface Bridge {
-  game: ClientGame;
+  game: Game;
+  connection: Connection;
   cleanup: () => void;
-}
-
-function connectToRecoil(stateSystem: StateSystem) {
-  stateSystem.onStateDifference = (state) => gameGlobal.set(state);
 }
 
 export default async function setupBridge(
   auth: Authentication,
   joinRequest: ZJoinRequest,
   renderer: Renderer,
-  shutdown: (game: ClientGame) => void
+  shutdown: (game: Game) => void
 ): Promise<Bridge> {
   const connection = await auth.connect(joinRequest);
 
@@ -28,26 +24,44 @@ export default async function setupBridge(
 
   const game = makeClientConnectedGame(renderer, connection);
 
+  // connect game to `state` so react components can call methods on it
+  state.game = game;
+  state.connection = connection;
+
+  // add ourselves
+  const _self = game.players.add({
+    playerId: connection.init.playerId,
+    packetId: "SERVER_PLAYER_JOIN",
+    username: connection.init.username,
+    role: connection.init.role,
+    isGuest: connection.init.isGuest,
+    joinLocation: connection.init.spawnPosition,
+    hasGun: false,
+    gunEquipped: false,
+  });
+
+  // add game ui components
+  const chat = new Chat(game, connection.init);
+  const playerList = new PlayerList(game);
+
   (async () => {
     for await (const message of connection) {
-      game.handle(message);
+      game.handleEvent(message);
+      chat.handleEvent(message);
+      playerList.handleEvent(message);
     }
 
-    if (game.running) {
-      shutdown(game);
-    }
+    shutdown(game);
   })();
-
-  connectToRecoil(game.stateSystem);
 
   let timeStart: number = new Date().getDate();
 
   // eslint-disable-next-line no-undef
   const loop: FrameRequestCallback = (elapsed) => {
-    if (!game.running) return;
+    if (!connection.connected) return;
 
     const delta = elapsed - timeStart;
-    game.tick(delta);
+    game.update(delta);
     timeStart = elapsed;
 
     requestAnimationFrame(loop);
@@ -55,18 +69,16 @@ export default async function setupBridge(
 
   requestAnimationFrame((elapsed) => {
     timeStart = elapsed;
-    game.tick(0);
+    game.update(0);
     requestAnimationFrame(loop);
   });
 
-  // connect game to `state` so react components can call methods on it
-  state.game = game;
-
   return {
     game,
+    connection,
     cleanup: () => {
-      if (game.running) {
-        game.cleanup();
+      if (connection.connected) {
+        connection.close();
       }
     },
   };

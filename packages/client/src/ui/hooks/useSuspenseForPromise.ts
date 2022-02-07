@@ -2,8 +2,8 @@ import useTeardown from "./useTeardown";
 
 const cache = new Map<unknown, SuspenseState<unknown>>();
 
-type SuspenseState<T> = SuspenseNone | SuspenseError | SuspenseValue<T>;
-type SuspenseNone = { loading: Promise<T> };
+type SuspenseState<T> = SuspenseNone<T> | SuspenseError | SuspenseValue<T>;
+type SuspenseNone<T> = { loading: Promise<T> };
 type SuspenseError = { error: Error };
 type SuspenseValue<T> = { value: T };
 

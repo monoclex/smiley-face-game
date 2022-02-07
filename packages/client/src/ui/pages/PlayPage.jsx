@@ -20,7 +20,7 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
   const auth = useAuth();
 
-  const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
+  const { game, cleanup, renderer } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: gameElement.width,
       height: gameElement.height,
@@ -30,21 +30,19 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { game, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
-      if (game.running) {
-        window.history.back();
-      }
+    const { game, connection, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, () => {
+      window.history.back();
     });
 
-    navigate(`/games/${game.connection.init.worldId}`, { replace: true });
+    navigate(`/games/${connection.init.worldId}`, { replace: true });
 
-    return { game, cleanup };
+    return { game, cleanup, renderer };
   });
 
   // run `cleanup` on component removal
   useEffect(() => cleanup, [cleanup]);
 
-  game.renderer.resize(width, height);
+  renderer.resize(width, height);
 
   return null;
 }
@@ -67,7 +65,12 @@ function GameArea() {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const current = divRef.current;
+    // forcibly coerce a known only `undefined` to `typeof current`
+    /** @type {any} */
+    const expr = divRef.current;
+    /** @type {HTMLDivElement | undefined} */
+    const current = expr;
+
     if (!current) throw new Error("cannot be undef");
 
     current.appendChild(gameElement);

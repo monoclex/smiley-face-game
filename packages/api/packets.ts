@@ -133,6 +133,7 @@ export const zsWorldAction = addParse(
     action: zWorldActionKindReply,
   })
 );
+export type ZSWorldAction = SchemaInput<typeof zsWorldAction>;
 
 export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =>
   Schema.merge(zs, {
@@ -149,12 +150,14 @@ export const zsRoleUpdate = addParse(
     newRole: zRole,
   })
 );
+export type ZSRoleUpdate = SchemaInput<typeof zsRoleUpdate>;
 
 export const zsPlayerLeave = addParse(
   Schema.merge(zs, {
     packetId: "SERVER_PLAYER_LEAVE" as const,
   })
 );
+export type ZSPlayerLeave = SchemaInput<typeof zsPlayerLeave>;
 
 export const zsPlayerJoin = addParse(
   Schema.merge(zs, {
@@ -174,6 +177,7 @@ export const zsPickupGun = addParse(
     packetId: "SERVER_PICKUP_GUN" as const,
   })
 );
+export type ZSPickupGun = SchemaInput<typeof zsPickupGun>;
 
 export const zsMovement = addParse(
   Schema.merge(zs, {
@@ -207,6 +211,7 @@ export const zsFireBullet = addParse(
     angle: zAngle,
   })
 );
+export type ZSFireBullet = SchemaInput<typeof zsFireBullet>;
 
 export const zsEquipGun = addParse(
   Schema.merge(zs, {
@@ -214,6 +219,7 @@ export const zsEquipGun = addParse(
     equipped: boolean,
   })
 );
+export type ZSEquipGun = SchemaInput<typeof zsEquipGun>;
 
 export const zsChat = addParse(
   Schema.merge(zs, {
@@ -221,6 +227,7 @@ export const zsChat = addParse(
     message: zMessage,
   })
 );
+export type ZSChat = SchemaInput<typeof zsChat>;
 
 export const zsEvent = addParse(
   Schema.merge(zs, {

@@ -18,11 +18,11 @@ export default function MobileControls() {
     if (!state.game) return;
 
     // TODO: maybe have a "jump" button?
-    state.game.keyboard.simulateKey(" ", moving.up);
-    state.game.keyboard.simulateKey("w", moving.up);
-    state.game.keyboard.simulateKey("a", moving.left);
-    state.game.keyboard.simulateKey("s", moving.down);
-    state.game.keyboard.simulateKey("d", moving.right);
+    // state.game.keyboard.simulateKey(" ", moving.up);
+    // state.game.keyboard.simulateKey("w", moving.up);
+    // state.game.keyboard.simulateKey("a", moving.left);
+    // state.game.keyboard.simulateKey("s", moving.down);
+    // state.game.keyboard.simulateKey("d", moving.right);
   }, [moving]);
 
   return (

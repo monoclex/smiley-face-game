@@ -1,8 +1,7 @@
-import { Connection } from "@smiley-face-game/api";
+import { Connection, Game } from "@smiley-face-game/api";
 import { Renderer } from "pixi.js";
-import ClientGame from "../client/ClientGame";
 
-export default function makeClientConnectedGame(renderer: Renderer, connection: Connection): ClientGame {
-  const game = new ClientGame(connection.tileJson, connection.init, renderer, connection);
+export default function makeClientConnectedGame(renderer: Renderer, connection: Connection): Game {
+  const game = new Game(connection.tileJson, connection.init);
   return game;
 }

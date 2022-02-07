@@ -88,6 +88,15 @@ export default class Connection {
    */
   readonly tileJson: TileRegistration;
 
+  private _connected = true;
+
+  /**
+   * Gets whether or not this connection is connected.
+   */
+  get connected(): boolean {
+    return this._connected;
+  }
+
   /**
    * Constructs a new `Connection`, given a `websocket` and an `init` message.
    * @param websocket The websocket that the connection is on.
@@ -111,8 +120,8 @@ export default class Connection {
 
     // this serves to both unhook the websocket.close from the promise earlier, and as a catch-all incase `onerror`
     // doesn't get something
-    this.websocket.onclose = (event) => this.messages.end(new Error(event.reason));
-    this.websocket.onerror = (event) => this.messages.end(event.error);
+    this.websocket.onclose = (event) => ((this._connected = false), this.messages.end(new Error(event.reason)));
+    this.websocket.onerror = (event) => ((this._connected = false), this.messages.end(event.error));
     this.websocket.onmessage = (event) => this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
   }
 
@@ -130,6 +139,7 @@ export default class Connection {
    * Kills the connection.
    */
   close() {
+    this._connected = false;
     this.messages.end(new Error("connection closing"));
     this.websocket.close();
   }

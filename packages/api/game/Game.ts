@@ -39,6 +39,10 @@ export class Game {
     this.physics = new EEPhysics(tiles, this.blocks, EE_TPS, onPhysicsEvent);
   }
 
+  update(deltaMs: number) {
+    this.physics.update(deltaMs, this.players.list);
+  }
+
   // this returns `0` to make sure all branches are fulfilled
   handleEvent(event: ZSPacket): 0 {
     // as a general rule of thumb, this method should be a *dispatching method*.

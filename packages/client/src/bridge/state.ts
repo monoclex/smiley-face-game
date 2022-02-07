@@ -1,3 +1,2 @@
-import ClientGame from "../game/client/ClientGame";
-
-export default {} as { game?: ClientGame };
+import type { Connection, Game } from "@smiley-face-game/api";
+export default {} as { game?: Game; connection?: Connection };

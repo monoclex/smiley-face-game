@@ -13,6 +13,12 @@ import { Vector } from "./Vector";
 // think it's fine to shove all physics state into the player
 // without regard.
 
+export interface CheapPlayer {
+  id: number;
+  role: ZRole;
+  username: string;
+}
+
 export class Player {
   input: Inputs;
   velocity: Vector = Vector.Zero;
@@ -31,6 +37,10 @@ export class Player {
       right: false,
       jump: false,
     };
+  }
+
+  cheap(): CheapPlayer {
+    return { id: this.id, role: this.role, username: this.name };
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

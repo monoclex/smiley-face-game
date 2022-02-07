@@ -36,33 +36,31 @@ export default function App() {
   );
 
   return (
-    <React.StrictMode>
-      <ThemeProvider theme={theme}>
-        <BrowserRouter>
-          <RecoilRoot>
-            <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
-              <SnackbarUtilsConfigurator />
-              <CssBaseline />
-              <Suspense fallback={<FullscreenBackdropLoading />}>
-                <Routes>
-                  <Route path="/">
-                    <Route index element={<HomePage />} />
-                    <Route path="terms" element={<TermsAndConditionsPage />} />
-                    <Route path="guest" element={<GuestPage />} />
-                    <Route path="register" element={<RegisterPage />} />
-                    <Route path="login" element={<LoginPage />} />
-                    <Route path="lobby" element={<AuthRoute element={<LobbyPage />} />} />
-                    <Route path="games">
-                      <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
-                    </Route>
-                    <Route path="shop" element={<AuthRoute needAccount element={<ShopPage />} />} />
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <RecoilRoot>
+          <SnackbarProvider maxSnack={15} autoHideDuration={1500}>
+            <SnackbarUtilsConfigurator />
+            <CssBaseline />
+            <Suspense fallback={<FullscreenBackdropLoading />}>
+              <Routes>
+                <Route path="/">
+                  <Route index element={<HomePage />} />
+                  <Route path="terms" element={<TermsAndConditionsPage />} />
+                  <Route path="guest" element={<GuestPage />} />
+                  <Route path="register" element={<RegisterPage />} />
+                  <Route path="login" element={<LoginPage />} />
+                  <Route path="lobby" element={<AuthRoute element={<LobbyPage />} />} />
+                  <Route path="games">
+                    <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
                   </Route>
-                </Routes>
-              </Suspense>
-            </SnackbarProvider>
-          </RecoilRoot>
-        </BrowserRouter>
-      </ThemeProvider>
-    </React.StrictMode>
+                  <Route path="shop" element={<AuthRoute needAccount element={<ShopPage />} />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </SnackbarProvider>
+        </RecoilRoot>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

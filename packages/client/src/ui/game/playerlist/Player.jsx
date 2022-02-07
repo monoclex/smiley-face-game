@@ -35,6 +35,9 @@ const UserIcon = styled(FontAwesomeIcon)({
 });
 
 export const Player = ({ username, id: playerId, role: roleParam }) => {
+  const { connection } = state;
+  if (!connection) throw new Error("impossible state");
+
   const { enqueueSnackbar } = useSnackbar();
 
   /** @type {import("@smiley-face-game/api/types").ZRole} */
@@ -49,7 +52,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
   const actions = [];
 
   const kick = () => {
-    state.game.connection.kick(playerId);
+    connection.kick(playerId);
     enqueueSnackbar(`Kicked ${username}`, {
       variant: "success",
     });
@@ -60,9 +63,9 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
     if (mainPlayer.role !== "owner") return;
 
     if (shouldHaveEdit) {
-      state.game.connection.giveEdit(playerId);
+      connection.giveEdit(playerId);
     } else {
-      state.game.connection.takeEdit(playerId);
+      connection.takeEdit(playerId);
     }
 
     enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {

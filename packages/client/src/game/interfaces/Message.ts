@@ -1,9 +1,9 @@
-import Player from "../Player";
+import { CheapPlayer } from "@smiley-face-game/api/physics/Player";
 
 export default interface Message {
   // id is for react
   id: number;
   time: Date;
-  sender: Pick<Player, "id" | "role" | "username">;
+  sender: CheapPlayer;
   content: string;
 }

@@ -6,12 +6,24 @@ import TileRegistration from "../tiles/TileRegistration";
 export class Blocks {
   private state: number[][][];
 
+  /**
+   * Event handler that gets fired whenever the state of the world gets
+   * completely changed.
+   */
+  onLoad?: (blocks: ZWorldBlocks) => void;
+
+  /**
+   * Event handler that gets fired whenever a block is placed.
+   */
+  onBlock?: (layer: TileLayer, position: Vector, blockId: number, playerId: number) => void;
+
   constructor(readonly tiles: TileRegistration, blocks: ZWorldBlocks, readonly size: Vector) {
     this.state = blocks;
   }
 
   load(blocks: ZWorldBlocks) {
     this.state = blocks;
+    if (this.onLoad) this.onLoad(this.state);
   }
 
   clear() {
@@ -26,8 +38,12 @@ export class Blocks {
     });
   }
 
-  placeSingle(layer: TileLayer, position: Vector, blockId: number, _playerId: number) {
+  placeSingle(layer: TileLayer, position: Vector, blockId: number, playerId: number) {
+    if (position.x < 0 || position.y < 0) return;
+    if (position.x >= this.size.x || position.y >= this.size.y) return;
+
     this.state[layer][position.y][position.x] = blockId;
+    if (this.onBlock) this.onBlock(layer, position, blockId, playerId);
   }
 
   blockAt(x: number, y: number, tileLayer: TileLayer): number {
