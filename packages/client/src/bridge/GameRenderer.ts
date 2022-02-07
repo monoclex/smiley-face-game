@@ -41,6 +41,7 @@ export default class GameRenderer {
   private mouse: Vector = Vector.Zero;
 
   draw(): void {
+    // update game containers and stuff from game data
     for (const player of this.game.players.list) {
       const gamePlayer = this.gamePlayers.get(player.id);
       if (!gamePlayer) throw new Error("impossible player id desync");

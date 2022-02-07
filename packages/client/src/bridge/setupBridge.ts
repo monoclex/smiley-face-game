@@ -60,15 +60,9 @@ export default async function setupBridge(
     shutdown(game);
   })();
 
-  // tick game physics
-  handleTimestep((delta) => {
+  loopRequestAnimationFrame((elapsed) => {
     if (!connection.connected) return "halt";
-    game.update(delta);
-  }, game.physics.optimalTickRate);
-
-  // render game
-  loopRequestAnimationFrame(() => {
-    if (!connection.connected) return "halt";
+    game.update(elapsed);
     gameRenderer.draw();
   });
 
