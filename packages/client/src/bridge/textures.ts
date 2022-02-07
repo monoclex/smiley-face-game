@@ -6,7 +6,7 @@ import atlas from "../assets/atlas.png";
 import select from "../assets/select.png";
 import gun from "../assets/held_gun.png";
 import smile from "../assets/smile.png";
-import findTexture from "./helpers/atlasFindFrame";
+import findTexture from "./atlasFindFrame";
 
 // add textures here
 const textureDef = {

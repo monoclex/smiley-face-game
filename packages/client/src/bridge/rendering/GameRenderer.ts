@@ -2,9 +2,14 @@ import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { Container, Renderer } from "pixi.js";
+import { createNanoEvents } from "nanoevents";
 import GamePlayer from "../GamePlayer";
 import PlayerRenderer from "./PlayerRendering";
 import WorldRendering from "./WorldRendering";
+
+interface GameRendererEvents {
+  draw(): void;
+}
 
 export default class GameRenderer {
   gamePlayers: Map<number, GamePlayer> = new Map();
@@ -19,6 +24,7 @@ export default class GameRenderer {
 
   readonly playerRenderer: PlayerRenderer;
   readonly worldRenderer: WorldRendering;
+  readonly events = createNanoEvents<GameRendererEvents>();
 
   constructor(readonly game: Game, readonly renderer: Renderer) {
     this.playerRenderer = new PlayerRenderer(game, this.root, renderer);
@@ -40,6 +46,7 @@ export default class GameRenderer {
   draw(): void {
     this.playerRenderer.draw();
     this.worldRenderer.draw();
+    this.events.emit("draw");
 
     this.renderer.render(this.root);
   }

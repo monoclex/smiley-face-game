@@ -65,7 +65,7 @@ const BlockBar = () => {
 
       if (blockbar.selected === slot) {
         // if we've already selected the block, we wanna go to the next state
-        const newTileState = state.game.tileJson.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
+        const newTileState = state.game.tiles.for(blockbar.slots[slot]).next(blockbar.slots[slot]);
         setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [slot]: newTileState } });
       } else {
         setBlockbar({ ...blockbar, selected: slot });
@@ -88,12 +88,12 @@ const BlockBar = () => {
           slotId={i}
           block={blockbar.slots[i]}
           nextState={() => {
-            const newTileState = state.game.tileJson.for(blockbar.slots[i]).next(blockbar.slots[i]);
+            const newTileState = state.game.tiles.for(blockbar.slots[i]).next(blockbar.slots[i]);
             setBlockbar({ ...blockbar, slots: { ...blockbar.slots, [i]: newTileState } });
           }}
           onClick={() => setBlockbar({ ...blockbar, selected: ensureIsSlotId(i) })}
           selected={blockbar.selected === i}
-          loader={(id) => state.game.blockBar.load(id)}
+          loader={(id) => state.blockBar.load(id)}
         />
       ))}
     </Grid>

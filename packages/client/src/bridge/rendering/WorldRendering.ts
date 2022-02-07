@@ -2,7 +2,7 @@ import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { Game } from "@smiley-face-game/api";
 import { TileLayer } from "@smiley-face-game/api/types";
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
-import textures from "../../game/textures";
+import textures from "../textures";
 
 export default class WorldRendering {
   readonly worldBehind: Container = new Container();

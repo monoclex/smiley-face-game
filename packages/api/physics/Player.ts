@@ -23,12 +23,16 @@ export class Player {
   input: Inputs;
   velocity: Vector = Vector.Zero;
 
+  get hasEdit(): boolean {
+    return this.role !== "non";
+  }
+
   constructor(
     readonly id: number,
     readonly name: string,
     public role: ZRole,
     readonly isGuest: boolean,
-    public position: Vector // force prettier to put these on newlines
+    public position: Vector // prettier dont put this on a newline
   ) {
     this.input = {
       up: false,

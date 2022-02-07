@@ -1,8 +1,8 @@
 import { BaseImageResource } from "pixi.js";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { blockBarGlobal } from "../../state/";
-import textures from "../textures";
-import findTexture from "../helpers/atlasFindFrame";
+import { blockBarGlobal } from "../state";
+import textures from "./textures";
+import findTexture from "./atlasFindFrame";
 
 export default class ClientBlockBar {
   constructor(private readonly tileJson: TileRegistration) {
@@ -50,7 +50,9 @@ export default class ClientBlockBar {
     const { x, y, w, h } = textureFrame.frame;
     context.drawImage(resource.source, x, y, w, h, 0, 0, TILE_WIDTH, TILE_HEIGHT);
 
-    const blob = await new Promise((resolve) => renderImageCanvas.toBlob(resolve));
+    const blob = await new Promise<Blob | null>((resolve) => renderImageCanvas.toBlob(resolve));
+    if (!blob) throw new Error("couldn't make blob");
+
     const url = URL.createObjectURL(blob);
 
     const tileTexture = new Image();

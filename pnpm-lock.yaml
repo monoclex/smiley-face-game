@@ -99,6 +99,7 @@ importers:
       history: ^5.2.0
       html-webpack-plugin: ^5.5.0
       mdi-material-ui: ^7.1.0
+      nanoevents: ^6.0.2
       notistack: ^2.0.3
       pixi.js: ^6.2.2
       prettier: ^2.5.1
@@ -147,6 +148,7 @@ importers:
       framer-motion: 6.2.4_react-dom@17.0.2+react@17.0.2
       history: 5.2.0
       mdi-material-ui: 7.1.0_@mui+material@5.4.0+react@17.0.2
+      nanoevents: 6.0.2
       notistack: 2.0.3_2f871dd2b8d69d8cbc4214b97c3d4d81
       pixi.js: 6.2.2
       prop-types: 15.8.1

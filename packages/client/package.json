@@ -48,6 +48,7 @@
     "framer-motion": "^6.2.4",
     "history": "^5.2.0",
     "mdi-material-ui": "^7.1.0",
+    "nanoevents": "^6.0.2",
     "notistack": "^2.0.3",
     "pixi.js": "^6.2.2",
     "prop-types": "^15.8.1",

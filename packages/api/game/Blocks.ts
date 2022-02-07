@@ -60,6 +60,15 @@ export class Blocks {
     throw new Error(`out of bounds block get attempt: ${tileLayer}: (${x}, ${y})`);
   }
 
+  layerOfTopmostBlock(x: number, y: number) {
+    // TODO: support decoration layers
+    // this is set to background because server doesn't send decoration layer
+    for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
+      if (this.state[layer][y][x] !== 0) return layer;
+    }
+    return TileLayer.Foreground;
+  }
+
   private static emptyWorld(size: Vector): number[][][] {
     const state = [];
 

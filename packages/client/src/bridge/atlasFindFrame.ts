@@ -1,4 +1,4 @@
-import atlasJson from "../../assets/atlas_atlas.json";
+import atlasJson from "../assets/atlas_atlas.json";
 
 export default function findTexture(textureName: string) {
   for (const frame of atlasJson.frames) {

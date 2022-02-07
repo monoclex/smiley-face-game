@@ -1,5 +1,5 @@
 import { Container, Sprite } from "pixi.js";
-import textures from "../game/textures";
+import textures from "./textures";
 
 export default class GamePlayer {
   container: Container;

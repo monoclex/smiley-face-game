@@ -1,13 +1,17 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import makeClientConnectedGame from "../game/helpers/makeClientConnectedGame";
-import textures from "../game/textures";
+import textures from "./textures";
 import state from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./rendering/GameRenderer";
 import { loopRequestAnimationFrame } from "./RegisterTickLoop";
 import Keyboard from "./Keyboard";
+import MouseInteraction from "./MouseInteraction";
+import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
+import ClientBlockBar from "./ClientBlockBar";
+import { gameGlobal } from "../state";
 
 interface Bridge {
   game: Game;
@@ -44,12 +48,21 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
     gunEquipped: false,
   });
 
-  const keyboard = new Keyboard(self, connection);
   gameRenderer.focus = self;
+  // TODO: we need to update gameGlobal whenever `self` roles/etc gets updated
+  gameGlobal.modify({ self: self.cheap() });
+
+  const keyboard = new Keyboard(self, connection);
+
+  const blockBar = new ClientBlockBar(connection.tileJson);
+  state.blockBar = blockBar;
+
+  const mouseInteraction = new MouseInteraction(gameRenderer.root, new AuthoredBlockPlacer(self, connection, game, blockBar), game);
+  gameRenderer.events.on("draw", () => mouseInteraction.draw());
+  gameRenderer.root.addChild(mouseInteraction.selection);
 
   (async () => {
     for await (const message of connection) {
-      console.log("got message", message);
       game.handleEvent(message);
       chat.handleEvent(message);
       playerList.handleEvent(message);
