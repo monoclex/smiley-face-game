@@ -1,12 +1,12 @@
-import cors from "cors";
 import "reflect-metadata";
-import { createConnection, getConnectionOptions } from "typeorm";
+import cors from "cors";
 import { app } from "./expressapp";
 import routes from "./routes";
 import Dependencies from "./dependencies";
 import dotenv from "dotenv";
 import express from "express";
 import type { ErrorRequestHandler } from "express-serve-static-core";
+import createTypeORMConnection from "./database/createConnection";
 
 dotenv.config();
 
@@ -15,8 +15,7 @@ const PORT = process.env.PORT;
 if (typeof ACCESS_TOKEN_SECRET !== "string") throw new Error("ACCESS_TOKEN_SECRET undefined");
 if (typeof PORT !== "string") throw new Error("PORT undefined");
 
-getConnectionOptions()
-  .then(createConnection)
+createTypeORMConnection()
   .then(async (connection) => {
     const dependencies = new Dependencies(connection, ACCESS_TOKEN_SECRET);
 

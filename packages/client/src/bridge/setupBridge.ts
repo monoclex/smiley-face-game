@@ -23,6 +23,11 @@ interface Bridge {
 export default async function setupBridge(auth: Authentication, joinRequest: ZJoinRequest, renderer: Renderer): Promise<Bridge> {
   const connection = await auth.connect(joinRequest);
 
+  // TODO: the block bar should primarily resisde within the react component,
+  // we shouldn't own it
+  const blockBar = new ClientBlockBar(connection.tileJson);
+  state.blockBar = blockBar;
+
   await textures.load(connection.tileJson);
 
   const game = makeClientConnectedGame(renderer, connection);
@@ -53,9 +58,6 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
   gameGlobal.modify({ self: self.cheap() });
 
   const keyboard = new Keyboard(self, connection);
-
-  const blockBar = new ClientBlockBar(connection.tileJson);
-  state.blockBar = blockBar;
 
   const mouseInteraction = new MouseInteraction(gameRenderer.root, new AuthoredBlockPlacer(self, connection, game, blockBar), game);
   gameRenderer.events.on("draw", () => mouseInteraction.draw());
