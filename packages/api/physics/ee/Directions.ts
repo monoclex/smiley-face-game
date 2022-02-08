@@ -1,23 +1,23 @@
 import { Vector } from "../Vector";
 
 export const ArrowDirection = {
-  Up: 0,
-  Right: 1,
-  Down: 2,
-  Left: 3,
+  Up: 1,
+  Right: 2,
+  Down: 3,
+  Left: 4,
 };
 export const BoostDirection = {
-  Up: 4,
-  Right: 5,
-  Down: 6,
-  Left: 7,
+  Up: 5,
+  Right: 6,
+  Down: 7,
+  Left: 8,
 };
 
 export const ZoostDirection = {
-  Up: 8,
-  Right: 9,
-  Down: 10,
-  Left: 11,
+  Up: 9,
+  Right: 10,
+  Down: 11,
+  Left: 12,
 };
 
 export const isBoost = (boostDirection: number) => boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;

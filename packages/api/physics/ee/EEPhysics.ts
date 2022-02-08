@@ -92,6 +92,7 @@ export class EEPhysics implements PhysicsSystem {
       // only allowed to advance at most 10 times per ee tick
       let advanceNum = 10;
       while (advanceNum > 0) {
+        const originalPosition = position;
         position = Vector.add(position, direction);
         position = new Vector(clamp(position.x, 0, this.world.size.x - 1), clamp(position.y, 0, this.world.size.y - 1));
 
@@ -105,9 +106,8 @@ export class EEPhysics implements PhysicsSystem {
         // if we're colliding with a solid block, we need to not to that
         const block = this.world.blockAt(position.x, position.y, TileLayer.Foreground);
         if (!this.noCollision(self, block)) {
-          // take a step back
-          position = Vector.sub(position, direction);
-          position = new Vector(clamp(position.x, 0, this.world.size.x - 1), clamp(position.y, 0, this.world.size.y - 1));
+          // go back
+          position = originalPosition;
           const eePos = Vector.mults(position, Config.blockSize);
           self.x = eePos.x;
           self.y = eePos.y;
