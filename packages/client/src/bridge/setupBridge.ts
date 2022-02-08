@@ -63,7 +63,6 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
   state.self = self;
 
   game.physics.events.on("keyTouch", (_, player) => {
-    console.log("key touch");
     if (player === self) {
       connection.touchRedKey();
 

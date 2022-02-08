@@ -113,7 +113,7 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
 
         <span>{username}</span>
       </PlayerDisplay>
-      <Menu id={"player-" + username} anchorEl={anchorElement} keepMounted open={Boolean(anchorElement)} onClose={handleClose}>
+      <Menu id={`player-${playerId}-${username}`} anchorEl={anchorElement} keepMounted open={Boolean(anchorElement)} onClose={handleClose}>
         <Grid container justifyContent="center" direction="column">
           <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>

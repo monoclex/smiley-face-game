@@ -74,8 +74,6 @@ export default class WorldRendering {
       redKeyTouched = redKeyTouchedState;
     }
 
-    console.log(redKeyTouched, this.game.physics.redKeyOn, isInsideKeyBlock, redKeyTouchedState);
-
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
       const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
