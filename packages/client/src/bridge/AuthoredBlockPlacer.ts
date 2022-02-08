@@ -22,11 +22,11 @@ export default class AuthoredBlockPlacer {
 
     const pos = { x: curX, y: curY };
     if (lastPos === undefined) {
-      this.connection.place(id, pos, layer);
-      this.game.blocks.placeSingle(layer, pos, id, this.author.id);
+      const didModify = this.game.blocks.placeSingle(layer, pos, id, this.author.id);
+      if (didModify) this.connection.place(id, pos, layer);
     } else {
-      this.connection.placeLine(id, lastPos, pos, layer);
-      this.game.blocks.placeLine(layer, lastPos, pos, id, this.author.id);
+      const didModify = this.game.blocks.placeLine(layer, lastPos, pos, id, this.author.id);
+      if (didModify) this.connection.placeLine(id, lastPos, pos, layer);
     }
   }
 }
