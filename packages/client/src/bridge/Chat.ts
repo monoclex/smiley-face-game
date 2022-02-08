@@ -1,6 +1,6 @@
 import { Game } from "@smiley-face-game/api";
 import type { ZSChat, ZSInit, ZSPacket } from "@smiley-face-game/api/packets";
-import Message from "../game/interfaces/Message";
+import Message from "../state/Message";
 import { gameGlobal } from "../state";
 
 export default class Chat {

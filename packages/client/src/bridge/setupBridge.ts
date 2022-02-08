@@ -1,6 +1,5 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
-import makeClientConnectedGame from "../game/helpers/makeClientConnectedGame";
 import textures from "./textures";
 import state from "./state";
 import Chat from "./Chat";
@@ -11,7 +10,7 @@ import Keyboard from "./Keyboard";
 import MouseInteraction from "./MouseInteraction";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
-import { blockBarGlobal, gameGlobal } from "../state";
+import { gameGlobal } from "../state";
 
 interface Bridge {
   game: Game;
@@ -35,7 +34,7 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
 
   await textures.load(connection.tileJson);
 
-  const game = makeClientConnectedGame(renderer, connection);
+  const game = new Game(connection.tileJson, connection.init);
 
   // connect game to `state` so react components can call methods on it
   //@ts-expect-error too lazy to have typedefs lol

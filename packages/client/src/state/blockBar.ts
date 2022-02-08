@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import type { ZBlock } from "@smiley-face-game/api/types";
-import { SelectedSlotId } from "../client/Slot";
+import { SelectedSlotId } from "./Slot";
 import SharedGlobal from "./SharedGlobal";
 
 interface BlockBar {

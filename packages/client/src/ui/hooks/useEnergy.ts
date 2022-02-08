@@ -12,8 +12,6 @@ interface EnergyInfo {
 export function useEnergy(): EnergyInfo {
   const player = usePlayer();
 
-  if (player.isGuest) throw new Error("Player cannot be guest!");
-
   function useEnergyWithEnergy({
     energy: initialEnergy,
     maxEnergy,

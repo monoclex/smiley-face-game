@@ -6,5 +6,5 @@
         "types": ["webpack-env"],
         "allowJs": true
     },
-    "include": ["./src"]
+    "include": ["./src", "../api/physics/path.ts"]
 }

@@ -11,7 +11,7 @@ import inputEnabled from "../../../bridge/inputEnabled";
 /**
  *
  * @param {number} i
- * @returns {import("../../../client/Slot").SelectedSlotId}
+ * @returns {import("../../../state/Slot").SelectedSlotId}
  */
 function ensureIsSlotId(i) {
   if (i >= 0 && i <= 12) {
