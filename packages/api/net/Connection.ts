@@ -255,7 +255,7 @@ export default class Connection {
   place(argBlock: unknown, argPosition: unknown, argLayer?: unknown) {
     const block = zBlock.parse(argBlock);
     const position = this.zBlockPosition.parse(argPosition);
-    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson.for(block)));
+    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
     this._send({
       packetId: "BLOCK_SINGLE",
@@ -278,7 +278,7 @@ export default class Connection {
     const block = zBlock.parse(argBlock);
     const start = this.zBlockPosition.parse(argStart);
     const end = this.zBlockPosition.parse(argEnd);
-    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson.for(block)));
+    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
     this._send({
       packetId: "BLOCK_LINE",

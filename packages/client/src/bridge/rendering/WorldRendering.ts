@@ -1,5 +1,6 @@
 import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { Game } from "@smiley-face-game/api";
+import { Player } from "@smiley-face-game/api/physics/Player";
 import { TileLayer } from "@smiley-face-game/api/types";
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
 import textures from "../textures";
@@ -8,6 +9,7 @@ export default class WorldRendering {
   readonly worldBehind: Container = new Container();
   readonly worldInfront: Container = new Container();
 
+  self!: Player;
   private dirty = true;
 
   private readonly void: TilingSprite;
@@ -30,11 +32,17 @@ export default class WorldRendering {
 
     game.blocks.events.on("block", () => (this.dirty = true));
     game.blocks.events.on("load", () => (this.dirty = true));
+    game.physics.events.on("keyState", () => (this.dirty = true));
+  }
+
+  flagDirty() {
+    this.dirty = true;
   }
 
   draw() {
     if (this.dirty) {
       this.refresh();
+      this.dirty = false;
     }
   }
 
@@ -59,6 +67,15 @@ export default class WorldRendering {
       [TileLayer.Decoration]: undefined,
     };
 
+    const [isInsideKeyBlock, redKeyTouchedState] = this.self.insideKeyBlock;
+
+    let redKeyTouched = this.game.physics.redKeyOn;
+    if (isInsideKeyBlock) {
+      redKeyTouched = redKeyTouchedState;
+    }
+
+    console.log(redKeyTouched, this.game.physics.redKeyOn, isInsideKeyBlock, redKeyTouchedState);
+
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
       const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
@@ -69,17 +86,18 @@ export default class WorldRendering {
           // because we've cleared the world, we don't want to place an empty tile
           // when we already have an *actual* empty tile
           if (y[x] === 0) continue;
-          const textureName = this.mapTextureName(this.game.tiles.texture(y[x]));
+          const textureName = this.mapTextureName(redKeyTouched, this.game.tiles.texture(y[x]));
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }
       }
     }
   }
 
-  mapTextureName(name: string): string {
+  mapTextureName(redKeyTouched: boolean, name: string): string {
     // TODO: there's got to be a better way to render different tiles depending
     //   on if the key is pressed or not
-    if (this.game.physics.redKeyOn) {
+
+    if (redKeyTouched) {
       if (name === "keys-red-door") return "keys-red-gate";
       if (name === "keys-red-gate") return "keys-red-door";
     }

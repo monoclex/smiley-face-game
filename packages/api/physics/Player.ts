@@ -110,4 +110,8 @@ export class Player {
     // TODO: don't hardcode 16
     return Vector.adds(this.position, 16);
   }
+  /** @version eephysics This may be removed when the physics engine changes */
+  get centerEE(): Vector {
+    return Vector.divs(this.center, 2);
+  }
 }

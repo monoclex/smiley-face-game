@@ -2,8 +2,7 @@ import { ZSPacket } from "..";
 import type { ZSInit } from "../packets";
 import { Blocks } from "./Blocks";
 import { EEPhysics } from "../physics/ee/EEPhysics";
-import { PhysicsEvent, PhysicsSystem } from "../physics/PhysicsSystem";
-import { Player } from "../physics/Player";
+import { PhysicsSystem } from "../physics/PhysicsSystem";
 import { Players } from "./Players";
 import { Vector } from "../physics/Vector";
 import TileRegistration from "../tiles/TileRegistration";
@@ -20,23 +19,10 @@ export class Game {
   readonly blocks: Blocks;
   readonly physics: PhysicsSystem;
 
-  /**
-   * A piece of code to be called on a physics event. This is used in the
-   * Smiley Face Game client to handle sending messages for physics events,
-   * such as sending keys touched when the player goes over keys.
-   */
-  onPhysicsEvent?: (event: PhysicsEvent) => void;
-
   constructor(readonly tiles: TileRegistration, init: ZSInit) {
     this.players = new Players(init);
     this.blocks = new Blocks(tiles, init.blocks, new Vector(init.size.width, init.size.height));
-
-    const onPhysicsEvent = (event: PhysicsEvent) => {
-      const handler = this.onPhysicsEvent;
-      if (handler) handler(event);
-    };
-
-    this.physics = new EEPhysics(tiles, this.blocks, EE_TPS, onPhysicsEvent);
+    this.physics = new EEPhysics(tiles, this.blocks, EE_TPS);
   }
 
   update(elapsedMs: number) {

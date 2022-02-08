@@ -20,6 +20,7 @@ export default class GameRenderer {
 
   set focus(player: Player) {
     this.playerRenderer.focus = player;
+    this.worldRenderer.self = player;
   }
 
   readonly playerRenderer: PlayerRenderer;

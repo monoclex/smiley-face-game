@@ -7,12 +7,18 @@ interface LoopCallback {
 }
 
 export function loopRequestAnimationFrame(callback: LoopCallback) {
+  let initial = 0;
+
   const rafCallback = (elapsed: number) => {
-    const shouldStop = callback(elapsed);
+    const shouldStop = callback(elapsed - initial);
     if (!shouldStop) requestAnimationFrame(rafCallback);
   };
 
-  requestAnimationFrame(rafCallback);
+  requestAnimationFrame((initialElapsed) => {
+    initial = initialElapsed;
+    const shouldStop = callback(0);
+    if (!shouldStop) requestAnimationFrame(rafCallback);
+  });
 }
 
 export function loopSetInterval(callback: LoopCallback, interval: number) {

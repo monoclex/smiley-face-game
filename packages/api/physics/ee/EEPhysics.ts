@@ -1,9 +1,10 @@
+import { createNanoEvents } from "nanoevents";
 import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
 import { TileLayer } from "../../types";
 import clamp from "../clamp";
-import { PhysicsEvent, PhysicsSystem } from "../PhysicsSystem";
+import { PhysicsEvents, PhysicsSystem } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
@@ -12,22 +13,20 @@ import { ArrowDirection, BoostDirection, ZoostDirection, isBoost, isZoost, zoost
 
 export class EEPhysics implements PhysicsSystem {
   readonly optimalTickRate: number;
+  readonly events = createNanoEvents<PhysicsEvents>();
 
-  private ticks = 0;
+  ticks = 0;
   private tickRedDisabled = 0;
+  start = Date.now();
 
   private ids: BlockIdCache;
 
+  lastRedKeyOn = this.redKeyOn;
   get redKeyOn() {
     return this.ticks < this.tickRedDisabled;
   }
 
-  constructor(
-    tiles: TileRegistration,
-    private readonly world: Blocks,
-    ticksPerSecond: number,
-    readonly onPhysicsEvent: (event: PhysicsEvent) => void
-  ) {
+  constructor(tiles: TileRegistration, private readonly world: Blocks, ticksPerSecond: number) {
     this.optimalTickRate = 1000 / ticksPerSecond;
     this.ids = new BlockIdCache(tiles);
   }
@@ -35,11 +34,16 @@ export class EEPhysics implements PhysicsSystem {
   update(elapsedMs: number, players: Player[]) {
     while ((this.ticks + 1) * this.optimalTickRate <= elapsedMs) {
       this.tick(players);
+
+      if (this.lastRedKeyOn !== this.redKeyOn) {
+        this.events.emit("keyState", "red", this.redKeyOn);
+        this.lastRedKeyOn = this.redKeyOn;
+      }
     }
   }
 
   triggerKey(kind: "red", deactivateTime: number, player: Player): void {
-    this.tickRedDisabled = deactivateTime;
+    this.tickRedDisabled = Math.ceil((deactivateTime - this.start) / this.optimalTickRate);
   }
 
   updatePlayer(movement: ZSMovement, player: Player): void {
@@ -104,8 +108,7 @@ export class EEPhysics implements PhysicsSystem {
         // self.capIntoWorldBoundaries(game);
 
         // if we're colliding with a solid block, we need to not to that
-        const block = this.world.blockAt(position.x, position.y, TileLayer.Foreground);
-        if (!this.noCollision(self, block)) {
+        if (!this.noCollision(self, position.x, position.y)) {
           // go back
           position = originalPosition;
           const eePos = Vector.mults(position, Config.blockSize);
@@ -425,7 +428,7 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     if (!isFlying) {
-      this.hoveringOver(self, self.center.x, self.center.y);
+      this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
     }
     // sendMovement(cx, cy);
 
@@ -555,7 +558,7 @@ export class EEPhysics implements PhysicsSystem {
     const maxY = this.world.size.y;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
-    const has = (x: number, y: number) => (inBounds(x, y) ? !this.noCollision(self, this.world.blockAt(x, y, TileLayer.Foreground)) : true);
+    const has = (x: number, y: number) => (inBounds(x, y) ? !this.noCollision(self, x, y) : true);
     const has00 = has(worldX, worldY);
     const has10 = has(worldX + 1, worldY);
     const has01 = has(worldX, worldY + 1);
@@ -569,7 +572,10 @@ export class EEPhysics implements PhysicsSystem {
     );
   }
 
-  noCollision(self: Player, blockId: number): boolean {
+  noCollision(self: Player, x: number, y: number): boolean {
+    const fgId = this.world.blockAt(x, y, TileLayer.Foreground);
+    const actionId = this.world.blockAt(x, y, TileLayer.Action);
+
     const [isInsideKeyBlock, redKeyTouchedState] = self.insideKeyBlock;
 
     let redKeyTouched = this.redKeyOn;
@@ -578,8 +584,27 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     // TODO: there's got to be a better way to switch the solid-ness of a gate/door
-    const keySolid = redKeyTouched ? this.ids.keysRedDoor : this.ids.keysRedGate;
-    return blockId === 0 || blockId === this.ids.keysRedKey || blockId === keySolid;
+    const keyNotSolid = redKeyTouched ? this.ids.keysRedDoor : this.ids.keysRedGate;
+
+    const isPassthru = (id: number) =>
+      id === 0 ||
+      id === keyNotSolid ||
+      id === this.ids.keysRedKey ||
+      id === this.ids.arrowUp ||
+      id === this.ids.arrowDown ||
+      id === this.ids.arrowLeft ||
+      id === this.ids.arrowRight ||
+      id === this.ids.boostUp ||
+      id === this.ids.boostDown ||
+      id === this.ids.boostLeft ||
+      id === this.ids.boostRight ||
+      id === this.ids.zoostUp ||
+      id === this.ids.zoostDown ||
+      id === this.ids.zoostLeft ||
+      id === this.ids.zoostRight ||
+      id === this.ids.gun;
+
+    return isPassthru(fgId) && isPassthru(actionId);
   }
 
   hoveringOver(self: Player, inX: number, inY: number) {
@@ -595,11 +620,10 @@ export class EEPhysics implements PhysicsSystem {
       return;
     }
 
-    const foregroundBlock = this.world.blockAt(x, y, TileLayer.Foreground);
-
-    if (this.ids.keysRedKey === foregroundBlock) {
+    const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
+    if (this.ids.keysRedKey === actionBlock) {
       if (!self.insideRedKey) {
-        this.onPhysicsEvent({ type: "key", presser: self, key: "red" });
+        this.events.emit("keyTouch", "red", self);
       }
 
       self.insideRedKey = true;
@@ -612,9 +636,8 @@ export class EEPhysics implements PhysicsSystem {
       y = Math.floor(y / Config.blockSize);
       if (!inBounds(x, y)) return false;
 
-      const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
-
-      if (this.ids.keysRedDoor === actionBlock || this.ids.keysRedGate === actionBlock) {
+      const foregroundBlock = this.world.blockAt(x, y, TileLayer.Foreground);
+      if (this.ids.keysRedDoor === foregroundBlock || this.ids.keysRedGate === foregroundBlock) {
         const [prevInsideKeyBlock, _] = self.insideKeyBlock;
 
         if (!prevInsideKeyBlock) {
@@ -626,8 +649,11 @@ export class EEPhysics implements PhysicsSystem {
       }
     };
 
+    const prev = self.insideKeyBlock;
+
     // lol this is such a hack
     const didUpdateInsideKey =
+      checkInsideKey(inX, inY) ||
       checkInsideKey(inX - 16, inY - 16) ||
       checkInsideKey(inX + 15.9, inY - 16) ||
       checkInsideKey(inX - 16, inY + 15.9) ||
@@ -635,6 +661,12 @@ export class EEPhysics implements PhysicsSystem {
 
     if (!didUpdateInsideKey) {
       self.insideKeyBlock = [false, false];
+    }
+
+    const current = self.insideKeyBlock;
+
+    if (prev[0] !== current[0]) {
+      this.events.emit("moveOutOfKeys", self);
     }
   }
 }

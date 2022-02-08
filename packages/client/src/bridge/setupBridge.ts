@@ -20,6 +20,11 @@ interface Bridge {
   cleanup: () => void;
 }
 
+// TODO: introduce a system that makes it more explicit the needed order of things
+// right now there's an implicit order as per it being sequential,
+// but in reality only a few things need to happen in a specific order, and it's
+// generally more of a "after this, make sure to do that" sorta deal.
+
 export default async function setupBridge(auth: Authentication, joinRequest: ZJoinRequest, renderer: Renderer): Promise<Bridge> {
   const connection = await auth.connect(joinRequest);
 
@@ -33,6 +38,8 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
   const game = makeClientConnectedGame(renderer, connection);
 
   // connect game to `state` so react components can call methods on it
+  //@ts-expect-error too lazy to have typedefs lol
+  globalThis["state"] = state;
   state.game = game;
   state.connection = connection;
 
@@ -51,6 +58,25 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
     joinLocation: connection.init.spawnPosition,
     hasGun: false,
     gunEquipped: false,
+  });
+
+  state.self = self;
+
+  game.physics.events.on("keyTouch", (_, player) => {
+    console.log("key touch");
+    if (player === self) {
+      connection.touchRedKey();
+
+      // + 7 seconds is a rough estimate
+      // server time should set the key time to be proper i guess
+      game.physics.triggerKey("red", Date.now() + 7000, player);
+    }
+  });
+
+  game.physics.events.on("moveOutOfKeys", (player) => {
+    if (player === self) {
+      gameRenderer.worldRenderer.flagDirty();
+    }
   });
 
   gameRenderer.focus = self;

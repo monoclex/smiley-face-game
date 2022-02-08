@@ -16,6 +16,7 @@ export class BlockIdCache {
   readonly keysRedKey: number;
   readonly keysRedGate: number;
   readonly keysRedDoor: number;
+  readonly gun: number;
 
   constructor(tiles: TileRegistration) {
     this.arrowUp = tiles.id("arrow-up");
@@ -33,5 +34,6 @@ export class BlockIdCache {
     this.keysRedKey = tiles.id("keys-red-key");
     this.keysRedGate = tiles.id("keys-red-gate");
     this.keysRedDoor = tiles.id("keys-red-door");
+    this.gun = tiles.id("gun");
   }
 }

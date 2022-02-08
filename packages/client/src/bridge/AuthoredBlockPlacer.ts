@@ -1,4 +1,5 @@
 import { Connection, Game } from "@smiley-face-game/api";
+import inferLayer from "@smiley-face-game/api/inferLayer";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { TileLayer } from "@smiley-face-game/api/types";
@@ -18,7 +19,7 @@ export default class AuthoredBlockPlacer {
     const id = action === "erase" ? 0 : this.blockBar.selectedBlock;
 
     if (!this.author.hasEdit) return;
-    layer ??= this.game.tiles.for(id).layer;
+    layer ??= inferLayer(this.game.tiles, id);
 
     const pos = { x: curX, y: curY };
     if (lastPos === undefined) {

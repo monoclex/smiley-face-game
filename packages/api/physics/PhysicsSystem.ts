@@ -1,15 +1,19 @@
-import { ZSMovement } from "../packets";
-import { Player } from "./Player";
+import type { Emitter } from "nanoevents";
+import type { ZSMovement } from "../packets";
+import type { Player } from "./Player";
 
-/**
- * Events flagged during physics simulation that are useful to consumers
- */
-export type PhysicsEvent = KeyEvent;
+export interface PhysicsEvents {
+  keyTouch(kind: "red", presser: Player): void;
 
-export interface KeyEvent {
-  type: "key";
-  presser: Player;
-  key: "red";
+  keyState(kind: "red", state: boolean): void;
+
+  /**
+   * When the player moves outside a blob of keys,
+   * if that player is the current player, this is
+   * a signal to the renderer to re-render what the
+   * keys look like.
+   */
+  moveOutOfKeys(player: Player): void;
 }
 
 export interface PhysicsSystem {
@@ -19,7 +23,11 @@ export interface PhysicsSystem {
    */
   readonly optimalTickRate: number | 0;
 
-  get redKeyOn(): boolean;
+  readonly events: Emitter<PhysicsEvents>;
+
+  readonly ticks: number;
+
+  readonly redKeyOn: boolean;
 
   update(elapsedMs: number, players: Player[]): void;
 

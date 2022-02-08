@@ -30,24 +30,19 @@ export class Blocks {
   }
 
   placeLine(layer: TileLayer, start: Vector, end: Vector, blockId: number, playerId: number): boolean {
-    let didModify = true;
-    let didRun = false;
+    let didModify = false;
 
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
-      didRun = true;
-
       const placed = this.placeSingle(layer, { x, y }, blockId, playerId);
-      if (placed === null) return;
-
-      didModify &&= placed;
+      didModify ||= placed;
     });
 
-    return didRun && didModify;
+    return didModify;
   }
 
-  placeSingle(layer: TileLayer, position: Vector, blockId: number, playerId: number): boolean | null {
-    if (position.x < 0 || position.y < 0) return null;
-    if (position.x >= this.size.x || position.y >= this.size.y) return null;
+  placeSingle(layer: TileLayer, position: Vector, blockId: number, playerId: number): boolean {
+    if (position.x < 0 || position.y < 0) return false;
+    if (position.x >= this.size.x || position.y >= this.size.y) return false;
 
     const value = this.state[layer][position.y][position.x];
     if (value === blockId) return false;
