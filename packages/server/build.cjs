@@ -9,6 +9,7 @@ esbuild
     external: ["nock", "aws-sdk", "mock-aws-s3"],
     plugins: [esbuildDecorators({})],
     entryPoints: ["./src/index.ts"],
+    keepNames: true,
   })
   .then(({ errors }) => console.log("errors", errors))
   .catch(console.error);

@@ -1,5 +1,5 @@
 import { ZSPacket } from "..";
-import type { ZSInit } from "../packets";
+import type { ZSEvent, ZSInit, ZSWorldAction } from "../packets";
 import { Blocks } from "./Blocks";
 import { EEPhysics } from "../physics/ee/EEPhysics";
 import { PhysicsSystem } from "../physics/PhysicsSystem";
@@ -74,13 +74,35 @@ export class Game {
         this.players.updateRole(event.playerId, event.newRole);
         return 0;
       case "SERVER_WORLD_ACTION":
-        return 0;
+        return this.handleWorldAction(event);
       case "SERVER_EVENT":
-        switch (event.event.type) {
-          case "chat rate limited":
-            // game doesn't need to handle chat
-            return 0;
-        }
+        return this.handleServerEvent(event);
+    }
+  }
+
+  // we have to split these up into their own functinos
+  // otherwise i run into eslint and typescript stepping on each others toes
+  // ^ cuz of case fallthrough + wanting all branches to return 0
+
+  handleWorldAction({ action }: ZSWorldAction): 0 {
+    switch (action.action) {
+      case "clear":
+        this.blocks.clear();
+        return 0;
+      case "load":
+        this.blocks.load(action.blocks);
+        return 0;
+      case "save":
+        // nothing needs to happen on save
+        return 0;
+    }
+  }
+
+  handleServerEvent({ event }: ZSEvent): 0 {
+    switch (event.type) {
+      case "chat rate limited":
+        // game doesn't need to handle chat
+        return 0;
     }
   }
 }

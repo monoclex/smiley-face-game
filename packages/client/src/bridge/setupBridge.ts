@@ -11,7 +11,7 @@ import Keyboard from "./Keyboard";
 import MouseInteraction from "./MouseInteraction";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
-import { gameGlobal } from "../state";
+import { blockBarGlobal, gameGlobal } from "../state";
 
 interface Bridge {
   game: Game;
@@ -75,7 +75,16 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
 
   game.physics.events.on("moveOutOfKeys", (player) => {
     if (player === self) {
+      // needed so that when the player walks out of a blob of keys,
+      // the keys will turn back to doors/gates
       gameRenderer.worldRenderer.flagDirty();
+    }
+  });
+
+  game.players.events.on("roleUpdate", (player) => {
+    if (player === self) {
+      // needed so that when the player gets edit the block bar shows up
+      gameGlobal.modify({ self: player.cheap() });
     }
   });
 

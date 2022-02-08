@@ -6,6 +6,7 @@ import { ZRole } from "../types";
 interface PlayerEvents {
   add(player: Player): void;
   remove(player: Player): void;
+  roleUpdate(player: Player, before: ZRole): void;
 }
 
 export class Players {
@@ -40,12 +41,15 @@ export class Players {
 
   remove(id: number) {
     const player = this.get(id);
-    this.events.emit("remove", player);
     this.map.delete(id);
     this._list = Array.from(this.map.values());
+    this.events.emit("remove", player);
   }
 
   updateRole(playerId: number, newRole: ZRole) {
-    this.get(playerId).role = newRole;
+    const player = this.get(playerId);
+    const previousRole = player.role;
+    player.role = newRole;
+    this.events.emit("roleUpdate", player, previousRole);
   }
 }

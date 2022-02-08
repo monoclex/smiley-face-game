@@ -19,9 +19,9 @@ const WorldSettingsDialog = ({ open, onClose }: Props) => {
     onClose();
   };
 
-  const game = state.game ?? panic("assertion failed");
-  const save = composeToClose(() => game.connection.save());
-  const load = composeToClose(() => game.connection.load());
+  const connection = state.connection ?? panic("assertion failed");
+  const save = composeToClose(() => connection.save());
+  const load = composeToClose(() => connection.load());
 
   return (
     <Dialog open={open} onClose={onClose}>
