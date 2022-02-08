@@ -18,7 +18,7 @@ export default class AuthoredBlockPlacer {
     const id = action === "erase" ? 0 : this.blockBar.selectedBlock;
 
     if (!this.author.hasEdit) return;
-    layer ??= this.game.blocks.layerOfTopmostBlock(curX, curY);
+    layer ??= this.game.tiles.for(id).layer;
 
     const pos = { x: curX, y: curY };
     if (lastPos === undefined) {
