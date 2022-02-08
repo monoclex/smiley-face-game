@@ -38,9 +38,10 @@ export default class Chat {
     };
 
     this.messages.push(message);
+    this.updateMessages();
   }
 
   updateMessages() {
-    gameGlobal.modify({ messages: this.messages });
+    gameGlobal.modify({ messages: [...this.messages] });
   }
 }

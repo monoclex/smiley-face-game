@@ -177,9 +177,8 @@ export default class MouseInteraction {
   }
 
   draw() {
-    if (!this.selection.visible) return;
+    this.selection.visible = true;
     if (!inputEnabled()) {
-      // will be reset next tick anyways
       this.selection.visible = false;
       return;
     }
