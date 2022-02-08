@@ -1,5 +1,0 @@
-{
-  "signal": "SIGHUP",
-  "ext": "ts",
-  "exec": "node --loader ts-node/esm --extension ts ./src/index.ts"
-}

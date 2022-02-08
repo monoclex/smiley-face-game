@@ -1,47 +1,29 @@
 import { createConnection } from "typeorm";
-import { ActualInitialDb1601775359750 } from "./migrations/1601775359750-ActualInitialDb";
-import { WorldDataVersioning1605189206638 } from "./migrations/1605189206638-WorldDataVersioning";
-import { GuaranteeSavedWorldsStartWithS1611488917555 } from "./migrations/1611488917555-GuaranteeSavedWorldsStartWithS";
-import { ImplementShop1634458799080 } from "./migrations/1634458799080-ImplementShop";
-import Account from "./models/Account";
-import ShopItem from "./models/ShopItem";
-import World from "./models/World";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
-/*
-{
-  "name": "default",
-  "type": "postgres",
-  "host": "localhost",
-  "port": "5432",
-  "username": "sfg",
-  "password": "dev",
-  "database": "sfg",
-  "synchronize": false,
-  "logging": true,
-  "migrationsRun": true,
-  "entities": ["src/database/models//*.ts"],
-  "migrations": ["src/database/migrations//*.ts"],
-  "cli": {
-    "entitiesDir": "src/database/models",
-    "migrationsDir": "src/database/migrations"
-  }
-}
+// @ts-expect-error for esbuild import glob plugin
+import * as entities from "./models/*";
 
-*/
+// @ts-expect-error for esbuild import glob plugin
+import * as migrations from "./migrations/*";
 
-export default function createTypeORMConnection() {
+/**
+ * Make the `require()` call invisible to esbuild,
+ * so that we get node to require it.
+ */
+const obsfucatedRequire = require;
+
+export default async function createTypeORMConnection() {
+  const config: PostgresConnectionOptions = obsfucatedRequire("./connection.json") as PostgresConnectionOptions;
+
   return createConnection({
-    name: "default",
-    type: "postgres",
-    host: "localhost",
-    port: 5432,
-    username: "sfg",
-    password: "dev",
-    database: "sfg",
+    ...config,
     synchronize: false,
     logging: true,
     migrationsRun: true,
-    entities: [Account, ShopItem, World],
-    migrations: [ActualInitialDb1601775359750, WorldDataVersioning1605189206638, GuaranteeSavedWorldsStartWithS1611488917555, ImplementShop1634458799080],
+    // @ts-expect-error we can't hope to type this
+    entities: entities.default.map(({ default: x }) => x),
+    // @ts-expect-error we can't hope to type this
+    migrations: migrations.default.map((obj) => Object.values(obj)[0]),
   });
 }
