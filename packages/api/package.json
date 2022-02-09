@@ -11,6 +11,8 @@
   "module": "./esm/index.mjs",
   "types": "./index.d.ts",
   "exports": {
+    "./cjs/*": null,
+    "./esm/*": null,
     ".": {
       "require": "./cjs/index.cjs",
       "default": "./esm/index.mjs"
@@ -18,9 +20,7 @@
     "./*": {
       "require": "./cjs/*.cjs",
       "default": "./esm/*.mjs"
-    },
-    "./cjs/*": null,
-    "./esm/*": null
+    }
   },
   "dependencies": {
     "computed-types": "^1.11.1",
@@ -48,6 +48,7 @@
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
   "license": "MIT",
+  "private": "true",
   "keywords": [
     "sfg",
     "api",
@@ -66,5 +67,8 @@
   },
   "bugs": {
     "url": "https://github.com/SirJosh3917/smiley-face-game/issues"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }

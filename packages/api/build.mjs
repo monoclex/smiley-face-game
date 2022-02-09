@@ -11,10 +11,7 @@ import json from "./package.json";
 import fs from "fs/promises";
 import path from "path";
 
-await fs.rm("dist", {
-  recursive: true,
-});
-
+await fs.rm("dist", { recursive: true }).catch(() => undefined);
 await fs.mkdir("dist");
 
 await Promise.all([
@@ -34,6 +31,9 @@ await Promise.all([
     .then(massModuleFix),
 ]);
 
+// Modify `package.json`'s `exports` field to treat folders right.
+await supportFolders("./dist/package.json", "./dist/esm", "index.mjs");
+
 process.exit(0);
 
 // ---
@@ -52,6 +52,7 @@ async function packageJson() {
     files,
     repository,
     bugs,
+    engines,
     main,
     module,
     types,
@@ -71,6 +72,7 @@ async function packageJson() {
     files,
     repository,
     bugs,
+    engines,
     main,
     module,
     types,
@@ -205,14 +207,84 @@ async function patchModule(fileName) {
     return fullyResolvedContents;
   }
 
-  async function fileExistsAt(module) {
+  function fileExistsAt(module) {
     const file = path.resolve(fileName, module);
+    return fileExists(file);
+  }
+}
 
-    try {
-      const stats = await fs.stat(file);
-      return stats.isFile();
-    } catch {
-      return false;
+/**
+ * Allows users of the library to import folders as if they were `index.js` files.
+ */
+async function supportFolders(packageJsonPath, targetDirectory, indexFile) {
+  const packageJson = JSON.parse(await fs.readFile(packageJsonPath));
+
+  // get all the directories that have an `index.js` module
+  const directories = await listDirectories(targetDirectory);
+
+  const exportsKeys = directories
+    // remove `./dist/esm/` from the path
+    .map((folder) => folder.substring(targetDirectory.length))
+    // get rid of empty string
+    .filter(Boolean)
+    // get rid of leading `/`
+    .map((name) => name.substring(1));
+
+  // add `@smiley-face-game/api/net` and `@smiley-face-game/api/net/`
+  // as valid imports
+  for (const path of exportsKeys) {
+    // support `@smiley-face-game/api/net` via exports rule
+    packageJson.exports["./" + path] = {
+      require: `./cjs/${path}/index.cjs`,
+      default: `./esm/${path}/index.mjs`,
+    };
+
+    // also, create a `.cjs` and `.mjs` file that are copies of the `index`
+    // this is to support importing `@smiley-face-game/api/net/`, as it
+    // (ab)uses the `./*: ./*.cjs` rule.
+    //
+    // using a forward slash on the path is illegal for some reason? oh well
+    await fs.copyFile(`./dist/cjs/${path}/index.cjs`, `./dist/cjs/${path}/.cjs`);
+    await fs.copyFile(`./dist/esm/${path}/index.mjs`, `./dist/esm/${path}/.mjs`);
+  }
+
+  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+  return;
+
+  async function listDirectories(folder) {
+    // list all files
+    const fileEntries = await fs.readdir(folder);
+
+    // filter out the directories
+    const directories = (
+      await Promise.all(
+        // abusing promise flatmap lol
+        fileEntries.map(async (fileEntry) => {
+          const fullPath = `${folder}/${fileEntry}`;
+
+          const stats = await fs.stat(fullPath);
+          return stats.isDirectory() && fullPath;
+        })
+      )
+    ).filter(Boolean);
+
+    // only consider this directory if we have an index file
+    const ourselves = [];
+    if (await fileExists(folder + "/" + indexFile)) {
+      ourselves.push(folder);
     }
+
+    // return all child dirs
+    const childDirectories = await Promise.all([ourselves, ...directories.map(listDirectories)]);
+    return childDirectories.reduce((as, bs) => [...as, ...bs]);
+  }
+}
+
+async function fileExists(path) {
+  try {
+    const stats = await fs.stat(path);
+    return stats.isFile();
+  } catch {
+    return false;
   }
 }
