@@ -2,7 +2,7 @@ import { TileLayer, ZWorldBlocks } from "../types";
 import { Vector } from "../physics/Vector";
 import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents } from "../nanoevents";
 
 interface BlockEvents {
   load(blocks: ZWorldBlocks): void;

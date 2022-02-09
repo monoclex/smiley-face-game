@@ -1,4 +1,4 @@
-import type { Emitter } from "nanoevents";
+import type { Emitter } from "../nanoevents";
 import type { ZSMovement } from "../packets";
 import type { Player } from "./Player";
 

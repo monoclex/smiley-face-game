@@ -1,42 +1,36 @@
 {
-  "name": "@smiley-face-game/api",
-  "version": "0.0.0",
-  "description": "> TODO: description",
-  "keywords": [
-    "sfg",
-    "api",
-    "game"
-  ],
-  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
-  "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
-  "license": "MIT",
-  "main": "index.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SirJosh3917/smiley-face-game.git"
-  },
   "scripts": {
     "check": "package-check",
     "tsc": "tsc",
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
-    "build": "webpack --env mode=production"
+    "build": "node --experimental-json-modules build.mjs"
   },
-  "bugs": {
-    "url": "https://github.com/SirJosh3917/smiley-face-game/issues"
+  "type": "module",
+  "main": "./cjs/index.cjs",
+  "module": "./esm/index.mjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./cjs/index.cjs",
+      "default": "./esm/index.mjs"
+    },
+    "./*": {
+      "require": "./cjs/*.cjs",
+      "default": "./esm/*.mjs"
+    },
+    "./cjs/*": null,
+    "./esm/*": null
   },
   "dependencies": {
     "computed-types": "^1.11.1",
     "cross-fetch": "^3.1.5",
-    "isomorphic-ws": "^4.0.1",
-    "nanoevents": "^6.0.2"
+    "isomorphic-ws": "^4.0.1"
   },
   "optionalDependencies": {
     "ws": "^8.4.2"
   },
   "devDependencies": {
-    "@skypack/package-check": "^0.2.2",
-    "@sucrase/webpack-loader": "^2.0.0",
     "@types/ws": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
@@ -46,10 +40,31 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.5.1",
-    "sucrase": "^3.20.3",
-    "typescript": "^4.5.5",
-    "webpack": "^5.68.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.4"
+    "typescript": "^4.5.5"
+  },
+  "name": "@smiley-face-game/api",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
+  "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
+  "license": "MIT",
+  "keywords": [
+    "sfg",
+    "api",
+    "game"
+  ],
+  "files": [
+    "cjs/**/*",
+    "esm/**/*",
+    "**/*.d.ts",
+    "README.md",
+    "package.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SirJosh3917/smiley-face-game.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SirJosh3917/smiley-face-game/issues"
   }
 }

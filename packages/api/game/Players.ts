@@ -1,4 +1,4 @@
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents } from "../nanoevents";
 import { ZSInit, ZSPlayerJoin } from "../packets";
 import { Player } from "../physics/Player";
 import { ZRole } from "../types";

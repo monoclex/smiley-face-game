@@ -1,4 +1,4 @@
-import { createNanoEvents } from "nanoevents";
+import { createNanoEvents } from "../../nanoevents";
 import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
