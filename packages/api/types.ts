@@ -171,68 +171,10 @@ export const zWorldDetails = addParse(
 );
 export type ZWorldDetails = SchemaInput<typeof zWorldDetails>;
 
-export const zTileBehavior = addParse(
-  Schema.either(
-    // !!! HAVE TO KEEP IN SYNC WITH zTileJson `behavior` key !!!
-    "empty" as const,
-    "solid" as const,
-    "gun" as const,
-    "arrow" as const,
-    "boost" as const,
-    "keys" as const,
-    "zoost" as const
-  )
-);
-export type ZTileBehavior = SchemaInput<typeof zTileBehavior>;
-
-// TODO: when adding more behaviors, should add any additional data the behavior needs
-// for now, each behavior doesn't require anything else new so it's fine
-export const zTileJson = addParse(
-  Schema.either(
-    {
-      behavior: "solid" as const,
-      /** The name of each tile pack. Typically this will prefix each tile in the pack, e.g. basic-red, basic-green */
-      name: string,
-      /**
-       * Multi-purpose array of tiles. Each string corresponds to its tile name, e.g. `red`, `blue`, and will get
-       * appended to `name` to get its texture (e.g. `basic`-`red`). The order the tiles are in also serve to determine
-       * the numeric order (unless overridden in `numerics`)
-       */
-      tiles: array.of(string),
-      /**
-       * Used in serialization for solid behavior. The index a tile is in represents its numeric position. If not specified,
-       * `tiles` can be used for the same thing, but in the future if `tiles` is reordered, it'd be necessary to update
-       * `numerics` so that worlds stored in the DB maintain backwards compatibility.
-       *
-       * Because, in the future, it may be desirable to remove blocks and replace them with others, this supports the syntax
-       * `numerics: ["a", "b", ["c", "d"]] where `c` and `d` would map onto the same id. Because `c` is first, that would be
-       * the texture/tile used and everything would map onto it.
-       */
-      numerics: array.of(Schema.either(string, array.of(string))).optional(),
-    },
-    {
-      behavior: "gun" as const,
-    },
-    {
-      behavior: "arrow" as const,
-    },
-    {
-      behavior: "empty" as const,
-    },
-    {
-      behavior: "boost" as const,
-    },
-    {
-      behavior: "keys" as const,
-      name: string,
-      tiles: array.of(string),
-    },
-    {
-      behavior: "zoost" as const,
-    }
-  )
-);
-export type ZTileJson = SchemaInput<typeof zTileJson>;
+export type { ZTileRegistrationKind as ZTileBehavior } from "./tiles/registration/RegisterJson";
+import { zTileRegistration as zTileJson } from "./tiles/registration/RegisterJson";
+export { zTileJson };
+export type { ZTileRegistration as ZTileJson } from "./tiles/registration/RegisterJson";
 
 export const zTileJsonFile = addParse(array.of(zTileJson));
 export type ZTileJsonFile = SchemaInput<typeof zTileJsonFile>;

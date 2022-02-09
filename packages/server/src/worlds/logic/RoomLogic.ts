@@ -7,7 +7,7 @@ import Behaviour from "../../worlds/behaviour/Behavior";
 import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
 import { useDev } from "@smiley-face-game/api";
 import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
-import tileJson from "@smiley-face-game/api/tiles/tiles.json";
+import tileJson from "@smiley-face-game/api/tiles/tiles";
 import { zTileJsonFile } from "@smiley-face-game/api/types";
 const tileJsonFile = zTileJsonFile.parse(tileJson);
 useDev();
