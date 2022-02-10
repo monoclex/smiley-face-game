@@ -18,7 +18,7 @@ export function registerGun(mgr: GenericRegistration) {
   const storing = new SourceAndIdStorage(mgr.sourceId);
   const preferredLayer = TileLayer.Action;
 
-  const gun = mgr.register({ textureId: "gun", storing, preferredLayer });
+  const gun = mgr.register({ textureId: "gun", storing, preferredLayer, isSolid: false });
   storing.connect(gun, 0);
 
   mgr.pack({

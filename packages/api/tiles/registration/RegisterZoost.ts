@@ -20,7 +20,7 @@ export function registerZoost(mgr: GenericRegistration) {
 
   const blocks = mgr.registerMany(
     ["zoost-up", "zoost-right", "zoost-down", "zoost-left"],
-    (textureId) => ({ textureId, storing, preferredLayer })
+    (textureId) => ({ textureId, storing, preferredLayer, isSolid: false })
   );
 
   storing.connectMany(blocks);

@@ -43,6 +43,7 @@ export function registerSolid(mgr: GenericRegistration, { name, tiles, numerics 
     textureId: `${name}-${tile}`,
     storing,
     preferredLayer,
+    isSolid: true,
   }));
   storing.connectMany(blocks);
 

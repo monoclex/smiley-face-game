@@ -28,6 +28,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
         textureId: `${data.name}-${tile}-key`,
         storing,
         preferredLayer: TileLayer.Action,
+        isSolid: false,
       })
     );
 
@@ -36,6 +37,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
         textureId: `${data.name}-${tile}-door`,
         storing,
         preferredLayer: TileLayer.Foreground,
+        isSolid: undefined,
       })
     );
 
@@ -44,6 +46,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
         textureId: `${data.name}-${tile}-gate`,
         storing,
         preferredLayer: TileLayer.Foreground,
+        isSolid: undefined,
       })
     );
   }

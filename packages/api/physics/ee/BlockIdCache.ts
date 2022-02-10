@@ -18,7 +18,7 @@ export class BlockIdCache {
   readonly keysRedDoor: number;
   readonly gun: number;
 
-  constructor(tiles: TileRegistration) {
+  constructor(readonly tiles: TileRegistration) {
     this.arrowUp = tiles.id("arrow-up");
     this.arrowRight = tiles.id("arrow-right");
     this.arrowDown = tiles.id("arrow-down");

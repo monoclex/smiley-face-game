@@ -20,7 +20,7 @@ export function registerArrow(mgr: GenericRegistration) {
 
   const blocks = mgr.registerMany(
     ["arrow-up", "arrow-right", "arrow-down", "arrow-left"],
-    (textureId) => ({ textureId, storing, preferredLayer })
+    (textureId) => ({ textureId, storing, preferredLayer, isSolid: false })
   );
 
   storing.connectMany(blocks);

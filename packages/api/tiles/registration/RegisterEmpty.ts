@@ -22,6 +22,7 @@ export function registerEmpty(mgr: GenericRegistration) {
       textureId: "empty",
       storing: new EmptyStoring(),
       preferredLayer,
+      isSolid: false,
     },
     "special-empty-block"
   );

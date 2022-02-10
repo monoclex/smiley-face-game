@@ -10,7 +10,7 @@ function build() {
       bundle: true,
       outfile: "dist/app.cjs",
       platform: "node",
-      external: ["nock", "aws-sdk", "mock-aws-s3"],
+      external: ["nock", "aws-sdk", "mock-aws-s3", "pg-native"],
       plugins: [esbuildDecorators({}), ImportGlobPlugin()],
       entryPoints: ["./src/index.ts"],
       keepNames: true,

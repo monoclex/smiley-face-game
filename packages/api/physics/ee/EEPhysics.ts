@@ -9,7 +9,14 @@ import { Player } from "../Player";
 import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
 import { Config } from "./Config";
-import { ArrowDirection, BoostDirection, ZoostDirection, isBoost, isZoost, zoostDirToVec } from "./Directions";
+import {
+  ArrowDirection,
+  BoostDirection,
+  ZoostDirection,
+  isBoost,
+  isZoost,
+  zoostDirToVec,
+} from "./Directions";
 
 export class EEPhysics implements PhysicsSystem {
   readonly optimalTickRate: number;
@@ -98,7 +105,10 @@ export class EEPhysics implements PhysicsSystem {
       while (advanceNum > 0) {
         const originalPosition = position;
         position = Vector.add(position, direction);
-        position = new Vector(clamp(position.x, 0, this.world.size.x - 1), clamp(position.y, 0, this.world.size.y - 1));
+        position = new Vector(
+          clamp(position.x, 0, this.world.size.x - 1),
+          clamp(position.y, 0, this.world.size.y - 1)
+        );
 
         const eePos = Vector.mults(position, Config.blockSize);
         self.x = eePos.x;
@@ -231,7 +241,11 @@ export class EEPhysics implements PhysicsSystem {
       self.speedX += modifierX;
 
       self.speedX *= Config.physics.base_drag;
-      if ((!movementX && self.modY) || (self.speedX < 0 && movementX > 0) || (self.speedX > 0 && movementX < 0)) {
+      if (
+        (!movementX && self.modY) ||
+        (self.speedX < 0 && movementX > 0) ||
+        (self.speedX > 0 && movementX < 0)
+      ) {
         self.speedX *= Config.physics.no_modifier_drag;
       }
 
@@ -248,7 +262,11 @@ export class EEPhysics implements PhysicsSystem {
       self.speedY += modifierY;
 
       self.speedY *= Config.physics.base_drag;
-      if ((!movementY && self.modX) || (self.speedY < 0 && movementY > 0) || (self.speedY > 0 && movementY < 0)) {
+      if (
+        (!movementY && self.modX) ||
+        (self.speedY < 0 && movementY > 0) ||
+        (self.speedY > 0 && movementY < 0)
+      ) {
         self.speedY *= Config.physics.no_modifier_drag;
       }
 
@@ -399,7 +417,11 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    if (((self.speedX == 0 && self.origModX && self.modX) || (self.speedY == 0 && self.origModY && self.modY)) && grounded) {
+    if (
+      ((self.speedX == 0 && self.origModX && self.modX) ||
+        (self.speedY == 0 && self.origModY && self.modY)) &&
+      grounded
+    ) {
       // On ground so reset jumps to 0
       self.jumpCount = 0;
     }
@@ -413,7 +435,9 @@ export class EEPhysics implements PhysicsSystem {
           // Not infinite jumps
           self.jumpCount += 1;
         }
-        self.speedX = (-self.origModX * Config.physics.jump_height * self.jumpMult) / Config.physics.variable_multiplyer;
+        self.speedX =
+          (-self.origModX * Config.physics.jump_height * self.jumpMult) /
+          Config.physics.variable_multiplyer;
         self.lastJump = self.ticks * mod;
       }
       if (self.jumpCount < self.maxJumps && self.origModY && self.modY) {
@@ -422,7 +446,9 @@ export class EEPhysics implements PhysicsSystem {
           // Not infinite jumps
           self.jumpCount += 1;
         }
-        self.speedY = (-self.origModY * Config.physics.jump_height * self.jumpMult) / Config.physics.variable_multiplyer;
+        self.speedY =
+          (-self.origModY * Config.physics.jump_height * self.jumpMult) /
+          Config.physics.variable_multiplyer;
         self.lastJump = self.ticks * mod;
       }
     }
@@ -448,7 +474,9 @@ export class EEPhysics implements PhysicsSystem {
         if (tx > Config.blockSize - Config.physics.autoalign_snap_range) {
           self.x >>= 0;
           self.x++;
-        } else self.x += (tx - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
+        } else
+          self.x +=
+            (tx - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
       }
     }
 
@@ -464,7 +492,9 @@ export class EEPhysics implements PhysicsSystem {
         if (ty > Config.blockSize - Config.physics.autoalign_snap_range) {
           self.y >>= 0;
           self.y++;
-        } else self.y += (ty - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
+        } else
+          self.y +=
+            (ty - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
       }
     }
   }
@@ -530,8 +560,14 @@ export class EEPhysics implements PhysicsSystem {
     const PLAYER_WIDTH = 32;
     const PLAYER_HEIGHT = 32;
 
-    self.position = Vector.mutateX(self.position, clamp(self.x, 0, (this.world.size.x - 1) * PLAYER_WIDTH));
-    self.position = Vector.mutateY(self.position, clamp(self.position.y, 0, (this.world.size.y - 1) * PLAYER_HEIGHT));
+    self.position = Vector.mutateX(
+      self.position,
+      clamp(self.x, 0, (this.world.size.x - 1) * PLAYER_WIDTH)
+    );
+    self.position = Vector.mutateY(
+      self.position,
+      clamp(self.position.y, 0, (this.world.size.y - 1) * PLAYER_HEIGHT)
+    );
 
     if (previousX !== self.position.x) self.velocity = Vector.mutateX(self.velocity, 0);
     if (previousY !== self.position.y) self.velocity = Vector.mutateY(self.velocity, 0);
@@ -587,22 +623,7 @@ export class EEPhysics implements PhysicsSystem {
     const keyNotSolid = redKeyTouched ? this.ids.keysRedDoor : this.ids.keysRedGate;
 
     const isPassthru = (id: number) =>
-      id === 0 ||
-      id === keyNotSolid ||
-      id === this.ids.keysRedKey ||
-      id === this.ids.arrowUp ||
-      id === this.ids.arrowDown ||
-      id === this.ids.arrowLeft ||
-      id === this.ids.arrowRight ||
-      id === this.ids.boostUp ||
-      id === this.ids.boostDown ||
-      id === this.ids.boostLeft ||
-      id === this.ids.boostRight ||
-      id === this.ids.zoostUp ||
-      id === this.ids.zoostDown ||
-      id === this.ids.zoostLeft ||
-      id === this.ids.zoostRight ||
-      id === this.ids.gun;
+      id === 0 || id === keyNotSolid || this.ids.tiles.forId(id).isSolid === false;
 
     return isPassthru(fgId) && isPassthru(actionId);
   }

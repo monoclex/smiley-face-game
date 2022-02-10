@@ -20,7 +20,7 @@ export function registerBoost(mgr: GenericRegistration) {
 
   const blocks = mgr.registerMany(
     ["boost-up", "boost-right", "boost-down", "boost-left"],
-    (textureId) => ({ textureId, storing, preferredLayer })
+    (textureId) => ({ textureId, storing, preferredLayer, isSolid: false })
   );
 
   storing.connectMany(blocks);
