@@ -2,8 +2,30 @@ import Websocket from "isomorphic-ws";
 import { Endpoint, zEndpoint, toUrl } from "./endpoints";
 import type { ZJoinRequest } from "../ws-api";
 import { zJoinRequest } from "../ws-api";
-import type { ZTileLayer, ZBlockPosition, ZBlock, ZUserId, ZPlayerPosition, ZVelocity, ZInputs, ZAngle } from "../types";
-import { zToken, zTileLayer, zBlock, zPlayerPosition, zVelocity, zInputs, zBlockPosition, zAngle, zMessage, zUserId } from "../types";
+import {
+  ZTileLayer,
+  ZBlockPosition,
+  ZBlock,
+  ZUserId,
+  ZPlayerPosition,
+  ZVelocity,
+  ZInputs,
+  ZAngle,
+  ZHeap,
+  zHeap,
+} from "../types";
+import {
+  zToken,
+  zTileLayer,
+  zBlock,
+  zPlayerPosition,
+  zVelocity,
+  zInputs,
+  zBlockPosition,
+  zAngle,
+  zMessage,
+  zUserId,
+} from "../types";
 import inferLayer from "../inferLayer";
 import type { ZSPacket, ZPacket, ZSInit } from "../packets";
 import { zsInit, zPacket, zsPacket } from "../packets";
@@ -30,10 +52,18 @@ export default class Connection {
    * @param token The token to use when connecting.
    * @param joinRequest The join request to supply when making the connection.
    */
-  static establish(endpoint: Endpoint, token: string, joinRequest: ZJoinRequest): Promise<Connection>;
+  static establish(
+    endpoint: Endpoint,
+    token: string,
+    joinRequest: ZJoinRequest
+  ): Promise<Connection>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  static establish(argEndpoint: unknown, argToken: unknown, argJoinRequest: unknown): Promise<Connection> {
+  static establish(
+    argEndpoint: unknown,
+    argToken: unknown,
+    argJoinRequest: unknown
+  ): Promise<Connection> {
     const endpoint = zEndpoint.parse(argEndpoint);
     const token = zToken.parse(argToken);
     const joinRequest = zJoinRequest.parse(argJoinRequest);
@@ -120,9 +150,12 @@ export default class Connection {
 
     // this serves to both unhook the websocket.close from the promise earlier, and as a catch-all incase `onerror`
     // doesn't get something
-    this.websocket.onclose = (event) => ((this._connected = false), this.messages.end(new Error(event.reason)));
+    this.websocket.onclose = (event) => (
+      (this._connected = false), this.messages.end(new Error(event.reason))
+    );
     this.websocket.onerror = (event) => ((this._connected = false), this.messages.end(event.error));
-    this.websocket.onmessage = (event) => this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
+    this.websocket.onmessage = (event) =>
+      this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
   }
 
   /**
@@ -243,26 +276,37 @@ export default class Connection {
     });
   }
 
+  // TODO: `heap` should be before `layer` as that's more important
+  //   luckily users can still put `undefined` for the layer tho
+  //   not changing it rn to not break backwards compat
   /**
    * Places a block in the world.
    * @param block The block to place.
    * @param position The position to place the block at.
    * @param layer The layer to place the block on.
+   * @param heap The heap associated data with the block, if any.
    */
-  place(block: ZBlock, position: ZBlockPosition, layer?: ZTileLayer): void;
+  place(block: ZBlock, position: ZBlockPosition, layer?: ZTileLayer, heap?: ZHeap): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  place(argBlock: unknown, argPosition: unknown, argLayer?: unknown) {
+  place(argBlock: unknown, argPosition: unknown, argLayer?: unknown, argHeap?: unknown) {
     const block = zBlock.parse(argBlock);
     const position = this.zBlockPosition.parse(argPosition);
     const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
-    this._send({
+    const packet: ZPacket = {
       packetId: "BLOCK_SINGLE",
       position,
       layer,
       block,
-    });
+    };
+
+    if (argHeap) {
+      const heap = zHeap.parse(argHeap);
+      packet.heap = heap;
+    }
+
+    this._send(packet);
   }
 
   /**
@@ -270,23 +314,43 @@ export default class Connection {
    * @param block The block to place.
    * @param start The starting position.
    * @param end The ending position.
-   * @param layer The layer to palce the block on.
+   * @param layer The layer to place the block on.
+   * @param heap The heap associated data with the block, if any.
    */
-  placeLine(block: ZBlock, start: ZBlockPosition, end: ZBlockPosition, layer?: ZTileLayer): void;
+  placeLine(
+    block: ZBlock,
+    start: ZBlockPosition,
+    end: ZBlockPosition,
+    layer?: ZTileLayer,
+    heap?: ZHeap
+  ): void;
 
-  placeLine(argBlock: unknown, argStart: unknown, argEnd: unknown, argLayer?: unknown) {
+  placeLine(
+    argBlock: unknown,
+    argStart: unknown,
+    argEnd: unknown,
+    argLayer?: unknown,
+    argHeap?: unknown
+  ) {
     const block = zBlock.parse(argBlock);
     const start = this.zBlockPosition.parse(argStart);
     const end = this.zBlockPosition.parse(argEnd);
     const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
-    this._send({
+    const packet: ZPacket = {
       packetId: "BLOCK_LINE",
       block,
       start,
       end,
       layer,
-    });
+    };
+
+    if (argHeap) {
+      const heap = zHeap.parse(argHeap);
+      packet.heap = heap;
+    }
+
+    this._send(packet);
   }
 
   /**

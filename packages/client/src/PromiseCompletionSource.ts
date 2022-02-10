@@ -4,16 +4,16 @@ export default class PromiseCompletionSource<T> {
   resolvedValue!: T;
 
   resolve!: (value: T) => void;
-  // reject!: (error: any) => void;
+  reject!: (reason?: any) => void;
 
   constructor() {
-    this.handle = new Promise((resolve) => {
+    this.handle = new Promise((resolve, reject) => {
+      this.reject = reject;
       this.resolve = (value: T) => {
         this.resolved = true;
         this.resolvedValue = value;
         return resolve(value);
       };
-      // this.reject = reject;
     });
   }
 }

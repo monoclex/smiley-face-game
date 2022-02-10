@@ -6,6 +6,7 @@ import BlockBar from "./blockbar/BlockBar";
 import PlayerList from "./playerlist/PlayerList";
 import MobileControls from "./MobileControls";
 import WorldSettingsButton from "./WorldSettingsButton";
+import Sign from "./sign/Sign";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -47,6 +48,7 @@ export default function GameUI({ children: gameCanvas }) {
 
   return (
     <>
+      <Sign />
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
           <PlayWindow item xs>
@@ -70,7 +72,9 @@ export default function GameUI({ children: gameCanvas }) {
         </Grid>
         <Grid item xs={2} container direction="column" alignItems="stretch" justifyContent="">
           <BlackFilled item xs={2}>
-            <PlayerList />
+            <Suspense fallback={null}>
+              <PlayerList />
+            </Suspense>
           </BlackFilled>
           <BlackFilledScrollDiv item xs>
             <Chat />

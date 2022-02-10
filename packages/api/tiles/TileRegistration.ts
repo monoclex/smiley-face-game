@@ -1,11 +1,17 @@
 import { TileLayer } from "../types";
 import { BlockStoring } from "./storage/BlockStoring";
 
+export enum HeapKind {
+  None,
+  Sign,
+}
+
 export interface BlockConfig {
   textureId: string;
   storing: BlockStoring;
   preferredLayer: TileLayer;
   isSolid: boolean | undefined;
+  heap?: HeapKind;
 }
 
 export interface PackConfig {
@@ -27,6 +33,7 @@ export interface BlockInfo {
   storing: BlockStoring;
   preferredLayer: TileLayer;
   isSolid: boolean | undefined;
+  heap: HeapKind;
 }
 
 export type PackInfo = PackConfig;
@@ -65,6 +72,7 @@ export class NewTileRegistration implements GenericRegistration {
       storing: config.storing,
       preferredLayer: config.preferredLayer,
       isSolid: config.isSolid,
+      heap: config.heap ?? HeapKind.None,
     };
 
     this._idToBlock.set(id, blockInfo);

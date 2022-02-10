@@ -1,4 +1,4 @@
-import { TileLayer, ZWorldBlocks } from "../types";
+import { TileLayer, ZHeap, ZWorldBlocks } from "../types";
 import { Vector } from "../physics/Vector";
 import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
@@ -20,7 +20,6 @@ export class Blocks {
 
   load(blocks: ZWorldBlocks) {
     this.state = [];
-    console.log("loading", blocks);
 
     // the server will not send us empty layers so we have to fill those in ourselves
     for (let layer = TileLayer.Foreground; layer <= TileLayer.Decoration; layer++) {
@@ -51,7 +50,6 @@ export class Blocks {
       }
     }
 
-    console.log("state is", this.state);
     this.events.emit("load", this.state);
   }
 
@@ -66,19 +64,26 @@ export class Blocks {
     start: Vector,
     end: Vector,
     blockId: number,
-    playerId: number
+    playerId: number,
+    heap?: ZHeap
   ): boolean {
     let didModify = false;
 
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
-      const placed = this.placeSingle(layer, { x, y }, blockId, playerId);
+      const placed = this.placeSingle(layer, { x, y }, blockId, playerId, heap);
       didModify ||= placed;
     });
 
     return didModify;
   }
 
-  placeSingle(layer: TileLayer, position: Vector, blockId: number, playerId: number): boolean {
+  placeSingle(
+    layer: TileLayer,
+    position: Vector,
+    blockId: number,
+    playerId: number,
+    heap?: ZHeap
+  ): boolean {
     if (position.x < 0 || position.y < 0) return false;
     if (position.x >= this.size.x || position.y >= this.size.y) return false;
 

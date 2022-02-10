@@ -117,16 +117,16 @@ export enum Rotation {
 
 // because blocks are only numeric ids, we can just use numbers
 // in the future, when we have portals, it'll be important to have something like { id: x, target: x, } etc
-export const zBlock = addParse(
-  Schema.either(
-    number,
-    Schema({
-      id: number,
-      signText: string.max(200),
-    })
-  )
-);
+export const zBlock = addParse(Schema.either(number));
 export type ZBlock = SchemaInput<typeof zBlock>;
+
+export const zHeap = addParse(
+  Schema.either({
+    kind: "sign" as const,
+    text: string.max(200),
+  })
+);
+export type ZHeap = SchemaInput<typeof zHeap>;
 
 export const zPlayerListActionKind = addParse(
   Schema.either(

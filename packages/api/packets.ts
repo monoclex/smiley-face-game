@@ -19,6 +19,7 @@ import {
   zAngle,
   zMessage,
   zTileJsonFile,
+  zHeap,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -87,6 +88,7 @@ export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =
     position: blockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   });
 export type ZBlockSingle = SchemaInput<ReturnType<typeof zBlockSingle>>;
 
@@ -97,6 +99,7 @@ export const zBlockLine = addParse(
     end: zBoundlessBlockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   })
 );
 export type ZBlockLine = SchemaInput<typeof zBlockLine>;
@@ -264,7 +267,16 @@ export const zPacket = (width: number, height: number) => {
 
   return addParse(
     Schema.either(
-      Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
+      Schema.either(
+        zPickupGun,
+        zMovement,
+        zFireBullet,
+        zEquipGun,
+        zChat,
+        zWorldAction,
+        zPlayerListAction,
+        blockSingle
+      ),
       Schema.either(zBlockLine, zKeyTouch)
     )
   );
@@ -298,7 +310,16 @@ export const zsPacket = (width: number, height: number) => {
 
   return addParse(
     Schema.either(
-      Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
+      Schema.either(
+        zsChat,
+        zsEquipGun,
+        zsFireBullet,
+        zsInit,
+        zsMovement,
+        zsPickupGun,
+        zsPlayerJoin,
+        zsPlayerLeave
+      ),
       Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent, zsKeyTouch)
     )
   );

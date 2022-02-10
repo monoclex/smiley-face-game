@@ -9,6 +9,7 @@ import { currentPlayerState } from "../../../state";
 import { useSnackbar } from "notistack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import state from "../../../bridge/state";
+import { useGameState } from "../../hooks";
 
 const PlayerDisplay = styled("div")(({ theme }) => ({
   // clsx(classes.hoverable
@@ -35,7 +36,7 @@ const UserIcon = styled(FontAwesomeIcon)({
 });
 
 export const Player = ({ username, id: playerId, role: roleParam }) => {
-  const { connection } = state;
+  const { connection } = useGameState();
   if (!connection) throw new Error("impossible state");
 
   const { enqueueSnackbar } = useSnackbar();
@@ -68,9 +69,12 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
       connection.takeEdit(playerId);
     }
 
-    enqueueSnackbar(`${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`, {
-      variant: "success",
-    });
+    enqueueSnackbar(
+      `${shouldHaveEdit ? "Gave" : "Took"} edit ${shouldHaveEdit ? "to" : "from"} ${username}`,
+      {
+        variant: "success",
+      }
+    );
   };
 
   // make sure that when you add things to `actions` you can guarantee a static order
@@ -80,7 +84,12 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
     // doing things based on role is hacky and weird
     if (role !== "owner") {
       actions.push(
-        <ToggleButton value="edit" aria-label="edit" selected={role === "edit"} onChange={() => setEdit(!(role === "edit"))}>
+        <ToggleButton
+          value="edit"
+          aria-label="edit"
+          selected={role === "edit"}
+          onChange={() => setEdit(!(role === "edit"))}
+        >
           <Pencil />
         </ToggleButton>
       );
@@ -113,7 +122,13 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
 
         <span>{username}</span>
       </PlayerDisplay>
-      <Menu id={`player-${playerId}-${username}`} anchorEl={anchorElement} keepMounted open={Boolean(anchorElement)} onClose={handleClose}>
+      <Menu
+        id={`player-${playerId}-${username}`}
+        anchorEl={anchorElement}
+        keepMounted
+        open={Boolean(anchorElement)}
+        onClose={handleClose}
+      >
         <Grid container justifyContent="center" direction="column">
           <>{actions.map((action, i) => ({ ...action, key: i }))}</>
         </Grid>

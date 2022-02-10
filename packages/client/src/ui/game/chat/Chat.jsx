@@ -92,7 +92,14 @@ export default function Chat() {
   return (
     <Container container direction="column" justifyContent="flex-end" alignItems="flex-start">
       <ChatListGrid item>
-        <ChatList autoHeight autoHeightMin={0} autoHeightMax={400} autoHide autoHideTimeout={1000} autoHideDuration={200}>
+        <ChatList
+          autoHeight
+          autoHeightMin={0}
+          autoHeightMax={400}
+          autoHide
+          autoHideTimeout={1000}
+          autoHideDuration={200}
+        >
           {messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
