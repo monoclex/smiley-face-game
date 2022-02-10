@@ -32,14 +32,13 @@ export const zRegisterSolid = addParse(
 export type ZRegisterSolid = SchemaInput<typeof zRegisterSolid>;
 
 export function registerSolid(mgr: GenericRegistration, { name, tiles, numerics }: ZRegisterSolid) {
-  if (numerics) throw new Error("`numerics` isn't supported at this time, i haven't coded support for 'em yet");
+  if (numerics)
+    throw new Error("`numerics` isn't supported at this time, i haven't coded support for 'em yet");
 
-  const blocks = tiles.map((tile, index) =>
-    mgr.register({
-      textureId: `${name}-${tile}`,
-      storing: new SourceAndIdStorage(mgr.sourceId, index),
-    })
-  );
+  const storing = new SourceAndIdStorage(mgr.sourceId);
+
+  const blocks = mgr.registerMany(tiles, (tile) => ({ textureId: `${name}-${tile}`, storing }));
+  storing.connectMany(blocks);
 
   mgr.pack({
     name,

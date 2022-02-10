@@ -1,5 +1,5 @@
 export interface BlockStoring<H = undefined> {
   readonly category: number | undefined;
-  serialize(heap: H): number[];
-  deserialize(data: number[]): H;
+  serialize(id: number, heap: H): [number, ...any] | [];
+  deserialize(data: [number, ...any] | []): [number, H];
 }
