@@ -1,10 +1,10 @@
 import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
-import type Behavior from "@smiley-face-game/api/tiles/Behavior";
 import WorldRepo, { serialize } from "../../database/repos/WorldRepo";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";
 import TileJson from "../TileJson";
 import { BlockStoring } from "@smiley-face-game/api/tiles/storage/BlockStoring";
+import { Blocks } from "@smiley-face-game/api/game/Blocks";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
@@ -170,22 +170,33 @@ export default class SavedBehaviour implements Behaviour {
     }
 
     if (world.worldDataVersion === 1) {
+      const size = { x: world.width, y: world.height };
       const worldData = world.worldData as number[][][][];
-      const desData = [];
+      const desData: number[][][] = [];
 
       for (let l = 0; l < worldData.length; l++) {
-        const newLayer = [];
+        const newLayer: number[][] = [];
 
         const layer = worldData[l];
+
+        if (layer === null || layer === undefined) {
+          desData.push(Blocks.makeLayer(size, 0));
+          continue;
+        }
+
         for (let y = 0; y < layer.length; y++) {
-          const newY = [];
+          const newY: number[] = [];
 
           const yMap = layer[y];
+          if (yMap === null || yMap === undefined) {
+            newLayer.push(Blocks.makeYs(size, 0));
+            continue;
+          }
 
           for (let x = 0; x < yMap.length; x++) {
             const block = yMap[x];
 
-            if (block.length === 0) newY.push(0);
+            if (!block || block.length === 0) newY.push(0);
             else {
               const [sourceId] = block;
               newY.push(TileJson.forSrc(sourceId).deserialize(block)[0]);
@@ -206,7 +217,7 @@ export default class SavedBehaviour implements Behaviour {
 
   async saveBlocks(blocks: ZWorldBlocks): Promise<void> {
     const world = await this.#repo.findById(this.id);
-    world.worldData = serialize(blocks, TileJson);
+    world.worldData = serialize({ x: world.width, y: world.height }, blocks, TileJson);
     world.worldDataVersion = 1;
     await this.#repo.save(world);
   }

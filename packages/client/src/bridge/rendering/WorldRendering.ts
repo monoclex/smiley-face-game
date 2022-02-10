@@ -19,7 +19,12 @@ export default class WorldRendering {
   private readonly decoration: CompositeRectTileLayer & DisplayObject;
 
   constructor(readonly game: Game) {
-    this.void = new TilingSprite(textures.block("empty"), game.blocks.size.x * 32, game.blocks.size.y * 32);
+    this.void = new TilingSprite(
+      textures.block("empty"),
+      game.blocks.size.x * 32,
+      game.blocks.size.y * 32
+    );
+
     this.background = new CompositeRectTileLayer();
     this.action = new CompositeRectTileLayer();
     this.foreground = new CompositeRectTileLayer();
@@ -64,7 +69,7 @@ export default class WorldRendering {
       [TileLayer.Foreground]: this.foreground,
       [TileLayer.Action]: this.action,
       [TileLayer.Background]: undefined,
-      [TileLayer.Decoration]: undefined,
+      [TileLayer.Decoration]: this.decoration,
     };
 
     const [isInsideKeyBlock, redKeyTouchedState] = this.self.insideKeyBlock;

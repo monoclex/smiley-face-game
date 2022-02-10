@@ -1,21 +1,29 @@
 // TODO: clean this file up later
 
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import type { ZBlockSingle, ZSBlockSingle, ZBlockLine, ZSBlockLine } from "@smiley-face-game/api/packets";
+import type {
+  ZBlockSingle,
+  ZSBlockSingle,
+  ZBlockLine,
+  ZSBlockLine,
+} from "@smiley-face-game/api/packets";
 import Connection from "../../worlds/Connection";
-import type { ZWorldBlocks } from "@smiley-face-game/api/types";
+import { TileLayer, ZWorldBlocks } from "@smiley-face-game/api/types";
 
 export class BlockHandler {
   constructor(public map: ZWorldBlocks, readonly width: number, readonly height: number) {
-    // TODO: make the client able to handle a map where some things may be empty
-    for (let layerId = 0; layerId <= 2; layerId++) {
-      const layerMap = this.map[layerId] ?? (this.map[layerId] = []);
+    for (let layerId = TileLayer.Foreground; layerId <= TileLayer.Decoration; layerId++) {
+      const layerMap = this.map[layerId];
+      if (layerMap === undefined || layerMap === null) continue;
 
       for (let y = 0; y < this.height; y++) {
-        const yMap = layerMap[y] ?? (layerMap[y] = []);
+        const yMap = layerMap[y];
+        if (yMap === undefined || yMap === null) continue;
 
         for (let x = 0; x < this.width; x++) {
-          yMap[x] ?? (yMap[x] = 0);
+          if (yMap[x] === undefined || yMap[x] === null) {
+            yMap[x] = 0;
+          }
         }
       }
     }
@@ -23,17 +31,17 @@ export class BlockHandler {
 
   getMap(layer: number, y: number, x: number): number {
     let wLayer = this.map[layer];
-    if (wLayer === undefined) {
+    if (wLayer === undefined || wLayer === null) {
       this.map[layer] = wLayer = [];
     }
 
     let wY = wLayer[y];
-    if (wY === undefined) {
+    if (wY === undefined || wY === null) {
       this.map[layer][y] = wY = [];
     }
 
     const wX = wY[x];
-    if (wX === undefined) {
+    if (wX === undefined || wX === null) {
       wY[x] = 0;
       return 0;
     }
@@ -66,18 +74,24 @@ export class BlockHandler {
     let didUpdate = false;
 
     // packet is known good, update world
-    bresenhamsLine(packet.start.x, packet.start.y, packet.end.x, packet.end.y, (x: number, y: number) => {
-      // TODO: don't do bounds checking (see exploit notice in bresenhamsLine function)
-      // bounds checking if the block is within bounds
-      if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
+    bresenhamsLine(
+      packet.start.x,
+      packet.start.y,
+      packet.end.x,
+      packet.end.y,
+      (x: number, y: number) => {
+        // TODO: don't do bounds checking (see exploit notice in bresenhamsLine function)
+        // bounds checking if the block is within bounds
+        if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-      if (this.getMap(packet.layer, y, x) !== packet.block) {
-        didUpdate = true;
+        if (this.getMap(packet.layer, y, x) !== packet.block) {
+          didUpdate = true;
 
-        // NOTE: if switching to reference types, make sure to copy value
-        this.map[packet.layer][y][x] = packet.block;
+          // NOTE: if switching to reference types, make sure to copy value
+          this.map[packet.layer][y][x] = packet.block;
+        }
       }
-    });
+    );
 
     // only if the packet updated any blocks do we want to queue it
     if (didUpdate) {

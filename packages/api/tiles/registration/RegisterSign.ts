@@ -16,7 +16,7 @@ export type ZRegisterSign = SchemaInput<typeof zRegisterSign>;
 
 export function registerSign(mgr: GenericRegistration) {
   const storing = new SourceAndIdStorage(mgr.sourceId);
-  const preferredLayer = TileLayer.Action;
+  const preferredLayer = TileLayer.Decoration;
 
   const sign = mgr.register({ textureId: "sign", storing, preferredLayer, isSolid: false });
   storing.connect(sign, 0);

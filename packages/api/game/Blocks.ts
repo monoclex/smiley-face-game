@@ -10,16 +10,48 @@ interface BlockEvents {
 }
 
 export class Blocks {
-  state: number[][][];
+  state!: number[][][];
 
   readonly events = createNanoEvents<BlockEvents>();
 
   constructor(readonly tiles: TileRegistration, blocks: ZWorldBlocks, readonly size: Vector) {
-    this.state = blocks;
+    this.load(blocks);
   }
 
   load(blocks: ZWorldBlocks) {
-    this.state = blocks;
+    this.state = [];
+    console.log("loading", blocks);
+
+    // the server will not send us empty layers so we have to fill those in ourselves
+    for (let layer = TileLayer.Foreground; layer <= TileLayer.Decoration; layer++) {
+      const layerBlocks = blocks[layer];
+
+      if (layerBlocks === undefined || layerBlocks === null) {
+        this.state[layer] = Blocks.makeLayer(this.size, 0);
+        continue;
+      } else {
+        this.state[layer] = layerBlocks;
+      }
+
+      for (let y = 0; y < this.size.y; y++) {
+        const yBlocks = layerBlocks[y];
+
+        if (yBlocks === undefined || yBlocks === null) {
+          layerBlocks[y] = Blocks.makeYs(this.size, 0);
+          continue;
+        }
+
+        for (let x = 0; x < this.size.x; x++) {
+          const xBlock = yBlocks[x];
+
+          if (xBlock === undefined || xBlock === null) {
+            throw new Error("an individual block should never be null/undef");
+          }
+        }
+      }
+    }
+
+    console.log("state is", this.state);
     this.events.emit("load", this.state);
   }
 
@@ -29,7 +61,13 @@ export class Blocks {
     this.load(state);
   }
 
-  placeLine(layer: TileLayer, start: Vector, end: Vector, blockId: number, playerId: number): boolean {
+  placeLine(
+    layer: TileLayer,
+    start: Vector,
+    end: Vector,
+    blockId: number,
+    playerId: number
+  ): boolean {
     let didModify = false;
 
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
@@ -70,8 +108,7 @@ export class Blocks {
   }
 
   layerOfTopmostBlock(x: number, y: number) {
-    // TODO: support decoration layers
-    // this is set to background because server doesn't send decoration layer
+    if (this.state[TileLayer.Decoration][y][x] !== 0) return TileLayer.Decoration;
     for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
       if (this.state[layer][y][x] !== 0) return layer;
     }
@@ -82,14 +119,7 @@ export class Blocks {
     const state = [];
 
     for (let idxLayer = TileLayer.Foreground; idxLayer <= TileLayer.Decoration; idxLayer++) {
-      const layer = [];
-      for (let idxY = 0; idxY < size.y; idxY++) {
-        const y = [];
-        for (let idxX = 0; idxX < size.x; idxX++) {
-          y[idxX] = 0;
-        }
-        layer[idxY] = y;
-      }
+      const layer = Blocks.makeLayer(size, 0);
       state[idxLayer] = layer;
     }
 
@@ -112,5 +142,22 @@ export class Blocks {
       const y = layer[idxY];
       y[0] = y[rightEndOfWorld] = block;
     }
+  }
+
+  static makeLayer<T = 0>(size: Vector, value: T): T[][] {
+    const layer = [];
+    for (let idxY = 0; idxY < size.y; idxY++) {
+      const y = Blocks.makeYs(size, value);
+      layer[idxY] = y;
+    }
+    return layer;
+  }
+
+  static makeYs<T>(size: Vector, value: T): T[] {
+    const y = [];
+    for (let idxX = 0; idxX < size.x; idxX++) {
+      y[idxX] = value;
+    }
+    return y;
   }
 }

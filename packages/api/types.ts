@@ -1,4 +1,11 @@
-import Schema, { string, number, boolean, array, SchemaInput, addParse } from "./computed-types-wrapper";
+import Schema, {
+  string,
+  number,
+  boolean,
+  array,
+  SchemaInput,
+  addParse,
+} from "./computed-types-wrapper";
 import { zCategory, zCategoryType } from "./enums";
 
 // TODO: validate JWT with zod
@@ -42,7 +49,9 @@ export const zSize = addParse(
 );
 export type ZSize = SchemaInput<typeof zSize>;
 
-export const zRole = addParse(Schema.either("non" as const, "edit" as const, "owner" as const, "staff" as const));
+export const zRole = addParse(
+  Schema.either("non" as const, "edit" as const, "owner" as const, "staff" as const)
+);
 export type ZRole = SchemaInput<typeof zRole>;
 
 // TODO: way to constrain maximum number?
@@ -108,7 +117,15 @@ export enum Rotation {
 
 // because blocks are only numeric ids, we can just use numbers
 // in the future, when we have portals, it'll be important to have something like { id: x, target: x, } etc
-export const zBlock = addParse(Schema.either(number));
+export const zBlock = addParse(
+  Schema.either(
+    number,
+    Schema({
+      id: number,
+      signText: string.max(200),
+    })
+  )
+);
 export type ZBlock = SchemaInput<typeof zBlock>;
 
 export const zPlayerListActionKind = addParse(
