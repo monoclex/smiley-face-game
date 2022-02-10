@@ -3,6 +3,7 @@ import { Vector } from "../physics/Vector";
 import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
 import { createNanoEvents } from "../nanoevents";
+import { WorldLayer } from "./WorldLayer";
 
 interface BlockEvents {
   load(blocks: ZWorldBlocks): void;
@@ -10,7 +11,8 @@ interface BlockEvents {
 }
 
 export class Blocks {
-  state!: number[][][];
+  state: WorldLayer<number> = new WorldLayer(0);
+  heap: WorldLayer<ZHeap | 0> = new WorldLayer(0);
 
   readonly events = createNanoEvents<BlockEvents>();
 
@@ -19,38 +21,8 @@ export class Blocks {
   }
 
   load(blocks: ZWorldBlocks) {
-    this.state = [];
-
-    // the server will not send us empty layers so we have to fill those in ourselves
-    for (let layer = TileLayer.Foreground; layer <= TileLayer.Decoration; layer++) {
-      const layerBlocks = blocks[layer];
-
-      if (layerBlocks === undefined || layerBlocks === null) {
-        this.state[layer] = Blocks.makeLayer(this.size, 0);
-        continue;
-      } else {
-        this.state[layer] = layerBlocks;
-      }
-
-      for (let y = 0; y < this.size.y; y++) {
-        const yBlocks = layerBlocks[y];
-
-        if (yBlocks === undefined || yBlocks === null) {
-          layerBlocks[y] = Blocks.makeYs(this.size, 0);
-          continue;
-        }
-
-        for (let x = 0; x < this.size.x; x++) {
-          const xBlock = yBlocks[x];
-
-          if (xBlock === undefined || xBlock === null) {
-            throw new Error("an individual block should never be null/undef");
-          }
-        }
-      }
-    }
-
-    this.events.emit("load", this.state);
+    this.state.state = blocks;
+    this.events.emit("load", this.state.state);
   }
 
   clear() {
@@ -65,7 +37,7 @@ export class Blocks {
     end: Vector,
     blockId: number,
     playerId: number,
-    heap?: ZHeap
+    heap?: ZHeap | null | undefined
   ): boolean {
     let didModify = false;
 
@@ -82,40 +54,31 @@ export class Blocks {
     position: Vector,
     blockId: number,
     playerId: number,
-    heap?: ZHeap
+    heap?: ZHeap | null | undefined
   ): boolean {
     if (position.x < 0 || position.y < 0) return false;
     if (position.x >= this.size.x || position.y >= this.size.y) return false;
 
-    const value = this.state[layer][position.y][position.x];
+    const value = this.state.get(layer, position.x, position.y);
     if (value === blockId) return false;
 
-    this.state[layer][position.y][position.x] = blockId;
+    this.state.set(layer, position.x, position.y, blockId);
+    if (heap !== null && heap !== undefined) {
+      this.heap.set(layer, position.x, position.y, heap);
+    }
+
     this.events.emit("block", layer, position, blockId, playerId);
     return true;
   }
 
   blockAt(x: number, y: number, tileLayer: TileLayer): number {
-    err: {
-      const layer = this.state[tileLayer];
-      if (!layer) break err;
-
-      const ys = layer[y];
-      if (ys === undefined) break err;
-
-      const block = ys[x];
-      if (block === undefined) break err;
-
-      return block;
-    }
-
-    throw new Error(`out of bounds block get attempt: ${tileLayer}: (${x}, ${y})`);
+    return this.state.get(tileLayer, x, y);
   }
 
   layerOfTopmostBlock(x: number, y: number) {
-    if (this.state[TileLayer.Decoration][y][x] !== 0) return TileLayer.Decoration;
+    if (this.state.get(TileLayer.Decoration, x, y) !== 0) return TileLayer.Decoration;
     for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
-      if (this.state[layer][y][x] !== 0) return layer;
+      if (this.state.get(layer, x, y) !== 0) return layer;
     }
     return TileLayer.Foreground;
   }

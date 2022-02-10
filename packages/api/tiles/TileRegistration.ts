@@ -8,7 +8,7 @@ export enum HeapKind {
 
 export interface BlockConfig {
   textureId: string;
-  storing: BlockStoring;
+  storing: BlockStoring<unknown>;
   preferredLayer: TileLayer;
   isSolid: boolean | undefined;
   heap?: HeapKind;
@@ -30,7 +30,7 @@ export interface GenericRegistration {
 export interface BlockInfo {
   id: number;
   textureId: string;
-  storing: BlockStoring;
+  storing: BlockStoring<unknown>;
   preferredLayer: TileLayer;
   isSolid: boolean | undefined;
   heap: HeapKind;
@@ -145,7 +145,7 @@ export default class TileRegistration {
     return block;
   }
 
-  forSrc(sourceId: number): BlockStoring {
+  forSrc(sourceId: number): BlockStoring<unknown> {
     const blocks = this.registerer._sourceToBlocks.get(sourceId);
     if (!blocks || !blocks[0]) throw new Error(`could not find source for ${sourceId}`);
 

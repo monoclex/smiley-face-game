@@ -2,13 +2,10 @@ import { BlockInfo } from "../TileRegistration";
 import { BlockStoring } from "./BlockStoring";
 
 export class SourceAndIdStorage implements BlockStoring {
-  readonly category: number;
   readonly indexToId: Map<number, number> = new Map();
   readonly idToIndex: Map<number, number> = new Map();
 
-  constructor(readonly sourceId: number) {
-    this.category = sourceId;
-  }
+  constructor(readonly sourceId: number) {}
 
   connectMany(blocks: BlockInfo[]) {
     let i = 0;

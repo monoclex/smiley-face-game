@@ -641,6 +641,12 @@ export class EEPhysics implements PhysicsSystem {
       return;
     }
 
+    const deco = this.world.blockAt(x, y, TileLayer.Decoration);
+    if (deco === this.ids.sign) {
+      console.log("in sign");
+      console.log("the sign says:", this.world.heap.get(TileLayer.Decoration, x, y));
+    }
+
     const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
     if (this.ids.keysRedKey === actionBlock) {
       if (!self.insideRedKey) {

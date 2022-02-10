@@ -58,7 +58,7 @@ export default class WorldRendering {
     this.foreground.clear();
     this.decoration.clear();
     this.action.clear();
-    this.load(this.game.blocks.state);
+    this.load(this.game.blocks.state.state);
   }
 
   load(blocks: number[][][]) {
@@ -81,14 +81,16 @@ export default class WorldRendering {
 
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
+      if (layer === undefined || layer === null) continue;
       const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
-      if (tileLayer === undefined) continue;
+      if (!tileLayer) continue;
       for (let yIdx = 0; yIdx < this.game.blocks.size.y; yIdx++) {
         const y = layer[yIdx];
+        if (y === undefined || y === null) continue;
         for (let x = 0; x < this.game.blocks.size.x; x++) {
           // because we've cleared the world, we don't want to place an empty tile
           // when we already have an *actual* empty tile
-          if (y[x] === 0) continue;
+          if (y[x] === 0 || y[x] === null || y[x] === undefined) continue;
           const textureName = this.mapTextureName(redKeyTouched, this.game.tiles.texture(y[x]));
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }

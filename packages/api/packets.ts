@@ -126,6 +126,7 @@ export const zsBlockLine = addParse(
     end: zBoundlessBlockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   })
 );
 export type ZSBlockLine = SchemaInput<typeof zsBlockLine>;
@@ -144,6 +145,7 @@ export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) 
     position: blockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   });
 export type ZSBlockSingle = SchemaInput<ReturnType<typeof zsBlockSingle>>;
 

@@ -1,7 +1,7 @@
 import Schema, { SchemaInput } from "computed-types";
 import { addParse } from "../../computed-types-wrapper";
 import { TileLayer } from "../../types";
-import { SourceAndIdStorage } from "../storage/SourceAndIdStorage";
+import { SignStoring } from "../storage/SignStoring";
 import { HeapKind } from "../TileRegistration";
 import { GenericRegistration, registrations } from "./Registrations";
 
@@ -16,7 +16,7 @@ export const zRegisterSign = addParse(
 export type ZRegisterSign = SchemaInput<typeof zRegisterSign>;
 
 export function registerSign(mgr: GenericRegistration) {
-  const storing = new SourceAndIdStorage(mgr.sourceId);
+  const storing = new SignStoring(mgr.sourceId);
   const preferredLayer = TileLayer.Decoration;
 
   const sign = mgr.register({
@@ -26,7 +26,8 @@ export function registerSign(mgr: GenericRegistration) {
     isSolid: false,
     heap: HeapKind.Sign,
   });
-  storing.connect(sign, 0);
+
+  storing.id = sign.id;
 
   mgr.pack({
     name: "sign",

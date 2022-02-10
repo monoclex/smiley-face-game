@@ -120,12 +120,15 @@ export enum Rotation {
 export const zBlock = addParse(Schema.either(number));
 export type ZBlock = SchemaInput<typeof zBlock>;
 
-export const zHeap = addParse(
-  Schema.either({
+export const zSignHeap = addParse(
+  Schema({
     kind: "sign" as const,
     text: string.max(200),
   })
 );
+export type ZSignHeap = SchemaInput<typeof zSignHeap>;
+
+export const zHeap = addParse(Schema.either(zSignHeap));
 export type ZHeap = SchemaInput<typeof zHeap>;
 
 export const zPlayerListActionKind = addParse(

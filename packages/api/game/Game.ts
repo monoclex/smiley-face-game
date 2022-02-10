@@ -39,10 +39,23 @@ export class Game {
 
     switch (event.packetId) {
       case "SERVER_BLOCK_LINE":
-        this.blocks.placeLine(event.layer, event.start, event.end, event.block, event.playerId);
+        this.blocks.placeLine(
+          event.layer,
+          event.start,
+          event.end,
+          event.block,
+          event.playerId,
+          event.heap
+        );
         return 0;
       case "SERVER_BLOCK_SINGLE":
-        this.blocks.placeSingle(event.layer, event.position, event.block, event.playerId);
+        this.blocks.placeSingle(
+          event.layer,
+          event.position,
+          event.block,
+          event.playerId,
+          event.heap
+        );
         return 0;
       case "SERVER_CHAT":
         // game doesn't need to handle chat
