@@ -5,6 +5,7 @@ export interface BlockConfig {
   textureId: string;
   storing: BlockStoring;
   preferredLayer: TileLayer;
+  isSolid: boolean | undefined;
 }
 
 export interface PackConfig {
@@ -25,6 +26,7 @@ export interface BlockInfo {
   textureId: string;
   storing: BlockStoring;
   preferredLayer: TileLayer;
+  isSolid: boolean | undefined;
 }
 
 export type PackInfo = PackConfig;
@@ -62,6 +64,7 @@ export class NewTileRegistration implements GenericRegistration {
       textureId: config.textureId,
       storing: config.storing,
       preferredLayer: config.preferredLayer,
+      isSolid: config.isSolid,
     };
 
     this._idToBlock.set(id, blockInfo);
@@ -89,17 +92,25 @@ export class NewTileRegistration implements GenericRegistration {
 }
 
 export default class TileRegistration {
-  constructor(readonly registerer: NewTileRegistration) {}
+  constructor(readonly registerer: NewTileRegistration) {
+    const empty = this.packs.find(({ name }) => name === "empty")!;
+    if (!empty) throw new Error("Couldnt find epmty pack");
+
+    this.emptyPack = empty;
+
+    for (let i = 0; i < this.packs.length; i++) {
+      if (this.packs[i].name === "empty") {
+        this.packs.splice(i, 1);
+        i -= 1;
+      }
+    }
+  }
 
   get packs(): PackInfo[] {
     return this.registerer._packs;
   }
 
-  get emptyPack(): PackInfo {
-    const empty = this.packs.find(({ name }) => name === "empty")!;
-    if (!empty) throw new Error("Couldnt find epmty pack");
-    return empty;
-  }
+  readonly emptyPack: PackInfo;
 
   for(id: number | string): BlockInfo {
     if (typeof id === "number") return this.forId(id);

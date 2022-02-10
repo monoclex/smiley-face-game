@@ -8,6 +8,7 @@ import { registerSolid } from "./RegisterSolid";
 import { registerZoost } from "./RegisterZoost";
 
 import type { GenericRegistration } from "../TileRegistration";
+import { registerSign } from "./RegisterSign";
 export type { GenericRegistration };
 
 type RegistrationFunction<K extends ZTileRegistrationKind> = (
@@ -24,4 +25,5 @@ export const registrations: { [K in ZTileRegistrationKind]: RegistrationFunction
   boost: registerBoost,
   zoost: registerZoost,
   keys: registerKeys,
+  sign: registerSign,
 };

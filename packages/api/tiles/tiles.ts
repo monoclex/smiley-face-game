@@ -1,5 +1,6 @@
 import { ZTileJsonFile } from "../types";
 
+// prettier-ignore
 const tiles: ZTileJsonFile = [
   {
     behavior: "solid",
@@ -48,6 +49,9 @@ const tiles: ZTileJsonFile = [
   {
     behavior: "zoost",
   },
+  {
+    behavior: "sign",
+  }
 ];
 
 export default tiles;
