@@ -7,21 +7,6 @@
     "build": "node --experimental-json-modules build.mjs"
   },
   "type": "module",
-  "main": "./cjs/index.cjs",
-  "module": "./esm/index.mjs",
-  "types": "./index.d.ts",
-  "exports": {
-    "./cjs/*": null,
-    "./esm/*": null,
-    ".": {
-      "require": "./cjs/index.cjs",
-      "default": "./esm/index.mjs"
-    },
-    "./*": {
-      "require": "./cjs/*.cjs",
-      "default": "./esm/*.mjs"
-    }
-  },
   "dependencies": {
     "computed-types": "^1.11.1",
     "cross-fetch": "^3.1.5",
@@ -48,18 +33,10 @@
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
   "license": "MIT",
-  "private": "true",
   "keywords": [
     "sfg",
     "api",
     "game"
-  ],
-  "files": [
-    "cjs/**/*",
-    "esm/**/*",
-    "**/*.d.ts",
-    "README.md",
-    "package.json"
   ],
   "repository": {
     "type": "git",

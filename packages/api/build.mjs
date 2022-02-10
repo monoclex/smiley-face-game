@@ -20,7 +20,16 @@ await Promise.all([
   // Copy the `README`
   fs.copyFile("./README.md", "./dist/README.md"),
   // Build type declarations
-  cmd("tsc", ["--outDir", "./dist/", "--noEmit", "false", "--emitDeclarationOnly", "true", "--declaration", "true"]),
+  cmd("tsc", [
+    "--outDir",
+    "./dist/",
+    "--noEmit",
+    "false",
+    "--emitDeclarationOnly",
+    "true",
+    "--declaration",
+    "true",
+  ]),
   // Build SFG with support for ESM modules
   cmd("tsc", ["--outDir", "./dist/esm", "--noEmit", "false", "--module", "esnext"])
     .then(() => rename("./dist/esm", ".mjs"))
@@ -49,17 +58,31 @@ async function packageJson() {
     homepage,
     license,
     keywords,
-    files,
     repository,
     bugs,
     engines,
-    main,
-    module,
-    types,
-    exports,
     dependencies,
     optionalDependencies,
   } = json;
+
+  const { main, module, types, exports, files } = {
+    main: "./cjs/index.cjs",
+    module: "./esm/index.mjs",
+    types: "./index.d.ts",
+    exports: {
+      "./cjs/*": null,
+      "./esm/*": null,
+      ".": {
+        require: "./cjs/index.cjs",
+        default: "./esm/index.mjs",
+      },
+      "./*": {
+        require: "./cjs/*.cjs",
+        default: "./esm/*.mjs",
+      },
+    },
+    files: ["cjs/**/*", "esm/**/*", "**/*.d.ts", "README.md", "package.json"],
+  };
 
   const destPackage = {
     name,
@@ -179,7 +202,9 @@ async function patchModule(fileName) {
         if ((resolvedPath = await tryExt(".mjs"))) break findModule;
         if ((resolvedPath = await tryExt("/index.cjs"))) break findModule;
         if ((resolvedPath = await tryExt("/index.mjs"))) break findModule;
-        throw new Error(`i can't resolve ${unqualifiedImport} (${workingDirectory}) in ${fileName}`);
+        throw new Error(
+          `i can't resolve ${unqualifiedImport} (${workingDirectory}) in ${fileName}`
+        );
       }
 
       // change `require("./asdf")` => `require("./asdf.cjs")`

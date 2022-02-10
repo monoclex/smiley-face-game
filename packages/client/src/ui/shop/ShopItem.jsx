@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 
 import { motion } from "framer-motion";
-import { Grid, Box, Card, CardContent, Typography, Chip, CardActionArea, LinearProgress } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Chip,
+  CardActionArea,
+  LinearProgress,
+} from "@mui/material";
 
 import EnergyIcon from "../icons/EnergyIcon";
 import { ShopItemDialog } from "./ShopItemDialog";
@@ -39,7 +48,10 @@ export default function ShopItem({ id, isVertical = false, columnSpan }) {
       <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
         {(categoryType & CategoryType.Featured) != 0 ? (
           <Box sx={{ position: "absolute", padding: 1 }}>
-            <Chip style={{ backgroundColor: "red" }} label={<Box sx={{ color: "white", fontWeight: "bold" }}>FEAT</Box>} />
+            <Chip
+              style={{ backgroundColor: "red" }}
+              label={<Box sx={{ color: "white", fontWeight: "bold" }}>FEAT</Box>}
+            />
           </Box>
         ) : null}
 
@@ -54,10 +66,31 @@ export default function ShopItem({ id, isVertical = false, columnSpan }) {
     <Box sx={{ minWidth, width }}>
       <motion.div whileHover={{ scale: 1.05 }}>
         <CardActionArea onClick={() => setIsOpen(true)}>
-          <StyledCard style={{ width, display: isVertical && "flex", justifyContent: "flex-start", flexDirection: "row" }}>
-            <CardHeader src={image} title={title} width={width} height={196} isVertical={isVertical} />
+          <StyledCard
+            style={{
+              width,
+              display: isVertical && "flex",
+              justifyContent: "flex-start",
+              flexDirection: "row",
+            }}
+          >
+            <CardHeader
+              src={image}
+              title={title}
+              width={width}
+              height={196}
+              isVertical={isVertical}
+            />
 
-            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: "33%", minHeight: "50%" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                minWidth: "33%",
+                minHeight: "50%",
+              }}
+            >
               <CardContent>
                 <Typography gutterBottom noWrap>
                   {title}
@@ -70,9 +103,21 @@ export default function ShopItem({ id, isVertical = false, columnSpan }) {
               <PaddedDiv>
                 <Grid container direction="row" wrap="nowrap">
                   <div style={{ width: "100%" }}>
-                    <LinearProgress variant="determinate" style={{ height: 15 }} value={(energySpent / energyCost) * 100} />
+                    <LinearProgress
+                      variant="determinate"
+                      style={{ height: 15 }}
+                      value={(energySpent / energyCost) * 100}
+                    />
                   </div>
-                  <div style={{ paddingLeft: "1em", display: "flex", alignItems: "center", wrap: "nowrap", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      paddingLeft: "1em",
+                      display: "flex",
+                      alignItems: "center",
+                      wrap: "nowrap",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     {energySpent}/{energyCost}
                     <EnergyIcon style={{ paddingLeft: "0.25em" }} />
                   </div>
