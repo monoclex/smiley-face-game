@@ -44,9 +44,7 @@ export default class AuthoredBlockPlacer {
     this.place(layer, lastPos, pos, id);
 
     const heapKind = blockInfo.heap;
-    console.log("doing heap", heapKind);
     if (heapKind !== HeapKind.None) {
-      console.log("last", lastPos);
       if (lastPos === undefined) {
         placements[heapKind](this.game, this, layer, pos, id, this.author);
       } else {

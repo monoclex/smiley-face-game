@@ -17,6 +17,7 @@ import {
   isZoost,
   zoostDirToVec,
 } from "./Directions";
+import equal from "fast-deep-equal";
 
 export class EEPhysics implements PhysicsSystem {
   readonly optimalTickRate: number;
@@ -642,9 +643,27 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     const deco = this.world.blockAt(x, y, TileLayer.Decoration);
+    let currentlyInSign: false | Vector = false;
     if (deco === this.ids.sign) {
-      console.log("in sign");
-      console.log("the sign says:", this.world.heap.get(TileLayer.Decoration, x, y));
+      currentlyInSign = { x, y };
+    }
+
+    const inSign = (x: false | Vector) => !!x;
+
+    // if we weren't in a sign but we are
+    if (!inSign(self.insideSign) && inSign(currentlyInSign)) {
+      self.insideSign = currentlyInSign;
+      this.events.emit("signOn", x, y);
+    }
+    // if we aren't in a sign but we were
+    else if (!inSign(currentlyInSign) && inSign(self.insideSign)) {
+      self.insideSign = false;
+      this.events.emit("signOff");
+    }
+    // if we're in a different sign
+    else if (!equal(currentlyInSign, self.insideSign)) {
+      self.insideSign = currentlyInSign;
+      this.events.emit("signOn", x, y);
     }
 
     const actionBlock = this.world.blockAt(x, y, TileLayer.Action);

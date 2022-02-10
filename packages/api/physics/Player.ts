@@ -114,4 +114,6 @@ export class Player {
   get centerEE(): Vector {
     return Vector.divs(this.center, 2);
   }
+  /** @version eephysics This may be removed when the physics engine changes */
+  insideSign: false | Vector = false;
 }

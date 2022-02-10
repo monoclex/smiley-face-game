@@ -13,7 +13,6 @@ import PromiseCompletionSource from "../../../PromiseCompletionSource";
 import { signState, text } from "../../../state/signDialog";
 
 export default function Sign() {
-  console.log("sign rendering");
   const [sign, setSign] = useRecoilState(signState);
   const textField = useRef<any>();
 
@@ -29,7 +28,6 @@ export default function Sign() {
     text.it = new PromiseCompletionSource();
   };
 
-  console.log("is it open", sign);
   return (
     <Dialog open={sign.open}>
       <DialogTitle>Sign Text</DialogTitle>

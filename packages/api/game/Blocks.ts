@@ -4,6 +4,7 @@ import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
 import { createNanoEvents } from "../nanoevents";
 import { WorldLayer } from "./WorldLayer";
+import equal from "fast-deep-equal";
 
 interface BlockEvents {
   load(blocks: ZWorldBlocks): void;
@@ -60,7 +61,8 @@ export class Blocks {
     if (position.x >= this.size.x || position.y >= this.size.y) return false;
 
     const value = this.state.get(layer, position.x, position.y);
-    if (value === blockId) return false;
+    const existingHeap = this.heap.get(layer, position.x, position.y);
+    if (value === blockId && equal(heap ?? 0, existingHeap)) return false;
 
     this.state.set(layer, position.x, position.y, blockId);
     if (heap !== null && heap !== undefined) {

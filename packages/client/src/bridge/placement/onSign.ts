@@ -5,7 +5,6 @@ import { signGlobal, text } from "../../state/signDialog";
 import AuthoredBlockPlacer from "../AuthoredBlockPlacer";
 
 function openDialog(): Promise<string> {
-  console.log("open called");
   signGlobal.modify({ open: true });
   return text.it.handle;
 }

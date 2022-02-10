@@ -6,6 +6,7 @@ import { createNanoEvents } from "nanoevents";
 import GamePlayer from "../GamePlayer";
 import PlayerRenderer from "./PlayerRendering";
 import WorldRendering from "./WorldRendering";
+import SignRendering from "./SignRendering";
 
 interface GameRendererEvents {
   draw(): void;
@@ -25,11 +26,13 @@ export default class GameRenderer {
 
   readonly playerRenderer: PlayerRenderer;
   readonly worldRenderer: WorldRendering;
+  readonly signRenderer: SignRendering;
   readonly events = createNanoEvents<GameRendererEvents>();
 
   constructor(readonly game: Game, readonly renderer: Renderer) {
     this.playerRenderer = new PlayerRenderer(game, this.root, renderer);
     this.worldRenderer = new WorldRendering(game);
+    this.signRenderer = new SignRendering(game);
 
     // <-- most behind
     this.root.addChild(this.worldRenderer.worldBehind);
@@ -38,6 +41,8 @@ export default class GameRenderer {
     this.root.addChild(this.worldRenderer.worldInfront);
     // selection gets added here too (in `ClientSelector`)
     // <-- closest to viewer
+
+    this.root.addChild(this.signRenderer.sprite);
   }
 
   readonly root: Container = new Container();

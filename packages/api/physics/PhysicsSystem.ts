@@ -14,6 +14,9 @@ export interface PhysicsEvents {
    * keys look like.
    */
   moveOutOfKeys(player: Player): void;
+
+  signOn(x: number, y: number): void;
+  signOff(): void;
 }
 
 export interface PhysicsSystem {

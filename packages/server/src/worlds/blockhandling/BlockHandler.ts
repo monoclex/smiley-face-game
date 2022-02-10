@@ -9,6 +9,7 @@ import type {
 } from "@smiley-face-game/api/packets";
 import Connection from "../../worlds/Connection";
 import { TileLayer, ZWorldBlocks } from "@smiley-face-game/api/types";
+import equal from "fast-deep-equal";
 
 export class BlockHandler {
   constructor(public map: ZWorldBlocks, readonly width: number, readonly height: number) {
@@ -53,7 +54,7 @@ export class BlockHandler {
     const target = this.getMap(packet.layer, packet.position.y, packet.position.x);
 
     // packet is known good, only do updating work if necessary
-    if (packet.block !== target) {
+    if (packet.block !== target || !equal(packet.heap, undefined)) {
       // NOTE: if switching to reference types, make sure to copy the value
       this.map[packet.layer][packet.position.y][packet.position.x] = packet.block;
 
@@ -84,7 +85,7 @@ export class BlockHandler {
         // bounds checking if the block is within bounds
         if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-        if (this.getMap(packet.layer, y, x) !== packet.block) {
+        if (this.getMap(packet.layer, y, x) !== packet.block || !equal(packet.heap, undefined)) {
           didUpdate = true;
 
           // NOTE: if switching to reference types, make sure to copy value
