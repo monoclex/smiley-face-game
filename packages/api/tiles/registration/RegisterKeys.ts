@@ -1,5 +1,6 @@
 import Schema, { array, SchemaInput, string } from "computed-types";
 import { addParse } from "../../computed-types-wrapper";
+import { TileLayer } from "../../types";
 import { SourceAndIdStorage } from "../storage/SourceAndIdStorage";
 import { BlockInfo } from "../TileRegistration";
 import { GenericRegistration, registrations } from "./Registrations";
@@ -26,6 +27,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
       mgr.register({
         textureId: `${data.name}-${tile}-key`,
         storing,
+        preferredLayer: TileLayer.Action,
       })
     );
 
@@ -33,6 +35,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
       mgr.register({
         textureId: `${data.name}-${tile}-door`,
         storing,
+        preferredLayer: TileLayer.Foreground,
       })
     );
 
@@ -40,6 +43,7 @@ export function registerKeys(mgr: GenericRegistration, data: ZRegisterKeys) {
       mgr.register({
         textureId: `${data.name}-${tile}-gate`,
         storing,
+        preferredLayer: TileLayer.Foreground,
       })
     );
   }

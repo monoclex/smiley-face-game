@@ -1,5 +1,6 @@
 import Schema, { SchemaInput, string, array } from "computed-types";
 import { addParse } from "../../computed-types-wrapper";
+import { TileLayer } from "../../types";
 import { SourceAndIdStorage } from "../storage/SourceAndIdStorage";
 import { GenericRegistration, registrations } from "./Registrations";
 
@@ -36,8 +37,13 @@ export function registerSolid(mgr: GenericRegistration, { name, tiles, numerics 
     throw new Error("`numerics` isn't supported at this time, i haven't coded support for 'em yet");
 
   const storing = new SourceAndIdStorage(mgr.sourceId);
+  const preferredLayer = TileLayer.Foreground;
 
-  const blocks = mgr.registerMany(tiles, (tile) => ({ textureId: `${name}-${tile}`, storing }));
+  const blocks = mgr.registerMany(tiles, (tile) => ({
+    textureId: `${name}-${tile}`,
+    storing,
+    preferredLayer,
+  }));
   storing.connectMany(blocks);
 
   mgr.pack({

@@ -1,5 +1,6 @@
 import Schema, { SchemaInput } from "computed-types";
 import { addParse } from "../../computed-types-wrapper";
+import { TileLayer } from "../../types";
 import { SourceAndIdStorage } from "../storage/SourceAndIdStorage";
 import { GenericRegistration, registrations } from "./Registrations";
 
@@ -15,10 +16,11 @@ export type ZRegisterBoost = SchemaInput<typeof zRegisterBoost>;
 
 export function registerBoost(mgr: GenericRegistration) {
   const storing = new SourceAndIdStorage(mgr.sourceId);
+  const preferredLayer = TileLayer.Action;
 
   const blocks = mgr.registerMany(
     ["boost-up", "boost-right", "boost-down", "boost-left"],
-    (textureId) => ({ textureId, storing })
+    (textureId) => ({ textureId, storing, preferredLayer })
   );
 
   storing.connectMany(blocks);

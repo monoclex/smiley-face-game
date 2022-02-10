@@ -1,5 +1,6 @@
 import Schema, { SchemaInput } from "computed-types";
 import { addParse } from "../../computed-types-wrapper";
+import { TileLayer } from "../../types";
 import { EmptyStoring } from "../storage/EmptyStoring";
 import { GenericRegistration, registrations } from "./Registrations";
 
@@ -14,10 +15,16 @@ export const zRegisterEmpty = addParse(
 export type ZRegisterEmpty = SchemaInput<typeof zRegisterEmpty>;
 
 export function registerEmpty(mgr: GenericRegistration) {
-  const empty = mgr.register({
-    textureId: "empty",
-    storing: new EmptyStoring(),
-  });
+  const preferredLayer = TileLayer.Foreground; // buest guesst
+
+  const empty = mgr.register(
+    {
+      textureId: "empty",
+      storing: new EmptyStoring(),
+      preferredLayer,
+    },
+    "special-empty-block"
+  );
 
   mgr.pack({
     name: "empty",

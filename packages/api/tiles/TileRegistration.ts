@@ -1,8 +1,10 @@
+import { TileLayer } from "../types";
 import { BlockStoring } from "./storage/BlockStoring";
 
 export interface BlockConfig {
   textureId: string;
   storing: BlockStoring;
+  preferredLayer: TileLayer;
 }
 
 export interface PackConfig {
@@ -14,6 +16,7 @@ export interface GenericRegistration {
   readonly sourceId: number;
   registerMany<T>(data: T[], makeConfig: (data: T, index: number) => BlockConfig): BlockInfo[];
   register(config: BlockConfig): BlockInfo;
+  register(config: BlockConfig, isSpecialEmptyBlock: "special-empty-block"): BlockInfo;
   pack(config: PackConfig): PackInfo;
 }
 
@@ -21,6 +24,7 @@ export interface BlockInfo {
   id: number;
   textureId: string;
   storing: BlockStoring;
+  preferredLayer: TileLayer;
 }
 
 export type PackInfo = PackConfig;
@@ -50,13 +54,14 @@ export class NewTileRegistration implements GenericRegistration {
     return blocks;
   }
 
-  register(config: BlockConfig): BlockInfo {
-    const id = this._nextId++;
+  register(config: BlockConfig, specialEmptyBlock?: "special-empty-block"): BlockInfo {
+    const id = specialEmptyBlock === "special-empty-block" ? 0 : this._nextId++;
 
     const blockInfo: BlockInfo = {
       id: id,
       textureId: config.textureId,
       storing: config.storing,
+      preferredLayer: config.preferredLayer,
     };
 
     this._idToBlock.set(id, blockInfo);
