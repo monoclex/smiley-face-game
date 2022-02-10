@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { styled } from "@mui/material";
+import { BlockInfo } from "@smiley-face-game/api/tiles/TileRegistration";
 
 const LineheightlessGrid = styled(Grid)({
   // the line height on grid item that contains the image causes the size of the div to be 32x35.(...), which is a result of the
@@ -18,13 +19,23 @@ const BlockPreview = styled("img")({
   "&:hover": { marginBottom: "8px" },
 });
 
-const Block = (props) => {
-  const [imageSource, setImageSource] = useState(null);
+interface BlockProps {
+  slot: string; // ={key}
+  slotId: number; // ={i}
+  block: BlockInfo; // ={slots[i].pack.blocks[slots[i].entry]}
+  nextState: () => void; // ={() => selectSlot(i)}
+  onClick: () => void; // ={() => selectSlot(i)}
+  selected: boolean; // ={slots[i].pack.blocks[slots[i].entry] === selectedBlock}
+  loader: (id: number) => Promise<HTMLImageElement>; // ={(id) => blockBar.load(id)}
+}
+
+const Block = (props: BlockProps) => {
+  const [imageSource, setImageSource] = useState<string | null>(null);
 
   useEffect(() => {
     if (!props.loader) return;
 
-    props.loader(props.block).then((image) => {
+    props.loader(props.block.id).then((image) => {
       setImageSource(image.src);
     });
   }, [props.loader, props.block]);

@@ -1,31 +1,18 @@
 import { BaseImageResource } from "pixi.js";
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { blockBarGlobal } from "../state";
+import { selectedBlockState } from "../state";
 import textures from "./textures";
 import findTexture from "./atlasFindFrame";
 
 export default class ClientBlockBar {
-  constructor(private readonly tileJson: TileRegistration) {
-    blockBarGlobal.modify({
-      slots: {
-        ...blockBarGlobal.state.slots,
-        [0]: tileJson.id("empty"),
-        [1]: tileJson.id("basic-white"),
-        [2]: tileJson.id("gun"),
-        [3]: tileJson.id("arrow-up"),
-        [4]: tileJson.id("prismarine-basic"),
-        [5]: tileJson.id("gemstone-red"),
-        [6]: tileJson.id("tshell-white"),
-        [7]: tileJson.id("pyramid-white"),
-        [8]: tileJson.id("choc-l0"),
-        [9]: tileJson.id("boost-up"),
-        [10]: tileJson.id("keys-red-key"),
-        [11]: tileJson.id("zoost-up"),
-      },
-    });
-  }
+  cache: Map<number, HTMLImageElement> = new Map();
+
+  constructor(private readonly tileJson: TileRegistration) {}
 
   async load(id: number): Promise<HTMLImageElement> {
+    const cacheImage = this.cache.get(id);
+    if (cacheImage) return cacheImage;
+
     const textureName = this.tileJson.texture(id);
     const textureFrame = findTexture(textureName);
 
@@ -57,10 +44,12 @@ export default class ClientBlockBar {
 
     const tileTexture = new Image();
     tileTexture.src = url;
+
+    this.cache.set(id, tileTexture);
     return tileTexture;
   }
 
   get selectedBlock(): number {
-    return blockBarGlobal.state.slots[blockBarGlobal.state.selected];
+    return selectedBlockState.it?.id ?? 0;
   }
 }

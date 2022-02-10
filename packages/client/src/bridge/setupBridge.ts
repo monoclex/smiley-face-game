@@ -1,7 +1,7 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import textures from "./textures";
-import state from "./state";
+import state, { waitPromise } from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./rendering/GameRenderer";
@@ -11,6 +11,7 @@ import MouseInteraction from "./MouseInteraction";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
 import { gameGlobal } from "../state";
+import PromiseCompletionSource from "../PromiseCompletionSource";
 
 interface Bridge {
   game: Game;
@@ -24,7 +25,11 @@ interface Bridge {
 // but in reality only a few things need to happen in a specific order, and it's
 // generally more of a "after this, make sure to do that" sorta deal.
 
-export default async function setupBridge(auth: Authentication, joinRequest: ZJoinRequest, renderer: Renderer): Promise<Bridge> {
+export default async function setupBridge(
+  auth: Authentication,
+  joinRequest: ZJoinRequest,
+  renderer: Renderer
+): Promise<Bridge> {
   const connection = await auth.connect(joinRequest);
 
   // TODO: the block bar should primarily resisde within the react component,
@@ -92,7 +97,11 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
 
   const keyboard = new Keyboard(self, connection);
 
-  const mouseInteraction = new MouseInteraction(gameRenderer.root, new AuthoredBlockPlacer(self, connection, game, blockBar), game);
+  const mouseInteraction = new MouseInteraction(
+    gameRenderer.root,
+    new AuthoredBlockPlacer(self, connection, game, blockBar),
+    game
+  );
   gameRenderer.events.on("draw", () => mouseInteraction.draw());
   gameRenderer.root.addChild(mouseInteraction.selection);
 
@@ -102,6 +111,10 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
       chat.handleEvent(message);
       playerList.handleEvent(message);
     }
+
+    // connection died, cleanup
+    waitPromise.it = new PromiseCompletionSource();
+    state.wait = waitPromise.it.handle;
   })();
 
   loopRequestAnimationFrame((elapsed) => {
@@ -112,6 +125,15 @@ export default async function setupBridge(auth: Authentication, joinRequest: ZJo
 
   state.gameRenderer = gameRenderer;
   state.keyboard = keyboard;
+
+  waitPromise.it.resolve({
+    game,
+    connection,
+    gameRenderer,
+    keyboard,
+    blockBar,
+    self,
+  });
 
   return {
     game,

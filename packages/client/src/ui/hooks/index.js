@@ -7,3 +7,4 @@ export * from "./useToken";
 export * from "./useLobby";
 export * from "./useRefresher";
 export * from "./computeAuthStatus";
+export * from "./useGameState";

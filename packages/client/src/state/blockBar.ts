@@ -1,36 +1,8 @@
-import { atom } from "recoil";
-import type { ZBlock } from "@smiley-face-game/api/types";
-import { SelectedSlotId } from "./Slot";
-import SharedGlobal from "./SharedGlobal";
+import type { BlockInfo } from "@smiley-face-game/api/tiles/TileRegistration";
 
-interface BlockBar {
-  selected: SelectedSlotId;
-  slots: { [key in SelectedSlotId]: ZBlock };
-}
+export type SelectedBlock = BlockInfo | undefined;
 
-const defaultBlockbarState: BlockBar = {
-  selected: 1,
-  slots: {
-    [0]: 0,
-    [1]: 0,
-    [2]: 0,
-    [3]: 0,
-    [4]: 0,
-    [5]: 0,
-    [6]: 0,
-    [7]: 0,
-    [8]: 0,
-    [9]: 0,
-    [10]: 0,
-    [11]: 0,
-    [12]: 0,
-  },
-};
-
-export const blockBarGlobal = new SharedGlobal<BlockBar>(defaultBlockbarState);
-
-export const blockBarState = atom<BlockBar>({
-  key: "blockBarState",
-  default: defaultBlockbarState,
-  effects_UNSTABLE: [blockBarGlobal.initialize],
-});
+/**
+ * read-only global state
+ */
+export const selectedBlockState: { it: SelectedBlock } = { it: undefined };

@@ -6,7 +6,7 @@ import textures from "./textures";
 import { Game } from "@smiley-face-game/api";
 import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
-import { blockBarGlobal } from "../state";
+import { selectedBlockState } from "../state";
 
 enum MouseState {
   None,
@@ -24,7 +24,11 @@ export default class MouseInteraction {
   private lastPlacePos: Vector | undefined;
   private layerSample: TileLayer | undefined;
 
-  constructor(private readonly root: Container, private readonly authoredBlockPlacer: AuthoredBlockPlacer, private readonly game: Game) {
+  constructor(
+    private readonly root: Container,
+    private readonly authoredBlockPlacer: AuthoredBlockPlacer,
+    private readonly game: Game
+  ) {
     document.addEventListener("mousemove", (event) => {
       this.mousePos = new Vector(event.clientX, event.clientY);
     });
@@ -203,8 +207,8 @@ export default class MouseInteraction {
       return;
     }
 
-    const { slots, selected } = blockBarGlobal.state;
-    const erase = this.state === MouseState.Erase || slots[selected] === 0;
+    const selected = selectedBlockState.it;
+    const erase = this.state === MouseState.Erase || selected?.id === 0;
     const action: "place" | "erase" = erase ? "erase" : "place";
 
     // TODO: figure out layer to erase on

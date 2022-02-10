@@ -95,6 +95,12 @@ export default class TileRegistration {
     return this.registerer._packs;
   }
 
+  get emptyPack(): PackInfo {
+    const empty = this.packs.find(({ name }) => name === "empty")!;
+    if (!empty) throw new Error("Couldnt find epmty pack");
+    return empty;
+  }
+
   for(id: number | string): BlockInfo {
     if (typeof id === "number") return this.forId(id);
     else return this.forTexture(id);

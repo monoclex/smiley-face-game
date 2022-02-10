@@ -1,5 +1,5 @@
 //@ts-check
-import React from "react";
+import React, { Suspense } from "react";
 import { Grid, styled } from "@mui/material";
 import Chat from "./chat/Chat";
 import BlockBar from "./blockbar/BlockBar";
@@ -58,7 +58,9 @@ export default function GameUI({ children: gameCanvas }) {
                 <MobileControls />
               </Grid>
               <Grid container item xs={6} justifyContent="flex-end">
-                <BlockBar />
+                <Suspense fallback={null}>
+                  <BlockBar />
+                </Suspense>
               </Grid>
               <Grid container item xs={3} alignItems="flex-end">
                 <WorldSettingsButton />
