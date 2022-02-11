@@ -18,7 +18,6 @@ import { Navigate, useNavigate } from "react-router";
 import { useAuth, usePlayer, useSetToken, useLobby, useRefresher } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
-import useTeardown from "../hooks/useTeardown";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
@@ -92,7 +91,6 @@ function useLogout() {
 }
 
 const LobbyPage = () => {
-  console.log("hey we're at the lobby");
   const navigate = useNavigate();
   const logout = useLogout();
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
@@ -130,8 +128,8 @@ const LobbyPage = () => {
         open={createRoomDialogOpen}
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
-          navigate(`/games/loading`, { state: { type: "create", name, width: parseInt(width), height: parseInt(height) } });
           setCreateRoomDialogOpen(false);
+          navigate(`/games/loading`, { state: { type: "create", name, width: parseInt(width), height: parseInt(height) } });
         }}
       />
     </>
@@ -153,20 +151,12 @@ function HandleError({ error }) {
 }
 
 const LobbyPageWrapper = () => {
-  const [callback, setCallback] = useState(() => () => {
-    // we give a factory to an empty callback
-    // this is so we infer the type of `callback` correctly
-  });
-
-  // run `callback` on component teardown
-  useTeardown(() => callback, [callback]);
-
   return (
-    <Suspense fallback={<FullscreenBackdropLoading />}>
-      <ErrorBoundary callback={(recover) => setCallback(() => recover)} render={HandleError}>
+    <ErrorBoundary render={HandleError}>
+      <Suspense fallback={<FullscreenBackdropLoading />}>
         <LobbyPage />
-      </ErrorBoundary>
-    </Suspense>
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

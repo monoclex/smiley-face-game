@@ -1,11 +1,12 @@
 //@ts-check
-import React from "react";
+import React, { Suspense } from "react";
 import { Grid, styled } from "@mui/material";
 import Chat from "./chat/Chat";
 import BlockBar from "./blockbar/BlockBar";
 import PlayerList from "./playerlist/PlayerList";
 import MobileControls from "./MobileControls";
 import WorldSettingsButton from "./WorldSettingsButton";
+import Sign from "./sign/Sign";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -47,6 +48,7 @@ export default function GameUI({ children: gameCanvas }) {
 
   return (
     <>
+      <Sign />
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
           <PlayWindow item xs>
@@ -58,7 +60,9 @@ export default function GameUI({ children: gameCanvas }) {
                 <MobileControls />
               </Grid>
               <Grid container item xs={6} justifyContent="flex-end">
-                <BlockBar />
+                <Suspense fallback={null}>
+                  <BlockBar />
+                </Suspense>
               </Grid>
               <Grid container item xs={3} alignItems="flex-end">
                 <WorldSettingsButton />
@@ -68,7 +72,9 @@ export default function GameUI({ children: gameCanvas }) {
         </Grid>
         <Grid item xs={2} container direction="column" alignItems="stretch" justifyContent="">
           <BlackFilled item xs={2}>
-            <PlayerList />
+            <Suspense fallback={null}>
+              <PlayerList />
+            </Suspense>
           </BlackFilled>
           <BlackFilledScrollDiv item xs>
             <Chat />

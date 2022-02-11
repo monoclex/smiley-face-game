@@ -1,0 +1,139 @@
+import { TileLayer, ZHeap, ZHeaps, ZWorldBlocks } from "../types";
+import { Vector } from "../physics/Vector";
+import { bresenhamsLine } from "../misc";
+import TileRegistration from "../tiles/TileRegistration";
+import { createNanoEvents } from "../nanoevents";
+import { WorldLayer } from "./WorldLayer";
+import equal from "fast-deep-equal";
+
+interface BlockEvents {
+  load(blocks: ZWorldBlocks, heaps: ZHeaps): void;
+  block(layer: TileLayer, position: Vector, blockId: number, playerId: number): void;
+}
+
+export class Blocks {
+  state: WorldLayer<number> = new WorldLayer(0);
+  heap: WorldLayer<ZHeap | 0> = new WorldLayer(0);
+
+  readonly events = createNanoEvents<BlockEvents>();
+
+  constructor(
+    readonly tiles: TileRegistration,
+    blocks: ZWorldBlocks,
+    heaps: ZHeaps,
+    readonly size: Vector
+  ) {
+    this.load(blocks, heaps);
+  }
+
+  load(blocks: ZWorldBlocks, heaps: ZHeaps) {
+    this.state.state = blocks;
+    this.heap.state = heaps;
+    this.events.emit("load", this.state.state, this.heap.state);
+  }
+
+  clear() {
+    const state = Blocks.emptyWorld(this.size);
+    Blocks.placeBorder(state, this.tiles, this.size);
+    this.load(state, []);
+  }
+
+  placeLine(
+    layer: TileLayer,
+    start: Vector,
+    end: Vector,
+    blockId: number,
+    playerId: number,
+    heap?: ZHeap | null | undefined
+  ): boolean {
+    let didModify = false;
+
+    bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
+      const placed = this.placeSingle(layer, { x, y }, blockId, playerId, heap);
+      didModify ||= placed;
+    });
+
+    return didModify;
+  }
+
+  placeSingle(
+    layer: TileLayer,
+    position: Vector,
+    blockId: number,
+    playerId: number,
+    heap?: ZHeap | null | undefined
+  ): boolean {
+    if (position.x < 0 || position.y < 0) return false;
+    if (position.x >= this.size.x || position.y >= this.size.y) return false;
+
+    const value = this.state.get(layer, position.x, position.y);
+    const existingHeap = this.heap.get(layer, position.x, position.y);
+    if (value === blockId && equal(heap ?? 0, existingHeap)) return false;
+
+    this.state.set(layer, position.x, position.y, blockId);
+    if (heap !== null && heap !== undefined) {
+      this.heap.set(layer, position.x, position.y, heap);
+    }
+
+    this.events.emit("block", layer, position, blockId, playerId);
+    return true;
+  }
+
+  blockAt(x: number, y: number, tileLayer: TileLayer): number {
+    return this.state.get(tileLayer, x, y);
+  }
+
+  layerOfTopmostBlock(x: number, y: number) {
+    if (this.state.get(TileLayer.Decoration, x, y) !== 0) return TileLayer.Decoration;
+    for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
+      if (this.state.get(layer, x, y) !== 0) return layer;
+    }
+    return TileLayer.Foreground;
+  }
+
+  private static emptyWorld(size: Vector): number[][][] {
+    const state = [];
+
+    for (let idxLayer = TileLayer.Foreground; idxLayer <= TileLayer.Decoration; idxLayer++) {
+      const layer = Blocks.makeLayer(size, 0);
+      state[idxLayer] = layer;
+    }
+
+    return state;
+  }
+
+  private static placeBorder(state: number[][][], tileJson: TileRegistration, size: Vector) {
+    const layer = state[TileLayer.Foreground];
+    const block = tileJson.id("basic-white");
+
+    const top = layer[0];
+    const bottom = layer[size.y - 1];
+
+    for (let x = 0; x < size.x; x++) {
+      top[x] = bottom[x] = block;
+    }
+
+    const rightEndOfWorld = size.x - 1;
+    for (let idxY = 1; idxY < size.y - 2; idxY++) {
+      const y = layer[idxY];
+      y[0] = y[rightEndOfWorld] = block;
+    }
+  }
+
+  static makeLayer<T = 0>(size: Vector, value: T): T[][] {
+    const layer = [];
+    for (let idxY = 0; idxY < size.y; idxY++) {
+      const y = Blocks.makeYs(size, value);
+      layer[idxY] = y;
+    }
+    return layer;
+  }
+
+  static makeYs<T>(size: Vector, value: T): T[] {
+    const y = [];
+    for (let idxX = 0; idxX < size.x; idxX++) {
+      y[idxX] = value;
+    }
+    return y;
+  }
+}

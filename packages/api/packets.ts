@@ -19,6 +19,8 @@ import {
   zAngle,
   zMessage,
   zTileJsonFile,
+  zHeap,
+  zHeaps,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -87,6 +89,7 @@ export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =
     position: blockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   });
 export type ZBlockSingle = SchemaInput<ReturnType<typeof zBlockSingle>>;
 
@@ -97,6 +100,7 @@ export const zBlockLine = addParse(
     end: zBoundlessBlockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   })
 );
 export type ZBlockLine = SchemaInput<typeof zBlockLine>;
@@ -123,6 +127,7 @@ export const zsBlockLine = addParse(
     end: zBoundlessBlockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   })
 );
 export type ZSBlockLine = SchemaInput<typeof zsBlockLine>;
@@ -133,6 +138,7 @@ export const zsWorldAction = addParse(
     action: zWorldActionKindReply,
   })
 );
+export type ZSWorldAction = SchemaInput<typeof zsWorldAction>;
 
 export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =>
   Schema.merge(zs, {
@@ -140,6 +146,7 @@ export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) 
     position: blockPosition,
     layer: zTileLayer,
     block: zBlock,
+    heap: zHeap.optional(),
   });
 export type ZSBlockSingle = SchemaInput<ReturnType<typeof zsBlockSingle>>;
 
@@ -149,12 +156,14 @@ export const zsRoleUpdate = addParse(
     newRole: zRole,
   })
 );
+export type ZSRoleUpdate = SchemaInput<typeof zsRoleUpdate>;
 
 export const zsPlayerLeave = addParse(
   Schema.merge(zs, {
     packetId: "SERVER_PLAYER_LEAVE" as const,
   })
 );
+export type ZSPlayerLeave = SchemaInput<typeof zsPlayerLeave>;
 
 export const zsPlayerJoin = addParse(
   Schema.merge(zs, {
@@ -174,6 +183,7 @@ export const zsPickupGun = addParse(
     packetId: "SERVER_PICKUP_GUN" as const,
   })
 );
+export type ZSPickupGun = SchemaInput<typeof zsPickupGun>;
 
 export const zsMovement = addParse(
   Schema.merge(zs, {
@@ -183,6 +193,7 @@ export const zsMovement = addParse(
     inputs: zInputs,
   })
 );
+export type ZSMovement = SchemaInput<typeof zsMovement>;
 
 export const zsInit = addParse(
   Schema.merge(zs, {
@@ -192,6 +203,7 @@ export const zsInit = addParse(
     size: zSize,
     spawnPosition: zPlayerPosition,
     blocks: zWorldBlocks,
+    heaps: zHeaps,
     username: zUsername,
     isGuest: boolean,
     tiles: zTileJsonFile,
@@ -206,6 +218,7 @@ export const zsFireBullet = addParse(
     angle: zAngle,
   })
 );
+export type ZSFireBullet = SchemaInput<typeof zsFireBullet>;
 
 export const zsEquipGun = addParse(
   Schema.merge(zs, {
@@ -213,6 +226,7 @@ export const zsEquipGun = addParse(
     equipped: boolean,
   })
 );
+export type ZSEquipGun = SchemaInput<typeof zsEquipGun>;
 
 export const zsChat = addParse(
   Schema.merge(zs, {
@@ -220,6 +234,7 @@ export const zsChat = addParse(
     message: zMessage,
   })
 );
+export type ZSChat = SchemaInput<typeof zsChat>;
 
 export const zsEvent = addParse(
   Schema.merge(zs, {
@@ -256,7 +271,16 @@ export const zPacket = (width: number, height: number) => {
 
   return addParse(
     Schema.either(
-      Schema.either(zPickupGun, zMovement, zFireBullet, zEquipGun, zChat, zWorldAction, zPlayerListAction, blockSingle),
+      Schema.either(
+        zPickupGun,
+        zMovement,
+        zFireBullet,
+        zEquipGun,
+        zChat,
+        zWorldAction,
+        zPlayerListAction,
+        blockSingle
+      ),
       Schema.either(zBlockLine, zKeyTouch)
     )
   );
@@ -290,7 +314,16 @@ export const zsPacket = (width: number, height: number) => {
 
   return addParse(
     Schema.either(
-      Schema.either(zsChat, zsEquipGun, zsFireBullet, zsInit, zsMovement, zsPickupGun, zsPlayerJoin, zsPlayerLeave),
+      Schema.either(
+        zsChat,
+        zsEquipGun,
+        zsFireBullet,
+        zsInit,
+        zsMovement,
+        zsPickupGun,
+        zsPlayerJoin,
+        zsPlayerLeave
+      ),
       Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent, zsKeyTouch)
     )
   );

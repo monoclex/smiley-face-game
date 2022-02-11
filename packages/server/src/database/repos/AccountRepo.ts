@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Account from "../../database/models/Account";
 import World from "../../database/models/World";
 import AccountLike from "../../database/modelishs/AccountLike";

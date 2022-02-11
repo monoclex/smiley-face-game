@@ -1,53 +1,42 @@
 // TODO: clean this file up later
 
 import { bresenhamsLine } from "@smiley-face-game/api/misc";
-import type { ZBlockSingle, ZSBlockSingle, ZBlockLine, ZSBlockLine } from "@smiley-face-game/api/packets";
+import type {
+  ZBlockSingle,
+  ZSBlockSingle,
+  ZBlockLine,
+  ZSBlockLine,
+} from "@smiley-face-game/api/packets";
 import Connection from "../../worlds/Connection";
-import type { ZWorldBlocks } from "@smiley-face-game/api/types";
+import { ZHeap, ZHeaps, ZWorldBlocks } from "@smiley-face-game/api/types";
+import equal from "fast-deep-equal";
+import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
 
 export class BlockHandler {
-  constructor(public map: ZWorldBlocks, readonly width: number, readonly height: number) {
-    // TODO: make the client able to handle a map where some things may be empty
-    for (let layerId = 0; layerId <= 2; layerId++) {
-      const layerMap = this.map[layerId] ?? (this.map[layerId] = []);
+  ids: WorldLayer<number>;
+  heap: WorldLayer<ZHeap | 0>;
 
-      for (let y = 0; y < this.height; y++) {
-        const yMap = layerMap[y] ?? (layerMap[y] = []);
+  constructor(map: ZWorldBlocks, heaps: ZHeaps, readonly width: number, readonly height: number) {
+    this.ids = new WorldLayer(0);
+    this.heap = new WorldLayer(0);
 
-        for (let x = 0; x < this.width; x++) {
-          yMap[x] ?? (yMap[x] = 0);
-        }
-      }
-    }
+    this.ids.state = map;
+    this.heap.state = heaps;
   }
 
   getMap(layer: number, y: number, x: number): number {
-    let wLayer = this.map[layer];
-    if (wLayer === undefined) {
-      this.map[layer] = wLayer = [];
-    }
-
-    let wY = wLayer[y];
-    if (wY === undefined) {
-      this.map[layer][y] = wY = [];
-    }
-
-    const wX = wY[x];
-    if (wX === undefined) {
-      wY[x] = 0;
-      return 0;
-    }
-
-    return wX;
+    return this.ids.get(layer, x, y);
   }
 
   handleSingle(packet: ZBlockSingle, sender: Connection): ZSBlockSingle | void {
     const target = this.getMap(packet.layer, packet.position.y, packet.position.x);
+    const heap = this.heap.get(packet.layer, packet.position.x, packet.position.y);
 
     // packet is known good, only do updating work if necessary
-    if (packet.block !== target) {
+    if (packet.block !== target || !equal(packet.heap ?? 0, heap)) {
       // NOTE: if switching to reference types, make sure to copy the value
-      this.map[packet.layer][packet.position.y][packet.position.x] = packet.block;
+      this.ids.set(packet.layer, packet.position.x, packet.position.y, packet.block);
+      this.heap.set(packet.layer, packet.position.x, packet.position.y, packet.heap ?? 0);
 
       // only if the packet updated any blocks do we want to queue it
       return {
@@ -66,18 +55,27 @@ export class BlockHandler {
     let didUpdate = false;
 
     // packet is known good, update world
-    bresenhamsLine(packet.start.x, packet.start.y, packet.end.x, packet.end.y, (x: number, y: number) => {
-      // TODO: don't do bounds checking (see exploit notice in bresenhamsLine function)
-      // bounds checking if the block is within bounds
-      if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
+    bresenhamsLine(
+      packet.start.x,
+      packet.start.y,
+      packet.end.x,
+      packet.end.y,
+      (x: number, y: number) => {
+        // TODO: don't do bounds checking (see exploit notice in bresenhamsLine function)
+        // bounds checking if the block is within bounds
+        if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-      if (this.getMap(packet.layer, y, x) !== packet.block) {
-        didUpdate = true;
+        const block = this.getMap(packet.layer, y, x);
+        const heap = this.heap.get(packet.layer, x, y);
+        if (block !== packet.block || !equal(packet.heap ?? 0, heap)) {
+          didUpdate = true;
 
-        // NOTE: if switching to reference types, make sure to copy value
-        this.map[packet.layer][y][x] = packet.block;
+          // NOTE: if switching to reference types, make sure to copy value
+          this.ids.set(packet.layer, x, y, packet.block);
+          this.heap.set(packet.layer, x, y, packet.heap ?? 0);
+        }
       }
-    });
+    );
 
     // only if the packet updated any blocks do we want to queue it
     if (didUpdate) {

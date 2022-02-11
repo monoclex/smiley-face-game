@@ -5,6 +5,7 @@ const { DefinePlugin } = require("webpack");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const atlas = require("rust-atlas-generator-webpack-plugin");
+const fs = require("fs");
 
 /**
  * @param {{ serverMode: string }} env
@@ -49,7 +50,21 @@ function config({ serverMode }, { mode }) {
         targetDir: path.resolve(__dirname, "src", "assets"),
         width: 32,
         height: 32,
+        emitTiles: true,
       }),
+      {
+        /** @param {import("webpack").Compiler} compiler */
+        apply(compiler) {
+          compiler.hooks.beforeRun.tap("AfterAtlasPlugin", () => {
+            const atlasJsonPath = path.resolve(__dirname, "src", "assets", "atlas_atlas.json");
+            const atlasJson = JSON.parse(fs.readFileSync(atlasJsonPath, { encoding: "utf-8" }));
+            fs.writeFileSync(
+              path.resolve(__dirname, "src", "assets", "atlas.d.ts"),
+              `declare const atlas: ${JSON.stringify(atlasJson)};\nexport default atlas;`
+            );
+          });
+        },
+      },
       new DefinePlugin({
         "import.meta.env.SERVER_MODE": JSON.stringify(serverMode),
       }),

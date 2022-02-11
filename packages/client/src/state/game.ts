@@ -1,6 +1,13 @@
+import { CheapPlayer } from "@smiley-face-game/api/physics/Player";
 import { atom, selector } from "recoil";
-import { GameState } from "../game/StateSystem";
+import Message from "./Message";
 import SharedGlobal from "./SharedGlobal";
+
+interface GameState {
+  self: CheapPlayer;
+  players: CheapPlayer[];
+  messages: Message[];
+}
 
 const defaultGameState: GameState = {
   // TODO: don't have hardcoded weird defaults?

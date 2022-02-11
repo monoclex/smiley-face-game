@@ -6,14 +6,16 @@ import WebSocket from "ws";
 import Behaviour from "../../worlds/behaviour/Behavior";
 import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
 import { useDev } from "@smiley-face-game/api";
-import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
-import tileJson from "@smiley-face-game/api/tiles/tiles.json";
+import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import tileJson from "@smiley-face-game/api/tiles/tiles";
 import { zTileJsonFile } from "@smiley-face-game/api/types";
 const tileJsonFile = zTileJsonFile.parse(tileJson);
 useDev();
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
-    throw new Error("Action regarding connection connected to this world does not have a playerId assigned to it.");
+    throw new Error(
+      "Action regarding connection connected to this world does not have a playerId assigned to it."
+    );
   }
 }
 
@@ -45,12 +47,13 @@ export default class RoomLogic {
   constructor(
     onEmpty: PromiseCompletionSource<void>,
     blocks: ZWorldBlocks,
+    heaps: ZHeaps,
     details: ZWorldDetails,
     setStopping: () => void,
     id: string,
     roomBehaviour: Behaviour
   ) {
-    this.blockHandler = new BlockHandler(blocks, details.width, details.height);
+    this.blockHandler = new BlockHandler(blocks, heaps, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
@@ -98,7 +101,8 @@ export default class RoomLogic {
       role: connection.role,
       spawnPosition: connection.lastPosition,
       size: { width: this.#details.width, height: this.#details.height },
-      blocks: this.blockHandler.map,
+      blocks: this.blockHandler.ids.state,
+      heaps: this.blockHandler.heap.state,
       username: connection.username,
       isGuest: connection.isGuest,
       tiles: tileJsonFile,

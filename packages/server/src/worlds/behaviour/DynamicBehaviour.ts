@@ -3,7 +3,7 @@ import Behaviour from "./Behavior";
 import generateWorld from "../generateWorld";
 import Connection from "../../worlds/Connection";
 import type { ZJoinRequest } from "@smiley-face-game/api/ws-api";
-import type { ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
 import { zJoinRequest } from "@smiley-face-game/api/ws-api";
 import TileJson from "../TileJson";
 
@@ -14,7 +14,10 @@ export default class DynamicBehaviour implements Behaviour {
 
   readonly id: string;
 
-  constructor(joinRequest: Exclude<Extract<ZJoinRequest, { type: "create" }>, { id: string }>, id: string) {
+  constructor(
+    joinRequest: Exclude<Extract<ZJoinRequest, { type: "create" }>, { id: string }>,
+    id: string
+  ) {
     ensureValidates(zJoinRequest, joinRequest);
 
     this.id = id;
@@ -46,8 +49,8 @@ export default class DynamicBehaviour implements Behaviour {
     return Promise.resolve();
   }
 
-  loadBlocks(): Promise<ZWorldBlocks> {
-    return Promise.resolve(JSON.parse(generateWorld(this.#width, this.#height, TileJson)));
+  loadBlocks(): Promise<[ZWorldBlocks, ZHeaps]> {
+    return Promise.resolve([JSON.parse(generateWorld(this.#width, this.#height, TileJson)), []]);
   }
 
   saveBlocks(): Promise<void> {

@@ -50,19 +50,20 @@ export default function Chat() {
   const [isActive, setActive] = useRecoilState(chatOpenState);
 
   const closeChat = () => {
-    console.log("chat closed");
-    reset();
-    inputRef.current.blur();
     setActive(false);
+    reset();
+    if (inputRef.current) inputRef.current.blur();
   };
 
-  const onKeyDown = ({ keyCode }) => {
+  const onKeyDown = (e) => {
+    const { keyCode } = e;
     // enter key
     if (keyCode === 13 && !isActive) {
       setActive(true);
+      e.preventDefault();
     }
     // escape key
-    else if (keyCode === 27 && !isActive) {
+    else if (keyCode === 27 && isActive) {
       closeChat();
     }
   };
@@ -70,7 +71,7 @@ export default function Chat() {
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [onKeyDown]);
 
   useEffect(() => {
     if (isActive) {
@@ -82,7 +83,7 @@ export default function Chat() {
 
   const onSubmit = (values) => {
     if (values.content !== "") {
-      state.game.connection.chat(values.content);
+      state.connection.chat(values.content);
     }
 
     closeChat();
@@ -91,7 +92,14 @@ export default function Chat() {
   return (
     <Container container direction="column" justifyContent="flex-end" alignItems="flex-start">
       <ChatListGrid item>
-        <ChatList autoHeight autoHeightMin={0} autoHeightMax={400} autoHide autoHideTimeout={1000} autoHideDuration={200}>
+        <ChatList
+          autoHeight
+          autoHeightMin={0}
+          autoHeightMax={400}
+          autoHide
+          autoHideTimeout={1000}
+          autoHideDuration={200}
+        >
           {messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
@@ -101,17 +109,22 @@ export default function Chat() {
       {isActive && (
         <ChatField item>
           <div>
-            <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              autoComplete="off"
+              onSubmit={async (e) => {
+                return await handleSubmit(onSubmit)(e);
+              }}
+            >
               <ChatInput
                 disableUnderline
                 fullWidth
                 id="content"
+                {...register("content")}
                 name="content"
                 placeholder="Press Enter to chat"
                 onFocus={() => setActive(true)}
                 onBlur={closeChat}
-                {...register("content")}
-                inputRef={(ref) => (inputRef.current = ref)}
+                inputRef={inputRef}
               />
             </form>
           </div>

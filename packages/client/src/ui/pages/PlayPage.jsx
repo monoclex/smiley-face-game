@@ -12,15 +12,20 @@ import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 
+let isPlaying = false;
+
 // TODO: this is weird as a component, but it WORKS and im TIRED of touching this code
 function ConnectToGame({ gameElement, size: { width, height } }) {
+  isPlaying = true;
+  useTeardown(() => (isPlaying = false), [], "playing the game");
+
   const navigate = useNavigate();
   const location = useLocation();
   const match = useMatch("/games/:id");
 
   const auth = useAuth();
 
-  const { game, cleanup } = useSuspenseForPromise("gaming", async () => {
+  const { cleanup, renderer } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: gameElement.width,
       height: gameElement.height,
@@ -30,21 +35,30 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { game, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer, (game) => {
-      if (game.running) {
-        window.history.back();
-      }
-    });
+    const { game, connection, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer);
 
-    navigate(`/games/${game.connection.init.worldId}`, { replace: true });
+    // if we navigated away while loading, close the connection
+    // it's possible that we could navigate back, and then navigate back to here
+    // while we are still loading the other connection, but unlikely, so i won't deal with it
+    // actually i think the `useSuspenseForPromise` would prevent that. or nah, on teardown
+    // the cachce entry gets deleted so nvm
+    if (!isPlaying) connection.close();
+    else navigate(`/games/${connection.init.worldId}`, { replace: true });
 
-    return { game, cleanup };
+    return { game, cleanup, renderer };
   });
 
   // run `cleanup` on component removal
-  useEffect(() => cleanup, [cleanup]);
+  useTeardown(
+    () => {
+      renderer.destroy(false);
+      cleanup();
+    },
+    [],
+    "game cleanup"
+  );
 
-  game.renderer.resize(width, height);
+  renderer.resize(width, height);
 
   return null;
 }
@@ -67,7 +81,12 @@ function GameArea() {
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const current = divRef.current;
+    // forcibly coerce a known only `undefined` to `typeof current`
+    /** @type {any} */
+    const expr = divRef.current;
+    /** @type {HTMLDivElement | undefined} */
+    const current = expr;
+
     if (!current) throw new Error("cannot be undef");
 
     current.appendChild(gameElement);
@@ -101,16 +120,8 @@ function GameArea() {
 }
 
 export default function PlayPage() {
-  const [callback, setCallback] = useState(() => () => {
-    // we give a factory to an empty callback
-    // this is so we infer the type of `callback` correctly
-  });
-
-  // run `callback` on component teardown
-  useTeardown(() => callback, [callback]);
-
   return (
-    <ErrorBoundary callback={(recover) => setCallback(() => recover)}>
+    <ErrorBoundary>
       <GameUI>
         <GameArea />
       </GameUI>

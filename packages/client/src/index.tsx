@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./ui/App";
-import { rewriteHost, useDev } from "@smiley-face-game/api/endpoints";
+import { useDev } from "@smiley-face-game/api";
+import { rewriteHost } from "@smiley-face-game/api/net/endpoints";
 import { serverMode } from "./isProduction";
 import { routesRewritten } from "./rewritten";
 import whyDidYouRender from "@welldone-software/why-did-you-render";
@@ -23,7 +24,12 @@ if (serverMode === "localhost") {
 
 routesRewritten.resolve(undefined);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById("root")
+);
 
 // enable HMR (hot module reloading)
 if (import.meta.webpackHot) {

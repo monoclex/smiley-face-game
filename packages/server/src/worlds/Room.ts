@@ -4,7 +4,7 @@ import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
-import type { ZWorldBlocks } from "@smiley-face-game/api/types";
+import type { ZHeaps, ZWorldBlocks } from "@smiley-face-game/api/types";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
 
@@ -56,15 +56,14 @@ export default class Room {
   private async run() {
     this.#status = "starting";
 
-    let blocks;
+    let blocks, heap;
     let details;
 
     try {
       const blocksPromise = this.getBlocks();
       const detailsPromise = this.#behaviour.loadDetails();
-      const [blocksResult, detailsResult] = await Promise.all([blocksPromise, detailsPromise]);
-      blocks = blocksResult;
-      details = detailsResult;
+      [blocks, heap] = await blocksPromise;
+      details = await detailsPromise;
     } catch (error) {
       console.error("Couldn't load saved world '", this.id, "': ", error);
       this.#status = "stopping";
@@ -81,7 +80,15 @@ export default class Room {
     this.#worldPacketValidator = zPacket(this.width - 1, this.height - 1);
 
     this.#status = "running";
-    this.#logic = new RoomLogic(this.#onEmpty, blocks, details, () => (this.#status = "stopping"), this.id, this.#behaviour);
+    this.#logic = new RoomLogic(
+      this.#onEmpty,
+      blocks,
+      heap,
+      details,
+      () => (this.#status = "stopping"),
+      this.id,
+      this.#behaviour
+    );
     this.onRunning.resolve();
 
     await this.#onEmpty.promise;
@@ -94,7 +101,7 @@ export default class Room {
     this.onStopped.resolve();
   }
 
-  private getBlocks(): Promise<ZWorldBlocks> {
+  private getBlocks(): Promise<[ZWorldBlocks, ZHeaps]> {
     return this.#behaviour.loadBlocks();
   }
 

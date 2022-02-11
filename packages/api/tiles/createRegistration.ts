@@ -1,8 +1,7 @@
 import type { ZTileJsonFile } from "../types";
 import { zTileJsonFile } from "../types";
-import tileBehaviorMap from "./behaviors";
-import TileRegistration from "./TileRegistration";
-import EmptyBehavior from "./EmptyBehavior";
+import TileRegistration, { NewTileRegistration } from "./TileRegistration";
+import { registrations } from "./registration/Registrations";
 
 /**
  * Goes over a tile json file, and registers all tiles as necessary.
@@ -15,22 +14,20 @@ function createRegistration(tileJsonFile: ZTileJsonFile): TileRegistration;
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
 function createRegistration(argTileJsonFile: unknown): TileRegistration {
   const tileJsonFile = zTileJsonFile.parse(argTileJsonFile);
-  const registration = new TileRegistration();
+  const registerer = new NewTileRegistration();
 
   let sourceId = 0;
   for (const tileJson of tileJsonFile) {
-    const behaviorCtor = tileBehaviorMap[tileJson.behavior];
+    registerer._sourceId = sourceId;
 
-    // constructing this should register the tiles as necessary. a bit weird to read yeah, but w/e
-    const behavior = new behaviorCtor(tileJson, registration, sourceId);
-    registration.registerSrc(behavior, sourceId);
+    // @ts-expect-error there's no way i can type this right to typescript, but it's right
+    registrations[tileJson.behavior](registerer, tileJson);
 
     sourceId += 1;
   }
 
-  new EmptyBehavior({ behavior: "empty" }, registration);
-
-  return registration;
+  registrations["empty"](registerer, { behavior: "empty" });
+  return new TileRegistration(registerer);
 }
 
 export default createRegistration;

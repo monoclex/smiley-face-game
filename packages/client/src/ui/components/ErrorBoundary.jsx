@@ -1,9 +1,9 @@
 //@ts-check
-import React, { Component } from "react";
+import React, { Component, useLayoutEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { runTeardowns } from "../hooks/useTeardown";
 
-export default class ErrorBoundary extends Component {
+export class ErrorBoundaryImpl extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: undefined };
@@ -45,6 +45,24 @@ export default class ErrorBoundary extends Component {
   }
 }
 
-ErrorBoundary.propTypes = {
+ErrorBoundaryImpl.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default function ErrorBoundary({ children, ...props }) {
+  const [callback, setCallback] = useState(() => () => {
+    // we give a factory to an empty callback
+    // this is so we infer the type of `callback` correctly
+  });
+
+  // run `callback` on component teardown
+  // rather than call `useTeardown`, we know this component will never error
+  // so we use the simpler and more direct alternative
+  useLayoutEffect(() => callback, [callback]);
+
+  return (
+    <ErrorBoundaryImpl callback={(recover) => setCallback(() => recover)} {...props}>
+      {children}
+    </ErrorBoundaryImpl>
+  );
+}
