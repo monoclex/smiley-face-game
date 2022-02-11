@@ -21,7 +21,12 @@ export class Game {
 
   constructor(readonly tiles: TileRegistration, init: ZSInit) {
     this.players = new Players(init);
-    this.blocks = new Blocks(tiles, init.blocks, new Vector(init.size.width, init.size.height));
+    this.blocks = new Blocks(
+      tiles,
+      init.blocks,
+      init.heaps,
+      new Vector(init.size.width, init.size.height)
+    );
     this.physics = new EEPhysics(tiles, this.blocks, EE_TPS);
   }
 
@@ -103,7 +108,7 @@ export class Game {
         this.blocks.clear();
         return 0;
       case "load":
-        this.blocks.load(action.blocks);
+        this.blocks.load(action.blocks, action.heaps);
         return 0;
       case "save":
         // nothing needs to happen on save

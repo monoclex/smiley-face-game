@@ -1,5 +1,5 @@
 import { Game } from "@smiley-face-game/api";
-import { Sprite, Text } from "pixi.js";
+import { Text } from "pixi.js";
 
 export default class SignRendering {
   readonly sprite: Text;

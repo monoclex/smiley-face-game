@@ -165,6 +165,9 @@ export const zWorldActionKind = addParse(
 export const zWorldBlocks = addParse(array.of(array.of(array.of(zBlock))));
 export type ZWorldBlocks = SchemaInput<typeof zWorldBlocks>;
 
+export const zHeaps = addParse(array.of(array.of(array.of(Schema.either(zHeap, 0 as const)))));
+export type ZHeaps = SchemaInput<typeof zHeaps>;
+
 export const zWorldActionKindReply = Schema.either(
   {
     action: "save" as const,
@@ -172,6 +175,7 @@ export const zWorldActionKindReply = Schema.either(
   {
     action: "load" as const,
     blocks: zWorldBlocks,
+    heaps: zHeaps,
   },
   {
     action: "clear" as const,

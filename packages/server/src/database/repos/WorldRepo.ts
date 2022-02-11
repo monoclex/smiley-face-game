@@ -1,6 +1,6 @@
 import type TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
 import { Repository } from "typeorm";
-import type { ZBlock, ZWorldBlocks } from "@smiley-face-game/api/types";
+import type { ZBlock, ZHeaps, ZWorldBlocks } from "@smiley-face-game/api/types";
 import { zAccountId, zWorldId } from "@smiley-face-game/api/types";
 import AccountLike from "../../database/modelishs/AccountLike";
 import WorldLike from "../../database/modelishs/WorldLike";
@@ -14,11 +14,17 @@ function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
   return generateWorld(details.width, details.height, tileJson);
 }
 
-export function serialize(size: Vector, blocks: ZWorldBlocks, tileJson: TileRegistration) {
+export function serialize(
+  size: Vector,
+  blocks: ZWorldBlocks,
+  heaps: ZHeaps,
+  tileJson: TileRegistration
+) {
   const newBlocks = [];
 
   for (let l = 0; l < blocks.length; l++) {
     const layers = blocks[l];
+    const heapLayer = heaps?.[l];
     if (layers === null || layers === undefined) {
       newBlocks.push(Blocks.makeLayer(size, []));
       continue;
@@ -28,6 +34,7 @@ export function serialize(size: Vector, blocks: ZWorldBlocks, tileJson: TileRegi
 
     for (let y = 0; y < layers.length; y++) {
       const yMap = layers[y];
+      const heapYs = heapLayer?.[y];
       if (yMap === null || yMap === undefined) {
         newL.push(Blocks.makeYs(size, []));
         continue;
@@ -36,10 +43,11 @@ export function serialize(size: Vector, blocks: ZWorldBlocks, tileJson: TileRegi
       const newY = [];
 
       for (let x = 0; x < yMap.length; x++) {
+        const heapData = heapYs?.[x];
         newY.push(
           tileJson
             .for(yMap[x] /* a 'null' block is empty */ || 0)
-            .storing.serialize(yMap[x] || 0, undefined)
+            .storing.serialize(yMap[x] || 0, heapData)
         );
       }
 
@@ -100,6 +108,7 @@ export default class WorldRepo {
       serialize(
         { x: details.width, y: details.height },
         details.blocks ? details.blocks : JSON.parse(emptyWorld(details, tileJson)),
+        [],
         tileJson
       )
     );

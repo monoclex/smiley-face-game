@@ -1,4 +1,4 @@
-import { TileLayer, ZHeap, ZWorldBlocks } from "../types";
+import { TileLayer, ZHeap, ZHeaps, ZWorldBlocks } from "../types";
 import { Vector } from "../physics/Vector";
 import { bresenhamsLine } from "../misc";
 import TileRegistration from "../tiles/TileRegistration";
@@ -7,7 +7,7 @@ import { WorldLayer } from "./WorldLayer";
 import equal from "fast-deep-equal";
 
 interface BlockEvents {
-  load(blocks: ZWorldBlocks): void;
+  load(blocks: ZWorldBlocks, heaps: ZHeaps): void;
   block(layer: TileLayer, position: Vector, blockId: number, playerId: number): void;
 }
 
@@ -17,19 +17,25 @@ export class Blocks {
 
   readonly events = createNanoEvents<BlockEvents>();
 
-  constructor(readonly tiles: TileRegistration, blocks: ZWorldBlocks, readonly size: Vector) {
-    this.load(blocks);
+  constructor(
+    readonly tiles: TileRegistration,
+    blocks: ZWorldBlocks,
+    heaps: ZHeaps,
+    readonly size: Vector
+  ) {
+    this.load(blocks, heaps);
   }
 
-  load(blocks: ZWorldBlocks) {
+  load(blocks: ZWorldBlocks, heaps: ZHeaps) {
     this.state.state = blocks;
-    this.events.emit("load", this.state.state);
+    this.heap.state = heaps;
+    this.events.emit("load", this.state.state, this.heap.state);
   }
 
   clear() {
     const state = Blocks.emptyWorld(this.size);
     Blocks.placeBorder(state, this.tiles, this.size);
-    this.load(state);
+    this.load(state, []);
   }
 
   placeLine(

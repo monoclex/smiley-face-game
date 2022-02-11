@@ -9,6 +9,7 @@ export class SignStoring implements BlockStoring<ZSignHeap> {
 
   serialize(id: number, heap: ZSignHeap): [number, ZSignHeap] {
     if (id !== this.id) throw new Error("id doesnt match");
+    zSignHeap.parse(heap); // make sure
     return [this.sourceId, heap];
   }
 

@@ -8,55 +8,35 @@ import type {
   ZSBlockLine,
 } from "@smiley-face-game/api/packets";
 import Connection from "../../worlds/Connection";
-import { TileLayer, ZWorldBlocks } from "@smiley-face-game/api/types";
+import { ZHeap, ZHeaps, ZWorldBlocks } from "@smiley-face-game/api/types";
 import equal from "fast-deep-equal";
+import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
 
 export class BlockHandler {
-  constructor(public map: ZWorldBlocks, readonly width: number, readonly height: number) {
-    for (let layerId = TileLayer.Foreground; layerId <= TileLayer.Decoration; layerId++) {
-      const layerMap = this.map[layerId];
-      if (layerMap === undefined || layerMap === null) continue;
+  ids: WorldLayer<number>;
+  heap: WorldLayer<ZHeap | 0>;
 
-      for (let y = 0; y < this.height; y++) {
-        const yMap = layerMap[y];
-        if (yMap === undefined || yMap === null) continue;
+  constructor(map: ZWorldBlocks, heaps: ZHeaps, readonly width: number, readonly height: number) {
+    this.ids = new WorldLayer(0);
+    this.heap = new WorldLayer(0);
 
-        for (let x = 0; x < this.width; x++) {
-          if (yMap[x] === undefined || yMap[x] === null) {
-            yMap[x] = 0;
-          }
-        }
-      }
-    }
+    this.ids.state = map;
+    this.heap.state = heaps;
   }
 
   getMap(layer: number, y: number, x: number): number {
-    let wLayer = this.map[layer];
-    if (wLayer === undefined || wLayer === null) {
-      this.map[layer] = wLayer = [];
-    }
-
-    let wY = wLayer[y];
-    if (wY === undefined || wY === null) {
-      this.map[layer][y] = wY = [];
-    }
-
-    const wX = wY[x];
-    if (wX === undefined || wX === null) {
-      wY[x] = 0;
-      return 0;
-    }
-
-    return wX;
+    return this.ids.get(layer, x, y);
   }
 
   handleSingle(packet: ZBlockSingle, sender: Connection): ZSBlockSingle | void {
     const target = this.getMap(packet.layer, packet.position.y, packet.position.x);
+    const heap = this.heap.get(packet.layer, packet.position.x, packet.position.y);
 
     // packet is known good, only do updating work if necessary
-    if (packet.block !== target || !equal(packet.heap, undefined)) {
+    if (packet.block !== target || !equal(packet.heap ?? 0, heap)) {
       // NOTE: if switching to reference types, make sure to copy the value
-      this.map[packet.layer][packet.position.y][packet.position.x] = packet.block;
+      this.ids.set(packet.layer, packet.position.x, packet.position.y, packet.block);
+      this.heap.set(packet.layer, packet.position.x, packet.position.y, packet.heap ?? 0);
 
       // only if the packet updated any blocks do we want to queue it
       return {
@@ -85,11 +65,14 @@ export class BlockHandler {
         // bounds checking if the block is within bounds
         if (y < 0 || y >= this.height || x < 0 || x >= this.width) return;
 
-        if (this.getMap(packet.layer, y, x) !== packet.block || !equal(packet.heap, undefined)) {
+        const block = this.getMap(packet.layer, y, x);
+        const heap = this.heap.get(packet.layer, x, y);
+        if (block !== packet.block || !equal(packet.heap ?? 0, heap)) {
           didUpdate = true;
 
           // NOTE: if switching to reference types, make sure to copy value
-          this.map[packet.layer][y][x] = packet.block;
+          this.ids.set(packet.layer, x, y, packet.block);
+          this.heap.set(packet.layer, x, y, packet.heap ?? 0);
         }
       }
     );

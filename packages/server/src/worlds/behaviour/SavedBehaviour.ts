@@ -1,10 +1,11 @@
-import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
+import { ZWorldDetails, ZWorldBlocks, ZHeap, ZHeaps } from "@smiley-face-game/api/types";
 import WorldRepo, { serialize } from "../../database/repos/WorldRepo";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";
 import TileJson from "../TileJson";
 import { BlockStoring } from "@smiley-face-game/api/tiles/storage/BlockStoring";
 import { Blocks } from "@smiley-face-game/api/game/Blocks";
+import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
@@ -26,7 +27,7 @@ export default class SavedBehaviour implements Behaviour {
     }
   }
 
-  async loadBlocks(): Promise<ZWorldBlocks> {
+  async loadBlocks(): Promise<[ZWorldBlocks, ZHeaps]> {
     const world = await this.#repo.findById(this.id);
 
     if (world.worldDataVersion === 0) {
@@ -74,7 +75,7 @@ export default class SavedBehaviour implements Behaviour {
               else if (block.id === 1) {
                 const targetCol = block.color || "white";
 
-                let b: BlockStoring;
+                let b: BlockStoring<unknown>;
                 let l;
                 switch (targetCol) {
                   case "white":
@@ -112,7 +113,7 @@ export default class SavedBehaviour implements Behaviour {
               } else if (block.id === 3) {
                 const targetRot = block.rotation;
 
-                let b: BlockStoring;
+                let b: BlockStoring<unknown>;
                 let l;
                 switch (targetRot) {
                   case 0:
@@ -133,7 +134,7 @@ export default class SavedBehaviour implements Behaviour {
               } else if (block.id === 4) {
                 const targetV = block.variant;
 
-                let b: BlockStoring;
+                let b: BlockStoring<unknown>;
                 let l;
                 switch (targetV) {
                   case 0:
@@ -171,7 +172,8 @@ export default class SavedBehaviour implements Behaviour {
 
     if (world.worldDataVersion === 1) {
       const size = { x: world.width, y: world.height };
-      const worldData = world.worldData as number[][][][];
+      const worldData = world.worldData as [number, any][][][];
+      const heapData = new WorldLayer<ZHeap | 0>(0);
       const desData: number[][][] = [];
 
       for (let l = 0; l < worldData.length; l++) {
@@ -199,7 +201,12 @@ export default class SavedBehaviour implements Behaviour {
             if (!block || block.length === 0) newY.push(0);
             else {
               const [sourceId] = block;
-              newY.push(TileJson.forSrc(sourceId).deserialize(block)[0]);
+              const [id, assoc] = TileJson.forSrc(sourceId).deserialize(block);
+              newY.push(id);
+
+              if (assoc) {
+                heapData.set(l, x, y, assoc);
+              }
             }
           }
 
@@ -209,15 +216,15 @@ export default class SavedBehaviour implements Behaviour {
         desData.push(newLayer);
       }
 
-      return desData;
+      return [desData, heapData.state];
     }
 
     throw new Error("can't read saved world bocks");
   }
 
-  async saveBlocks(blocks: ZWorldBlocks): Promise<void> {
+  async saveBlocks(blocks: ZWorldBlocks, heaps: ZHeaps): Promise<void> {
     const world = await this.#repo.findById(this.id);
-    world.worldData = serialize({ x: world.width, y: world.height }, blocks, TileJson);
+    world.worldData = serialize({ x: world.width, y: world.height }, blocks, heaps, TileJson);
     world.worldDataVersion = 1;
     await this.#repo.save(world);
   }

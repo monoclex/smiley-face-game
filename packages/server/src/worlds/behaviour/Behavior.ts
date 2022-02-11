@@ -1,4 +1,4 @@
-import type { ZWorldDetails, ZWorldBlocks } from "@smiley-face-game/api/types";
+import type { ZWorldDetails, ZWorldBlocks, ZHeaps } from "@smiley-face-game/api/types";
 import type Connection from "../../worlds/Connection";
 
 export default interface Behaviour {
@@ -6,8 +6,8 @@ export default interface Behaviour {
 
   onPlayerJoin(connection: Connection): void;
 
-  loadBlocks(): Promise<ZWorldBlocks>;
-  saveBlocks(blocks: ZWorldBlocks): Promise<void>;
+  loadBlocks(): Promise<[ZWorldBlocks, ZHeaps]>;
+  saveBlocks(blocks: ZWorldBlocks, heaps: ZHeaps): Promise<void>;
 
   loadDetails(): Promise<ZWorldDetails>;
   saveDetails(details: ZWorldDetails): Promise<void>;

@@ -20,6 +20,7 @@ import {
   zMessage,
   zTileJsonFile,
   zHeap,
+  zHeaps,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -202,6 +203,7 @@ export const zsInit = addParse(
     size: zSize,
     spawnPosition: zPlayerPosition,
     blocks: zWorldBlocks,
+    heaps: zHeaps,
     username: zUsername,
     isGuest: boolean,
     tiles: zTileJsonFile,
