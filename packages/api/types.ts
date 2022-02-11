@@ -11,8 +11,7 @@ import { zCategory, zCategoryType } from "./enums";
 // TODO: validate JWT with zod
 export const zToken = addParse(string.min(1));
 
-// https://stackoverflow.com/a/24573236
-const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const usernameRegex = /[A-Za-z0-9_]/;
 // https://stackoverflow.com/a/201378
 

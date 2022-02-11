@@ -22,9 +22,8 @@ export interface PhysicsEvents {
 export interface PhysicsSystem {
   /**
    * Specifies an optimal tick rate, in milliseconds per tick.
-   * A value of `0` means that there is no optimal tick rate.
    */
-  readonly optimalTickRate: number | 0;
+  readonly optimalTickRate: number;
 
   readonly events: Emitter<PhysicsEvents>;
 

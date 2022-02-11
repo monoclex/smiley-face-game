@@ -29,12 +29,14 @@
     "typescript": "^4.5.5"
   },
   "name": "@smiley-face-game/api",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "version": "0.1.0",
+  "description": "The API package for Smiley Face Game. This package is used by the SFG client - power to bot developers!",
   "author": "SirJosh3917 <SirJosh3917@users.noreply.github.com>",
   "homepage": "https://github.com/SirJosh3917/smiley-face-game#readme",
   "license": "MIT",
   "keywords": [
+    "smiley face game",
+    "smiley-face-game",
     "sfg",
     "api",
     "game"

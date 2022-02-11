@@ -18,6 +18,11 @@ import { zPacket, zsPacket } from "./packets";
 export { zPacket, zsPacket };
 
 /**
+ * Commonly used when doing block stuff
+ */
+export { TileLayer } from "./types";
+
+/**
  * There are a handful of things that we don't actually want exported, but want available for typing reasons.
  * Here, we export them as `types` so it's impossible for regular javascript to access it (importing by type helps for
  * tree shaking too), but it's still possible for typescript to remain well types. These will be added on a case by

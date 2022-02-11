@@ -286,10 +286,10 @@ export default class Connection {
    * @param layer The layer to place the block on.
    * @param heap The heap associated data with the block, if any.
    */
-  place(block: ZBlock, position: ZBlockPosition, layer?: ZTileLayer, heap?: ZHeap): void;
+  place(block: ZBlock, position: ZBlockPosition, heap?: ZHeap, layer?: ZTileLayer): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  place(argBlock: unknown, argPosition: unknown, argLayer?: unknown, argHeap?: unknown) {
+  place(argBlock: unknown, argPosition: unknown, argHeap?: unknown, argLayer?: unknown) {
     const block = zBlock.parse(argBlock);
     const position = this.zBlockPosition.parse(argPosition);
     const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
@@ -321,16 +321,16 @@ export default class Connection {
     block: ZBlock,
     start: ZBlockPosition,
     end: ZBlockPosition,
-    layer?: ZTileLayer,
-    heap?: ZHeap
+    heap?: ZHeap,
+    layer?: ZTileLayer
   ): void;
 
   placeLine(
     argBlock: unknown,
     argStart: unknown,
     argEnd: unknown,
-    argLayer?: unknown,
-    argHeap?: unknown
+    argHeap?: unknown,
+    argLayer?: unknown
   ) {
     const block = zBlock.parse(argBlock);
     const start = this.zBlockPosition.parse(argStart);

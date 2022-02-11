@@ -547,7 +547,7 @@ export class EEPhysics implements PhysicsSystem {
       ? ZoostDirection.Up
       : actionBlock === this.ids.zoostRight
       ? ZoostDirection.Right
-      : actionBlock === this.ids.zoostRight
+      : actionBlock === this.ids.zoostDown
       ? ZoostDirection.Down
       : actionBlock === this.ids.zoostLeft
       ? ZoostDirection.Left
