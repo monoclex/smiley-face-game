@@ -4,9 +4,13 @@ import PromiseCompletionSource from "../concurrency/PromiseCompletionSource";
 import Connection from "../worlds/Connection";
 import Behaviour from "./behaviour/Behavior";
 import RoomLogic from "./logic/RoomLogic";
-import type { ZHeaps, ZWorldBlocks } from "@smiley-face-game/api/types";
+import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
 
 type RoomStatus = "starting" | "running" | "stopping" | "stopped";
+
+function wrap<T>(it: () => Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => it().then(resolve, reject));
+}
 
 export default class Room {
   get id(): string {
@@ -56,14 +60,22 @@ export default class Room {
   private async run() {
     this.#status = "starting";
 
-    let blocks, heap;
-    let details;
+    let blocks: ZWorldBlocks, heap: ZHeaps;
+    let details: ZWorldDetails;
 
     try {
-      const blocksPromise = this.getBlocks();
-      const detailsPromise = this.#behaviour.loadDetails();
-      [blocks, heap] = await blocksPromise;
-      details = await detailsPromise;
+      const loadBoth = () => {
+        // in async code, treating Promise<T>s as Task<T>s/Future<T>s makes the node
+        // runtime think that they're unhandled promise rejections.
+        //
+        // so we have to dip into synchronous code to treat them as handles... wow.
+        const blocks = this.getBlocks();
+        const details = this.#behaviour.loadDetails();
+
+        return Promise.all([blocks, details]);
+      };
+
+      [[blocks, heap], details] = await loadBoth();
     } catch (error) {
       console.error("Couldn't load saved world '", this.id, "': ", error);
       this.#status = "stopping";
