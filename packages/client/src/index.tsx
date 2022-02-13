@@ -15,7 +15,7 @@ if (serverMode === "localhost") {
     logOwnerReasons: true,
     logOnDifferentValues: true,
   });
-  rewriteHost((endpoint) => ({ ...endpoint, host: "localhost:8080/v1" }));
+  rewriteHost((endpoint) => ({ ...endpoint, host: window.location.hostname + ":8080/v1" }));
 } else if (serverMode === "development") {
   useDev();
 } else if (serverMode === "production") {

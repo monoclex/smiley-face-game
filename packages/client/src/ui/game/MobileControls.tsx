@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material";
 import { Joystick } from "react-joystick-component";
 import state from "../../bridge/state";
+import MobileDetect from "mobile-detect";
+const mobileDetect = new MobileDetect(navigator.userAgent);
 
 const JoystickContainer = styled("div")({
   pointerEvents: "all",
@@ -11,6 +13,8 @@ const JoystickContainer = styled("div")({
 const notMoving = { up: false, right: false, down: false, left: false };
 
 export default function MobileControls() {
+  if (typeof mobileDetect.mobile() !== "string") return null;
+
   // lololo have fun
   const [moving, setMoving] = useState(notMoving);
 
