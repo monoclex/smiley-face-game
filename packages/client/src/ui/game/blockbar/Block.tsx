@@ -47,47 +47,52 @@ interface BlockProps {
   slot: string; // ={key}
   slotId: number; // ={i}
   block: BlockInfo; // ={slots[i].pack.blocks[slots[i].entry]}
-  nextState: () => void; // ={() => selectSlot(i)}
-  onClick: () => void; // ={() => selectSlot(i)}
+  selectSlot: (i: number) => void;
   selected: boolean; // ={slots[i].pack.blocks[slots[i].entry] === selectedBlock}
   loader: (id: number) => Promise<HTMLImageElement>; // ={(id) => blockBar.load(id)}
 }
 
 const Block = (props: BlockProps) => {
-  const [imageSource, setImageSource] = useState<string | null>(null);
+  // const [imageSource, setImageSource] = useState<string | null>(null);
+  const [body, setBody] = useState<JSX.Element | null>(null);
+
+  const name = React.useMemo(
+    () => (
+      <Grid item container justifyContent="center">
+        <SlotName>{props.slot}</SlotName>
+      </Grid>
+    ),
+    [props.slot]
+  );
 
   useEffect(() => {
     if (!props.loader) return;
 
     props.loader(props.block.id).then((image) => {
-      setImageSource(image.src);
+      setBody(
+        <>
+          {name}
+          <LineheightlessGrid item>
+            <BlockPreview src={image.src} draggable={false} />
+          </LineheightlessGrid>
+        </>
+      );
+      // setImageSource(image.src);
     });
   }, [props.loader, props.block]);
 
-  if (!props.loader || !imageSource) {
+  if (!props.loader || !body) {
     return null;
   }
 
   const handleClick = () => {
-    if (!props.selected) {
-      props.onClick();
-    } else {
-      // this is for rotating a block in the hotbar
-      props.nextState();
-    }
+    props.selectSlot(props.slotId);
   };
 
   return (
-    <div>
-      <VisualCued onClick={handleClick} selected={props.selected}>
-        <Grid item container justifyContent="center">
-          <SlotName>{props.slot}</SlotName>
-        </Grid>
-        <LineheightlessGrid item>
-          <BlockPreview src={imageSource} draggable={false} />
-        </LineheightlessGrid>
-      </VisualCued>
-    </div>
+    <VisualCued onClick={handleClick} selected={props.selected}>
+      {body}
+    </VisualCued>
   );
 };
 
