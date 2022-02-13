@@ -155,8 +155,7 @@ export class EEPhysics implements PhysicsSystem {
     let modifierX = 0,
       modifierY = 0;
 
-    // let isFlying = self.isInGodMode;
-    const isFlying = false;
+    const isFlying = self.isInGodMode;
     if (!isFlying) {
       self.origModX = self.modX;
       self.origModY = self.modY;
@@ -610,6 +609,10 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   noCollision(self: Player, x: number, y: number): boolean {
+    if (self.isInGodMode) {
+      return true;
+    }
+
     const fgId = this.world.blockAt(x, y, TileLayer.Foreground);
     const actionId = this.world.blockAt(x, y, TileLayer.Action);
 

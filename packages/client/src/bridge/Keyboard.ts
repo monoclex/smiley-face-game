@@ -62,6 +62,11 @@ export default class Keyboard {
         didChange = this.player.input.jump !== pressed;
         this.player.input.jump = pressed;
         break;
+      case "g":
+        if (pressed) {
+          this.player.toggleGodMode();
+        }
+        break;
       // case "e":
       //   if (pressed && player.hasGun) {
       //     player.holdGun(!player.isGunHeld);

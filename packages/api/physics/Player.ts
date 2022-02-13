@@ -48,6 +48,35 @@ export class Player {
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
+  private inGodMode = false;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  get isInGodMode(): boolean {
+    return this.inGodMode;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  set isInGodMode(flag: boolean) {
+    this.inGodMode = flag;
+    if (this.inGodMode) {
+      this.resetModifiers();
+    }
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  toggleGodMode() {
+    this.isInGodMode = !this.isInGodMode;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  resetModifiers() {
+    this.origModX = 0;
+    this.origModY = 0;
+    this.modX = 0;
+    this.modY = 0;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
   horizontal = 0;
   /** @version eephysics This may be removed when the physics engine changes */
   vertical = 0;
