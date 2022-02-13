@@ -13,7 +13,7 @@ const defaultSignState: SignState = {
 export const signGlobal = new SharedGlobal<SignState>(defaultSignState);
 export const text = { it: new PromiseCompletionSource<string>() };
 
-export const signState = atom<SignState>({
+export const signStateAtom = atom<SignState>({
   key: "signState",
   default: defaultSignState,
   effects_UNSTABLE: [signGlobal.initialize],
