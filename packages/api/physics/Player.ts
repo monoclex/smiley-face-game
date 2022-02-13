@@ -57,6 +57,10 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   set isInGodMode(flag: boolean) {
+    if (!this.hasEdit) {
+      return;
+    }
+
     this.inGodMode = flag;
     if (this.inGodMode) {
       this.resetModifiers();
