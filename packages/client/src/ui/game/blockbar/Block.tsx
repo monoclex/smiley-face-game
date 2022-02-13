@@ -11,13 +11,37 @@ const LineheightlessGrid = styled(Grid)({
   lineHeight: "1px",
 });
 
-const BlockPreview = styled("img")({
+const SlotName = styled("span")({
+  userSelect: "none",
+});
+
+interface ImageProps {
+  src: string;
+}
+
+const BlockPreview = styled("img")<ImageProps>(({ src }) => ({
   width: 32,
   height: 32,
   pointerEvents: "all",
   imageRendering: "pixelated",
-  "&:hover": { marginBottom: "8px" },
-});
+  backgroundImage: src,
+}));
+
+interface PreviewProps {
+  selected: boolean;
+}
+
+const VisualCued = styled("div")<PreviewProps>(({ selected }) => ({
+  borderColor: "white",
+  borderWidth: "1px",
+  // margin to work around the div changing size
+  margin: !selected ? "1px" : "0pxd",
+  borderStyle: selected ? "solid" : "none",
+  "&:hover": {
+    margin: "0px",
+    borderStyle: selected ? "solid" : "dotted",
+  },
+}));
 
 interface BlockProps {
   slot: string; // ={key}
@@ -54,14 +78,14 @@ const Block = (props: BlockProps) => {
   };
 
   return (
-    <Grid sx={{ marginBottom: props.selected ? "8px" : 0 }}>
+    <VisualCued onClick={handleClick} selected={props.selected}>
       <Grid item container justifyContent="center">
-        <span>{props.slot}</span>
+        <SlotName>{props.slot}</SlotName>
       </Grid>
       <LineheightlessGrid item>
-        <BlockPreview onClick={handleClick} src={imageSource} />
+        <BlockPreview src={imageSource} draggable={false} />
       </LineheightlessGrid>
-    </Grid>
+    </VisualCued>
   );
 };
 
