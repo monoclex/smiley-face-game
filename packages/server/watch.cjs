@@ -31,7 +31,11 @@ async function rebuild() {
     return;
   }
 
-  restart();
+  try {
+    restart();
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 let worker = undefined;
