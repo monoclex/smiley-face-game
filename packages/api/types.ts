@@ -37,8 +37,16 @@ export const zEmail = addParse(string.regexp(emailRegex));
 export const zPassword = addParse(string.min(1).max(72));
 export const zEnergy = zQuantity;
 
-export const zDynWidth = addParse(number.integer().min(3).max(50));
-export const zDynHeight = addParse(number.integer().min(3).max(50));
+export const DYNAMIC_WORLD_WIDTH_MIN = 3;
+export const DYNAMIC_WORLD_WIDTH_MAX = 50;
+export const DYNAMIC_WORLD_HEIGHT_MIN = 3;
+export const DYNAMIC_WORLD_HEIGHT_MAX = 50;
+export const zDynWidth = addParse(
+  number.integer().min(DYNAMIC_WORLD_WIDTH_MIN).max(DYNAMIC_WORLD_WIDTH_MAX)
+);
+export const zDynHeight = addParse(
+  number.integer().min(DYNAMIC_WORLD_HEIGHT_MIN).max(DYNAMIC_WORLD_HEIGHT_MAX)
+);
 
 export const zSize = addParse(
   Schema({

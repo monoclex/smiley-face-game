@@ -9,6 +9,7 @@ import { useDev } from "@smiley-face-game/api";
 import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
 import tileJson from "@smiley-face-game/api/tiles/tiles";
 import { zTileJsonFile } from "@smiley-face-game/api/types";
+import TileJson from "../TileJson";
 const tileJsonFile = zTileJsonFile.parse(tileJson);
 useDev();
 function ensureHasId(connection: Connection) {
@@ -53,7 +54,7 @@ export default class RoomLogic {
     id: string,
     roomBehaviour: Behaviour
   ) {
-    this.blockHandler = new BlockHandler(blocks, heaps, details.width, details.height);
+    this.blockHandler = new BlockHandler(TileJson, blocks, heaps, details.width, details.height);
     this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;

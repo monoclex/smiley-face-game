@@ -34,8 +34,11 @@ const config = {
       "@typescript-eslint/parser": [".ts", ".tsx"],
     },
     "import/resolver": {
-      typescript: {
-        alwaysTryTypes: true,
+      webpack: {
+        config: "webpack.config.js",
+        env: {
+          serverMode: "localhost",
+        },
       },
     },
     react: {

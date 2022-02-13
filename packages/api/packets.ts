@@ -87,7 +87,7 @@ export const zBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) =
   Schema({
     packetId: "BLOCK_SINGLE" as const,
     position: blockPosition,
-    layer: zTileLayer,
+    layer: zTileLayer.optional(),
     block: zBlock,
     heap: zHeap.optional(),
   });
@@ -98,7 +98,7 @@ export const zBlockLine = addParse(
     packetId: "BLOCK_LINE" as const,
     start: zBoundlessBlockPosition,
     end: zBoundlessBlockPosition,
-    layer: zTileLayer,
+    layer: zTileLayer.optional(),
     block: zBlock,
     heap: zHeap.optional(),
   })
@@ -125,7 +125,7 @@ export const zsBlockLine = addParse(
     packetId: "SERVER_BLOCK_LINE" as const,
     start: zBoundlessBlockPosition,
     end: zBoundlessBlockPosition,
-    layer: zTileLayer,
+    layer: zTileLayer.optional(),
     block: zBlock,
     heap: zHeap.optional(),
   })
@@ -144,7 +144,7 @@ export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) 
   Schema.merge(zs, {
     packetId: "SERVER_BLOCK_SINGLE" as const,
     position: blockPosition,
-    layer: zTileLayer,
+    layer: zTileLayer.optional(),
     block: zBlock,
     heap: zHeap.optional(),
   });

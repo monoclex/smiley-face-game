@@ -292,14 +292,20 @@ export default class Connection {
   place(argBlock: unknown, argPosition: unknown, argHeap?: unknown, argLayer?: unknown) {
     const block = zBlock.parse(argBlock);
     const position = this.zBlockPosition.parse(argPosition);
-    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
     const packet: ZPacket = {
       packetId: "BLOCK_SINGLE",
       position,
-      layer,
       block,
     };
+
+    if (argLayer) {
+      const layer = zTileLayer.parse(argLayer);
+
+      if (inferLayer(this.tileJson, block) !== layer) {
+        packet.layer = layer;
+      }
+    }
 
     if (argHeap) {
       const heap = zHeap.parse(argHeap);
@@ -335,15 +341,21 @@ export default class Connection {
     const block = zBlock.parse(argBlock);
     const start = this.zBlockPosition.parse(argStart);
     const end = this.zBlockPosition.parse(argEnd);
-    const layer = zTileLayer.parse(argLayer || inferLayer(this.tileJson, block));
 
     const packet: ZPacket = {
       packetId: "BLOCK_LINE",
       block,
       start,
       end,
-      layer,
     };
+
+    if (argLayer) {
+      const layer = zTileLayer.parse(argLayer);
+
+      if (inferLayer(this.tileJson, block) !== layer) {
+        packet.layer = layer;
+      }
+    }
 
     if (argHeap) {
       const heap = zHeap.parse(argHeap);

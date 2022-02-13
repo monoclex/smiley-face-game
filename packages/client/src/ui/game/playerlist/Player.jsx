@@ -7,9 +7,10 @@ import Pencil from "mdi-material-ui/Pencil";
 import ShoeCleat from "mdi-material-ui/ShoeCleat";
 import { currentPlayerState } from "../../../state";
 import { useSnackbar } from "notistack";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import state from "../../../bridge/state";
 import { useGameState } from "../../hooks";
+import AccountCowboyHat from "mdi-material-ui/AccountCowboyHat";
+import AccountTie from "mdi-material-ui/AccountTie";
+import AccountEdit from "mdi-material-ui/AccountEdit";
 
 const PlayerDisplay = styled("div")(({ theme }) => ({
   // clsx(classes.hoverable
@@ -17,12 +18,12 @@ const PlayerDisplay = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.action.hover,
   },
   // , classes.message)
-  paddingTop: 2,
-  paddingLeft: 4,
-  paddingRight: 4,
-  paddingBottom: 2,
-  marginTop: 2,
-  marginBottom: 2,
+  paddingTop: 6,
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(2),
+
+  display: "flex",
+  alignItems: "center",
 }));
 
 const NoIcon = styled("div")({
@@ -31,7 +32,7 @@ const NoIcon = styled("div")({
   marginRight: 4,
 });
 
-const UserIcon = styled(FontAwesomeIcon)({
+const MarginRightSpan = styled("span")({
   marginRight: 4,
 });
 
@@ -115,10 +116,15 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
   return (
     <>
       <PlayerDisplay onClick={handleClick}>
-        {role === "non" && <NoIcon />}
-        {role === "edit" && <UserIcon icon="user-edit" onClick={() => setEdit(false)} />}
-        {role === "owner" && <UserIcon icon="user-tie" />}
-        {role === "staff" && <UserIcon icon="user-astronaut" />}
+        {role === "non" ? (
+          <NoIcon />
+        ) : (
+          <MarginRightSpan>
+            {role === "edit" && <AccountEdit onClick={() => setEdit(false)} />}
+            {role === "owner" && <AccountTie />}
+            {role === "staff" && <AccountCowboyHat />}
+          </MarginRightSpan>
+        )}
 
         <span>{username}</span>
       </PlayerDisplay>

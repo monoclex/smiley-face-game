@@ -1,7 +1,22 @@
 //@ts-check
 import React from "react";
-import { Box, Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, Grid } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  TextField,
+  DialogContent,
+  DialogActions,
+  Button,
+  Grid,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
+import {
+  DYNAMIC_WORLD_WIDTH_MIN,
+  DYNAMIC_WORLD_WIDTH_MAX,
+  DYNAMIC_WORLD_HEIGHT_MIN,
+  DYNAMIC_WORLD_HEIGHT_MAX,
+} from "@smiley-face-game/api/types";
 
 const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
   const {
@@ -22,7 +37,6 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                 <TextField
                   fullWidth
                   id="name"
-                  name="name"
                   label="Name"
                   defaultValue="smiley face game"
                   autoFocus
@@ -37,15 +51,14 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                   fullWidth
                   id="width"
                   type="number"
-                  name="width"
                   label="Width"
                   defaultValue={25}
                   error={errors && errors.width}
                   helperText={errors && errors.width && "A width is required..."}
                   {...register("width", { required: true })}
                   inputProps={{
-                    min: 5,
-                    max: 50,
+                    min: DYNAMIC_WORLD_WIDTH_MIN,
+                    max: DYNAMIC_WORLD_WIDTH_MAX,
                   }}
                 />
               </Grid>
@@ -55,15 +68,14 @@ const CreateRoomDialog = ({ open, onClose, onCreateRoom }) => {
                   fullWidth
                   id="height"
                   type="number"
-                  name="height"
                   label="Height"
                   defaultValue={25}
                   error={errors && errors.height}
                   helperText={errors && errors.height && "A height is required..."}
                   {...register("height", { required: true })}
                   inputProps={{
-                    min: 5,
-                    max: 50,
+                    min: DYNAMIC_WORLD_HEIGHT_MIN,
+                    max: DYNAMIC_WORLD_HEIGHT_MAX,
                   }}
                 />
               </Grid>

@@ -14,6 +14,7 @@ function build() {
       plugins: [esbuildDecorators({}), ImportGlobPlugin()],
       entryPoints: ["./src/index.ts"],
       keepNames: true,
+      logLevel: "error",
     })
     .then(() => fs.copyFile("connection.json", "dist/connection.json"));
 }

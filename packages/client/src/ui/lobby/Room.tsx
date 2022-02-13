@@ -1,8 +1,17 @@
 //@ts-check
 import React from "react";
-import { Card, styled, CardContent, Typography, CardMedia, CardActions, Tooltip, IconButton } from "@mui/material";
-import ThumbUpIcon from "mdi-material-ui/ThumbUp";
-import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
+import {
+  Card,
+  styled,
+  CardContent,
+  Typography,
+  CardMedia,
+  CardActions,
+  Tooltip,
+  IconButton,
+} from "@mui/material";
+// import ThumbUpIcon from "mdi-material-ui/ThumbUp";
+// import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
@@ -11,6 +20,7 @@ import { useNavigate } from "react-router";
 
 const CardRoot = styled(Card)({
   display: "flex",
+  cursor: "pointer",
 });
 
 const Details = styled("div")({
@@ -48,9 +58,14 @@ export const Room = (props: RoomProps) => {
     room: { id, name, playerCount },
   } = props;
 
+  const play = (e) => {
+    navigate(`/games/${id}`, { state: { type: "join", id } });
+    e.cancelDefault();
+  };
+
   return (
     <motion.div whileHover={{ scale: 1.1 }}>
-      <CardRoot>
+      <CardRoot onClick={play}>
         <Details>
           <Content>
             <Typography component="h5" variant="h5">
@@ -62,7 +77,7 @@ export const Room = (props: RoomProps) => {
           </Content>
 
           <Controls disableSpacing>
-            <Tooltip title="Like">
+            {/* <Tooltip title="Like">
               <IconButton aria-label="add-or-remove" size="large">
                 <ThumbUpIcon />
               </IconButton>
@@ -72,10 +87,10 @@ export const Room = (props: RoomProps) => {
               <IconButton aria-label="favorite" size="large">
                 <HeartOutlineIcon />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             <Tooltip title="Join the room!">
-              <IconButton aria-label="play" onClick={() => navigate(`/games/${id}`, { state: { type: "join", id } })} size="large">
+              <IconButton aria-label="play" onClick={play} size="large">
                 <PlayIcon />
               </IconButton>
             </Tooltip>
