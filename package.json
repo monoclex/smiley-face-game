@@ -1,9 +1,6 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "tsc": "pnpm run --recursive --parallel tsc",
     "build:dev": "pnpm run --recursive --parallel build:dev",
