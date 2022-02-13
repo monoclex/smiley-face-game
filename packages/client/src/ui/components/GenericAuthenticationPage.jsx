@@ -37,10 +37,19 @@ const wrapValidator = (validator) => (input) => {
   return undefined;
 };
 
+const wrapValidatorErr = (validator, error) => (input) => {
+  const result = validator.safeParse(input);
+  if (!result.success) {
+    return error;
+  }
+  return undefined;
+};
+
 const validators = {
   // hacky way to do this and not pass in props, but idk i don't feel like properly architecturing my code
   username: wrapValidator(zUsername),
-  email: (input) => wrapValidator(zEmail)(input.toLowerCase()),
+  email: (input) =>
+    wrapValidatorErr(zEmail, "This doesn't look like an email to me!")(input.toLowerCase()),
   password: wrapValidator(zPassword),
 };
 
