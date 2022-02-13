@@ -17,6 +17,7 @@ export interface ShopItem {
   limited: boolean;
   energyCost: number;
   columnSpan?: number;
+  removed?: boolean;
   purchase: (user: AccountLike, entityManager: EntityManager) => Promise<void>;
 }
 
@@ -45,6 +46,7 @@ export const shopItems: ShopItem[] = [
     purchase: makePurchaser(30, 30),
   },
   {
+    removed: true,
     id: 2,
     title: "6 x 9",
     description: "a really tiny world just as a test for development (will be deleted later)",
