@@ -39,13 +39,14 @@ export class Blocks {
   }
 
   placeLine(
-    layer: TileLayer,
+    argLayer: TileLayer | null | undefined,
     start: Vector,
     end: Vector,
     blockId: number,
     playerId: number,
     heap?: ZHeap | null | undefined
   ): boolean {
+    const layer = argLayer ?? this.tiles.forId(blockId).preferredLayer;
     let didModify = false;
 
     bresenhamsLine(start.x, start.y, end.x, end.y, (x, y) => {
@@ -57,12 +58,13 @@ export class Blocks {
   }
 
   placeSingle(
-    layer: TileLayer,
+    argLayer: TileLayer | null | undefined,
     position: Vector,
     blockId: number,
     playerId: number,
     heap?: ZHeap | null | undefined
   ): boolean {
+    const layer = argLayer ?? this.tiles.forId(blockId).preferredLayer;
     if (position.x < 0 || position.y < 0) return false;
     if (position.x >= this.size.x || position.y >= this.size.y) return false;
 
