@@ -10,6 +10,7 @@ import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
 import { Config } from "./Config";
 import {
+  DotDirection,
   ArrowDirection,
   BoostDirection,
   ZoostDirection,
@@ -162,6 +163,10 @@ export class EEPhysics implements PhysicsSystem {
 
       // EE comment: "Process gravity"
       switch (current) {
+        case DotDirection.None:
+          self.resetModifiers();
+          break;
+
         case ArrowDirection.Left:
           self.origModX = -Config.physics.gravity;
           self.origModY = 0;
@@ -175,10 +180,12 @@ export class EEPhysics implements PhysicsSystem {
           self.origModY = 0;
           break;
         case ArrowDirection.Down:
+
         default:
           self.origModX = 0;
           self.origModY = Config.physics.gravity;
           break;
+
         case BoostDirection.Left:
         case BoostDirection.Up:
         case BoostDirection.Right:
@@ -189,6 +196,10 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       switch (delayed) {
+        case DotDirection.None:
+          self.resetModifiers();
+          break;
+
         case ArrowDirection.Left:
           self.modX = -Config.physics.gravity;
           self.modY = 0;
@@ -507,8 +518,14 @@ export class EEPhysics implements PhysicsSystem {
       this.findBoostDirection(worldX, worldY) ||
       this.findZoostDirection(worldX, worldY) ||
       this.findArrowDirection(worldX, worldY) ||
+      this.findDotDirection(worldX, worldY) ||
       ArrowDirection.Down
     );
+  }
+
+  findDotDirection(blockX: number, blockY: number) {
+    const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
+    return actionBlock === this.ids.dot ? DotDirection.None : undefined;
   }
 
   findArrowDirection(blockX: number, blockY: number) {

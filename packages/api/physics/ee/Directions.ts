@@ -6,6 +6,7 @@ export const ArrowDirection = {
   Down: 3,
   Left: 4,
 };
+
 export const BoostDirection = {
   Up: 5,
   Right: 6,
@@ -20,9 +21,15 @@ export const ZoostDirection = {
   Left: 12,
 };
 
-export const isBoost = (boostDirection: number) => boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
+export const DotDirection = {
+  None: 13,
+};
 
-export const isZoost = (zoostDirection: number) => zoostDirection >= ZoostDirection.Up && zoostDirection <= ZoostDirection.Left;
+export const isBoost = (boostDirection: number) =>
+  boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
+
+export const isZoost = (zoostDirection: number) =>
+  zoostDirection >= ZoostDirection.Up && zoostDirection <= ZoostDirection.Left;
 
 export const zoostDirToVec = (zoostDirection: number): Vector => {
   // prettier-ignore

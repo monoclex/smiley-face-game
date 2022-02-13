@@ -2,23 +2,24 @@
 import React, { useEffect, useState } from "react";
 
 import { Grid } from "@mui/material";
-import Block from "./Block";
 import { useRecoilValue } from "recoil";
+
+import Block from "./Block";
 import { currentPlayerState, selectedBlockState, SelectedBlock } from "../../../state/";
 import inputEnabled from "../../../bridge/inputEnabled";
 import { useGameState } from "../../hooks";
 
 // prettier-ignore
 const map = {
-  "`": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "0": 10, "-": 11, "=": 12,
-  "~": 0, "!": 1, "@": 2, "#": 3,   $: 4, "%": 5, "^": 6, "&": 7, "*": 8, "(": 9, ")": 10,   _: 11, "+": 12,
+  "`": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "0": 10, "-": 11, "=": 12, "[": 13,
+  "~": 0, "!": 1, "@": 2, "#": 3,   $: 4, "%": 5, "^": 6, "&": 7, "*": 8, "(": 9, ")": 10,   _: 11, "+": 12, "{": 13,
 };
 
 function isMapIndex(s: string): s is keyof typeof map {
   return s in map;
 }
 
-const keys = "`1234567890-=".split("");
+const keys = "`1234567890-=[".split("");
 
 // TODO(SirJosh): make this more performant lol
 //   and if you see this pester me about it because i really do want to do some

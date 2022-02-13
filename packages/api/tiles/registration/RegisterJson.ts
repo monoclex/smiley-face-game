@@ -8,6 +8,7 @@ import { zRegisterKeys } from "./RegisterKeys";
 import { zRegisterSign } from "./RegisterSign";
 import { zRegisterSolid } from "./RegisterSolid";
 import { zRegisterZoost } from "./RegisterZoost";
+import { zRegisterDot } from "./RegisterDot";
 
 export const zTileRegistration = addParse(
   Schema.either(
@@ -18,7 +19,8 @@ export const zTileRegistration = addParse(
     zRegisterBoost,
     zRegisterKeys,
     zRegisterZoost,
-    zRegisterSign
+    zRegisterSign,
+    zRegisterDot
   )
 );
 export type ZTileRegistration = SchemaInput<typeof zTileRegistration>;
