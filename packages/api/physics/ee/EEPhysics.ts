@@ -16,9 +16,14 @@ import {
   isBoost,
   isZoost,
   zoostDirToVec,
+  SpikeDirection,
 } from "./Directions";
 import equal from "fast-deep-equal";
 
+// half a second until alive
+const TIME_UNTIL_ALIVE = 250;
+
+// https://github.com/Seb-135/ee-offline/blob/main/src/Player.as
 export class EEPhysics implements PhysicsSystem {
   readonly optimalTickRate: number;
   readonly events = createNanoEvents<PhysicsEvents>();
@@ -34,8 +39,11 @@ export class EEPhysics implements PhysicsSystem {
     return this.ticks < this.tickRedDisabled;
   }
 
+  private readonly ticksUntilAlive: number;
+
   constructor(tiles: TileRegistration, private readonly world: Blocks, ticksPerSecond: number) {
     this.optimalTickRate = 1000 / ticksPerSecond;
+    this.ticksUntilAlive = TIME_UNTIL_ALIVE / this.optimalTickRate;
     this.ids = new BlockIdCache(tiles);
   }
 
@@ -71,6 +79,15 @@ export class EEPhysics implements PhysicsSystem {
 
   tickPlayer(player: Player) {
     const self = player;
+
+    if (self.isDead) {
+      if (self.ticks >= self.deathTick + this.ticksUntilAlive) {
+        self.revive(Vector.SPAWN_LOCATION);
+      } else {
+        return;
+      }
+    }
+
     self.horizontal = ((self.input.right && 1) || 0) - ((self.input.left && 1) || 0);
     self.vertical = ((self.input.down && 1) || 0) - ((self.input.up && 1) || 0);
     self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
@@ -186,6 +203,16 @@ export class EEPhysics implements PhysicsSystem {
         case BoostDirection.Down:
           self.origModX = 0;
           self.origModY = 0;
+          break;
+        case SpikeDirection.Left:
+        case SpikeDirection.Up:
+        case SpikeDirection.Right:
+        case SpikeDirection.Down:
+          self.origModX = 0;
+          self.origModY = Config.physics.gravity;
+          if (!self.isDead) {
+            self.kill();
+          }
           break;
       }
 
@@ -508,6 +535,7 @@ export class EEPhysics implements PhysicsSystem {
       this.findBoostDirection(worldX, worldY) ||
       this.findZoostDirection(worldX, worldY) ||
       this.findArrowDirection(worldX, worldY) ||
+      this.findSpike(worldX, worldY) ||
       ArrowDirection.Down
     );
   }
@@ -551,6 +579,20 @@ export class EEPhysics implements PhysicsSystem {
       ? ZoostDirection.Down
       : actionBlock === this.ids.zoostLeft
       ? ZoostDirection.Left
+      : undefined;
+  }
+
+  findSpike(blockX: number, blockY: number) {
+    const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
+
+    return actionBlock === this.ids.spikeUp
+      ? SpikeDirection.Up
+      : actionBlock === this.ids.spikeRight
+      ? SpikeDirection.Right
+      : actionBlock === this.ids.spikeDown
+      ? SpikeDirection.Down
+      : actionBlock === this.ids.spikeLeft
+      ? SpikeDirection.Left
       : undefined;
   }
 

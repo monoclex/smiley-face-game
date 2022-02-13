@@ -20,9 +20,18 @@ export const ZoostDirection = {
   Left: 12,
 };
 
-export const isBoost = (boostDirection: number) => boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
+export const SpikeDirection = {
+  Up: 14,
+  Right: 15,
+  Down: 16,
+  Left: 17,
+};
 
-export const isZoost = (zoostDirection: number) => zoostDirection >= ZoostDirection.Up && zoostDirection <= ZoostDirection.Left;
+export const isBoost = (boostDirection: number) =>
+  boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
+
+export const isZoost = (zoostDirection: number) =>
+  zoostDirection >= ZoostDirection.Up && zoostDirection <= ZoostDirection.Left;
 
 export const zoostDirToVec = (zoostDirection: number): Vector => {
   // prettier-ignore

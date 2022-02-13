@@ -42,6 +42,12 @@ export default class PlayerRenderer {
 
       gamePlayer.container.x = player.position.x;
       gamePlayer.container.y = player.position.y;
+
+      if (player.isDead) {
+        gamePlayer.sprite.tint = 0xff0000;
+      } else {
+        gamePlayer.sprite.tint = 0xffffff;
+      }
     }
 
     this.updateCameraView();
