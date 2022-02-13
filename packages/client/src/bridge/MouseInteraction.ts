@@ -23,11 +23,13 @@ export default class MouseInteraction {
   private state: MouseState = MouseState.None;
   private lastPlacePos: Vector | undefined;
   private layerSample: TileLayer | undefined;
+  private mouseInGame = true;
 
   constructor(
     private readonly root: Container,
     private readonly authoredBlockPlacer: AuthoredBlockPlacer,
-    private readonly game: Game
+    private readonly game: Game,
+    private readonly gameElement: HTMLElement
   ) {
     document.addEventListener("mousemove", (event) => {
       this.mousePos = new Vector(event.clientX, event.clientY);
@@ -35,6 +37,9 @@ export default class MouseInteraction {
 
     document.addEventListener("mousedown", this.handleClick.bind(this));
     document.addEventListener("mouseup", this.handleClick.bind(this));
+
+    gameElement.addEventListener("mouseover", () => (this.mouseInGame = true));
+    gameElement.addEventListener("mouseleave", () => (this.mouseInGame = false));
   }
 
   enable(shouldShow: boolean) {
@@ -182,7 +187,8 @@ export default class MouseInteraction {
 
   draw() {
     this.selection.visible = true;
-    if (!inputEnabled()) {
+
+    if (!inputEnabled() || !this.mouseInGame) {
       this.selection.visible = false;
       return;
     }

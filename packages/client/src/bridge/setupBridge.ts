@@ -26,6 +26,7 @@ interface Bridge {
 // generally more of a "after this, make sure to do that" sorta deal.
 
 export default async function setupBridge(
+  gameElement: HTMLElement,
   auth: Authentication,
   joinRequest: ZJoinRequest,
   renderer: Renderer
@@ -100,7 +101,8 @@ export default async function setupBridge(
   const mouseInteraction = new MouseInteraction(
     gameRenderer.root,
     new AuthoredBlockPlacer(self, connection, game, blockBar),
-    game
+    game,
+    gameElement
   );
   gameRenderer.events.on("draw", () => mouseInteraction.draw());
   gameRenderer.root.addChild(mouseInteraction.selection);

@@ -35,7 +35,12 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { game, connection, cleanup } = await setupBridge(auth, location.state ?? { type: "join", id: match.params.id }, renderer);
+    const { game, connection, cleanup } = await setupBridge(
+      gameElement,
+      auth,
+      location.state ?? { type: "join", id: match.params.id },
+      renderer
+    );
 
     // if we navigated away while loading, close the connection
     // it's possible that we could navigate back, and then navigate back to here
