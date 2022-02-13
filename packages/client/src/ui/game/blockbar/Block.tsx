@@ -78,14 +78,16 @@ const Block = (props: BlockProps) => {
   };
 
   return (
-    <VisualCued onClick={handleClick} selected={props.selected}>
-      <Grid item container justifyContent="center">
-        <SlotName>{props.slot}</SlotName>
-      </Grid>
-      <LineheightlessGrid item>
-        <BlockPreview src={imageSource} draggable={false} />
-      </LineheightlessGrid>
-    </VisualCued>
+    <div>
+      <VisualCued onClick={handleClick} selected={props.selected}>
+        <Grid item container justifyContent="center">
+          <SlotName>{props.slot}</SlotName>
+        </Grid>
+        <LineheightlessGrid item>
+          <BlockPreview src={imageSource} draggable={false} />
+        </LineheightlessGrid>
+      </VisualCued>
+    </div>
   );
 };
 

@@ -78,7 +78,7 @@ const BlockBar = () => {
   if (self.role === "non") return null;
 
   return (
-    <Grid item container justifyContent="center" alignItems="flex-end">
+    <Grid item container justifyContent="center">
       {keys.map(
         (key, i) =>
           slots[i] && (

@@ -1,5 +1,5 @@
 //@ts-check
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import setupBridge from "../../bridge/setupBridge";
 import { Renderer } from "pixi.js";
@@ -11,6 +11,7 @@ import { styled } from "@mui/material";
 import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
+import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
 
 let isPlaying = false;
 
@@ -63,7 +64,9 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
     "game cleanup"
   );
 
-  renderer.resize(width, height);
+  useLayoutEffect(() => {
+    renderer.resize(width, height);
+  }, [renderer]);
 
   return null;
 }
@@ -85,34 +88,59 @@ function GameArea() {
   const divRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
 
+  const updateSize = () => {
+    // forcibly coerce a known only `undefined` to `typeof current`
+    /** @type {any} */
+    const expr = divRef.current;
+    /** @type {HTMLDivElement | undefined} */
+    const current = expr;
+    if (!current) return;
+
+    gameElement.style.visibility = "hidden";
+    gameElement.width = 0;
+    gameElement.height = 0;
+    requestAnimationFrame(() => {
+      const size = { width: current.offsetWidth - 1, height: current.offsetHeight - 1 };
+      gameElement.width = size.width;
+      gameElement.height = size.height;
+      gameElement.style.visibility = "visible";
+      setSize(size);
+    });
+  };
+
   useEffect(() => {
     // forcibly coerce a known only `undefined` to `typeof current`
     /** @type {any} */
     const expr = divRef.current;
     /** @type {HTMLDivElement | undefined} */
     const current = expr;
-
-    if (!current) throw new Error("cannot be undef");
+    if (!current) return;
 
     current.appendChild(gameElement);
 
-    const listener = () => {
-      gameElement.style.visibility = "hidden";
-      gameElement.width = 0;
-      gameElement.height = 0;
-      requestAnimationFrame(() => {
-        const size = { width: current.offsetWidth - 1, height: current.offsetHeight - 1 };
-        gameElement.width = size.width;
-        gameElement.height = size.height;
-        gameElement.style.visibility = "visible";
-        setSize(size);
-      });
-    };
+    updateSize();
 
-    listener();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
-    window.addEventListener("resize", listener);
-    return () => window.removeEventListener("resize", listener);
+  useEffect(() => {
+    // when we're loading the world, the block bar isn't loaded
+    // once the game loads, then the block bar loads, and it takes
+    // up some space. once it takes up space, the screen overflows
+    // because the game is set at a fixed height
+    //
+    // https://stackoverflow.com/questions/14866775/detect-document-height-change
+    // here we detect any changes in height, and then re-set our height
+    let heightOld = document.body.scrollHeight;
+    loopRequestAnimationFrame(() => {
+      let heightNow = document.body.scrollHeight;
+
+      if (heightOld != heightNow) {
+        updateSize();
+        heightOld = heightNow;
+      }
+    });
   }, []);
 
   return (

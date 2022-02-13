@@ -54,23 +54,30 @@ export default function GameUI({ children: gameCanvas }) {
           <PlayWindow item xs>
             {gameCanvas}
           </PlayWindow>
-          <GrayFilled item xs={2}>
-            <Grid container item direction="row" alignItems="stretch">
-              <Grid container item xs={3} justifyContent="center">
+          <GrayFilled item xs="auto">
+            <Grid
+              container
+              item
+              direction="row"
+              justifyContent="space-between"
+              alignItems="stretch"
+              wrap="nowrap"
+            >
+              <Grid container item justifyContent="center">
                 <MobileControls />
               </Grid>
-              <Grid container item xs={6} justifyContent="flex-end">
+              <Grid container item xs="auto">
                 <Suspense fallback={null}>
                   <BlockBar />
                 </Suspense>
               </Grid>
-              <Grid container item xs={3} alignItems="flex-end">
+              <Grid container item alignItems="flex-end">
                 <WorldSettingsButton />
               </Grid>
             </Grid>
           </GrayFilled>
         </Grid>
-        <Grid item xs={2} container direction="column" alignItems="stretch" justifyContent="">
+        <Grid item xs={2} container direction="column" alignItems="stretch">
           <BlackFilled item xs={2}>
             <Suspense fallback={null}>
               <PlayerList />
