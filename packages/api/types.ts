@@ -151,6 +151,14 @@ export const zPlayerListActionKind = addParse(
     {
       action: "kick" as const,
       playerId: zUserId,
+    },
+    {
+      action: "give god" as const,
+      playerId: zUserId,
+    },
+    {
+      action: "remove god" as const,
+      playerId: zUserId,
     }
   )
 );

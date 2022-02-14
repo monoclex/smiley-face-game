@@ -6,6 +6,7 @@ export const ArrowDirection = {
   Down: 3,
   Left: 4,
 };
+
 export const BoostDirection = {
   Up: 5,
   Right: 6,
@@ -18,6 +19,10 @@ export const ZoostDirection = {
   Right: 10,
   Down: 11,
   Left: 12,
+};
+
+export const DotDirection = {
+  None: 13,
 };
 
 export const SpikeDirection = {

@@ -89,7 +89,10 @@ export class Game {
         this.players.remove(event.playerId);
         return 0;
       case "SERVER_ROLE_UPDATE":
-        this.players.updateRole(event.playerId, event.newRole);
+        this.players.updatePerms(event);
+        return 0;
+      case "SERVER_TOGGLE_GOD":
+        this.players.get(event.playerId).isInGodMode = event.god;
         return 0;
       case "SERVER_WORLD_ACTION":
         return this.handleWorldAction(event);

@@ -54,6 +54,8 @@ export default class PlayerRenderer {
       gamePlayer.container.x = player.position.x;
       gamePlayer.container.y = player.position.y;
 
+      gamePlayer.wings.visible = player.isInGodMode;
+
       if (player.isDead) {
         gamePlayer.sprite.tint = 0xff0000;
       } else {

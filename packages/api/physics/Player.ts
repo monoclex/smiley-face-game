@@ -17,6 +17,7 @@ export interface CheapPlayer {
   id: number;
   role: ZRole;
   username: string;
+  canGod: boolean;
 }
 
 export class Player {
@@ -32,7 +33,9 @@ export class Player {
     readonly name: string,
     public role: ZRole,
     readonly isGuest: boolean,
-    public position: Vector // prettier dont put this on a newline
+    public position: Vector,
+    public canGod: boolean,
+    inGod: boolean
   ) {
     this.input = {
       up: false,
@@ -41,10 +44,41 @@ export class Player {
       right: false,
       jump: false,
     };
+
+    this.isInGodMode = inGod;
   }
 
   cheap(): CheapPlayer {
-    return { id: this.id, role: this.role, username: this.name };
+    return { id: this.id, role: this.role, username: this.name, canGod: this.canGod };
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  private inGodMode = false;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  get isInGodMode(): boolean {
+    return this.inGodMode;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  set isInGodMode(flag: boolean) {
+    this.inGodMode = flag;
+    if (this.inGodMode) {
+      this.resetModifiers();
+    }
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  toggleGodMode() {
+    this.isInGodMode = !this.isInGodMode;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  resetModifiers() {
+    this.origModX = 0;
+    this.origModY = 0;
+    this.modX = 0;
+    this.modY = 0;
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

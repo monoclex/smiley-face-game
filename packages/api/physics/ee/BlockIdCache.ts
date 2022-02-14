@@ -1,6 +1,7 @@
 import TileRegistration from "../../tiles/TileRegistration";
 
 export class BlockIdCache {
+  readonly dot: number;
   readonly arrowUp: number;
   readonly arrowRight: number;
   readonly arrowDown: number;
@@ -25,6 +26,7 @@ export class BlockIdCache {
   readonly checkpoint: number;
 
   constructor(readonly tiles: TileRegistration) {
+    this.dot = tiles.id("dot");
     this.arrowUp = tiles.id("arrow-up");
     this.arrowRight = tiles.id("arrow-right");
     this.arrowDown = tiles.id("arrow-down");

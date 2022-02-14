@@ -6,6 +6,7 @@ import atlas from "../assets/atlas.png";
 import select from "../assets/select.png";
 import gun from "../assets/held_gun.png";
 import smile from "../assets/smile.png";
+import defaultWings from "../assets/wings/default.png";
 import findTexture from "./atlasFindFrame";
 
 // add textures here
@@ -16,6 +17,7 @@ const textureDef = {
   select,
   gun,
   smile,
+  ["wings-default"]: defaultWings,
 } as const;
 
 class TexturesObject<T extends { atlas: string }> {

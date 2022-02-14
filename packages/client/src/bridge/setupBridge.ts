@@ -63,8 +63,11 @@ export default async function setupBridge(
     joinLocation: connection.init.spawnPosition,
     hasGun: false,
     gunEquipped: false,
+    canGod: connection.init.canGod,
+    inGod: false,
   });
 
+  playerList.self = self;
   state.self = self;
 
   game.physics.events.on("keyTouch", (_, player) => {
@@ -82,13 +85,6 @@ export default async function setupBridge(
       // needed so that when the player walks out of a blob of keys,
       // the keys will turn back to doors/gates
       gameRenderer.worldRenderer.flagDirty();
-    }
-  });
-
-  game.players.events.on("roleUpdate", (player) => {
-    if (player === self) {
-      // needed so that when the player gets edit the block bar shows up
-      gameGlobal.modify({ self: player.cheap() });
     }
   });
 

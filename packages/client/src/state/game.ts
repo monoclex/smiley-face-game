@@ -3,7 +3,7 @@ import { atom, selector } from "recoil";
 import Message from "./Message";
 import SharedGlobal from "./SharedGlobal";
 
-interface GameState {
+export interface GameState {
   self: CheapPlayer;
   players: CheapPlayer[];
   messages: Message[];
@@ -11,7 +11,7 @@ interface GameState {
 
 const defaultGameState: GameState = {
   // TODO: don't have hardcoded weird defaults?
-  self: { id: 0, username: "N/A", role: "non" },
+  self: { id: 0, username: "N/A", role: "non", canGod: false },
   players: [],
   messages: [],
 };

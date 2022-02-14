@@ -190,7 +190,7 @@ export default class MouseInteraction {
   draw() {
     this.selection.visible = true;
 
-    if (!inputEnabled() || !this.editingPlayer.hasEdit || !this.mouseInGame) {
+    if (!inputEnabled() || !this.mouseInGame || !this.authoredBlockPlacer.canEdit) {
       this.selection.visible = false;
       return;
     }

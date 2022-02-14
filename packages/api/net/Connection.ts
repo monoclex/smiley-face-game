@@ -35,6 +35,7 @@ import TileRegistration from "../tiles/TileRegistration";
 import createRegistration from "../tiles/createRegistration";
 
 const zEquipped = addParse(boolean);
+const zGodMode = addParse(boolean);
 
 /** A very simple check just to make sure that a websocket is being passed in. */
 function parseWebsocket(payload: unknown): payload is Websocket {
@@ -380,6 +381,9 @@ export default class Connection {
     });
   }
 
+  // TODO: having duplicated `giveX` `takeX` methods is cringe
+  //   in fact, why is the action even a "give x" or "take x" at all?
+
   /**
    * Gives edit to a player. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to give edit to.
@@ -411,6 +415,36 @@ export default class Connection {
   }
 
   /**
+   * Gives edit to a player. This may cause you to disconnect if you are not the owner.
+   * @param playerId The ID of the player to give edit to.
+   */
+  giveGod(playerId: ZUserId): void;
+
+  giveGod(argPlayerId: unknown) {
+    const playerId = zUserId.parse(argPlayerId);
+
+    this._send({
+      packetId: "PLAYER_LIST_ACTION",
+      action: { action: "give god", playerId },
+    });
+  }
+
+  /**
+   * Takes edit from a player. This may cause you to disconnect if you are not the owner.
+   * @param playerId The ID of the player to take edit from.
+   */
+  takeGod(playerId: ZUserId): void;
+
+  takeGod(argPlayerId: unknown) {
+    const playerId = zUserId.parse(argPlayerId);
+
+    this._send({
+      packetId: "PLAYER_LIST_ACTION",
+      action: { action: "remove god", playerId },
+    });
+  }
+
+  /**
    * Kicks a player from your world. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to kick.
    */
@@ -422,6 +456,25 @@ export default class Connection {
     this._send({
       packetId: "PLAYER_LIST_ACTION",
       action: { action: "kick", playerId },
+    });
+  }
+
+  /**
+   * Sends a packet to the server to enable or disable god mode. It is assumed you already
+   * know whether or not god mode is possible, so only send packets when you do. If you send
+   * a god mode packet "correctly", you will not hear anything back from the server (but
+   * other players will). If you send it incorrectly, you will hear a god mode packet back
+   * from the server.
+   * @param godMode If god mode should be enabled or not
+   */
+  toggleGod(godMode: boolean): void;
+
+  toggleGod(argGodMode: unknown) {
+    const godMode = zGodMode.parse(argGodMode);
+
+    this._send({
+      packetId: "TOGGLE_GOD",
+      god: godMode,
     });
   }
 

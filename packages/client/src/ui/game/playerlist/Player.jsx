@@ -11,6 +11,7 @@ import { useGameState } from "../../hooks";
 import AccountCowboyHat from "mdi-material-ui/AccountCowboyHat";
 import AccountTie from "mdi-material-ui/AccountTie";
 import AccountEdit from "mdi-material-ui/AccountEdit";
+import Helicopter from "mdi-material-ui/Helicopter";
 
 const PlayerDisplay = styled("div")(({ theme }) => ({
   // clsx(classes.hoverable
@@ -36,7 +37,7 @@ const MarginRightSpan = styled("span")({
   marginRight: 4,
 });
 
-export const Player = ({ username, id: playerId, role: roleParam }) => {
+export const Player = ({ username, id: playerId, role: roleParam, canGod }) => {
   const { connection } = useGameState();
   if (!connection) throw new Error("impossible state");
 
@@ -78,6 +79,24 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
     );
   };
 
+  const setGod = (shouldHaveGod) => {
+    // can't change edit if not owner
+    if (mainPlayer.role !== "owner") return;
+
+    if (shouldHaveGod) {
+      connection.giveGod(playerId);
+    } else {
+      connection.takeGod(playerId);
+    }
+
+    enqueueSnackbar(
+      `${shouldHaveGod ? "Gave" : "Took"} god ${shouldHaveGod ? "to" : "from"} ${username}`,
+      {
+        variant: "success",
+      }
+    );
+  };
+
   // make sure that when you add things to `actions` you can guarantee a static order
   // so that the `key` prop can be set to the index it's at in the array
   if (mainPlayer.role === "owner") {
@@ -92,6 +111,17 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
           onChange={() => setEdit(!(role === "edit"))}
         >
           <Pencil />
+        </ToggleButton>
+      );
+
+      actions.push(
+        <ToggleButton
+          value="god"
+          aria-label="god"
+          selected={canGod}
+          onChange={() => setGod(!canGod)}
+        >
+          <Helicopter />
         </ToggleButton>
       );
     }
@@ -123,6 +153,11 @@ export const Player = ({ username, id: playerId, role: roleParam }) => {
             {role === "edit" && <AccountEdit onClick={() => setEdit(false)} />}
             {role === "owner" && <AccountTie />}
             {role === "staff" && <AccountCowboyHat />}
+          </MarginRightSpan>
+        )}
+        {canGod && (
+          <MarginRightSpan>
+            <Helicopter />
           </MarginRightSpan>
         )}
 

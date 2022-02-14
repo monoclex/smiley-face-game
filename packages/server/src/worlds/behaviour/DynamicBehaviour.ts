@@ -28,6 +28,7 @@ export default class DynamicBehaviour implements Behaviour {
 
   onPlayerJoin(connection: Connection) {
     connection.hasEdit = true;
+    connection.canGod = false; // todo: make users able to configure this on world create
   }
 
   loadDetails(): Promise<ZWorldDetails> {

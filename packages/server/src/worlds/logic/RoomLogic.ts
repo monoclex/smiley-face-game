@@ -93,6 +93,8 @@ export default class RoomLogic {
       joinLocation: connection.lastPosition,
       hasGun: connection.hasGun,
       gunEquipped: connection.gunEquipped,
+      canGod: connection.canGod,
+      inGod: connection.inGod,
     });
 
     const initPacket: ZSPacket = {
@@ -107,6 +109,7 @@ export default class RoomLogic {
       username: connection.username,
       isGuest: connection.isGuest,
       tiles: tileJsonFile,
+      canGod: connection.canGod,
       players: Array.from(this.#players.values()).map((otherUser) => ({
         packetId: "SERVER_PLAYER_JOIN",
         playerId: otherUser.playerId,
@@ -116,6 +119,8 @@ export default class RoomLogic {
         joinLocation: otherUser.lastPosition,
         hasGun: otherUser.hasGun,
         gunEquipped: otherUser.gunEquipped,
+        canGod: otherUser.canGod,
+        inGod: otherUser.inGod,
       })),
     };
 

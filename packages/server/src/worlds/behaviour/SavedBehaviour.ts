@@ -23,7 +23,9 @@ export default class SavedBehaviour implements Behaviour {
       connection.hasEdit = false;
       console.warn("unable to check details of world");
     } else {
-      connection.hasEdit = this.#details.ownerId === connection.authTokenPayload.aud;
+      const isOwner = this.#details.ownerId === connection.authTokenPayload.aud;
+      connection.hasEdit = isOwner;
+      connection.canGod = isOwner;
     }
   }
 

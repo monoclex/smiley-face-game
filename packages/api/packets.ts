@@ -113,6 +113,14 @@ export const zKeyTouch = addParse(
 );
 export type ZKeyTouch = SchemaInput<typeof zKeyTouch>;
 
+export const zToggleGod = addParse(
+  Schema({
+    packetId: "TOGGLE_GOD" as const,
+    god: boolean,
+  })
+);
+export type ZToggleGod = SchemaInput<typeof zToggleGod>;
+
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = addParse(
   Schema({
@@ -151,10 +159,23 @@ export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) 
 export type ZSBlockSingle = SchemaInput<ReturnType<typeof zsBlockSingle>>;
 
 export const zsRoleUpdate = addParse(
-  Schema.merge(zs, {
-    packetId: "SERVER_ROLE_UPDATE" as const,
-    newRole: zRole,
-  })
+  Schema.merge(
+    zs,
+    Schema.either(
+      // soon we will be permission based but for now,
+      // i will maintain legacy role-based things
+      {
+        packetId: "SERVER_ROLE_UPDATE" as const,
+        permission: "ROLE" as const,
+        newRole: zRole,
+      },
+      {
+        packetId: "SERVER_ROLE_UPDATE" as const,
+        permission: "GOD" as const,
+        canGod: boolean,
+      }
+    )
+  )
 );
 export type ZSRoleUpdate = SchemaInput<typeof zsRoleUpdate>;
 
@@ -174,6 +195,8 @@ export const zsPlayerJoin = addParse(
     joinLocation: zPlayerPosition,
     hasGun: boolean,
     gunEquipped: boolean,
+    canGod: boolean,
+    inGod: boolean,
   })
 );
 export type ZSPlayerJoin = SchemaInput<typeof zsPlayerJoin>;
@@ -207,6 +230,7 @@ export const zsInit = addParse(
     username: zUsername,
     isGuest: boolean,
     tiles: zTileJsonFile,
+    canGod: boolean,
     players: array.of(zsPlayerJoin),
   })
 );
@@ -258,6 +282,15 @@ export const zsKeyTouch = addParse(
 );
 export type ZSKeyTouch = SchemaInput<typeof zsKeyTouch>;
 
+export const zsToggleGod = addParse(
+  Schema({
+    packetId: "SERVER_TOGGLE_GOD" as const,
+    playerId: zUserId,
+    god: boolean,
+  })
+);
+export type ZSToggleGod = SchemaInput<typeof zsToggleGod>;
+
 /**
  * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
  * client packets, they are expected to add them to this union. At that point, typescript type checking will take over
@@ -281,7 +314,7 @@ export const zPacket = (width: number, height: number) => {
         zPlayerListAction,
         blockSingle
       ),
-      Schema.either(zBlockLine, zKeyTouch)
+      Schema.either(zBlockLine, zKeyTouch, zToggleGod)
     )
   );
 };
@@ -324,7 +357,15 @@ export const zsPacket = (width: number, height: number) => {
         zsPlayerJoin,
         zsPlayerLeave
       ),
-      Schema.either(zsRoleUpdate, zsWorldAction, zsBlockLine, sBlockSingle, zsEvent, zsKeyTouch)
+      Schema.either(
+        zsRoleUpdate,
+        zsWorldAction,
+        zsBlockLine,
+        sBlockSingle,
+        zsEvent,
+        zsKeyTouch,
+        zsToggleGod
+      )
     )
   );
 };

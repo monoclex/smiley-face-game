@@ -1,11 +1,18 @@
 import { Game, ZSPacket } from "@smiley-face-game/api";
+import { Player } from "@smiley-face-game/api/physics/Player";
 import { gameGlobal } from "../state";
 
 export class PlayerList {
+  self?: Player;
+
   constructor(readonly game: Game) {
     this.updatePlayerList();
-    this.game.players.events.on("add", this.updatePlayerList.bind(this));
-    this.game.players.events.on("remove", this.updatePlayerList.bind(this));
+
+    const update = this.updatePlayerList.bind(this);
+    this.game.players.events.on("add", update);
+    this.game.players.events.on("remove", update);
+    this.game.players.events.on("roleUpdate", update);
+    this.game.players.events.on("updateCanGod", update);
   }
 
   handleEvent(event: ZSPacket) {
@@ -21,6 +28,7 @@ export class PlayerList {
   updatePlayerList() {
     gameGlobal.modify({
       players: this.game.players.list.map((x) => x.cheap()),
+      self: this.self?.cheap(),
     });
   }
 }
