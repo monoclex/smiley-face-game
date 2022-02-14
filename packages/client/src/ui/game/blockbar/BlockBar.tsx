@@ -12,17 +12,18 @@ import { useGameState } from "../../hooks";
 const map = {
   "`": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "0": 10, "-": 11, "=": 12,
   "~": 0, "!": 1, "@": 2, "#": 3,   $: 4, "%": 5, "^": 6, "&": 7, "*": 8, "(": 9, ")": 10,   _: 11, "+": 12,
+
+  "[": 13, "]": 14,
 };
 
 function isMapIndex(s: string): s is keyof typeof map {
   return s in map;
 }
 
-const keys = "`1234567890-=".split("");
+const keys = "`1234567890-=[]".split("");
 
-// TODO(SirJosh): make this more performant lol
-//   and if you see this pester me about it because i really do want to do some
-//   performance optimization (i've been deprived of optimizing for a while)
+const MemoizedBlock = React.memo(Block);
+
 const BlockBar = () => {
   const self = useRecoilValue(currentPlayerState);
   const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(undefined);
@@ -32,12 +33,12 @@ const BlockBar = () => {
   const tiles = state.game.tiles;
   const blockBar = state.blockBar;
 
-  const [slots, setSlots] = useState(() => [
+  const [slots] = useState(() => [
     { pack: tiles.emptyPack, entry: 0 },
     ...tiles.packs.map((pack) => ({ pack, entry: 0 })),
   ]);
 
-  function selectSlot(slotIdx: number) {
+  const selectSlot = React.useCallback((slotIdx: number) => {
     const slot = slots?.[slotIdx];
     if (!slot) return;
 
@@ -50,15 +51,18 @@ const BlockBar = () => {
         slot.entry = 0;
       }
 
+      // n.b. this actually doesn't do anything because it's the same reference
       // we mutated slots
-      setSlots(slots);
+      // setSlots(slots);
 
       block = slot.pack.blocks[slot.entry];
     }
 
     // switch to new block
     setSelectedBlock(block);
-  }
+  }, []);
+
+  const loaderLoad = React.useCallback(blockBar.load.bind(blockBar), []);
 
   useEffect(() => {
     const listener = (keyboardEvent: KeyboardEvent) => {
@@ -82,15 +86,14 @@ const BlockBar = () => {
       {keys.map(
         (key, i) =>
           slots[i] && (
-            <Block
+            <MemoizedBlock
               key={i}
               slot={key}
               slotId={i}
               block={slots[i].pack.blocks[slots[i].entry]}
-              nextState={() => selectSlot(i)}
-              onClick={() => selectSlot(i)}
+              selectSlot={selectSlot}
               selected={slots[i].pack.blocks[slots[i].entry] === selectedBlock}
-              loader={(id) => blockBar.load(id)}
+              loader={loaderLoad}
             />
           )
       )}

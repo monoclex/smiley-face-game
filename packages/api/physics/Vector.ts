@@ -5,6 +5,10 @@ export class Vector {
   static readonly Right: Vector = new Vector(1, 0);
   static readonly Left: Vector = new Vector(-1, 0);
 
+  // just holding the static value "1, 1".
+  // could probably replace it later
+  static readonly SPAWN_LOCATION: Vector = new Vector(1, 1);
+
   static newScalar(scalar: number) {
     return new Vector(scalar, scalar);
   }
@@ -49,5 +53,9 @@ export class Vector {
 
   static divs(self: Vector, scalar: number): Vector {
     return new Vector(self.x / scalar, self.y / scalar);
+  }
+
+  static eq(self: Vector, other: Vector): boolean {
+    return self.x === other.x && self.y === other.y;
   }
 }

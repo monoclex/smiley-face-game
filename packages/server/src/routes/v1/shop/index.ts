@@ -11,7 +11,10 @@ import ShopItem from "../../../database/models/ShopItem";
 import AccountRepo from "../../../database/repos/AccountRepo";
 import Account from "../../../database/models/Account";
 
-type UsedDependencies = Pick<Dependencies, "authVerifier" | "accountRepo" | "shopRepo" | "connection">;
+type UsedDependencies = Pick<
+  Dependencies,
+  "authVerifier" | "accountRepo" | "shopRepo" | "connection"
+>;
 
 export default function (deps: UsedDependencies): Router {
   const { authVerifier, accountRepo, shopRepo, connection } = deps;
@@ -34,6 +37,8 @@ export default function (deps: UsedDependencies): Router {
         const items: ZShopItem[] = [];
 
         for (const item of shopItems) {
+          if (item.removed) continue;
+
           const spentItem = spentItems.find((spentItem) => spentItem.shopItemId === item.id);
 
           items.push({
@@ -71,56 +76,66 @@ export default function (deps: UsedDependencies): Router {
           const body: ZShopBuyReq = req.body as unknown as ZShopBuyReq;
 
           const shopItemInfo = shopItems.find((item) => item.id === body.id);
-          if (shopItemInfo === undefined) throw new Error(`no item with id ${body.id} exists`);
+          if (shopItemInfo === undefined || shopItemInfo.removed)
+            throw new Error(`no item with id ${body.id} exists`);
 
-          const { account, item, purchased } = await connection.transaction("SERIALIZABLE", async (entityManager) => {
-            // https://www.postgresql.org/docs/9.5/transaction-iso.html#XACT-SERIALIZABLE
+          const { account, item, purchased } = await connection.transaction(
+            "SERIALIZABLE",
+            async (entityManager) => {
+              // https://www.postgresql.org/docs/9.5/transaction-iso.html#XACT-SERIALIZABLE
 
-            const accountRepo = new AccountRepo(entityManager.getRepository(Account));
-            const shopRepo = new ShopRepo(entityManager.getRepository(ShopItem));
+              const accountRepo = new AccountRepo(entityManager.getRepository(Account));
+              const shopRepo = new ShopRepo(entityManager.getRepository(ShopItem));
 
-            const account = await accountRepo.findById(req.jwt.aud);
-            const item = await shopRepo.getItem(account, body.id);
+              const account = await accountRepo.findById(req.jwt.aud);
+              const item = await shopRepo.getItem(account, body.id);
 
-            if (shopItemInfo.limited && item.purchased > 0) throw new Error("you have already purchased this item!");
+              if (shopItemInfo.limited && item.purchased > 0)
+                throw new Error("you have already purchased this item!");
 
-            // if we are spending more energy than we need to, we don't want to
-            const maxNeededToSpend = Math.min(shopItemInfo.energyCost - item.spentEnergy, body.spendEnergy);
+              // if we are spending more energy than we need to, we don't want to
+              const maxNeededToSpend = Math.min(
+                shopItemInfo.energyCost - item.spentEnergy,
+                body.spendEnergy
+              );
 
-            // we don't want to spend negative energy
-            const energyToSpend = Math.max(0, maxNeededToSpend);
+              // we don't want to spend negative energy
+              const energyToSpend = Math.max(0, maxNeededToSpend);
 
-            if (account.currentEnergy < energyToSpend)
-              throw new Error(`you do not have ${energyToSpend} energy! you only have ${account.currentEnergy}`);
+              if (account.currentEnergy < energyToSpend)
+                throw new Error(
+                  `you do not have ${energyToSpend} energy! you only have ${account.currentEnergy}`
+                );
 
-            // perform the transaction
-            account.currentEnergy -= energyToSpend;
-            item.spentEnergy += energyToSpend;
+              // perform the transaction
+              account.currentEnergy -= energyToSpend;
+              item.spentEnergy += energyToSpend;
 
-            if (item.spentEnergy > shopItemInfo.energyCost) {
-              // the item has more spent energy than the cost of it
-              // most likely, the maximum energy values have been adjusted
-              //
-              // refund the user the excess energy
-              const excessEnergy = item.spentEnergy - shopItemInfo.energyCost;
+              if (item.spentEnergy > shopItemInfo.energyCost) {
+                // the item has more spent energy than the cost of it
+                // most likely, the maximum energy values have been adjusted
+                //
+                // refund the user the excess energy
+                const excessEnergy = item.spentEnergy - shopItemInfo.energyCost;
 
-              item.spentEnergy -= excessEnergy;
-              account.currentEnergy += excessEnergy;
+                item.spentEnergy -= excessEnergy;
+                account.currentEnergy += excessEnergy;
+              }
+
+              const shouldPurchaseItem = item.spentEnergy === shopItemInfo.energyCost;
+              if (shouldPurchaseItem) {
+                // we have enough energy to purchase one item
+                item.spentEnergy = 0;
+                item.purchased += 1;
+                await shopItemInfo.purchase(account, entityManager);
+              }
+
+              await accountRepo.save(account);
+              await shopRepo.save(item);
+
+              return { account, item, purchased: shouldPurchaseItem };
             }
-
-            const shouldPurchaseItem = item.spentEnergy === shopItemInfo.energyCost;
-            if (shouldPurchaseItem) {
-              // we have enough energy to purchase one item
-              item.spentEnergy = 0;
-              item.purchased += 1;
-              await shopItemInfo.purchase(account, entityManager);
-            }
-
-            await accountRepo.save(account);
-            await shopRepo.save(item);
-
-            return { account, item, purchased: shouldPurchaseItem };
-          });
+          );
 
           // we only use `account` and `item` to return a *view* of the
           // account & item at the last known "good" state

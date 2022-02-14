@@ -7,6 +7,7 @@ import { Game } from "@smiley-face-game/api";
 import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
 import { selectedBlockState } from "../state";
+import { Player } from "@smiley-face-game/api/physics/Player";
 
 enum MouseState {
   None,
@@ -29,7 +30,8 @@ export default class MouseInteraction {
     private readonly root: Container,
     private readonly authoredBlockPlacer: AuthoredBlockPlacer,
     private readonly game: Game,
-    private readonly gameElement: HTMLElement
+    private readonly editingPlayer: Player,
+    gameElement: HTMLElement
   ) {
     document.addEventListener("mousemove", (event) => {
       this.mousePos = new Vector(event.clientX, event.clientY);
@@ -188,7 +190,7 @@ export default class MouseInteraction {
   draw() {
     this.selection.visible = true;
 
-    if (!inputEnabled() || !this.mouseInGame) {
+    if (!inputEnabled() || !this.editingPlayer.hasEdit || !this.mouseInGame) {
       this.selection.visible = false;
       return;
     }

@@ -51,6 +51,9 @@ const tiles: ZTileJsonFile = [
   },
   {
     behavior: "sign",
+  },
+  {
+    behavior: "spike",
   }
 ];
 

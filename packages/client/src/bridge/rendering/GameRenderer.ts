@@ -30,9 +30,9 @@ export default class GameRenderer {
   readonly events = createNanoEvents<GameRendererEvents>();
 
   constructor(readonly game: Game, readonly renderer: Renderer) {
-    this.playerRenderer = new PlayerRenderer(game, this.root, renderer);
     this.worldRenderer = new WorldRendering(game);
     this.signRenderer = new SignRendering(game);
+    this.playerRenderer = new PlayerRenderer(game, this.root, renderer, this.worldRenderer);
 
     // <-- most behind
     this.root.addChild(this.worldRenderer.worldBehind);

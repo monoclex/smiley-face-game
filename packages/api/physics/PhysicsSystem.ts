@@ -1,6 +1,7 @@
 import type { Emitter } from "../nanoevents";
 import type { ZSMovement } from "../packets";
 import type { Player } from "./Player";
+import { Vector } from "./Vector";
 
 export interface PhysicsEvents {
   keyTouch(kind: "red", presser: Player): void;
@@ -17,6 +18,8 @@ export interface PhysicsEvents {
 
   signOn(x: number, y: number): void;
   signOff(): void;
+
+  checkpoint(player: Player, position: Vector): void;
 }
 
 export interface PhysicsSystem {
