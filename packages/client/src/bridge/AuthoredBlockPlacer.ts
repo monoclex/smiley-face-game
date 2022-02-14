@@ -16,6 +16,10 @@ export default class AuthoredBlockPlacer {
     private readonly blockBar: ClientBlockBar
   ) {}
 
+  get canEdit(): boolean {
+    return this.author.hasEdit;
+  }
+
   place(layer: TileLayer, lastPos: undefined | Vector, pos: Vector, id: number, heap?: ZHeap) {
     if (lastPos === undefined) {
       const didModify = this.game.blocks.placeSingle(layer, pos, id, this.author.id, heap);
