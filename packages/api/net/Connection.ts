@@ -381,6 +381,9 @@ export default class Connection {
     });
   }
 
+  // TODO: having duplicated `giveX` `takeX` methods is cringe
+  //   in fact, why is the action even a "give x" or "take x" at all?
+
   /**
    * Gives edit to a player. This may cause you to disconnect if you are not the owner.
    * @param playerId The ID of the player to give edit to.
@@ -408,6 +411,36 @@ export default class Connection {
     this._send({
       packetId: "PLAYER_LIST_ACTION",
       action: { action: "remove edit", playerId },
+    });
+  }
+
+  /**
+   * Gives edit to a player. This may cause you to disconnect if you are not the owner.
+   * @param playerId The ID of the player to give edit to.
+   */
+  giveGod(playerId: ZUserId): void;
+
+  giveGod(argPlayerId: unknown) {
+    const playerId = zUserId.parse(argPlayerId);
+
+    this._send({
+      packetId: "PLAYER_LIST_ACTION",
+      action: { action: "give god", playerId },
+    });
+  }
+
+  /**
+   * Takes edit from a player. This may cause you to disconnect if you are not the owner.
+   * @param playerId The ID of the player to take edit from.
+   */
+  takeGod(playerId: ZUserId): void;
+
+  takeGod(argPlayerId: unknown) {
+    const playerId = zUserId.parse(argPlayerId);
+
+    this._send({
+      packetId: "PLAYER_LIST_ACTION",
+      action: { action: "remove god", playerId },
     });
   }
 

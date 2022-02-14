@@ -52,6 +52,17 @@ export class Players {
     this.events.emit("remove", player);
   }
 
+  updatePerms(event: ZSRoleUpdate): 0 {
+    switch (event.permission) {
+      case "ROLE":
+        this.updateRole(event.playerId, event.newRole);
+        return 0;
+      case "GOD":
+        this.get(event.playerId).canGod = event.canGod;
+        return 0;
+    }
+  }
+
   // TODO: turn these two into instance methods,
   //   and have new players get handle to `events`
   updateRole(playerId: number, newRole: ZRole) {

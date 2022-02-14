@@ -32,7 +32,8 @@ export class Player {
     readonly name: string,
     public role: ZRole,
     readonly isGuest: boolean,
-    public position: Vector // prettier dont put this on a newline
+    public position: Vector,
+    readonly canGod: boolean
   ) {
     this.input = {
       up: false,

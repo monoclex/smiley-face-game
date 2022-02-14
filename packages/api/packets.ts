@@ -159,10 +159,23 @@ export const zsBlockSingle = (blockPosition: ReturnType<typeof zBlockPosition>) 
 export type ZSBlockSingle = SchemaInput<ReturnType<typeof zsBlockSingle>>;
 
 export const zsRoleUpdate = addParse(
-  Schema.merge(zs, {
-    packetId: "SERVER_ROLE_UPDATE" as const,
-    newRole: zRole,
-  })
+  Schema.merge(
+    zs,
+    Schema.either(
+      // soon we will be permission based but for now,
+      // i will maintain legacy role-based things
+      {
+        packetId: "SERVER_ROLE_UPDATE" as const,
+        permission: "ROLE" as const,
+        newRole: zRole,
+      },
+      {
+        packetId: "SERVER_ROLE_UPDATE" as const,
+        permission: "GOD" as const,
+        canGod: boolean,
+      }
+    )
+  )
 );
 export type ZSRoleUpdate = SchemaInput<typeof zsRoleUpdate>;
 
