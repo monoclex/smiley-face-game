@@ -150,4 +150,51 @@ export class Player {
   }
   /** @version eephysics This may be removed when the physics engine changes */
   insideSign: false | Vector = false;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  deathTick: number = 0;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  get isDead(): boolean {
+    return this.deathTick !== 0;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  set isDead(value: boolean) {
+    this.deathTick = value ? this.ticks : 0;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  kill() {
+    if (!this.isDead) {
+      this.isDead = true;
+    }
+  }
+
+  /**
+   * Revives the player at a certain position (in block coordinates)
+   * @version eephysics This may be removed when the physics engine changes
+   */
+  revive(at: Vector) {
+    this.modX = 0;
+    this.modY = 0;
+    this.speedX = 0;
+    this.speedY = 0;
+    this.isDead = false;
+    this.queue = [ArrowDirection.Down]; // differs from ee `[]` default
+
+    // TODO: don't hardcode 32x32 world
+    this.position = Vector.mults(at, 32);
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  checkpoint: Vector | null = null;
+
+  get hasCheckpoint(): boolean {
+    return this.checkpoint !== null;
+  }
+
+  clearCheckpoint() {
+    this.checkpoint = null;
+  }
 }

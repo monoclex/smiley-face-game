@@ -30,7 +30,8 @@ export default class MouseInteraction {
     private readonly root: Container,
     private readonly authoredBlockPlacer: AuthoredBlockPlacer,
     private readonly game: Game,
-    private readonly gameElement: HTMLElement
+    private readonly editingPlayer: Player,
+    gameElement: HTMLElement
   ) {
     document.addEventListener("mousemove", (event) => {
       this.mousePos = new Vector(event.clientX, event.clientY);

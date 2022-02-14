@@ -1,6 +1,7 @@
 import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
+import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { TileLayer } from "@smiley-face-game/api/types";
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
 import textures from "../textures";
@@ -11,6 +12,7 @@ export default class WorldRendering {
 
   self!: Player;
   private dirty = true;
+  private onCheckpoint: Vector | null = null;
 
   private readonly void: TilingSprite;
   private readonly background: CompositeRectTileLayer & DisplayObject;
@@ -61,6 +63,11 @@ export default class WorldRendering {
     this.load(this.game.blocks.state.state);
   }
 
+  turnOnCheckpoint(pos: Vector) {
+    this.onCheckpoint = pos;
+    this.flagDirty();
+  }
+
   load(blocks: number[][][]) {
     this.action.clear();
     this.foreground.clear();
@@ -91,14 +98,21 @@ export default class WorldRendering {
           // because we've cleared the world, we don't want to place an empty tile
           // when we already have an *actual* empty tile
           if (y[x] === 0 || y[x] === null || y[x] === undefined) continue;
-          const textureName = this.mapTextureName(redKeyTouched, this.game.tiles.texture(y[x]));
+
+          const pos = new Vector(x, yIdx);
+          const textureName = this.mapTextureName(
+            redKeyTouched,
+            this.game.tiles.texture(y[x]),
+            pos
+          );
+
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }
       }
     }
   }
 
-  mapTextureName(redKeyTouched: boolean, name: string): string {
+  mapTextureName(redKeyTouched: boolean, name: string, pos: Vector): string {
     // TODO: there's got to be a better way to render different tiles depending
     //   on if the key is pressed or not
 
@@ -106,6 +120,13 @@ export default class WorldRendering {
       if (name === "keys-red-door") return "keys-red-gate";
       if (name === "keys-red-gate") return "keys-red-door";
     }
+
+    if (this.onCheckpoint) {
+      if (name === "checkpoint" && Vector.eq(this.onCheckpoint, pos)) {
+        return "checkpoint-on";
+      }
+    }
+
     return name;
   }
 }

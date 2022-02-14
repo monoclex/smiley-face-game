@@ -2,12 +2,18 @@ import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { Container, Renderer } from "pixi.js";
 import GamePlayer from "../GamePlayer";
+import WorldRendering from "./WorldRendering";
 
 export default class PlayerRenderer {
   gamePlayers: Map<number, GamePlayer> = new Map();
   focus!: Player;
 
-  constructor(readonly game: Game, readonly root: Container, readonly renderer: Renderer) {
+  constructor(
+    readonly game: Game,
+    readonly root: Container,
+    readonly renderer: Renderer,
+    readonly worldRenderer: WorldRendering
+  ) {
     // todo: make this a function lol
     for (const player of game.players.list) {
       const gamePlayer = new GamePlayer();
@@ -30,6 +36,11 @@ export default class PlayerRenderer {
       const index = this.players.getChildIndex(gamePlayer.container);
       this.players.removeChildAt(index);
     });
+
+    game.physics.events.on("checkpoint", (player, pos) => {
+      if (player !== this.focus) return;
+      this.worldRenderer.turnOnCheckpoint(pos);
+    });
   }
 
   readonly players: Container = new Container();
@@ -44,6 +55,12 @@ export default class PlayerRenderer {
       gamePlayer.container.y = player.position.y;
 
       gamePlayer.wings.visible = player.isInGodMode;
+
+      if (player.isDead) {
+        gamePlayer.sprite.tint = 0xff0000;
+      } else {
+        gamePlayer.sprite.tint = 0xffffff;
+      }
     }
 
     this.updateCameraView();

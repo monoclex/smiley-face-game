@@ -19,7 +19,9 @@
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
     "serve": "node watch.cjs",
-    "build": "node build.cjs"
+    "build": "node build.cjs",
+    "build:dev": "node build.cjs",
+    "build:prod": "node build.cjs"
   },
   "bugs": {
     "url": "https://github.com/SirJosh3917/smiley-face-game/issues"

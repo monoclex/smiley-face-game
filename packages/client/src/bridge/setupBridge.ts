@@ -98,6 +98,7 @@ export default async function setupBridge(
     gameRenderer.root,
     new AuthoredBlockPlacer(self, connection, game, blockBar),
     game,
+    self,
     gameElement
   );
   gameRenderer.events.on("draw", () => mouseInteraction.draw());

@@ -7,18 +7,22 @@ import { zRegisterGun } from "./RegisterGun";
 import { zRegisterKeys } from "./RegisterKeys";
 import { zRegisterSign } from "./RegisterSign";
 import { zRegisterSolid } from "./RegisterSolid";
+import { zRegisterSpike } from "./RegisterSpike";
 import { zRegisterZoost } from "./RegisterZoost";
 
 export const zTileRegistration = addParse(
   Schema.either(
-    zRegisterSolid,
-    zRegisterGun,
-    zRegisterArrow,
-    zRegisterEmpty,
-    zRegisterBoost,
-    zRegisterKeys,
-    zRegisterZoost,
-    zRegisterSign
+    Schema.either(
+      zRegisterSolid,
+      zRegisterGun,
+      zRegisterArrow,
+      zRegisterEmpty,
+      zRegisterBoost,
+      zRegisterKeys,
+      zRegisterZoost,
+      zRegisterSign
+    ),
+    zRegisterSpike
   )
 );
 export type ZTileRegistration = SchemaInput<typeof zTileRegistration>;

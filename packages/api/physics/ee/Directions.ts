@@ -25,6 +25,13 @@ export const DotDirection = {
   None: 13,
 };
 
+export const SpikeDirection = {
+  Up: 14,
+  Right: 15,
+  Down: 16,
+  Left: 17,
+};
+
 export const isBoost = (boostDirection: number) =>
   boostDirection >= BoostDirection.Up && boostDirection <= BoostDirection.Left;
 

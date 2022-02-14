@@ -19,6 +19,11 @@ export class BlockIdCache {
   readonly keysRedDoor: number;
   readonly gun: number;
   readonly sign: number;
+  readonly spikeUp: number;
+  readonly spikeRight: number;
+  readonly spikeDown: number;
+  readonly spikeLeft: number;
+  readonly checkpoint: number;
 
   constructor(readonly tiles: TileRegistration) {
     this.dot = tiles.id("dot");
@@ -39,5 +44,10 @@ export class BlockIdCache {
     this.keysRedDoor = tiles.id("keys-red-door");
     this.gun = tiles.id("gun");
     this.sign = tiles.id("sign");
+    this.spikeUp = tiles.id("spike-up");
+    this.spikeRight = tiles.id("spike-right");
+    this.spikeDown = tiles.id("spike-down");
+    this.spikeLeft = tiles.id("spike-left");
+    this.checkpoint = tiles.id("checkpoint");
   }
 }
