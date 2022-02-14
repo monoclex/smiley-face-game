@@ -71,8 +71,7 @@ export default class Keyboard {
       case "f":
       case "g":
         if (pressed && this.player.canGod) {
-          this.player.toggleGodMode();
-          this.connection.toggleGod(this.player.isInGodMode);
+          this.triggerGod();
         }
         break;
       // case "e":
@@ -85,5 +84,15 @@ export default class Keyboard {
     if (didChange) {
       this.connection.move(this.player.position, this.player.velocity, this.player.input);
     }
+  }
+
+  triggerGod() {
+    if (!this.player.canGod) {
+      console.warn("called `triggerGod` when player can't god");
+      console.trace();
+    }
+
+    this.player.toggleGodMode();
+    this.connection.toggleGod(this.player.isInGodMode);
   }
 }

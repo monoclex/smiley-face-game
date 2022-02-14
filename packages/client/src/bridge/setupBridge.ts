@@ -12,7 +12,6 @@ import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
 import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
-import { Player } from "@smiley-face-game/api/physics/Player";
 
 interface Bridge {
   game: Game;

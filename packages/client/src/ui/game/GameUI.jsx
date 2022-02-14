@@ -6,6 +6,7 @@ import BlockBar from "./blockbar/BlockBar";
 import PlayerList from "./playerlist/PlayerList";
 import MobileControls from "./MobileControls";
 import WorldSettingsButton from "./WorldSettingsButton";
+import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 
 const RootGrid = styled(Grid)({
@@ -73,6 +74,9 @@ export default function GameUI({ children: gameCanvas }) {
               </Grid>
               <Grid container item alignItems="flex-end">
                 <WorldSettingsButton />
+                <Suspense fallback={null}>
+                  <GodModeButton />
+                </Suspense>
               </Grid>
             </Grid>
           </GrayFilled>

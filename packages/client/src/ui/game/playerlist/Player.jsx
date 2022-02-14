@@ -155,7 +155,6 @@ export const Player = ({ username, id: playerId, role: roleParam, canGod }) => {
             {role === "staff" && <AccountCowboyHat />}
           </MarginRightSpan>
         )}
-
         {canGod && (
           <MarginRightSpan>
             <Helicopter />
