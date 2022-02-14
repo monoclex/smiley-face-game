@@ -26,8 +26,14 @@ export default class Connection {
   get canPlaceBlocks(): boolean {
     return this.hasEdit && (this.hasGun ? !this.gunEquipped : true);
   }
+  canGod = false;
+  inGod = false;
 
-  constructor(readonly webSocket: WebSocket, readonly authTokenPayload: AuthPayload, readonly worldTokenPayload: ZJoinRequest) {
+  constructor(
+    readonly webSocket: WebSocket,
+    readonly authTokenPayload: AuthPayload,
+    readonly worldTokenPayload: ZJoinRequest
+  ) {
     // ping the client every 30 seconds
     const pingTimer = setInterval(() => {
       if (webSocket.readyState === webSocket.OPEN) {

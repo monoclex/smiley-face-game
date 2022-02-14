@@ -91,6 +91,9 @@ export class Game {
       case "SERVER_ROLE_UPDATE":
         this.players.updateRole(event.playerId, event.newRole);
         return 0;
+      case "SERVER_TOGGLE_GOD":
+        this.players.get(event.playerId).isInGodMode = event.god;
+        return 0;
       case "SERVER_WORLD_ACTION":
         return this.handleWorldAction(event);
       case "SERVER_EVENT":

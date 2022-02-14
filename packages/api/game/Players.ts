@@ -32,7 +32,13 @@ export class Players {
   }
 
   add(event: ZSPlayerJoin): Player {
-    const player = new Player(event.playerId, event.username, event.role, event.isGuest, event.joinLocation);
+    const player = new Player(
+      event.playerId,
+      event.username,
+      event.role,
+      event.isGuest,
+      event.joinLocation
+    );
     this.map.set(event.playerId, player);
     this._list = Array.from(this.map.values());
     this.events.emit("add", player);
@@ -46,6 +52,8 @@ export class Players {
     this.events.emit("remove", player);
   }
 
+  // TODO: turn these two into instance methods,
+  //   and have new players get handle to `events`
   updateRole(playerId: number, newRole: ZRole) {
     const player = this.get(playerId);
     const previousRole = player.role;

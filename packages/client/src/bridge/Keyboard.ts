@@ -72,6 +72,7 @@ export default class Keyboard {
       case "g":
         if (pressed) {
           this.player.toggleGodMode();
+          this.connection.toggleGod(this.player.isInGodMode);
         }
         break;
       // case "e":
