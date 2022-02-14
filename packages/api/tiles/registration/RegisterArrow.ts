@@ -18,8 +18,9 @@ export function registerArrow(mgr: GenericRegistration) {
   const storing = new SourceAndIdStorage(mgr.sourceId);
   const preferredLayer = TileLayer.Action;
 
+  // TODO add slow-dot & fast-dot(?)
   const blocks = mgr.registerMany(
-    ["arrow-up", "arrow-right", "arrow-down", "arrow-left"],
+    ["arrow-up", "arrow-right", "arrow-down", "arrow-left", "dot"],
     (textureId) => ({ textureId, storing, preferredLayer, isSolid: false })
   );
 
