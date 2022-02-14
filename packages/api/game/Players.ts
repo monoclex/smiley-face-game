@@ -1,5 +1,5 @@
 import { createNanoEvents } from "../nanoevents";
-import { ZSInit, ZSPlayerJoin } from "../packets";
+import { ZSInit, ZSPlayerJoin, ZSRoleUpdate } from "../packets";
 import { Player } from "../physics/Player";
 import { ZRole } from "../types";
 
@@ -7,6 +7,7 @@ interface PlayerEvents {
   add(player: Player): void;
   remove(player: Player): void;
   roleUpdate(player: Player, before: ZRole): void;
+  updateCanGod(player: Player, before: boolean): void;
 }
 
 export class Players {
@@ -37,7 +38,9 @@ export class Players {
       event.username,
       event.role,
       event.isGuest,
-      event.joinLocation
+      event.joinLocation,
+      event.canGod,
+      event.inGod
     );
     this.map.set(event.playerId, player);
     this._list = Array.from(this.map.values());
@@ -58,7 +61,7 @@ export class Players {
         this.updateRole(event.playerId, event.newRole);
         return 0;
       case "GOD":
-        this.get(event.playerId).canGod = event.canGod;
+        this.updateCanGod(event.playerId, event.canGod);
         return 0;
     }
   }
@@ -70,5 +73,12 @@ export class Players {
     const previousRole = player.role;
     player.role = newRole;
     this.events.emit("roleUpdate", player, previousRole);
+  }
+
+  updateCanGod(playerId: number, newCanGod: boolean) {
+    const player = this.get(playerId);
+    const before = player.canGod;
+    player.canGod = newCanGod;
+    this.events.emit("updateCanGod", player, before);
   }
 }

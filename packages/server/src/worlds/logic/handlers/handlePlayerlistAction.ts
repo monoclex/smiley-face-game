@@ -66,6 +66,7 @@ export default function handlePlayerlistAction(
 
         const target = logic.player(packet.action.playerId);
         if (target === undefined) return;
+        if (target.role === "owner") return;
 
         target.canGod = true;
         logic.broadcast({
@@ -83,6 +84,7 @@ export default function handlePlayerlistAction(
 
         const target = logic.player(packet.action.playerId);
         if (target === undefined) return;
+        if (target.role === "owner") return;
 
         target.canGod = false;
         logic.broadcast({

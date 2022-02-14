@@ -195,6 +195,8 @@ export const zsPlayerJoin = addParse(
     joinLocation: zPlayerPosition,
     hasGun: boolean,
     gunEquipped: boolean,
+    canGod: boolean,
+    inGod: boolean,
   })
 );
 export type ZSPlayerJoin = SchemaInput<typeof zsPlayerJoin>;
@@ -228,6 +230,7 @@ export const zsInit = addParse(
     username: zUsername,
     isGuest: boolean,
     tiles: zTileJsonFile,
+    canGod: boolean,
     players: array.of(zsPlayerJoin),
   })
 );

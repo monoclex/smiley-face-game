@@ -17,6 +17,7 @@ export interface CheapPlayer {
   id: number;
   role: ZRole;
   username: string;
+  canGod: boolean;
 }
 
 export class Player {
@@ -33,7 +34,8 @@ export class Player {
     public role: ZRole,
     readonly isGuest: boolean,
     public position: Vector,
-    readonly canGod: boolean
+    public canGod: boolean,
+    inGod: boolean
   ) {
     this.input = {
       up: false,
@@ -42,10 +44,12 @@ export class Player {
       right: false,
       jump: false,
     };
+
+    this.isInGodMode = inGod;
   }
 
   cheap(): CheapPlayer {
-    return { id: this.id, role: this.role, username: this.name };
+    return { id: this.id, role: this.role, username: this.name, canGod: this.canGod };
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

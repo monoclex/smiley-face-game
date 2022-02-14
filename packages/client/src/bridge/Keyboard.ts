@@ -70,7 +70,7 @@ export default class Keyboard {
         break;
       case "f":
       case "g":
-        if (pressed) {
+        if (pressed && this.player.canGod) {
           this.player.toggleGodMode();
           this.connection.toggleGod(this.player.isInGodMode);
         }
