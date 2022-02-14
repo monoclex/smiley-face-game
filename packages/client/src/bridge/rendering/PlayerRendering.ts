@@ -42,6 +42,8 @@ export default class PlayerRenderer {
 
       gamePlayer.container.x = player.position.x;
       gamePlayer.container.y = player.position.y;
+
+      gamePlayer.wings.visible = player.isInGodMode;
     }
 
     this.updateCameraView();

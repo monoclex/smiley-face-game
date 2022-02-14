@@ -62,6 +62,7 @@ export default class Keyboard {
         didChange = this.player.input.jump !== pressed;
         this.player.input.jump = pressed;
         break;
+      case "f":
       case "g":
         if (pressed) {
           this.player.toggleGodMode();
