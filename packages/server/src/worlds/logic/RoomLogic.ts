@@ -108,7 +108,6 @@ export default class RoomLogic {
       heaps: this.blockHandler.heap.state,
       username: connection.username,
       isGuest: connection.isGuest,
-      tiles: tileJsonFile,
       canGod: connection.canGod,
       players: Array.from(this.#players.values()).map((otherUser) => ({
         packetId: "SERVER_PLAYER_JOIN",
