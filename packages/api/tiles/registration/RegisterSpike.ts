@@ -19,7 +19,7 @@ export function registerSpike(mgr: GenericRegistration) {
   const preferredLayer = TileLayer.Action;
 
   const blocks = mgr.registerMany(
-    ["spike-up", "spike-right", "spike-down", "spike-left"],
+    ["spike-up", "spike-right", "spike-down", "spike-left", "checkpoint"],
     (textureId) => ({ textureId, storing, preferredLayer, isSolid: false })
   );
 

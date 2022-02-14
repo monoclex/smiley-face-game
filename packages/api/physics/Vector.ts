@@ -54,4 +54,8 @@ export class Vector {
   static divs(self: Vector, scalar: number): Vector {
     return new Vector(self.x / scalar, self.y / scalar);
   }
+
+  static eq(self: Vector, other: Vector): boolean {
+    return self.x === other.x && self.y === other.y;
+  }
 }

@@ -22,6 +22,7 @@ export class BlockIdCache {
   readonly spikeRight: number;
   readonly spikeDown: number;
   readonly spikeLeft: number;
+  readonly checkpoint: number;
 
   constructor(readonly tiles: TileRegistration) {
     this.arrowUp = tiles.id("arrow-up");
@@ -45,5 +46,6 @@ export class BlockIdCache {
     this.spikeRight = tiles.id("spike-right");
     this.spikeDown = tiles.id("spike-down");
     this.spikeLeft = tiles.id("spike-left");
+    this.checkpoint = tiles.id("checkpoint");
   }
 }

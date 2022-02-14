@@ -152,4 +152,15 @@ export class Player {
     // TODO: don't hardcode 32x32 world
     this.position = Vector.mults(at, 32);
   }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  checkpoint: Vector | null = null;
+
+  get hasCheckpoint(): boolean {
+    return this.checkpoint !== null;
+  }
+
+  clearCheckpoint() {
+    this.checkpoint = null;
+  }
 }

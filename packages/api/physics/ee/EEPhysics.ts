@@ -82,7 +82,17 @@ export class EEPhysics implements PhysicsSystem {
 
     if (self.isDead) {
       if (self.ticks >= self.deathTick + this.ticksUntilAlive) {
-        self.revive(Vector.SPAWN_LOCATION);
+        let respawn = Vector.SPAWN_LOCATION;
+
+        if (self.checkpoint) {
+          const { x, y } = self.checkpoint;
+
+          if (this.world.blockAt(x, y, TileLayer.Action) === this.ids.checkpoint) {
+            respawn = self.checkpoint;
+          }
+        }
+
+        self.revive(respawn);
       } else {
         return;
       }
@@ -717,6 +727,16 @@ export class EEPhysics implements PhysicsSystem {
       self.insideRedKey = true;
     } else {
       self.insideRedKey = false;
+    }
+
+    if (this.ids.checkpoint === actionBlock) {
+      const checkpoint = new Vector(x, y);
+
+      if (!self.hasCheckpoint || !Vector.eq(self.checkpoint!, checkpoint)) {
+        this.events.emit("checkpoint", self, checkpoint);
+      }
+
+      self.checkpoint = checkpoint;
     }
 
     const checkInsideKey = (x: number, y: number) => {
