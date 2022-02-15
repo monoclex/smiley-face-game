@@ -9,7 +9,6 @@ import select from "../assets/select.png";
 import gun from "../assets/held_gun.png";
 import smile from "../assets/smile.png";
 import defaultWings from "../assets/wings/default.png";
-import findTexture from "./atlasFindFrame";
 import TextureResolver from "../textures/resolvers/TextureResolver";
 import AtlasResolver from "../textures/resolvers/AtlasResolver";
 import CombinedResolver from "../textures/resolvers/CombinedResolver";
@@ -58,7 +57,7 @@ class TexturesObject<T extends { atlas: string }> {
     const atlasResolver = AtlasResolver.new(atlasJson, atlas);
 
     //@ts-expect-error json files aren't `const`
-    const rotationResolver = RotatedResolver.new(rotationJson, atlasResolver);
+    const rotationResolver = await RotatedResolver.new(rotationJson, atlasResolver);
 
     const resolver = new CombinedResolver(atlasResolver, rotationResolver, textureResolver);
     this.resolver = resolver;

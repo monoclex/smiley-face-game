@@ -1,4 +1,5 @@
 import { Texture } from "pixi.js";
+import { cloneTexture } from "../BlockTextureToImage";
 import Resolver from "./Resolver";
 
 type RotationJson = RotationConfig[];
@@ -27,7 +28,7 @@ const dirsToRotate: { [K in Direction]: number } = {
  * Will rotate a texture and give it a name.
  */
 export default class RotationResolver implements Resolver {
-  static new(rotationJson: RotationJson, sourceResolver: Resolver) {
+  static async new(rotationJson: RotationJson, sourceResolver: Resolver) {
     const textures: Map<string, Texture> = new Map();
 
     for (const { source, destinations } of rotationJson) {
@@ -38,14 +39,20 @@ export default class RotationResolver implements Resolver {
       }
 
       for (const destination of destinations) {
-        const destinationTexture = sourceTexture.clone();
-        destinationTexture.rotate = dirsToRotate[destination.direction];
-
         if (textures.has(destination.target)) {
           throw new Error(`Duplicate rotation texture ${destination.target} detected.`);
         }
 
-        textures.set(destination.target, destinationTexture);
+        const rotatedTexture = sourceTexture.clone();
+        rotatedTexture.rotate = dirsToRotate[destination.direction];
+
+        // fully clone the texture because the pixi tilemap render can't handle
+        // a `.rotate` property
+        const clonedTexture = await cloneTexture((sprite) => (sprite.texture = rotatedTexture));
+
+        rotatedTexture.destroy(false);
+
+        textures.set(destination.target, clonedTexture);
       }
     }
 
