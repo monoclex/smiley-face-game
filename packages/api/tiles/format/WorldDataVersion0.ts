@@ -55,7 +55,7 @@ function set(loader: FormatLoader, { layerIdx, x, y }: Position, id: number) {
 
 function convertSolid(loader: FormatLoader, position: Position, oldBlock: SolidBlock) {
   const color = oldBlock.color || "white";
-  const block = loader.tiles.forTexture(`block-${color}`);
+  const block = loader.tiles.forTexture(`basic-${color}`);
   set(loader, position, block.id);
   loader.world.set(position.layerIdx, position.x, position.y, block.id);
 }

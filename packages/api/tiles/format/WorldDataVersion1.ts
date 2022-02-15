@@ -209,7 +209,6 @@ const blockMap = {
  * by texture names.
  */
 export function loadWorldVersion1(loader: FormatLoader, blocks: Block[][][]) {
-  console.log("we're feeding it", blocks);
   for (let layerIdx = 0; layerIdx < blocks.length; layerIdx++) {
     const layer = blocks[layerIdx];
     if (!layer) continue;
