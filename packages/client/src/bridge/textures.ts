@@ -4,6 +4,7 @@ import player from "../assets/base.png";
 import bullet from "../assets/bullet.png";
 import atlas from "../assets/atlas.png";
 import atlasJson from "../assets/atlas_atlas.json";
+import rotationJson from "../assets/tiles/rotations.json";
 import select from "../assets/select.png";
 import gun from "../assets/held_gun.png";
 import smile from "../assets/smile.png";
@@ -13,6 +14,7 @@ import TextureResolver from "../textures/resolvers/TextureResolver";
 import AtlasResolver from "../textures/resolvers/AtlasResolver";
 import CombinedResolver from "../textures/resolvers/CombinedResolver";
 import Resolver from "../textures/resolvers/Resolver";
+import RotatedResolver from "../textures/resolvers/RotatedResolver";
 
 const textureDef = {
   player,
@@ -55,7 +57,10 @@ class TexturesObject<T extends { atlas: string }> {
 
     const atlasResolver = AtlasResolver.new(atlasJson, atlas);
 
-    const resolver = new CombinedResolver(atlasResolver, textureResolver);
+    //@ts-expect-error json files aren't `const`
+    const rotationResolver = RotatedResolver.new(rotationJson, atlasResolver);
+
+    const resolver = new CombinedResolver(atlasResolver, rotationResolver, textureResolver);
     this.resolver = resolver;
   }
 

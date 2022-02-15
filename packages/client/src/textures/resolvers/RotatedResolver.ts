@@ -48,6 +48,8 @@ export default class RotationResolver implements Resolver {
         textures.set(destination.target, destinationTexture);
       }
     }
+
+    return new RotationResolver(textures);
   }
 
   private constructor(private readonly textures: Map<string, Texture>) {}
