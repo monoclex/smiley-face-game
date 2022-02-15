@@ -3,12 +3,11 @@ import WorldRepo, { serialize } from "../../database/repos/WorldRepo";
 import Behaviour from "./Behavior";
 import Connection from "../../worlds/Connection";
 import TileJson from "../TileJson";
-import { BlockStoring } from "@smiley-face-game/api/tiles/storage/BlockStoring";
-import { Blocks } from "@smiley-face-game/api/game/Blocks";
 import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
 import { FormatLoader } from "@smiley-face-game/api/tiles/format/FormatLoader";
 import { loadWorldVersion0 } from "@smiley-face-game/api/tiles/format/WorldDataVersion0";
 import { loadWorldVersion1 } from "@smiley-face-game/api/tiles/format/WorldDataVersion1";
+import { loadWorldVersion2 } from "@smiley-face-game/api/tiles/format/WorldDataVersion2";
 
 export default class SavedBehaviour implements Behaviour {
   #repo: WorldRepo;
@@ -35,7 +34,7 @@ export default class SavedBehaviour implements Behaviour {
   async loadBlocks(): Promise<[WorldLayer<number>, WorldLayer<ZHeap | 0>]> {
     const world = await this.#repo.findById(this.id);
 
-    const formatLoader = new FormatLoader(TileJson);
+    const formatLoader = new FormatLoader(TileJson, { x: world.width, y: world.height });
 
     if (world.worldDataVersion === 0) {
       //@ts-expect-error /shrug
@@ -47,13 +46,18 @@ export default class SavedBehaviour implements Behaviour {
       loadWorldVersion1(formatLoader, world.worldData);
     }
 
+    if (world.worldDataVersion === 2) {
+      //@ts-expect-error /shrug
+      loadWorldVersion2(formatLoader, world.worldData);
+    }
+
     return [formatLoader.world, formatLoader.heap];
   }
 
   async saveBlocks(blocks: ZWorldBlocks, heaps: ZHeaps): Promise<void> {
     const world = await this.#repo.findById(this.id);
     world.worldData = serialize({ x: world.width, y: world.height }, blocks, heaps, TileJson);
-    world.worldDataVersion = 1;
+    world.worldDataVersion = 2;
     await this.#repo.save(world);
   }
 

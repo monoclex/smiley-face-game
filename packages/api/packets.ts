@@ -18,7 +18,6 @@ import {
   zWorldBlocks,
   zAngle,
   zMessage,
-  zTileJsonFile,
   zHeap,
   zHeaps,
 } from "./types";

@@ -33,7 +33,6 @@ import AsyncQueue from "../AsyncQueue";
 import { boolean, addParse } from "../computed-types-wrapper";
 import TileRegistration from "../tiles/TileRegistration";
 import createRegistration from "../tiles/createRegistration";
-import tiles from "../tiles/tiles";
 
 const zEquipped = addParse(boolean);
 const zGodMode = addParse(boolean);
@@ -141,7 +140,7 @@ export default class Connection {
     if (parseWebsocket(argWebsocket)) this.websocket = argWebsocket;
     else throw new Error(`Failed to interpret argument as 'Websocket'.`);
     this.init = zsInit.parse(argInit);
-    this.tileJson = createRegistration(tiles);
+    this.tileJson = createRegistration();
 
     this.messages = new AsyncQueue();
 
