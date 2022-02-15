@@ -9,6 +9,8 @@ import generateWorld from "../../worlds/generateWorld";
 import ensureValidates from "../../ensureValidates";
 import { Blocks } from "@smiley-face-game/api/game/Blocks";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
+import { FormatLoader } from "@smiley-face-game/api/tiles/format/FormatLoader";
+import { saveWorldVersion2 } from "@smiley-face-game/api/tiles/format/WorldDataVersion2";
 
 function emptyWorld(details: WorldDetails, tileJson: TileRegistration): string {
   return generateWorld(details.width, details.height, tileJson);
@@ -20,44 +22,11 @@ export function serialize(
   heaps: ZHeaps,
   tileJson: TileRegistration
 ) {
-  const newBlocks = [];
+  const format = new FormatLoader(tileJson, size);
+  format.world.state = blocks;
+  format.heap.state = heaps;
 
-  for (let l = 0; l < blocks.length; l++) {
-    const layers = blocks[l];
-    const heapLayer = heaps?.[l];
-    if (layers === null || layers === undefined) {
-      newBlocks.push(Blocks.makeLayer(size, []));
-      continue;
-    }
-
-    const newL = [];
-
-    for (let y = 0; y < layers.length; y++) {
-      const yMap = layers[y];
-      const heapYs = heapLayer?.[y];
-      if (yMap === null || yMap === undefined) {
-        newL.push(Blocks.makeYs(size, []));
-        continue;
-      }
-
-      const newY = [];
-
-      for (let x = 0; x < yMap.length; x++) {
-        const heapData = heapYs?.[x];
-        newY.push(
-          tileJson
-            .for(yMap[x] /* a 'null' block is empty */ || 0)
-            .storing.serialize(yMap[x] || 0, heapData)
-        );
-      }
-
-      newL.push(newY);
-    }
-
-    newBlocks.push(newL);
-  }
-
-  return newBlocks;
+  return saveWorldVersion2(format);
 }
 
 type QueryOptions = { withOwner: boolean };
@@ -121,7 +90,7 @@ export default class WorldRepo {
     world.width = details.width;
     world.height = details.height;
     world.rawWorldData = blocks;
-    world.worldDataVersion = 1;
+    world.worldDataVersion = 2;
 
     return this.#repo.save(world);
   }

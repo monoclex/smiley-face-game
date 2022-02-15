@@ -18,7 +18,6 @@ import {
   zWorldBlocks,
   zAngle,
   zMessage,
-  zTileJsonFile,
   zHeap,
   zHeaps,
 } from "./types";
@@ -229,7 +228,6 @@ export const zsInit = addParse(
     heaps: zHeaps,
     username: zUsername,
     isGuest: boolean,
-    tiles: zTileJsonFile,
     canGod: boolean,
     players: array.of(zsPlayerJoin),
   })

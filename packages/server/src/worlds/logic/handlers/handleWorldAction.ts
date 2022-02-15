@@ -27,12 +27,12 @@ export default async function handlePlayerlistAction(
     }
     case "load": {
       const [blocks, heaps] = await logic.behaviour.loadBlocks();
-      logic.blockHandler.ids.state = blocks;
-      logic.blockHandler.heap.state = heaps;
+      logic.blockHandler.ids.state = blocks.state;
+      logic.blockHandler.heap.state = heaps.state;
 
       logic.broadcast({
         packetId: "SERVER_WORLD_ACTION",
-        action: { action: "load", blocks, heaps },
+        action: { action: "load", blocks: blocks.state, heaps: heaps.state },
         playerId: sender.playerId,
       });
       return;

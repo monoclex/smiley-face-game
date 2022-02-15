@@ -32,10 +32,9 @@ const BlockBar = () => {
   const tiles = state.game.tiles;
   const blockBar = state.blockBar;
 
-  const [slots] = useState(() => [
-    { pack: tiles.emptyPack, entry: 0 },
-    ...tiles.packs.map((pack) => ({ pack, entry: 0 })),
-  ]);
+  const [slots] = useState(() =>
+    tiles.packs.filter((pack) => pack.visible).map((pack) => ({ pack, entry: 0 }))
+  );
 
   const selectSlot = React.useCallback((slotIdx: number) => {
     const slot = slots?.[slotIdx];

@@ -140,7 +140,7 @@ export default class Connection {
     if (parseWebsocket(argWebsocket)) this.websocket = argWebsocket;
     else throw new Error(`Failed to interpret argument as 'Websocket'.`);
     this.init = zsInit.parse(argInit);
-    this.tileJson = createRegistration(this.init.tiles);
+    this.tileJson = createRegistration();
 
     this.messages = new AsyncQueue();
 

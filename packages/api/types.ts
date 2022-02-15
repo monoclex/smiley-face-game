@@ -210,14 +210,6 @@ export const zWorldDetails = addParse(
 );
 export type ZWorldDetails = SchemaInput<typeof zWorldDetails>;
 
-export type { ZTileRegistrationKind as ZTileBehavior } from "./tiles/registration/RegisterJson";
-import { zTileRegistration as zTileJson } from "./tiles/registration/RegisterJson";
-export { zTileJson };
-export type { ZTileRegistration as ZTileJson } from "./tiles/registration/RegisterJson";
-
-export const zTileJsonFile = addParse(array.of(zTileJson));
-export type ZTileJsonFile = SchemaInput<typeof zTileJsonFile>;
-
 const DateStringType = (arg: unknown): Date => {
   if (typeof arg === "string") {
     const parsedDate = Date.parse(arg);

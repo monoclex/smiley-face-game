@@ -68,8 +68,9 @@ export default class Room {
         // in async code, treating Promise<T>s as Task<T>s/Future<T>s makes the node
         // runtime think that they're unhandled promise rejections.
         //
-        // so we have to dip into synchronous code to treat them as handles... wow.
-        const blocks = this.getBlocks();
+        // so we have to dip into synchronous code to treat them as handles before
+        // reaching an await point
+        const blocks = this.#behaviour.loadBlocks().then(([a, b]) => [a.state, b.state] as const);
         const details = this.#behaviour.loadDetails();
 
         return Promise.all([blocks, details]);
@@ -111,10 +112,6 @@ export default class Room {
 
     this.#status = "stopped";
     this.onStopped.resolve();
-  }
-
-  private getBlocks(): Promise<[ZWorldBlocks, ZHeaps]> {
-    return this.#behaviour.loadBlocks();
   }
 
   // private saveBlocks(blocks: Block[][][]): Promise<void> {

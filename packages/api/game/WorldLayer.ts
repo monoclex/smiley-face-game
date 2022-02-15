@@ -61,6 +61,18 @@ export class WorldLayer<T> {
     }
   }
 
+  putBorder(width: number, height: number, layer: number, id: T) {
+    for (let x = 0; x < width; x++) {
+      this.set(layer, x, 0, id);
+      this.set(layer, x, height - 1, id);
+    }
+
+    for (let y = 0; y < height; y++) {
+      this.set(layer, 0, y, id);
+      this.set(layer, width - 1, y, id);
+    }
+  }
+
   /**
    * Because `state` could be empty, this will perform all the necessary checks
    * to create or update a value in the grid.

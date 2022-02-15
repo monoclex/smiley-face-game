@@ -7,10 +7,8 @@ import Behaviour from "../../worlds/behaviour/Behavior";
 import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
 import { useDev } from "@smiley-face-game/api";
 import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
-import tileJson from "@smiley-face-game/api/tiles/tiles";
-import { zTileJsonFile } from "@smiley-face-game/api/types";
 import TileJson from "../TileJson";
-const tileJsonFile = zTileJsonFile.parse(tileJson);
+
 useDev();
 function ensureHasId(connection: Connection) {
   if (connection.playerId === undefined) {
@@ -108,7 +106,6 @@ export default class RoomLogic {
       heaps: this.blockHandler.heap.state,
       username: connection.username,
       isGuest: connection.isGuest,
-      tiles: tileJsonFile,
       canGod: connection.canGod,
       players: Array.from(this.#players.values()).map((otherUser) => ({
         packetId: "SERVER_PLAYER_JOIN",
