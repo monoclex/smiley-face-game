@@ -6,7 +6,7 @@ import { styled, LinearProgress, Typography, Grid, Slider, Button } from "@mui/m
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
-import { useAuth, useShopItem } from "../hooks";
+import { useAuth, useShopItem, useRefresher } from "../hooks";
 import { useRecoilState } from "recoil";
 import { shopItemQuery, playerInfoSelector } from "../../state";
 import { mapImageUrl } from "../../assets/shop/mapImageUrl";
@@ -32,6 +32,7 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
   const [spendingEnergy, setSpendingEnergy] = useState(playerInfo.energy.energy);
   const snackbar = useSnackbar();
   const auth = useAuth();
+  const refresher = useRefresher();
 
   const handleClick = () => {
     // TODO: loading animation
@@ -42,7 +43,7 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
         spendEnergy: spendingEnergy,
       })
       .then((response) => {
-        // TODO: update information about the player with `response`
+        refresher();
         setShopItem(response.item);
         setPlayerInfo({ ...playerInfo, energy: response.playerEnergy });
 
@@ -86,9 +87,21 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
               <PaddedDiv>
                 <Grid container direction="row" wrap="nowrap">
                   <div style={{ width: "100%" }}>
-                    <LinearProgress variant="determinate" style={{ height: 15 }} value={(energySpent / energyCost) * 100} />
+                    <LinearProgress
+                      variant="determinate"
+                      style={{ height: 15 }}
+                      value={(energySpent / energyCost) * 100}
+                    />
                   </div>
-                  <div style={{ paddingLeft: "1em", display: "flex", alignItems: "center", wrap: "nowrap", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      paddingLeft: "1em",
+                      display: "flex",
+                      alignItems: "center",
+                      wrap: "nowrap",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     {energySpent}/{energyCost}
                     <EnergyIcon style={{ paddingLeft: "0.25em" }} />
                   </div>
