@@ -105,7 +105,7 @@ importers:
       react-use: ^17.3.2
       rebound: ^0.1.0
       recoil: ^0.6.1
-      rust-atlas-generator-webpack-plugin: ^0.1.3
+      rust-atlas-generator-webpack-plugin: ^0.1.4
       sucrase: ^3
       typescript: ^4.5.5
       webpack: ^5.68.0
@@ -176,7 +176,7 @@ importers:
       file-loader: 6.2.0_webpack@5.68.0
       html-webpack-plugin: 5.5.0_webpack@5.68.0
       prettier: 2.5.1
-      rust-atlas-generator-webpack-plugin: 0.1.3
+      rust-atlas-generator-webpack-plugin: 0.1.4
       typescript: 4.5.5
       webpack: 5.68.0_webpack-cli@4.9.2
       webpack-cli: 4.9.2_19108610e47e80b101fe97b50133aa84
@@ -6753,8 +6753,8 @@ packages:
     resolution: {integrity: sha512-HjpGCcXs5WMakrlqH1cYx26kQrlKppjxDjaLOdK1j9kysoq55bRXR4BrRGWfCb+OOt7syDxZBc/oppqcsytAlw==}
     dev: true
 
-  /rust-atlas-generator-webpack-plugin/0.1.3:
-    resolution: {integrity: sha512-3KUwC0yhPJT97bf4hwEdht1z2xzcUr4bJmwijFoDlVvb2c8dGeAhPakxhflyTXp60WmRZmOZfEvGpTNmc5qkmg==}
+  /rust-atlas-generator-webpack-plugin/0.1.4:
+    resolution: {integrity: sha512-Ycx8XK+dywr2J4zufyFWoeQC+fmFj4mJMt7LH4kyY/8xQ2j9+rRnbiTL8g6kVEwHbKSp6o0MpFwIt0mobj9X3g==}
     dependencies:
       rust-atlas-generator-wasm: 0.1.3
     dev: true
