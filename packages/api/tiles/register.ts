@@ -225,6 +225,7 @@ function makeSpike(make: TilesMaker) {
     ...actionBlock,
   }));
   make.alias("spike-checkpoint", "checkpoint");
+  make.pack({ name: "spike" });
 }
 
 function makeSign(make: TilesMaker) {
@@ -271,6 +272,7 @@ function makeBoost(make: TilesMaker) {
     textureId: "boost-" + suffix,
     ...actionBlock,
   }));
+  make.pack({ name: "boost" });
 }
 
 function makeChocolate(make: TilesMaker) {
