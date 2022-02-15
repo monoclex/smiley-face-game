@@ -122,7 +122,7 @@ export default class WorldRendering {
     }
 
     if (this.onCheckpoint) {
-      if (name === "checkpoint" && Vector.eq(this.onCheckpoint, pos)) {
+      if (name === "spike-checkpoint" && Vector.eq(this.onCheckpoint, pos)) {
         return "checkpoint-on";
       }
     }

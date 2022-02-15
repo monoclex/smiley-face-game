@@ -1,0 +1,86 @@
+[
+    {
+        "source": "boost-src",
+        "destinations": [
+            {
+                "target": "boost-up",
+                "direction": "0"
+            },
+            {
+                "target": "boost-right",
+                "direction": "90 clockwise"
+            },
+            {
+                "target": "boost-down",
+                "direction": "180"
+            },
+            {
+                "target": "boost-left",
+                "direction": "90 counterclockwise"
+            }
+        ]
+    },
+    {
+        "source": "gravity-arrow-src",
+        "destinations": [
+            {
+                "target": "gravity-up",
+                "direction": "0"
+            },
+            {
+                "target": "gravity-right",
+                "direction": "90 clockwise"
+            },
+            {
+                "target": "gravity-down",
+                "direction": "180"
+            },
+            {
+                "target": "gravity-left",
+                "direction": "90 counterclockwise"
+            }
+        ]
+    },
+    {
+        "source": "spike-src",
+        "destinations": [
+            {
+                "target": "spike-up",
+                "direction": "0"
+            },
+            {
+                "target": "spike-right",
+                "direction": "90 clockwise"
+            },
+            {
+                "target": "spike-down",
+                "direction": "180"
+            },
+            {
+                "target": "spike-left",
+                "direction": "90 counterclockwise"
+            }
+        ]
+    },
+    {
+        "source": "zoost-src",
+        "destinations": [
+            {
+                "target": "zoost-up",
+                "direction": "0"
+            },
+            {
+                "target": "zoost-right",
+                "direction": "90 clockwise"
+            },
+            {
+                "target": "zoost-down",
+                "direction": "180"
+            },
+            {
+                "target": "zoost-left",
+                "direction": "90 counterclockwise"
+            }
+        ]
+    }
+]
