@@ -232,6 +232,7 @@ function makeSign(make: TilesMaker) {
   make.block({
     id: 72,
     textureId: "sign",
+    heap: HeapKind.Sign,
     ...decorationBlock,
   });
   make.pack({ name: "sign" });

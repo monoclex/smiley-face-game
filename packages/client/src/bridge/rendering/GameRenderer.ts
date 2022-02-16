@@ -52,6 +52,7 @@ export default class GameRenderer {
   draw(): void {
     this.playerRenderer.draw();
     this.worldRenderer.draw();
+    this.signRenderer.draw();
     this.events.emit("draw");
 
     this.renderer.render(this.root);
