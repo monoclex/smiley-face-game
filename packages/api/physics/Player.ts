@@ -1,5 +1,6 @@
 import { Inputs } from "../game/Inputs";
 import { ZRole } from "../types";
+import { Config } from "./ee/Config";
 import { ArrowDirection } from "./ee/Directions";
 import { Vector } from "./Vector";
 
@@ -126,7 +127,7 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   moving = false;
   /** @version eephysics This may be removed when the physics engine changes */
-  queue: number[] = [ArrowDirection.Down];
+  queue: number[] = new Array(Config.physics.queue_length).fill(0);
   /** @version eephysics This may be removed when the physics engine changes */
   origModX = 0;
   /** @version eephysics This may be removed when the physics engine changes */

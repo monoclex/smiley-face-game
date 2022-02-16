@@ -107,10 +107,16 @@ export class EEPhysics implements PhysicsSystem {
     const blockX = Math.round(self.x / Config.blockSize);
     const blockY = Math.round(self.y / Config.blockSize);
 
-    const delayed = self.queue.shift();
+    let delayed = self.queue.shift();
     if (delayed === undefined) throw new Error("impossible");
     const current = this.findGravityDirection(blockX, blockY);
     self.queue.push(current);
+
+    if (current === this.ids.dot) {
+      delayed = self.queue.shift();
+      if (delayed === undefined) throw new Error("impossible");
+      self.queue.push(current);
+    }
 
     if (isZoost(current)) {
       // snap player to zoost
