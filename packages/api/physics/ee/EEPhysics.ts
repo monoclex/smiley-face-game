@@ -186,6 +186,8 @@ export class EEPhysics implements PhysicsSystem {
           // otherwise, perform actions (trigger keys/etc)
           this.hoveringOver(self, self.x, self.y);
           advanceNum--;
+
+          if (self.isDead) break;
         }
 
         return;
@@ -232,9 +234,7 @@ export class EEPhysics implements PhysicsSystem {
         case SpikeDirection.Down:
           self.origModX = 0;
           self.origModY = Config.physics.gravity;
-          if (!self.isDead) {
-            self.kill();
-          }
+          self.kill();
           break;
       }
 
@@ -567,10 +567,7 @@ export class EEPhysics implements PhysicsSystem {
     );
   }
 
-  findDotDirection(blockX: number, blockY: number) {
-    const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
-    return actionBlock === this.ids.dot ? DotDirection.None : undefined;
-  }
+  findDotDirection(blockX: number, blockY: number) {}
 
   findArrowDirection(blockX: number, blockY: number) {
     const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
@@ -763,6 +760,15 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       self.checkpoint = checkpoint;
+    }
+
+    if (
+      this.ids.spikeUp === actionBlock ||
+      this.ids.spikeRight === actionBlock ||
+      this.ids.spikeDown === actionBlock ||
+      this.ids.spikeLeft === actionBlock
+    ) {
+      self.kill();
     }
 
     const checkInsideKey = (x: number, y: number) => {
