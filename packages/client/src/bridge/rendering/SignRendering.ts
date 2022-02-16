@@ -31,8 +31,16 @@ export default class SignRendering {
   }
 
   draw() {
-    this.sprite.visible = false;
+    const didDraw = this.tryDraw();
 
+    if (didDraw !== true) {
+      this.sprite.visible = false;
+      this.x = -1;
+      this.y = -1;
+    }
+  }
+
+  tryDraw(): true | void {
     if (this.x == -1 || this.y == -1) return;
 
     const block = this.game.blocks.blockAt(this.x, this.y, this.layer);
@@ -46,5 +54,6 @@ export default class SignRendering {
     this.sprite.x = 32 * this.x + 16;
     this.sprite.y = 32 * (this.y - 1);
     this.sprite.visible = true;
+    return true;
   }
 }
