@@ -17,8 +17,8 @@ export const lobbySelector = selector<ZLobbyResp>({
     const token = get(tokenState);
     if (!token) throw new Error("Not authenticated!");
 
-    const cache = get(lobbyCacheAtom);
-    if (cache !== null && cache.token === token) return cache.response;
+    // const cache = get(lobbyCacheAtom);
+    // if (cache !== null && cache.token === token) return cache.response;
 
     const auth = new Authentication(token);
     return await auth.lobby();

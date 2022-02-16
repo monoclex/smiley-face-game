@@ -46,5 +46,7 @@ export class Config {
     mud_buoyancy: 0.4,
     lava_buoyancy: 0.2,
     toxic_buoyancy: -0.4,
+
+    queue_length: 2,
   };
 }

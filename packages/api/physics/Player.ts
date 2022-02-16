@@ -1,5 +1,6 @@
 import { Inputs } from "../game/Inputs";
 import { ZRole } from "../types";
+import { Config } from "./ee/Config";
 import { ArrowDirection } from "./ee/Directions";
 import { Vector } from "./Vector";
 
@@ -126,7 +127,7 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   moving = false;
   /** @version eephysics This may be removed when the physics engine changes */
-  queue: number[] = [ArrowDirection.Down];
+  queue: number[] = new Array(Config.physics.queue_length).fill(0);
   /** @version eephysics This may be removed when the physics engine changes */
   origModX = 0;
   /** @version eephysics This may be removed when the physics engine changes */
@@ -190,11 +191,43 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   checkpoint: Vector | null = null;
 
+  /** @version eephysics This may be removed when the physics engine changes */
   get hasCheckpoint(): boolean {
     return this.checkpoint !== null;
   }
 
+  /** @version eephysics This may be removed when the physics engine changes */
   clearCheckpoint() {
     this.checkpoint = null;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  zoostQueue: Vector[] = [];
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  clearZoostQueue() {
+    this.zoostQueue = [];
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  pushZoostQueue(direction: Vector) {
+    // a totally viable implementation of this function is just
+    //
+    // this.zoostQueue.push(direction);
+    //
+    // but for performance, we don't want to push the same direction twice
+
+    // try to peek at the top item
+    const top = this.zoostQueue.pop();
+
+    if (top != null) {
+      this.zoostQueue.push(top);
+
+      // don't push duplicate directions
+      if (Vector.eq(top, direction)) return;
+    }
+
+    // either nothing at the top or not a duplicate, push it
+    this.zoostQueue.push(direction);
   }
 }

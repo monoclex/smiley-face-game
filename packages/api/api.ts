@@ -1,5 +1,23 @@
-import Schema, { SchemaInput, array, boolean, number, string, addParse } from "./computed-types-wrapper";
-import { zUsername, zWorldId, zWorldName, zAccountId, zToken, zPassword, zEmail, zShopItem, zShopItemId, zEnergy } from "./types";
+import Schema, {
+  SchemaInput,
+  array,
+  boolean,
+  number,
+  string,
+  addParse,
+} from "./computed-types-wrapper";
+import {
+  zUsername,
+  zWorldId,
+  zWorldName,
+  zAccountId,
+  zToken,
+  zPassword,
+  zEmail,
+  zShopItem,
+  zShopItemId,
+  zEnergy,
+} from "./types";
 
 export const zGamePreview = addParse(
   Schema({
@@ -21,9 +39,14 @@ export const zLoginReq = addParse(
 );
 
 export const zTokenResp = addParse(
-  Schema({
-    token: zToken,
-  })
+  Schema.either(
+    Schema({
+      token: zToken,
+    }),
+    Schema({
+      error: string,
+    })
+  )
 );
 export type ZTokenResp = SchemaInput<typeof zTokenResp>;
 
