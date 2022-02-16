@@ -43,7 +43,7 @@ export default class SignRendering {
 
     this.sprite.text = heap.text;
     this.sprite.updateText(true);
-    this.sprite.x = 32 * this.x;
+    this.sprite.x = 32 * this.x + 16;
     this.sprite.y = 32 * (this.y - 1);
     this.sprite.visible = true;
   }
