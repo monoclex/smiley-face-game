@@ -12,6 +12,7 @@ import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
+import state from "../../bridge/state";
 
 let isPlaying = false;
 
@@ -64,10 +65,6 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
     "game cleanup"
   );
 
-  useLayoutEffect(() => {
-    renderer.resize(width, height);
-  }, [renderer]);
-
   return null;
 }
 
@@ -104,6 +101,7 @@ function GameArea() {
       gameElement.width = size.width;
       gameElement.height = size.height;
       gameElement.style.visibility = "visible";
+      if (state.gameRenderer) state.gameRenderer.renderer.resize(size.width, size.height);
       setSize(size);
     });
   };
