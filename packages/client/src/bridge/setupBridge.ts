@@ -12,11 +12,7 @@ import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
 import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
-import {
-  playJoin,
-  playLeave,
-  registerPlayerJoinNLeaveSoundEffects,
-} from "./PlayerJoinLeaveSoundEffects";
+import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
 
 interface Bridge {
   game: Game;

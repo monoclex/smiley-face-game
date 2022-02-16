@@ -1,8 +1,12 @@
-import { AudioContext, decodeAudioData } from "standardized-audio-context";
+import { AudioContext, GainNode, decodeAudioData } from "standardized-audio-context";
 import { Game } from "@smiley-face-game/api";
 import playerJoinUrl from "../assets/sounds/player-join.mp3";
 import playerLeaveUrl from "../assets/sounds/player-leave.mp3";
-const audio = new AudioContext();
+
+export const audio = new AudioContext();
+
+export const volume = new GainNode(audio);
+volume.connect(audio.destination);
 
 async function loadAudio(url: string) {
   const response = await fetch(url);
@@ -19,7 +23,7 @@ export async function playJoin() {
 
   const source = audio.createBufferSource();
   source.buffer = audioData;
-  source.connect(audio.destination);
+  source.connect(volume);
   source.start(0);
 }
 
@@ -28,7 +32,7 @@ export async function playLeave() {
 
   const source = audio.createBufferSource();
   source.buffer = audioData;
-  source.connect(audio.destination);
+  source.connect(volume);
   source.start(0);
 }
 
