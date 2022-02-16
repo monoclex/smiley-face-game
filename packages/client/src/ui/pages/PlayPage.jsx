@@ -12,13 +12,15 @@ import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
+import { playJoin } from "../../bridge/PlayerJoinLeaveSoundEffects";
 
 let isPlaying = false;
+let renderedOnce = false;
 
 // TODO: this is weird as a component, but it WORKS and im TIRED of touching this code
 function ConnectToGame({ gameElement, size: { width, height } }) {
   isPlaying = true;
-  useTeardown(() => (isPlaying = false), [], "playing the game");
+  useTeardown(() => ((isPlaying = false), (renderedOnce = false)), [], "playing the game");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,6 +68,12 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
   useLayoutEffect(() => {
     renderer.resize(width, height);
+
+    if (!renderedOnce) {
+      playJoin();
+    }
+
+    renderedOnce = true;
   }, [renderer]);
 
   return null;

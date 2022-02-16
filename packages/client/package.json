@@ -64,6 +64,7 @@
     "react-use": "^17.3.2",
     "rebound": "^0.1.0",
     "recoil": "^0.6.1",
+    "standardized-audio-context": "^25.3.21",
     "sucrase": "^3"
   },
   "devDependencies": {
