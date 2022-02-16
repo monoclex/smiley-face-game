@@ -112,7 +112,7 @@ export class EEPhysics implements PhysicsSystem {
     const current = this.findGravityDirection(blockX, blockY);
     self.queue.push(current);
 
-    if (current === this.ids.dot) {
+    if (current === DotDirection.None) {
       delayed = self.queue.shift();
       if (delayed === undefined) throw new Error("impossible");
       self.queue.push(current);
@@ -121,9 +121,18 @@ export class EEPhysics implements PhysicsSystem {
     let modifierX = 0,
       modifierY = 0;
 
+    if (isZoost(current)) {
+      self.pushZoostQueue(zoostDirToVec(current));
+    }
+
     const isFlying = self.isInGodMode;
+    if (isFlying) {
+      self.clearZoostQueue();
+    }
+
     if (!isFlying) {
-      if (isZoost(current)) {
+      let direction = self.zoostQueue.shift();
+      if (direction != null) {
         // snap player to zoost
         let position = new Vector(blockX, blockY);
 
@@ -136,29 +145,26 @@ export class EEPhysics implements PhysicsSystem {
         self.origModX = 0;
         self.origModY = 0;
 
-        let direction = zoostDirToVec(current);
+        let brokeEarly = false;
+        let max = 10; // define arbitrarily high amount of times to iterate before stopping
+        while (max) {
+          max--;
 
-        const tryDirs: Vector[] = [];
-
-        // only allowed to advance at most 10 times per ee tick
-        let advanceNum = 10;
-        while (advanceNum > 0) {
           const originalPosition = position;
           position = Vector.add(position, direction);
-          position = new Vector(
-            clamp(position.x, 0, this.world.size.x - 1),
-            clamp(position.y, 0, this.world.size.y - 1)
-          );
+
+          const collidingWithBorder =
+            position.x < 0 ||
+            position.y < 0 ||
+            position.x >= this.world.size.x ||
+            position.y >= this.world.size.y;
 
           const eePos = Vector.mults(position, Config.blockSize);
           self.x = eePos.x;
           self.y = eePos.y;
 
-          // this is already done cuz we clamp the `position`
-          // self.capIntoWorldBoundaries(game);
-
           // if we're colliding with a solid block, we need to not to that
-          if (!this.noCollision(self, position.x, position.y)) {
+          if (collidingWithBorder || !this.noCollision(self, position.x, position.y)) {
             // go back
             position = originalPosition;
             const eePos = Vector.mults(position, Config.blockSize);
@@ -166,28 +172,31 @@ export class EEPhysics implements PhysicsSystem {
             self.y = eePos.y;
 
             // do we have any other directions we could go?
-            const nextDir = tryDirs.shift();
+            const nextDir = self.zoostQueue.shift();
+
             if (nextDir) {
               // we'll try that direction instead then
               direction = nextDir;
-              advanceNum--;
               continue;
+            } else {
+              break;
             }
           }
 
-          // if this is a zoost, record it as a possible direction to take
-          const newDir = this.findGravityDirection(position.x, position.y);
-          if (isZoost(newDir)) {
-            tryDirs.push(zoostDirToVec(newDir));
-            advanceNum--;
-            continue;
-          }
-
-          // otherwise, perform actions (trigger keys/etc)
+          // perform actions (trigger keys/etc)
           this.hoveringOver(self, self.x, self.y);
-          advanceNum--;
 
-          if (self.isDead) break;
+          if (self.isDead) {
+            brokeEarly = true;
+            break;
+          }
+        }
+
+        brokeEarly ||= max === 0;
+
+        // if we broke early, we didn't finish going the queued direction
+        if (brokeEarly) {
+          self.pushZoostQueue(direction);
         }
 
         return;
@@ -772,6 +781,11 @@ export class EEPhysics implements PhysicsSystem {
       this.ids.spikeLeft === actionBlock
     ) {
       self.kill();
+    }
+
+    const newDir = this.findZoostDirection(x, y);
+    if (newDir) {
+      self.pushZoostQueue(zoostDirToVec(newDir));
     }
 
     const checkInsideKey = (x: number, y: number) => {
