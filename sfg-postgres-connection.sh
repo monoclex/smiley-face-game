@@ -1,5 +1,6 @@
 #!/bin/sh
 docker run \
+	--rm \
 	`# using --network host doesnt allow us to sandbox port` \
 	`# -p 3000:80` \
 	--network host \
