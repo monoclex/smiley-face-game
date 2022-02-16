@@ -12,6 +12,7 @@ import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
 import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
+import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
 
 interface Bridge {
   game: Game;
@@ -114,6 +115,8 @@ export default async function setupBridge(
     // connection died, cleanup
     waitPromise.it = new PromiseCompletionSource();
     state.wait = waitPromise.it.handle;
+
+    await playLeave();
   })();
 
   loopRequestAnimationFrame((elapsed) => {
@@ -133,6 +136,8 @@ export default async function setupBridge(
     blockBar,
     self,
   });
+
+  registerPlayerJoinNLeaveSoundEffects(game);
 
   return {
     game,

@@ -8,6 +8,7 @@ import MobileControls from "./MobileControls";
 import WorldSettingsButton from "./WorldSettingsButton";
 import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
+import SoundButton from "./SoundButton";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -77,6 +78,7 @@ export default function GameUI({ children: gameCanvas }) {
                 <Suspense fallback={null}>
                   <GodModeButton />
                 </Suspense>
+                <SoundButton />
               </Grid>
             </Grid>
           </GrayFilled>
