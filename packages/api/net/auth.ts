@@ -17,7 +17,7 @@ export type Credentials = AccountCredentials | GuestCredentials;
 export function auth(payload: Credentials, endpoint?: Endpoint): Promise<Authentication>;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-export function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authentication> {
+export async function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authentication> {
   if (typeof argPayload !== "object") throw new Error("auth got non object for payloaad");
   if (argPayload === null) throw new Error("auth got null for payloaad");
 
@@ -37,7 +37,10 @@ export function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authen
 
   const payload = payloadParser.parse(argPayload);
   const endpoint = zEndpoint.parse(argEndpoint || defaultEndpoint);
-  return fetch(endpoint, payload, zTokenResp).then((payload) => new Authentication(payload.token));
+
+  const response = await fetch(endpoint, payload, zTokenResp);
+  if ("error" in response) throw new Error(`Error from server: ${response.error}`);
+  else return new Authentication(response.token);
 }
 
 /**
@@ -46,12 +49,20 @@ export function auth(argPayload: unknown, argEndpoint?: unknown): Promise<Authen
  * @param endpoint An optional custom endpoint to use during authentication.
  * @returns {Promise<Authentication>} A promise that resolves to an object that can be used to interface with SFG.
  */
-export function register(payload: SchemaInput<typeof zRegisterReq>, endpoint?: Endpoint): Promise<Authentication>;
+export function register(
+  payload: SchemaInput<typeof zRegisterReq>,
+  endpoint?: Endpoint
+): Promise<Authentication>;
 
 /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-export function register(argPayload: unknown, argEndpoint?: unknown): Promise<Authentication> {
+export async function register(
+  argPayload: unknown,
+  argEndpoint?: unknown
+): Promise<Authentication> {
   const payload = zRegisterReq.parse(argPayload);
   const endpoint = zEndpoint.parse(argEndpoint || endpoints.register);
 
-  return fetch(endpoint, payload, zTokenResp).then((payload) => new Authentication(payload.token));
+  const response = await fetch(endpoint, payload, zTokenResp);
+  if ("error" in response) throw new Error(`Error from server: ${response.error}`);
+  else return new Authentication(response.token);
 }
