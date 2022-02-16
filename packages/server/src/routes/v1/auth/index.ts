@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { zLoginReq, zRegisterReq, zGuestReq, ZRegisterResp, ZTokenResp } from "@smiley-face-game/api/api";
+import {
+  zLoginReq,
+  zRegisterReq,
+  zGuestReq,
+  ZRegisterResp,
+  ZTokenResp,
+} from "@smiley-face-game/api/api";
 import schema from "../../../middlewares/schema";
 import asyncHandler from "../../../middlewares/asyncHandler";
 import Dependencies from "../../../dependencies";
@@ -49,18 +55,17 @@ export default function (deps: UsedDependencies): Router {
         const body = req.body;
 
         // TODO: require them to verify a captcha
-        // TODO: don't send 201 status on error
 
         try {
           await accountRepo.findByUsername(body.username);
-          res.status(201).json({ error: "Username taken." });
+          res.status(406).json({ error: "Username or email taken." });
         } catch {
           // good, it shouldn't exist
         }
 
         try {
           await accountRepo.findByEmail(body.email);
-          res.status(201).json({ error: "Email taken." });
+          res.status(406).json({ error: "Username or email taken." });
         } catch {
           // good, it shouldn't exist
         }

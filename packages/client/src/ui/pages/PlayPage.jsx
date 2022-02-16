@@ -12,6 +12,7 @@ import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
+import state from "../../bridge/state";
 
 let isPlaying = false;
 
@@ -26,7 +27,7 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
 
   const auth = useAuth();
 
-  const { cleanup, renderer } = useSuspenseForPromise("gaming", async () => {
+  const { cleanup, renderer, connection } = useSuspenseForPromise("gaming", async () => {
     const renderer = new Renderer({
       width: gameElement.width,
       height: gameElement.height,
@@ -43,16 +44,16 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
       renderer
     );
 
-    // if we navigated away while loading, close the connection
-    // it's possible that we could navigate back, and then navigate back to here
-    // while we are still loading the other connection, but unlikely, so i won't deal with it
-    // actually i think the `useSuspenseForPromise` would prevent that. or nah, on teardown
-    // the cachce entry gets deleted so nvm
-    if (!isPlaying) connection.close();
-    else navigate(`/games/${connection.init.worldId}`, { replace: true });
-
-    return { game, cleanup, renderer };
+    return { game, cleanup, renderer, connection };
   });
+
+  // if we navigated away while loading, close the connection
+  // it's possible that we could navigate back, and then navigate back to here
+  // while we are still loading the other connection, but unlikely, so i won't deal with it
+  // actually i think the `useSuspenseForPromise` would prevent that. or nah, on teardown
+  // the cachce entry gets deleted so nvm
+  if (!isPlaying) connection.close();
+  else useEffect(() => navigate(`/games/${connection.init.worldId}`, { replace: true }), []);
 
   // run `cleanup` on component removal
   useTeardown(
@@ -63,10 +64,6 @@ function ConnectToGame({ gameElement, size: { width, height } }) {
     [],
     "game cleanup"
   );
-
-  useLayoutEffect(() => {
-    renderer.resize(width, height);
-  }, [renderer]);
 
   return null;
 }
@@ -104,6 +101,7 @@ function GameArea() {
       gameElement.width = size.width;
       gameElement.height = size.height;
       gameElement.style.visibility = "visible";
+      if (state.gameRenderer) state.gameRenderer.renderer.resize(size.width, size.height);
       setSize(size);
     });
   };

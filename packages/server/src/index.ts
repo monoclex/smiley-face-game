@@ -29,7 +29,7 @@ createTypeORMConnection()
         const { message, name, stack } = err;
 
         // TODO: only show stack trace in debug mode maybe
-        res.status(500).json({ name, message, stack });
+        res.status(500).json({ name, error: message, stack });
       } else {
         res.status(500).json(err);
       }
