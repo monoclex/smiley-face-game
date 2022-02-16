@@ -567,7 +567,10 @@ export class EEPhysics implements PhysicsSystem {
     );
   }
 
-  findDotDirection(blockX: number, blockY: number) {}
+  findDotDirection(blockX: number, blockY: number) {
+    const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
+    return actionBlock === this.ids.dot ? DotDirection.None : undefined;
+  }
 
   findArrowDirection(blockX: number, blockY: number) {
     const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
