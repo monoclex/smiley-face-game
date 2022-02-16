@@ -118,79 +118,79 @@ export class EEPhysics implements PhysicsSystem {
       self.queue.push(current);
     }
 
-    if (isZoost(current)) {
-      // snap player to zoost
-      let position = new Vector(blockX, blockY);
-
-      const eePos = Vector.mults(position, Config.blockSize);
-      self.velocity = Vector.Zero;
-      self.x = eePos.x;
-      self.y = eePos.y;
-      self.modX = 0;
-      self.modY = 0;
-      self.origModX = 0;
-      self.origModY = 0;
-
-      let direction = zoostDirToVec(current);
-
-      const tryDirs: Vector[] = [];
-
-      // only allowed to advance at most 10 times per ee tick
-      let advanceNum = 10;
-      while (advanceNum > 0) {
-        const originalPosition = position;
-        position = Vector.add(position, direction);
-        position = new Vector(
-          clamp(position.x, 0, this.world.size.x - 1),
-          clamp(position.y, 0, this.world.size.y - 1)
-        );
-
-        const eePos = Vector.mults(position, Config.blockSize);
-        self.x = eePos.x;
-        self.y = eePos.y;
-
-        // this is already done cuz we clamp the `position`
-        // self.capIntoWorldBoundaries(game);
-
-        // if we're colliding with a solid block, we need to not to that
-        if (!this.noCollision(self, position.x, position.y)) {
-          // go back
-          position = originalPosition;
-          const eePos = Vector.mults(position, Config.blockSize);
-          self.x = eePos.x;
-          self.y = eePos.y;
-
-          // do we have any other directions we could go?
-          const nextDir = tryDirs.shift();
-          if (nextDir) {
-            // we'll try that direction instead then
-            direction = nextDir;
-            advanceNum--;
-            continue;
-          }
-        }
-
-        // if this is a zoost, record it as a possible direction to take
-        const newDir = this.findGravityDirection(position.x, position.y);
-        if (isZoost(newDir)) {
-          tryDirs.push(zoostDirToVec(newDir));
-          advanceNum--;
-          continue;
-        }
-
-        // otherwise, perform actions (trigger keys/etc)
-        this.hoveringOver(self, self.x, self.y);
-        advanceNum--;
-      }
-
-      return;
-    }
-
     let modifierX = 0,
       modifierY = 0;
 
     const isFlying = self.isInGodMode;
     if (!isFlying) {
+      if (isZoost(current)) {
+        // snap player to zoost
+        let position = new Vector(blockX, blockY);
+
+        const eePos = Vector.mults(position, Config.blockSize);
+        self.velocity = Vector.Zero;
+        self.x = eePos.x;
+        self.y = eePos.y;
+        self.modX = 0;
+        self.modY = 0;
+        self.origModX = 0;
+        self.origModY = 0;
+
+        let direction = zoostDirToVec(current);
+
+        const tryDirs: Vector[] = [];
+
+        // only allowed to advance at most 10 times per ee tick
+        let advanceNum = 10;
+        while (advanceNum > 0) {
+          const originalPosition = position;
+          position = Vector.add(position, direction);
+          position = new Vector(
+            clamp(position.x, 0, this.world.size.x - 1),
+            clamp(position.y, 0, this.world.size.y - 1)
+          );
+
+          const eePos = Vector.mults(position, Config.blockSize);
+          self.x = eePos.x;
+          self.y = eePos.y;
+
+          // this is already done cuz we clamp the `position`
+          // self.capIntoWorldBoundaries(game);
+
+          // if we're colliding with a solid block, we need to not to that
+          if (!this.noCollision(self, position.x, position.y)) {
+            // go back
+            position = originalPosition;
+            const eePos = Vector.mults(position, Config.blockSize);
+            self.x = eePos.x;
+            self.y = eePos.y;
+
+            // do we have any other directions we could go?
+            const nextDir = tryDirs.shift();
+            if (nextDir) {
+              // we'll try that direction instead then
+              direction = nextDir;
+              advanceNum--;
+              continue;
+            }
+          }
+
+          // if this is a zoost, record it as a possible direction to take
+          const newDir = this.findGravityDirection(position.x, position.y);
+          if (isZoost(newDir)) {
+            tryDirs.push(zoostDirToVec(newDir));
+            advanceNum--;
+            continue;
+          }
+
+          // otherwise, perform actions (trigger keys/etc)
+          this.hoveringOver(self, self.x, self.y);
+          advanceNum--;
+        }
+
+        return;
+      }
+
       self.origModX = self.modX;
       self.origModY = self.modY;
 
