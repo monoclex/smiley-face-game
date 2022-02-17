@@ -160,32 +160,23 @@ it("players can perform arrow hover", () => {
 it("players can perform arrow grabs after dying", () => {
   const simulation = new Simulator(
     `
-.  .
-. ^.
-.  .
-. d.
-.  .
-.  .
-.  .
-.  .
-....
+. .
+.^.
+. .
+.d.
+. .
+. .
+. .
 .p.
-.s.
 ...
 `,
     {
       d: "dot",
-      s: "spike-up",
     }
   );
 
-  // wait for player to die
-  simulation.simulateMs(1000);
+  simulation.player.revive(simulation.player.worldPosition);
 
-  simulation.player.input.right = true;
-  simulation.simulateMs(1000);
-
-  simulation.player.input.right = false;
   simulation.player.input.jump = true;
   simulation.player.input.up = true;
   simulation.simulateMs(1000);

@@ -187,7 +187,7 @@ export class Player {
     this.speedX = 0;
     this.speedY = 0;
     this.isDead = false;
-    this.queue = [ArrowDirection.Down]; // differs from ee `[]` default
+    this.queue = new Array(Config.physics.queue_length).fill(0);
 
     // TODO: don't hardcode 32x32 world
     this.position = Vector.mults(at, 32);
