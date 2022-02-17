@@ -58,4 +58,8 @@ export class Vector {
   static eq(self: Vector, other: Vector): boolean {
     return self.x === other.x && self.y === other.y;
   }
+
+  static floor(self: Vector): Vector {
+    return new Vector(Math.floor(self.x), Math.floor(self.y));
+  }
 }

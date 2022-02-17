@@ -54,6 +54,11 @@ export class Player {
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
+  get worldPosition(): Vector {
+    return Vector.floor(Vector.divs(this.position, 32));
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
   private inGodMode = false;
 
   /** @version eephysics This may be removed when the physics engine changes */

@@ -7,7 +7,7 @@ import { Players } from "./Players";
 import { Vector } from "../physics/Vector";
 import TileRegistration from "../tiles/TileRegistration";
 
-const EE_TPS = 100;
+export const EE_TPS = 100;
 
 /**
  * A `Game` is a class that handles running a Smiley Face Game world. This is the
@@ -15,19 +15,37 @@ const EE_TPS = 100;
  * bots that depend upon in game physics may be more common.
  */
 export class Game {
+  readonly tiles: TileRegistration;
   readonly players: Players;
   readonly blocks: Blocks;
   readonly physics: PhysicsSystem;
 
-  constructor(readonly tiles: TileRegistration, init: ZSInit) {
-    this.players = new Players(init);
-    this.blocks = new Blocks(
-      tiles,
-      init.blocks,
-      init.heaps,
-      new Vector(init.size.width, init.size.height)
-    );
-    this.physics = new EEPhysics(tiles, this.blocks, EE_TPS);
+  // static new(): Game {}
+
+  constructor(tiles: TileRegistration, init: ZSInit);
+  constructor(tiles: TileRegistration, players: Players, blocks: Blocks, physics: PhysicsSystem);
+
+  constructor(tiles: TileRegistration, a: Players | ZSInit, b?: Blocks, c?: PhysicsSystem) {
+    if (a instanceof Players && b != null && c != null) {
+      this.tiles = tiles;
+      this.players = a;
+      this.blocks = b;
+      this.physics = c;
+    } else if (!(a instanceof Players)) {
+      const init = a;
+
+      this.tiles = tiles;
+      this.players = new Players(init);
+      this.blocks = new Blocks(
+        tiles,
+        init.blocks,
+        init.heaps,
+        new Vector(init.size.width, init.size.height)
+      );
+      this.physics = new EEPhysics(tiles, this.blocks, EE_TPS);
+    } else {
+      throw new Error("Failed to construct game, given incorrect arguments");
+    }
   }
 
   update(elapsedMs: number) {
