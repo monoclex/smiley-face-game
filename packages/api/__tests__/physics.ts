@@ -97,6 +97,7 @@ it("players can perform 1x1s", () => {
   expect(simulation.player.worldPosition).toEqual(simulation.goal);
 });
 
+// just some EE minigame that someone asked if it was possible in SFG
 it("players can perform 'false hooks'", () => {
   const simulation = new Simulator(
     `
@@ -121,4 +122,78 @@ it("players can perform 'false hooks'", () => {
   simulation.simulateMs(500);
 
   expect(simulation.player.worldPosition).toEqual(simulation.goal);
+});
+
+// making sure arrow hovers are possible
+it("players can perform arrow hover", () => {
+  const simulation = new Simulator(
+    `
+. .
+.^.
+. .
+.d.
+. .
+. .
+. .
+.p.
+...
+`,
+    {
+      d: "dot",
+    }
+  );
+
+  simulation.player.input.right = false;
+  simulation.player.input.jump = true;
+  simulation.player.input.up = true;
+  simulation.simulateMs(1000);
+
+  // we expect the player to be hovering on the arrow
+  const y = 1.5 * 16;
+  const smallDelta = 0.1;
+
+  expect(simulation.player.y).toBeGreaterThanOrEqual(y - smallDelta);
+  expect(simulation.player.y).toBeLessThanOrEqual(y + smallDelta);
+});
+
+// in bugged SFG physics, after death the arrow grab minigame was no longer possible
+it("players can perform arrow grabs after dying", () => {
+  const simulation = new Simulator(
+    `
+.  .
+. ^.
+.  .
+. d.
+.  .
+.  .
+.  .
+.  .
+....
+.p.
+.s.
+...
+`,
+    {
+      d: "dot",
+      s: "spike-up",
+    }
+  );
+
+  // wait for player to die
+  simulation.simulateMs(1000);
+
+  simulation.player.input.right = true;
+  simulation.simulateMs(1000);
+
+  simulation.player.input.right = false;
+  simulation.player.input.jump = true;
+  simulation.player.input.up = true;
+  simulation.simulateMs(1000);
+
+  // we expect the player to be hovering on the arrow
+  const y = 1.5 * 16;
+  const smallDelta = 0.1;
+
+  expect(simulation.player.y).toBeGreaterThanOrEqual(y - smallDelta);
+  expect(simulation.player.y).toBeLessThanOrEqual(y + smallDelta);
 });

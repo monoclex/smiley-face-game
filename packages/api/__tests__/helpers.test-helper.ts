@@ -12,7 +12,7 @@ const tiles = createRegistration();
 interface TemplateInfo {
   blocks: Blocks;
   playerPosition: Vector;
-  goalPosition: Vector;
+  goalPosition: Vector | null;
 }
 
 function createWorld(
@@ -73,7 +73,6 @@ function createWorld(
   }
 
   if (!playerPosition) throw new Error(`No player detected! Place a player 'p' in your template`);
-  if (!goalPosition) throw new Error(`No goal detected! Place a player 'p' in your template`);
 
   return {
     blocks,
@@ -85,7 +84,7 @@ function createWorld(
 export class Simulator {
   readonly game;
   readonly player!: Player;
-  readonly goal: Vector;
+  readonly goal: Vector | null;
 
   constructor(world: string, customMappings?: { [key: string]: string }) {
     const { blocks, playerPosition, goalPosition } = createWorld(world, customMappings);
