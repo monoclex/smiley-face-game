@@ -113,4 +113,9 @@ export class Simulator {
     this.elapsed += ms;
     this.game.update(this.elapsed);
   }
+
+  simulateTicks(ticks: number) {
+    this.elapsed += this.game.physics.optimalTickRate * ticks;
+    this.game.update(this.elapsed);
+  }
 }
