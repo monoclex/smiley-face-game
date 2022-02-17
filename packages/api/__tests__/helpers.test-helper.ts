@@ -20,12 +20,12 @@ function createWorld(
   customCharMappings?: { [key: string]: string }
 ): TemplateInfo {
   const mappings: { [key: string]: string } = {
-    ...(customCharMappings ?? {}),
     ".": "basic-white",
     "^": "arrow-up",
     ">": "arrow-right",
     v: "arrow-down",
     "<": "arrow-left",
+    ...(customCharMappings ?? {}),
   };
 
   const lines = template.trim().split("\n");

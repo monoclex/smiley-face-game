@@ -1,3 +1,4 @@
+import { Vector } from "../physics/Vector";
 import { Simulator } from "./helpers.test-helper";
 
 // in bugged SFG physics, you couldn't climb onto ledges with dots
@@ -89,6 +90,32 @@ it("players can perform 1x1s", () => {
   simulation.player.input.jump = false;
   simulation.player.input.left = false;
   simulation.player.input.right = true;
+
+  // some arbitrary amount of time at which point we'll probably land
+  simulation.simulateMs(500);
+
+  expect(simulation.player.worldPosition).toEqual(simulation.goal);
+});
+
+it("players can perform 'false hooks'", () => {
+  const simulation = new Simulator(
+    `
+...^^..
+.p   X.
+...vv..
+`,
+    {
+      "^": "boost-up",
+      v: "boost-down",
+    }
+  );
+
+  simulation.player.input.right = true;
+
+  // brute fource: jump after 22 ticks
+  simulation.simulateTicks(22);
+
+  simulation.player.input.jump = true;
 
   // some arbitrary amount of time at which point we'll probably land
   simulation.simulateMs(500);
