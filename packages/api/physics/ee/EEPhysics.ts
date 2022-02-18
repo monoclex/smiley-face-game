@@ -276,20 +276,10 @@ export class EEPhysics implements PhysicsSystem {
     // here, we apply this regardless of what the previous section has done because
     // boost's gravity overtakes regular gravity
     if (!isFlying) {
-      switch (this.findBoostDirection(blockX, blockY)) {
-        case BoostDirection.Left:
-          self.speedX = -Config.physics.boost;
-          break;
-        case BoostDirection.Right:
-          self.speedX = Config.physics.boost;
-          break;
-        case BoostDirection.Up:
-          self.speedY = -Config.physics.boost;
-          break;
-        case BoostDirection.Down:
-          self.speedY = Config.physics.boost;
-          break;
-      }
+      const appliedForce = this.getAppliedForceOf(current);
+
+      if (appliedForce.x) self.speedX = appliedForce.x;
+      if (appliedForce.y) self.speedY = appliedForce.y;
 
       if (self.isDead) {
         self.speedX = 0;
@@ -1002,5 +992,25 @@ export class EEPhysics implements PhysicsSystem {
       id == this.ids.zoostDown ||
       id == this.ids.zoostLeft
     );
+  }
+
+  // so basically boosts while they don't have "gravity" (so they technically
+  // aren't pulling you in a direction) have an amount of force they apply instead
+  // to the player.
+  getAppliedForceOf(block: number) {
+    const MAX_SPEED = 16;
+
+    switch (block) {
+      case this.ids.boostUp:
+        return Vector.mults(Vector.Up, MAX_SPEED);
+      case this.ids.boostRight:
+        return Vector.mults(Vector.Right, MAX_SPEED);
+      case this.ids.boostDown:
+        return Vector.mults(Vector.Down, MAX_SPEED);
+      case this.ids.boostLeft:
+        return Vector.mults(Vector.Left, MAX_SPEED);
+      default:
+        return Vector.Zero;
+    }
   }
 }
