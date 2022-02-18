@@ -379,125 +379,30 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private performStepping(self: Player, current: number) {
-    let remainderX = self.x % 1,
-      remainderY = self.y % 1;
-    let currentSpeedX = self.speedX,
-      currentSpeedY = self.speedY;
-    let oldSpeedX = 0,
-      oldSpeedY = 0;
-    let oldX = 0,
-      oldY = 0;
-    let stupidInvarianceBreakerX = 0,
-      stupidInvarianceBreakerY = 0;
+    const speedX = self.speedX,
+      x = self.x,
+      factoryHorzState = () => ({ pos: x, remainder: x % 1, currentSpeed: speedX });
 
-    let doneX = false,
-      doneY = false;
+    const speedY = self.speedY,
+      y = self.y,
+      factoryVertState = () => ({ pos: y, remainder: y % 1, currentSpeed: speedY });
+
+    let horzGenState = factoryHorzState();
+    let vertGenState = factoryVertState();
 
     let grounded = false;
 
-    const stepX = () => {
-      // if we're going right
-      if (currentSpeedX > 0) {
-        // and we would go right a full pixel accounting for our remainder
-        if (stupidInvarianceBreakerX === 1) {
-          // we can be assured here that `remainderX = 0`
-          // step of absolutely nothing
-          // self.x += 0;
-          // self.x >>= 0;
+    let horzStepper = this.stepAlgo(current, horzGenState);
+    let horzSteps = 0;
 
-          // currentSpeedX -= 0;
-          // remainderX = 0;
-          stupidInvarianceBreakerX = 0;
-        } else if (currentSpeedX + remainderX >= 1) {
-          // because `remainderX` is less than 1, this will apply exactly enough to move `x` a full pixel
-          // then we truncate this
-          // (this could actually be `self.x = Math.trunc(self.x) + 1` lmfao)
-          self.x += 1 - remainderX;
-          self.x >>= 0;
-          // -1.0 >> 0 = -1
-          // -0.9 >> 0 =  0
-          // -0.1 >> 0 =  0
-          //    0 >> 0 =  0
-          //  0.1 >> 0 =  0
-          //  0.9 >> 0 =  0
-          //  1.0 >> 0 =  1
+    let vertStepper = this.stepAlgo(current, vertGenState);
+    let vertSteps = 0;
 
-          // lets say currentSpeedX = 0.39
-          // and remainderX = 0.6
-          // so x = 0.4
-          //
-          // we would go -0.01 in currentSpeedX
-          currentSpeedX -= 1 - remainderX;
-          remainderX = 0;
-          stupidInvarianceBreakerX = 0;
-        } else {
-          // if we're not enough to go a full pixel, we apply what we have
-          self.x += currentSpeedX;
-          currentSpeedX = 0;
-        }
-      }
-      // if we're going left
-      else if (currentSpeedX < 0) {
-        if (stupidInvarianceBreakerX === 1 && 1 + currentSpeedX < 0) {
-          currentSpeedX += 1;
-          self.x -= 1;
-          self.x >>= 0;
-
-          stupidInvarianceBreakerX = 1;
-          remainderX = 0;
-        }
-        // i guess checking if applying remainderX to our current speed is < 0 and =/= 0 is
-        // enough for them to consider that we're "moving a pixel" (altho not really...)
-        //
-        // ok i got it
-        // `remainderX + currentSpeedX < 0` checks if we're going to move a pixel to the left
-        // currentSpeedX is the amount we'd go left, and adding remainderX will tell us if we're
-        // going to actually move a pixel to the left based on our current offset of the pixel we're on
-        // and we check if `remainderX =/= 0` because we already cehcked if currentSpeedX < 0
-        else if (remainderX + currentSpeedX < 0 && (remainderX != 0 || isBoost(current))) {
-          // we're actually shrinking how far left we're gonna go
-          //
-          // basically, we're applying `remainderX` to our position instead of our speed
-          // because we know we can go a full pixel by subtracting whatever our remainder is
-          currentSpeedX += remainderX;
-          self.x -= remainderX;
-          self.x >>= 0;
-
-          // this... is interesting
-          // this has very interesting ramifications
-          //
-          // if currentSpeedX > 0,
-          //   we would end up hitting the `currentSpeedX + remainderX >= 1` branch and not step one at all
-          //   so we could step Y twice potentially
-          //
-          //   but then we would go back to going right
-          //
-          // if currentSpeedX < 0,
-          //   then we would either repeat and hit this branch (going left a full pixel)
-          // or currentSpeedX >= -1 and < 0
-          //   meaning we hit the second branch
-          stupidInvarianceBreakerX = 1;
-          remainderX = 0;
-        } else {
-          // consider the extremes:
-          // remainderX: 0.9
-          // currentSpeedX: -0.1
-          // OR
-          // remainderX: 0.1
-          // currentSpeedX: -0.9
-          //
-          // at this point we know currentSpeedX is \in [-1, 0)
-          // so we just apply the rest of currentSpeed, knowing that it'll be a pixel or less movement
-          self.x += currentSpeedX;
-          currentSpeedX = 0;
-        }
-      }
-
+    const checkHorzCollision = () => {
       // if we are in collision with any blocks after stepping a singular pixel
+      self.x = horzGenState.pos;
+      self.y = vertGenState.pos;
       if (this.playerIsInFourSurroundingBlocks(self)) {
-        // we know that it was wrong to apply whatever we did
-        self.x = oldX;
-
         // if we are being pulled to the right,
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
@@ -509,76 +414,125 @@ export class EEPhysics implements PhysicsSystem {
         // we ran into collision so we shouldn't move anymore
         self.speedX = 0;
 
-        // because we're resetting ourselves to where we were before this tick,
-        // we need to reset our old speed too
-        // (why is this far away from `self.x = oldX`?)
-        currentSpeedX = oldSpeedX;
+        // reset our generator to right before it performed this tick
+        horzGenState = factoryHorzState();
+        horzStepper = this.stepAlgo(current, horzGenState);
+        for (let i = 0; i < horzSteps; i++) {
+          horzStepper.next();
+        }
+
         doneX = true;
       }
     };
 
     // same as stepX
-    const stepY = () => {
-      if (currentSpeedY > 0) {
-        if (stupidInvarianceBreakerY === 1) {
-          self.y += 0;
-          self.y >>= 0;
-          currentSpeedY -= 0;
-          remainderY = 0;
-          stupidInvarianceBreakerY = 0;
-        } else if (currentSpeedY + remainderY >= 1) {
-          self.y += 1 - remainderY;
-          self.y >>= 0;
-          currentSpeedY -= 1 - remainderY;
-          remainderY = 0;
-        } else {
-          self.y += currentSpeedY;
-          currentSpeedY = 0;
-        }
-      } else if (currentSpeedY < 0) {
-        if (stupidInvarianceBreakerY === 1 && 1 + currentSpeedY < 0) {
-          currentSpeedY += 1;
-          self.y -= 1;
-          self.y >>= 0;
-          stupidInvarianceBreakerY = 1;
-          remainderY = 0;
-        } else if (remainderY + currentSpeedY < 0 && (remainderY != 0 || isBoost(current))) {
-          currentSpeedY += remainderY;
-          self.y -= remainderY;
-          self.y >>= 0;
-          stupidInvarianceBreakerY = 1;
-          remainderY = 0;
-        } else {
-          self.y += currentSpeedY;
-          currentSpeedY = 0;
-        }
-      }
+    const checkVertCollision = () => {
+      self.x = horzGenState.pos;
+      self.y = vertGenState.pos;
       if (this.playerIsInFourSurroundingBlocks(self)) {
-        // if(self.playstate.world != null){
-        // if(self.playstate.world.overlaps(this)){
-        self.y = oldY;
         if (self.speedY > 0 && self.origModY > 0) grounded = true;
         if (self.speedY < 0 && self.origModY < 0) grounded = true;
 
         self.speedY = 0;
-        currentSpeedY = oldSpeedY;
+
+        // reset our generator to right before it performed this tick
+        vertGenState = factoryVertState();
+        vertStepper = this.stepAlgo(current, vertGenState);
+        for (let i = 0; i < vertSteps; i++) {
+          vertStepper.next();
+        }
+
         doneY = true;
       }
     };
 
+    let doneX = false,
+      doneY = false;
+
     // if we have x speed and we haven't collided yet (or same for y)
-    while ((currentSpeedX && !doneX) || (currentSpeedY && !doneY)) {
-      oldX = self.x;
-      oldY = self.y;
+    while ((horzGenState.currentSpeed && !doneX) || (vertGenState.currentSpeed && !doneY)) {
+      doneX ||= Boolean(horzStepper.next().done);
+      checkHorzCollision();
+      horzSteps++;
 
-      oldSpeedX = currentSpeedX;
-      oldSpeedY = currentSpeedY;
-
-      stepX();
-      stepY();
+      doneY ||= Boolean(vertStepper.next().done);
+      checkVertCollision();
+      vertSteps++;
     }
 
+    self.x = horzGenState.pos;
+    self.y = vertGenState.pos;
+
     return grounded;
+  }
+
+  *stepAlgo(current: number, me: { pos: number; remainder: number; currentSpeed: number }) {
+    // if we're going right
+    if (me.currentSpeed > 0) {
+      if (me.remainder !== 0) {
+        // clip ourselves to the edge of the pixel
+        // use the speed available in `currentSpeedX` to do so
+        me.pos += 1 - me.remainder;
+        me.pos >>= 0;
+        me.currentSpeed -= 1 - me.remainder;
+        // me.pos = Math.trunc(me.pos) + 1;
+        // me.currentSpeed -= me.remainder;
+        yield;
+
+        // in original EE code, this is where the frickery happens
+        if (isBoost(current)) {
+          // (remainderX != 0 || isBoost(current))
+          // one tick of nothing happening
+          yield;
+        }
+      }
+
+      // while we have enough speed to move a full pixel
+      while (me.currentSpeed >= 1) {
+        // move
+        me.pos += 1;
+        me.currentSpeed -= 1;
+        yield;
+      }
+
+      // we don't have enough speed to move a full pixel, apply rest of speed
+      me.pos += me.currentSpeed;
+      me.currentSpeed = 0;
+      yield;
+    }
+    // if we're going left
+    else if (me.currentSpeed < 0) {
+      // note about this section: ee weirdness: if you're perfectly pixel aligned,
+      // you consume all of your speed at once (lol)
+
+      if (me.remainder !== 0 || isBoost(current)) {
+        // clip ourselves to the nearest pixel
+        // me.pos = Math.trunc(me.pos);
+        // use up some speed for moving
+        // me.currentSpeed += me.remainder;
+        me.pos -= me.remainder;
+        me.pos >>= 0;
+        me.currentSpeed += me.remainder;
+        yield;
+
+        while (me.currentSpeed < -1) {
+          // while we can move a full pixel, move a full pixel
+          me.currentSpeed += 1;
+          me.pos -= 1;
+          yield;
+        }
+
+        // consume the rest of our speed
+        me.pos += me.currentSpeed;
+        me.currentSpeed = 0;
+        yield;
+      } else {
+        // consume all of our speed all at once! (wow!)
+        me.pos += me.currentSpeed;
+        me.currentSpeed = 0;
+        yield;
+      }
+    }
   }
 
   performAutoalign(self: Player, modifierX: number, modifierY: number) {
