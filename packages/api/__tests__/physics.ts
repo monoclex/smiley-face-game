@@ -188,3 +188,71 @@ it("players can perform arrow grabs after dying", () => {
   expect(simulation.player.y).toBeGreaterThanOrEqual(y - smallDelta);
   expect(simulation.player.y).toBeLessThanOrEqual(y + smallDelta);
 });
+
+it("players drop down the right amount of dots", () => {
+  const simulation = new Simulator(
+    `
+p
+d
+d
+d
+d
+d
+d
+d
+d
+d
+`,
+    {
+      d: "dot",
+    }
+  );
+
+  simulation.simulateMs(10_000);
+
+  expect(simulation.player.y).toBeCloseTo(121.97268244827184, 4);
+});
+
+it("players go right the right amount of spaces", () => {
+  const simulation = new Simulator(
+    `
+p
+ddddddddddddddd
+`,
+    {
+      d: "dot",
+    }
+  );
+
+  simulation.player.input.right = true;
+
+  simulation.simulateMs(250);
+
+  simulation.player.input.right = false;
+
+  simulation.simulateMs(2_000);
+
+  expect(simulation.player.x).toBeCloseTo(166.33360981842642, 4);
+});
+
+it("players go right the right amount of spaces", () => {
+  const simulation = new Simulator(
+    `
+p
+............
+`,
+    {
+      d: "dot",
+    }
+  );
+
+  simulation.player.input.right = true;
+
+  simulation.simulateMs(250);
+
+  simulation.player.input.right = false;
+
+  simulation.simulateMs(2_000);
+
+  expect(simulation.player.x).toBeCloseTo(55.723055449141526, 4);
+});
