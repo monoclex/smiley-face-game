@@ -302,26 +302,22 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private performJumping(self: Player, grounded: boolean) {
-    let mod = 1;
-    let inJump = false;
+    let tryToPerformJump = false;
 
     // if space has just been pressed, we want to jump immediately
     if (self.isSpaceJustPressed) {
-      self.lastJump = -self.ticks;
-      inJump = true;
-      mod = -1;
+      tryToPerformJump = true;
     }
-
     // otherwise, if space has been (or is just) held
-    if (self.isSpaceDown) {
+    else if (self.isSpaceDown) {
       // if lastJump is negative, meaning
       // it is only negative if `isSpaceJustPressed` has been the "most recently"
       // pressed thing
-      if (self.lastJump < 0) {
+      if (self.jumpCount === 1) {
         // if 750ms has elapsed since the last jump
-        if (self.ticks + self.lastJump > 75) {
+        if (self.ticks - self.lastJump > 75) {
           // we want to perform a jump
-          inJump = true;
+          tryToPerformJump = true;
         }
       }
       // if `isSpaceJustPressed` is NOT the most recent thing,
@@ -331,7 +327,7 @@ export class EEPhysics implements PhysicsSystem {
         if (self.ticks - self.lastJump > 15) {
           // we want to perform a jump automatically
           // this prevents the player from hitting jump too fast
-          inJump = true;
+          tryToPerformJump = true;
         }
       }
     }
@@ -354,7 +350,7 @@ export class EEPhysics implements PhysicsSystem {
     // we don't want to let the player jump in mid-air just from falling
     if (self.jumpCount == 0 && !grounded) self.jumpCount = 1; // Not on ground so first 'jump' removed
 
-    if (inJump) {
+    if (tryToPerformJump) {
       // if we can jump, AND we're being pulled in the X direction
       //
       // the `origModX` tells us the force of the CURRENT block we're in,
@@ -363,32 +359,21 @@ export class EEPhysics implements PhysicsSystem {
       // it's very unlikely that that the origModX will differ from modX, so i don't think
       // we need to check both. plus we should only be checking delayed (modX) as physics
       // work based on the previous tick's block (or second prev block, depending on what's in the queue)
-      if (self.jumpCount < self.maxJumps && self.origModX && self.modX) {
-        // Jump in x direction
-        if (self.maxJumps < 1000) {
-          // Not infinite jumps
-          self.jumpCount += 1;
-        }
-        self.speedX =
-          // go in the opposite direction of gravity (jump force!)
-          // and apply jump multipliers
-          (-self.origModX * Config.physics.jump_height * self.jumpMult) /
-          Config.physics.variable_multiplyer;
+      const beingPulledByGravity = (self.origModX && self.modX) || (self.origModY && self.modY);
 
-        // this is set for the jump space held stuff
-        self.lastJump = self.ticks * mod;
-      }
-      // if we can jump, AND we're being pulled in the Y direction
-      if (self.jumpCount < self.maxJumps && self.origModY && self.modY) {
-        // Jump in y direction
-        if (self.maxJumps < 1000) {
-          // Not infinite jumps
-          self.jumpCount += 1;
-        }
-        self.speedY =
-          (-self.origModY * Config.physics.jump_height * self.jumpMult) /
-          Config.physics.variable_multiplyer;
-        self.lastJump = self.ticks * mod;
+      if (self.jumpCount < self.maxJumps && beingPulledByGravity) {
+        self.lastJump = self.ticks;
+        self.jumpCount += 1;
+
+        if (self.origModX)
+          self.speedX =
+            (-self.origModX * Config.physics.jump_height * self.jumpMult) /
+            Config.physics.variable_multiplyer;
+
+        if (self.origModY)
+          self.speedY =
+            (-self.origModY * Config.physics.jump_height * self.jumpMult) /
+            Config.physics.variable_multiplyer;
       }
     }
   }
