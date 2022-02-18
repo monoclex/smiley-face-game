@@ -82,7 +82,12 @@ export default class Keyboard {
     }
 
     if (didChange) {
-      this.connection.move(this.player.position, this.player.velocity, this.player.input);
+      this.connection.move(
+        this.player.position,
+        this.player.velocity,
+        this.player.input,
+        this.player.queue
+      );
     }
   }
 

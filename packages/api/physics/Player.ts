@@ -23,7 +23,24 @@ export interface CheapPlayer {
 
 export class Player {
   input: Inputs;
-  velocity: Vector = Vector.Zero;
+
+  get velocity(): Vector {
+    return { x: this.speedX, y: this.speedY };
+  }
+
+  set velocity(v: Vector) {
+    this.speedX = v.x;
+    this.speedY = v.y;
+  }
+
+  get position(): Vector {
+    return { x: this.x * 2, y: this.y * 2 };
+  }
+
+  set position(v: Vector) {
+    this.x = v.x / 2;
+    this.y = v.y / 2;
+  }
 
   get hasEdit(): boolean {
     return this.role !== "non";
@@ -34,7 +51,7 @@ export class Player {
     readonly name: string,
     public role: ZRole,
     readonly isGuest: boolean,
-    public position: Vector,
+    position: Vector,
     public canGod: boolean,
     inGod: boolean
   ) {
@@ -45,6 +62,8 @@ export class Player {
       right: false,
       jump: false,
     };
+
+    this.position = position;
 
     this.isInGodMode = inGod;
   }
@@ -104,21 +123,9 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   speedY = 0;
   /** @version eephysics This may be removed when the physics engine changes */
-  get x(): number {
-    return this.position.x / 2;
-  }
+  x = 0;
   /** @version eephysics This may be removed when the physics engine changes */
-  set x(x: number) {
-    this.position = Vector.mutateX(this.position, x * 2);
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  get y(): number {
-    return this.position.y / 2;
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  set y(y: number) {
-    this.position = Vector.mutateY(this.position, y * 2);
-  }
+  y = 0;
   /** @version eephysics This may be removed when the physics engine changes */
   ticks = 0;
   /** @version eephysics This may be removed when the physics engine changes */

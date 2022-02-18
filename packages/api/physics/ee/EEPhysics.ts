@@ -67,6 +67,7 @@ export class EEPhysics implements PhysicsSystem {
     player.position = movement.position;
     player.velocity = movement.velocity;
     player.input = movement.inputs;
+    player.queue = movement.queue;
   }
 
   tick(players: Player[]) {
