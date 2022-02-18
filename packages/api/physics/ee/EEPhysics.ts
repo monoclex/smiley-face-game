@@ -15,8 +15,6 @@ import {
   BoostDirection,
   ZoostDirection,
   isBoost,
-  isZoost,
-  zoostDirToVec,
   SpikeDirection,
 } from "./Directions";
 import equal from "fast-deep-equal";
@@ -117,21 +115,21 @@ export class EEPhysics implements PhysicsSystem {
     // of the dot and the air, or the arrow and the air.
     let delayed = self.queue.shift();
     if (delayed === undefined) throw new Error("impossible");
-    const current = this.findGravityDirection(blockX, blockY);
+    const current = this.world.blockAt(blockX, blockY, TileLayer.Action);
     self.queue.push(current);
 
     // this is here to make dots grab more
     // if you remove this, then holding up on dots will make you fall
     // this is because dots are in the queue less
-    if (current === DotDirection.None) {
+    if (current === this.ids.dot) {
       delayed = self.queue.shift();
       if (delayed === undefined) throw new Error("impossible");
       self.queue.push(current);
     }
 
     // if we're on a zoost, push the direction it's in to the queue
-    if (isZoost(current)) {
-      self.pushZoostQueue(zoostDirToVec(current));
+    if (this.isZoost(current)) {
+      self.pushZoostQueue(this.zoostDirToVec(current));
     }
 
     // don't process zoosts if we're in god mode
@@ -150,78 +148,22 @@ export class EEPhysics implements PhysicsSystem {
       self.origModX = self.modX;
       self.origModY = self.modY;
 
-      // EE comment: "Process gravity"
-      switch (current) {
-        case DotDirection.None:
-          self.resetModifiers();
-          break;
+      const currentGravitationalPull = this.getGravitationalPull(current);
+      self.origModX = currentGravitationalPull.x;
+      self.origModY = currentGravitationalPull.y;
 
-        case ArrowDirection.Left:
-          self.origModX = -Config.physics.gravity;
-          self.origModY = 0;
-          break;
-        case ArrowDirection.Up:
-          self.origModX = 0;
-          self.origModY = -Config.physics.gravity;
-          break;
-        case ArrowDirection.Right:
-          self.origModX = Config.physics.gravity;
-          self.origModY = 0;
-          break;
-        case ArrowDirection.Down:
-
-        default:
-          self.origModX = 0;
-          self.origModY = Config.physics.gravity;
-          break;
-
-        case BoostDirection.Left:
-        case BoostDirection.Up:
-        case BoostDirection.Right:
-        case BoostDirection.Down:
-          self.origModX = 0;
-          self.origModY = 0;
-          break;
-        case SpikeDirection.Left:
-        case SpikeDirection.Up:
-        case SpikeDirection.Right:
-        case SpikeDirection.Down:
-          self.origModX = 0;
-          self.origModY = Config.physics.gravity;
-          self.kill();
-          break;
+      if (
+        current == this.ids.spikeUp ||
+        current == this.ids.spikeRight ||
+        current == this.ids.spikeDown ||
+        current == this.ids.spikeLeft
+      ) {
+        self.kill();
       }
 
-      switch (delayed) {
-        case DotDirection.None:
-          self.resetModifiers();
-          break;
-
-        case ArrowDirection.Left:
-          self.modX = -Config.physics.gravity;
-          self.modY = 0;
-          break;
-        case ArrowDirection.Up:
-          self.modX = 0;
-          self.modY = -Config.physics.gravity;
-          break;
-        case ArrowDirection.Right:
-          self.modX = Config.physics.gravity;
-          self.modY = 0;
-          break;
-        case ArrowDirection.Down:
-        default:
-          self.modX = 0;
-          self.modY = Config.physics.gravity;
-          break;
-        case BoostDirection.Left:
-        case BoostDirection.Up:
-        case BoostDirection.Right:
-        case BoostDirection.Down:
-          self.modX = 0;
-          self.modY = 0;
-          break;
-      }
+      const delayedGravitationalPull = this.getGravitationalPull(delayed);
+      self.modX = delayedGravitationalPull.x;
+      self.modY = delayedGravitationalPull.y;
     }
 
     let movementX = 0,
@@ -758,20 +700,6 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  findGravityDirection(worldX: number, worldY: number) {
-    // const worldX = Math.floor(this.center.x / 32);
-    // const worldY = Math.floor(this.center.y / 32);
-
-    return (
-      this.findBoostDirection(worldX, worldY) ||
-      this.findZoostDirection(worldX, worldY) ||
-      this.findArrowDirection(worldX, worldY) ||
-      this.findDotDirection(worldX, worldY) ||
-      this.findSpike(worldX, worldY) ||
-      ArrowDirection.Down
-    );
-  }
-
   findDotDirection(blockX: number, blockY: number) {
     const actionBlock = this.world.blockAt(blockX, blockY, TileLayer.Action);
     return actionBlock === this.ids.dot ? DotDirection.None : undefined;
@@ -979,9 +907,8 @@ export class EEPhysics implements PhysicsSystem {
       self.kill();
     }
 
-    const newDir = this.findZoostDirection(x, y);
-    if (newDir) {
-      self.pushZoostQueue(zoostDirToVec(newDir));
+    if (this.isZoost(actionBlock)) {
+      self.pushZoostQueue(this.zoostDirToVec(actionBlock));
     }
 
     const checkInsideKey = (x: number, y: number) => {
@@ -1021,5 +948,55 @@ export class EEPhysics implements PhysicsSystem {
     if (prev[0] !== current[0]) {
       this.events.emit("moveOutOfKeys", self);
     }
+  }
+
+  getGravitationalPull(blockId: number) {
+    const gravity = new Vector(Config.physics.gravity, Config.physics.gravity);
+
+    switch (blockId) {
+      case this.ids.boostUp:
+      case this.ids.boostRight:
+      case this.ids.boostLeft:
+      case this.ids.boostDown:
+      case this.ids.dot:
+        return Vector.Zero;
+      case this.ids.arrowUp:
+        return Vector.mult(Vector.Up, gravity);
+      case this.ids.arrowRight:
+        return Vector.mult(Vector.Right, gravity);
+      case this.ids.arrowLeft:
+        return Vector.mult(Vector.Left, gravity);
+      case this.ids.arrowDown:
+      case this.ids.spikeUp:
+      case this.ids.spikeRight:
+      case this.ids.spikeLeft:
+      case this.ids.spikeDown:
+      default:
+        return Vector.mult(Vector.Down, gravity);
+    }
+  }
+
+  zoostDirToVec(zoostId: number) {
+    switch (zoostId) {
+      case this.ids.zoostUp:
+        return Vector.Up;
+      case this.ids.zoostRight:
+        return Vector.Right;
+      case this.ids.zoostDown:
+        return Vector.Down;
+      case this.ids.zoostLeft:
+        return Vector.Left;
+      default:
+        throw new Error("called `zoostDirToVec` without zoost");
+    }
+  }
+
+  isZoost(id: number) {
+    return (
+      id == this.ids.zoostUp ||
+      id == this.ids.zoostRight ||
+      id == this.ids.zoostDown ||
+      id == this.ids.zoostLeft
+    );
   }
 }
