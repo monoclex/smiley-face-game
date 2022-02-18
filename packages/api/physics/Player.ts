@@ -139,7 +139,7 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   moving = false;
   /** @version eephysics This may be removed when the physics engine changes */
-  queue: number[] = new Array(Config.physics.queue_length).fill(0);
+  queue: [number, number] = [0, 0];
   /** @version eephysics This may be removed when the physics engine changes */
   origModX = 0;
   /** @version eephysics This may be removed when the physics engine changes */
@@ -194,7 +194,7 @@ export class Player {
     this.speedX = 0;
     this.speedY = 0;
     this.isDead = false;
-    this.queue = new Array(Config.physics.queue_length).fill(0);
+    this.queue = [0, 0];
 
     // TODO: don't hardcode 32x32 world
     this.position = Vector.mults(at, 32);

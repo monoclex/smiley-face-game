@@ -65,6 +65,9 @@ export class EEPhysics implements PhysicsSystem {
     player.position = movement.position;
     player.velocity = movement.velocity;
     player.input = movement.inputs;
+
+    if (movement.queue.length !== 2) throw new Error("invalid movement packet");
+    //@ts-expect-error doesn't coerce nicely
     player.queue = movement.queue;
   }
 
@@ -113,17 +116,18 @@ export class EEPhysics implements PhysicsSystem {
     // if we didn't have this here, holding "up" on dots or standing on up arrows
     // would not have you swing between two blocks - you would be right on the edge
     // of the dot and the air, or the arrow and the air.
-    let delayed = self.queue.shift();
-    if (delayed === undefined) throw new Error("impossible");
     const current = this.world.blockAt(blockX, blockY, TileLayer.Action);
-    self.queue.push(current);
 
-    // this is here to make dots grab more
-    // if you remove this, then holding up on dots will make you fall
-    // this is because dots are in the queue less
+    let delayed: number;
     if (current === this.ids.dot) {
-      delayed = self.queue.shift();
-      if (delayed === undefined) throw new Error("impossible");
+      // this is here to make dots grab more
+      // if you remove this, then holding up on dots will make you fall
+      // this is because dots are in the queue less
+
+      delayed = self.queue[1];
+      self.queue = [current, current];
+    } else {
+      delayed = self.queue.shift()!;
       self.queue.push(current);
     }
 
