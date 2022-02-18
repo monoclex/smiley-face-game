@@ -387,6 +387,8 @@ export class EEPhysics implements PhysicsSystem {
       oldSpeedY = 0;
     let oldX = 0,
       oldY = 0;
+    let stupidInvarianceBreakerX = 0,
+      stupidInvarianceBreakerY = 0;
 
     let doneX = false,
       doneY = false;
@@ -397,7 +399,16 @@ export class EEPhysics implements PhysicsSystem {
       // if we're going right
       if (currentSpeedX > 0) {
         // and we would go right a full pixel accounting for our remainder
-        if (currentSpeedX + remainderX >= 1) {
+        if (stupidInvarianceBreakerX === 1) {
+          // we can be assured here that `remainderX = 0`
+          // step of absolutely nothing
+          // self.x += 0;
+          // self.x >>= 0;
+
+          // currentSpeedX -= 0;
+          // remainderX = 0;
+          stupidInvarianceBreakerX = 0;
+        } else if (currentSpeedX + remainderX >= 1) {
           // because `remainderX` is less than 1, this will apply exactly enough to move `x` a full pixel
           // then we truncate this
           // (this could actually be `self.x = Math.trunc(self.x) + 1` lmfao)
@@ -418,6 +429,7 @@ export class EEPhysics implements PhysicsSystem {
           // we would go -0.01 in currentSpeedX
           currentSpeedX -= 1 - remainderX;
           remainderX = 0;
+          stupidInvarianceBreakerX = 0;
         } else {
           // if we're not enough to go a full pixel, we apply what we have
           self.x += currentSpeedX;
@@ -426,6 +438,14 @@ export class EEPhysics implements PhysicsSystem {
       }
       // if we're going left
       else if (currentSpeedX < 0) {
+        if (stupidInvarianceBreakerX === 1 && 1 + currentSpeedX < 0) {
+          currentSpeedX += 1;
+          self.x -= 1;
+          self.x >>= 0;
+
+          stupidInvarianceBreakerX = 1;
+          remainderX = 0;
+        }
         // i guess checking if applying remainderX to our current speed is < 0 and =/= 0 is
         // enough for them to consider that we're "moving a pixel" (altho not really...)
         //
@@ -434,7 +454,7 @@ export class EEPhysics implements PhysicsSystem {
         // currentSpeedX is the amount we'd go left, and adding remainderX will tell us if we're
         // going to actually move a pixel to the left based on our current offset of the pixel we're on
         // and we check if `remainderX =/= 0` because we already cehcked if currentSpeedX < 0
-        if (remainderX + currentSpeedX < 0 && (remainderX != 0 || isBoost(current))) {
+        else if (remainderX + currentSpeedX < 0 && (remainderX != 0 || isBoost(current))) {
           // we're actually shrinking how far left we're gonna go
           //
           // basically, we're applying `remainderX` to our position instead of our speed
@@ -456,7 +476,8 @@ export class EEPhysics implements PhysicsSystem {
           //   then we would either repeat and hit this branch (going left a full pixel)
           // or currentSpeedX >= -1 and < 0
           //   meaning we hit the second branch
-          remainderX = 1;
+          stupidInvarianceBreakerX = 1;
+          remainderX = 0;
         } else {
           // consider the extremes:
           // remainderX: 0.9
@@ -499,7 +520,13 @@ export class EEPhysics implements PhysicsSystem {
     // same as stepX
     const stepY = () => {
       if (currentSpeedY > 0) {
-        if (currentSpeedY + remainderY >= 1) {
+        if (stupidInvarianceBreakerY === 1) {
+          self.y += 0;
+          self.y >>= 0;
+          currentSpeedY -= 0;
+          remainderY = 0;
+          stupidInvarianceBreakerY = 0;
+        } else if (currentSpeedY + remainderY >= 1) {
           self.y += 1 - remainderY;
           self.y >>= 0;
           currentSpeedY -= 1 - remainderY;
@@ -509,11 +536,18 @@ export class EEPhysics implements PhysicsSystem {
           currentSpeedY = 0;
         }
       } else if (currentSpeedY < 0) {
-        if (remainderY + currentSpeedY < 0 && (remainderY != 0 || isBoost(current))) {
+        if (stupidInvarianceBreakerY === 1 && 1 + currentSpeedY < 0) {
+          currentSpeedY += 1;
+          self.y -= 1;
+          self.y >>= 0;
+          stupidInvarianceBreakerY = 1;
+          remainderY = 0;
+        } else if (remainderY + currentSpeedY < 0 && (remainderY != 0 || isBoost(current))) {
           currentSpeedY += remainderY;
           self.y -= remainderY;
           self.y >>= 0;
-          remainderY = 1;
+          stupidInvarianceBreakerY = 1;
+          remainderY = 0;
         } else {
           self.y += currentSpeedY;
           currentSpeedY = 0;
