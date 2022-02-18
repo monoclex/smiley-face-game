@@ -74,7 +74,7 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   get worldPosition(): Vector {
-    return Vector.floor(Vector.divs(this.position, 32));
+    return Vector.round(Vector.divs(new Vector(this.x, this.y), 16));
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
@@ -198,6 +198,10 @@ export class Player {
 
     // TODO: don't hardcode 32x32 world
     this.position = Vector.mults(at, 32);
+  }
+
+  shouldBeRevived(ticksAfterDeath: number): boolean {
+    return this.ticks >= this.deathTick + ticksAfterDeath;
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

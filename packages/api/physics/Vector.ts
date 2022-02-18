@@ -62,4 +62,8 @@ export class Vector {
   static floor(self: Vector): Vector {
     return new Vector(Math.floor(self.x), Math.floor(self.y));
   }
+
+  static round(self: Vector): Vector {
+    return new Vector(Math.round(self.x), Math.round(self.y));
+  }
 }

@@ -82,8 +82,9 @@ export class EEPhysics implements PhysicsSystem {
   tickPlayer(player: Player) {
     const self = player;
 
+    // # if they're dead, don't perform ticks
     if (self.isDead) {
-      if (self.ticks >= self.deathTick + this.ticksUntilAlive) {
+      if (self.shouldBeRevived(this.ticksUntilAlive)) {
         let respawn = Vector.SPAWN_LOCATION;
 
         if (self.checkpoint) {
@@ -100,32 +101,40 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    self.horizontal = ((self.input.right && 1) || 0) - ((self.input.left && 1) || 0);
-    self.vertical = ((self.input.down && 1) || 0) - ((self.input.up && 1) || 0);
+    // take user input
+    self.horizontal = Number(self.input.right) - Number(self.input.left);
+    self.vertical = Number(self.input.down) - Number(self.input.up);
     self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
     self.isSpaceDown = self.input.jump;
 
-    const blockX = Math.round(self.x / Config.blockSize);
-    const blockY = Math.round(self.y / Config.blockSize);
+    const worldPosition = self.worldPosition;
+    const blockX = worldPosition.x;
+    const blockY = worldPosition.y;
 
+    // the queue `self.queue` gives the game a bouncier feel
+    // if we didn't have this here, holding "up" on dots or standing on up arrows
+    // would not have you swing between two blocks - you would be right on the edge
+    // of the dot and the air, or the arrow and the air.
     let delayed = self.queue.shift();
     if (delayed === undefined) throw new Error("impossible");
     const current = this.findGravityDirection(blockX, blockY);
     self.queue.push(current);
 
+    // this is here to make dots grab more
+    // if you remove this, then holding up on dots will make you fall
+    // this is because dots are in the queue less
     if (current === DotDirection.None) {
       delayed = self.queue.shift();
       if (delayed === undefined) throw new Error("impossible");
       self.queue.push(current);
     }
 
-    let modifierX = 0,
-      modifierY = 0;
-
+    // if we're on a zoost, push the direction it's in to the queue
     if (isZoost(current)) {
       self.pushZoostQueue(zoostDirToVec(current));
     }
 
+    // don't process zoosts if we're in god mode
     const isFlying = self.isInGodMode;
     if (isFlying) {
       self.clearZoostQueue();
@@ -134,72 +143,7 @@ export class EEPhysics implements PhysicsSystem {
     if (!isFlying) {
       let direction = self.zoostQueue.shift();
       if (direction != null) {
-        // snap player to zoost
-        let position = new Vector(blockX, blockY);
-
-        const eePos = Vector.mults(position, Config.blockSize);
-        self.velocity = Vector.Zero;
-        self.x = eePos.x;
-        self.y = eePos.y;
-        self.modX = 0;
-        self.modY = 0;
-        self.origModX = 0;
-        self.origModY = 0;
-
-        let brokeEarly = false;
-        let max = 10; // define arbitrarily high amount of times to iterate before stopping
-        while (max) {
-          max--;
-
-          const originalPosition = position;
-          position = Vector.add(position, direction);
-
-          const collidingWithBorder =
-            position.x < 0 ||
-            position.y < 0 ||
-            position.x >= this.world.size.x ||
-            position.y >= this.world.size.y;
-
-          const eePos = Vector.mults(position, Config.blockSize);
-          self.x = eePos.x;
-          self.y = eePos.y;
-
-          // if we're colliding with a solid block, we need to not to that
-          if (collidingWithBorder || !this.noCollision(self, position.x, position.y)) {
-            // go back
-            position = originalPosition;
-            const eePos = Vector.mults(position, Config.blockSize);
-            self.x = eePos.x;
-            self.y = eePos.y;
-
-            // do we have any other directions we could go?
-            const nextDir = self.zoostQueue.shift();
-
-            if (nextDir) {
-              // we'll try that direction instead then
-              direction = nextDir;
-              continue;
-            } else {
-              break;
-            }
-          }
-
-          // perform actions (trigger keys/etc)
-          this.hoveringOver(self, self.x, self.y);
-
-          if (self.isDead) {
-            brokeEarly = true;
-            break;
-          }
-        }
-
-        brokeEarly ||= max === 0;
-
-        // if we broke early, we didn't finish going the queued direction
-        if (brokeEarly) {
-          self.pushZoostQueue(direction);
-        }
-
+        this.performZoosts(self, blockX, blockY, direction);
         return;
       }
 
@@ -283,45 +227,84 @@ export class EEPhysics implements PhysicsSystem {
     let movementX = 0,
       movementY = 0;
 
+    // if we are being pulled vertically (so gravity)
     if (self.modY) {
+      // allow the player to move horizontally
       movementX = self.horizontal;
+      // but not vertically
       movementY = 0;
-    } else if (self.modX) {
+    }
+    // if we are being pulled horiontally (gravity)
+    else if (self.modX) {
+      // do not allow the player to fight gravity
       movementX = 0;
+      // but we can move vertically
       movementY = self.vertical;
-    } else {
+    }
+    // we're not being pulled in any direction
+    else {
+      // allow the player to move in any direction
       movementX = self.horizontal;
       movementY = self.vertical;
     }
+
     movementX *= self.speedMult;
     movementY *= self.speedMult;
     self.modX *= self.gravityMult;
     self.modY *= self.gravityMult;
 
-    modifierX = (self.modX + movementX) / Config.physics.variable_multiplyer;
-    modifierY = (self.modY + movementY) / Config.physics.variable_multiplyer;
+    // the current gravitational pull (modX) plus the force the player is applying (movementX)
+    // divided by "Config.physics.variable_multiplyer" for some reason
+    let modifierX = (self.modX + movementX) / Config.physics.variable_multiplyer;
+    let modifierY = (self.modY + movementY) / Config.physics.variable_multiplyer;
 
+    // NOTES: we could actually run through this code no matter what, couldn't we?
+    // basically if speedx/modifierx is 0, all the multiplication will have no effect
+    //
+    // if our horizontal speed is changing
     if (self.speedX || modifierX) {
       self.speedX += modifierX;
 
       self.speedX *= Config.physics.base_drag;
+
+      // =-=-=
+      // apply different physics drags in different liquids/blocks/etc
+      // =-=-=
+
+      // this applies a lot of drag - helps us slow down fast
       if (
+        // if we have vertical gravitational pull AND we're not moving
+        // when would we want both conditions?
+        // (self.modY) ||: the drag would ALWAYS be applied (when in air blocks)
+        //                 making it really hard to move left/right
+        // (!movementX) ||: when there's no vertitcal pull (like on dots),
+        //                  the player has just as much grip as when they're on land
+        //                  this makes dots not slippery
         (!movementX && self.modY) ||
+        // OR we're going left and want to go right
+        // why do we want this? to be able to make hard left->right turns
         (self.speedX < 0 && movementX > 0) ||
+        // OR we're going right and want to go left
+        // why do we want this? to be able to make hard right->left turns
         (self.speedX > 0 && movementX < 0)
       ) {
         self.speedX *= Config.physics.no_modifier_drag;
       }
 
+      // clamping speed
+      // 16 is the maximum speed allowed before we start phasing through blocks
       if (self.speedX > 16) {
         self.speedX = 16;
       } else if (self.speedX < -16) {
         self.speedX = -16;
-      } else if (Math.abs(self.speedX) < 0.0001) {
+      }
+      // if our speed is really tiny we want to round that to 0 so we don't move
+      else if (Math.abs(self.speedX) < 0.0001) {
         self.speedX = 0;
       }
     }
 
+    // same case as previous section (lol duplicated code)
     if (self.speedY || modifierY) {
       self.speedY += modifierY;
 
@@ -343,6 +326,9 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
+    // the previous section was for the physics direction we're trying to go in
+    // here, we apply this regardless of what the previous section has done because
+    // boost's gravity overtakes regular gravity
     if (!isFlying) {
       switch (this.findBoostDirection(blockX, blockY)) {
         case BoostDirection.Left:
@@ -359,140 +345,88 @@ export class EEPhysics implements PhysicsSystem {
           break;
       }
 
-      const isDead = false;
-      if (isDead) {
+      if (self.isDead) {
         self.speedX = 0;
         self.speedY = 0;
       }
     }
 
-    let remainderX = self.x % 1,
-      remainderY = self.y % 1;
-    let currentSX = self.speedX,
-      currentSY = self.speedY;
-    let oldSX = 0,
-      oldSY = 0;
-    let oldX = 0,
-      oldY = 0;
-
-    let doneX = false,
-      doneY = false;
-
-    let grounded = false;
-
-    const stepX = () => {
-      if (currentSX > 0) {
-        if (currentSX + remainderX >= 1) {
-          self.x += 1 - remainderX;
-          self.x >>= 0;
-          currentSX -= 1 - remainderX;
-          remainderX = 0;
-        } else {
-          self.x += currentSX;
-          currentSX = 0;
-        }
-      } else if (currentSX < 0) {
-        if (remainderX + currentSX < 0 && (remainderX != 0 || isBoost(current))) {
-          currentSX += remainderX;
-          self.x -= remainderX;
-          self.x >>= 0;
-          remainderX = 1;
-        } else {
-          self.x += currentSX;
-          currentSX = 0;
-        }
-      }
-      if (this.playerIsInFourSurroundingBlocks(self)) {
-        // if(self.playstate.world != null){
-        // if(self.playstate.world.overlaps(this)){
-        self.x = oldX;
-        if (self.speedX > 0 && self.origModX > 0) grounded = true;
-        if (self.speedX < 0 && self.origModX < 0) grounded = true;
-
-        self.speedX = 0;
-        currentSX = oldSX;
-        doneX = true;
-      }
-    };
-    const stepY = () => {
-      if (currentSY > 0) {
-        if (currentSY + remainderY >= 1) {
-          self.y += 1 - remainderY;
-          self.y >>= 0;
-          currentSY -= 1 - remainderY;
-          remainderY = 0;
-        } else {
-          self.y += currentSY;
-          currentSY = 0;
-        }
-      } else if (currentSY < 0) {
-        if (remainderY + currentSY < 0 && (remainderY != 0 || isBoost(current))) {
-          currentSY += remainderY;
-          self.y -= remainderY;
-          self.y >>= 0;
-          remainderY = 1;
-        } else {
-          self.y += currentSY;
-          currentSY = 0;
-        }
-      }
-      if (this.playerIsInFourSurroundingBlocks(self)) {
-        // if(self.playstate.world != null){
-        // if(self.playstate.world.overlaps(this)){
-        self.y = oldY;
-        if (self.speedY > 0 && self.origModY > 0) grounded = true;
-        if (self.speedY < 0 && self.origModY < 0) grounded = true;
-
-        self.speedY = 0;
-        currentSY = oldSY;
-        doneY = true;
-      }
-    };
-
-    while ((currentSX && !doneX) || (currentSY && !doneY)) {
-      oldX = self.x;
-      oldY = self.y;
-
-      oldSX = currentSX;
-      oldSY = currentSY;
-
-      stepX();
-      stepY();
-    }
+    let grounded = this.performStepping(self, current);
 
     // jumping
+    this.performJumping(self, grounded);
+
+    if (!isFlying) {
+      this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
+    }
+    // sendMovement(cx, cy);
+
+    // autoalign
+    this.performAutoalign(self, modifierX, modifierY);
+  }
+
+  private performJumping(self: Player, grounded: boolean) {
     let mod = 1;
     let inJump = false;
+
+    // if space has just been pressed, we want to jump immediately
     if (self.isSpaceJustPressed) {
       self.lastJump = -self.ticks;
       inJump = true;
       mod = -1;
     }
 
+    // otherwise, if space has been (or is just) held
     if (self.isSpaceDown) {
+      // if lastJump is negative, meaning
+      // it is only negative if `isSpaceJustPressed` has been the "most recently"
+      // pressed thing
       if (self.lastJump < 0) {
+        // if 750ms has elapsed since the last jump
         if (self.ticks + self.lastJump > 75) {
+          // we want to perform a jump
           inJump = true;
         }
-      } else {
+      }
+      // if `isSpaceJustPressed` is NOT the most recent thing,
+      // i.e., we have been holding space for a while
+      else {
+        // if it's been 150ms
         if (self.ticks - self.lastJump > 15) {
+          // we want to perform a jump automatically
+          // this prevents the player from hitting jump too fast
           inJump = true;
         }
       }
     }
 
     if (
+      // if either:
+      // - we are not moving horizontally but we have horizontal force applied on us
+      // - we are not moving vertically but we have vertical force applied on us
+      // i think the check for origModX is unnecessary here
       ((self.speedX == 0 && self.origModX && self.modX) ||
         (self.speedY == 0 && self.origModY && self.modY)) &&
+      // and we're grounded
       grounded
     ) {
       // On ground so reset jumps to 0
       self.jumpCount = 0;
     }
 
+    // we needs this here because - what if we never jumped and we're falling?
+    // we don't want to let the player jump in mid-air just from falling
     if (self.jumpCount == 0 && !grounded) self.jumpCount = 1; // Not on ground so first 'jump' removed
 
     if (inJump) {
+      // if we can jump, AND we're being pulled in the X direction
+      //
+      // the `origModX` tells us the force of the CURRENT block we're in,
+      // and the `modX` tells us the force of the PREVIOUS TICK'S block that we were in.
+      //
+      // it's very unlikely that that the origModX will differ from modX, so i don't think
+      // we need to check both. plus we should only be checking delayed (modX) as physics
+      // work based on the previous tick's block (or second prev block, depending on what's in the queue)
       if (self.jumpCount < self.maxJumps && self.origModX && self.modX) {
         // Jump in x direction
         if (self.maxJumps < 1000) {
@@ -500,10 +434,15 @@ export class EEPhysics implements PhysicsSystem {
           self.jumpCount += 1;
         }
         self.speedX =
+          // go in the opposite direction of gravity (jump force!)
+          // and apply jump multipliers
           (-self.origModX * Config.physics.jump_height * self.jumpMult) /
           Config.physics.variable_multiplyer;
+
+        // this is set for the jump space held stuff
         self.lastJump = self.ticks * mod;
       }
+      // if we can jump, AND we're being pulled in the Y direction
       if (self.jumpCount < self.maxJumps && self.origModY && self.modY) {
         // Jump in y direction
         if (self.maxJumps < 1000) {
@@ -516,31 +455,219 @@ export class EEPhysics implements PhysicsSystem {
         self.lastJump = self.ticks * mod;
       }
     }
+  }
 
-    if (!isFlying) {
-      this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
+  private performStepping(self: Player, current: number) {
+    let remainderX = self.x % 1,
+      remainderY = self.y % 1;
+    let currentSpeedX = self.speedX,
+      currentSpeedY = self.speedY;
+    let oldSpeedX = 0,
+      oldSpeedY = 0;
+    let oldX = 0,
+      oldY = 0;
+
+    let doneX = false,
+      doneY = false;
+
+    let grounded = false;
+
+    const stepX = () => {
+      // if we're going right
+      if (currentSpeedX > 0) {
+        // and we would go right a full pixel accounting for our remainder
+        if (currentSpeedX + remainderX >= 1) {
+          // because `remainderX` is less than 1, this will apply exactly enough to move `x` a full pixel
+          // then we truncate this
+          // (this could actually be `self.x = Math.trunc(self.x) + 1` lmfao)
+          self.x += 1 - remainderX;
+          self.x >>= 0;
+          // -1.0 >> 0 = -1
+          // -0.9 >> 0 =  0
+          // -0.1 >> 0 =  0
+          //    0 >> 0 =  0
+          //  0.1 >> 0 =  0
+          //  0.9 >> 0 =  0
+          //  1.0 >> 0 =  1
+
+          // lets say currentSpeedX = 0.39
+          // and remainderX = 0.6
+          // so x = 0.4
+          //
+          // we would go -0.01 in currentSpeedX
+          currentSpeedX -= 1 - remainderX;
+          remainderX = 0;
+        } else {
+          // if we're not enough to go a full pixel, we apply what we have
+          self.x += currentSpeedX;
+          currentSpeedX = 0;
+        }
+      }
+      // if we're going left
+      else if (currentSpeedX < 0) {
+        // i guess checking if applying remainderX to our current speed is < 0 and =/= 0 is
+        // enough for them to consider that we're "moving a pixel" (altho not really...)
+        //
+        // ok i got it
+        // `remainderX + currentSpeedX < 0` checks if we're going to move a pixel to the left
+        // currentSpeedX is the amount we'd go left, and adding remainderX will tell us if we're
+        // going to actually move a pixel to the left based on our current offset of the pixel we're on
+        // and we check if `remainderX =/= 0` because we already cehcked if currentSpeedX < 0
+        if (remainderX + currentSpeedX < 0 && (remainderX != 0 || isBoost(current))) {
+          // we're actually shrinking how far left we're gonna go
+          //
+          // basically, we're applying `remainderX` to our position instead of our speed
+          // because we know we can go a full pixel by subtracting whatever our remainder is
+          currentSpeedX += remainderX;
+          self.x -= remainderX;
+          self.x >>= 0;
+
+          // this... is interesting
+          // this has very interesting ramifications
+          //
+          // if currentSpeedX > 0,
+          //   we would end up hitting the `currentSpeedX + remainderX >= 1` branch and not step one at all
+          //   so we could step Y twice potentially
+          //
+          //   but then we would go back to going right
+          //
+          // if currentSpeedX < 0,
+          //   then we would either repeat and hit this branch (going left a full pixel)
+          // or currentSpeedX >= -1 and < 0
+          //   meaning we hit the second branch
+          remainderX = 1;
+        } else {
+          // consider the extremes:
+          // remainderX: 0.9
+          // currentSpeedX: -0.1
+          // OR
+          // remainderX: 0.1
+          // currentSpeedX: -0.9
+          //
+          // at this point we know currentSpeedX is \in [-1, 0)
+          // so we just apply the rest of currentSpeed, knowing that it'll be a pixel or less movement
+          self.x += currentSpeedX;
+          currentSpeedX = 0;
+        }
+      }
+
+      // if we are in collision with any blocks after stepping a singular pixel
+      if (this.playerIsInFourSurroundingBlocks(self)) {
+        // we know that it was wrong to apply whatever we did
+        self.x = oldX;
+
+        // if we are being pulled to the right,
+        // but yet we still have speed to go right that was not yet applied
+        // and we are also in collision with a block,
+        // we must be grounded!
+        if (self.speedX > 0 && self.origModX > 0) grounded = true;
+        // same for the other direction
+        if (self.speedX < 0 && self.origModX < 0) grounded = true;
+
+        // we ran into collision so we shouldn't move anymore
+        self.speedX = 0;
+
+        // because we're resetting ourselves to where we were before this tick,
+        // we need to reset our old speed too
+        // (why is this far away from `self.x = oldX`?)
+        currentSpeedX = oldSpeedX;
+        doneX = true;
+      }
+    };
+
+    // same as stepX
+    const stepY = () => {
+      if (currentSpeedY > 0) {
+        if (currentSpeedY + remainderY >= 1) {
+          self.y += 1 - remainderY;
+          self.y >>= 0;
+          currentSpeedY -= 1 - remainderY;
+          remainderY = 0;
+        } else {
+          self.y += currentSpeedY;
+          currentSpeedY = 0;
+        }
+      } else if (currentSpeedY < 0) {
+        if (remainderY + currentSpeedY < 0 && (remainderY != 0 || isBoost(current))) {
+          currentSpeedY += remainderY;
+          self.y -= remainderY;
+          self.y >>= 0;
+          remainderY = 1;
+        } else {
+          self.y += currentSpeedY;
+          currentSpeedY = 0;
+        }
+      }
+      if (this.playerIsInFourSurroundingBlocks(self)) {
+        // if(self.playstate.world != null){
+        // if(self.playstate.world.overlaps(this)){
+        self.y = oldY;
+        if (self.speedY > 0 && self.origModY > 0) grounded = true;
+        if (self.speedY < 0 && self.origModY < 0) grounded = true;
+
+        self.speedY = 0;
+        currentSpeedY = oldSpeedY;
+        doneY = true;
+      }
+    };
+
+    // if we have x speed and we haven't collided yet (or same for y)
+    while ((currentSpeedX && !doneX) || (currentSpeedY && !doneY)) {
+      oldX = self.x;
+      oldY = self.y;
+
+      oldSpeedX = currentSpeedX;
+      oldSpeedY = currentSpeedY;
+
+      stepX();
+      stepY();
     }
-    // sendMovement(cx, cy);
 
-    // autoalign
+    return grounded;
+  }
+
+  performAutoalign(self: Player, modifierX: number, modifierY: number) {
+    // makes it so `imx` is `>= 1` when `self.speedX` is `>= 0.00390625`
+    // i guess when we start applying auto align is if our speed is `< 0.00390625`... ok?
     const imx = (self.speedX * 256) >> 0;
     const imy = (self.speedY * 256) >> 0;
 
+    // if our speed is not within a slow enough threshold, don't autoalign
     if (imx != 0) {
       self.moving = true;
-    } else if (Math.abs(modifierX) < 0.1) {
+    }
+    // if the force that's being applied to us is small enough,
+    else if (Math.abs(modifierX) < 0.1) {
+      // time to apply auto align
+
+      // how far off of a block we are
       const tx = self.x % Config.blockSize;
+      // if we're close to the left side of a block
       if (tx < Config.physics.autoalign_range) {
+        // within snapping range? snap ourselves to be exactly on the block
         if (tx < Config.physics.autoalign_snap_range) {
           self.x >>= 0;
-        } else self.x -= tx / (Config.blockSize - 1);
-      } else if (tx > Config.blockSize - Config.physics.autoalign_range) {
+        } else {
+          // otherwise, gradually inch towards that block
+          // we know `tx \in [0.2, 2)`
+          // so this will be at least 0.2/15 (0.0133...) and at most 2/15 (0.1333...)
+          // the farther away you are the stronger it pulls you
+          self.x -= tx / (Config.blockSize - 1);
+        }
+      }
+      // but if you're close to the right side
+      else if (tx > Config.blockSize - Config.physics.autoalign_range) {
+        // if you're within the snap range
         if (tx > Config.blockSize - Config.physics.autoalign_snap_range) {
+          // it snaps you to that block
           self.x >>= 0;
           self.x++;
-        } else
+        } else {
+          // otherwise, it inches you there
+          // uses the same mechanism as the other branch, except switched
           self.x +=
             (tx - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
+        }
       }
     }
 
@@ -560,6 +687,74 @@ export class EEPhysics implements PhysicsSystem {
           self.y +=
             (ty - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
       }
+    }
+  }
+
+  performZoosts(self: Player, blockX: number, blockY: number, direction: Vector) {
+    // snap player to zoost
+    let position = new Vector(blockX, blockY);
+
+    const eePos = Vector.mults(position, Config.blockSize);
+    self.velocity = Vector.Zero;
+    self.x = eePos.x;
+    self.y = eePos.y;
+    self.modX = 0;
+    self.modY = 0;
+    self.origModX = 0;
+    self.origModY = 0;
+
+    let brokeEarly = false;
+    let max = 10; // define arbitrarily high amount of times to iterate before stopping
+    while (max) {
+      max--;
+
+      const originalPosition = position;
+      position = Vector.add(position, direction);
+
+      const collidingWithBorder =
+        position.x < 0 ||
+        position.y < 0 ||
+        position.x >= this.world.size.x ||
+        position.y >= this.world.size.y;
+
+      const eePos = Vector.mults(position, Config.blockSize);
+      self.x = eePos.x;
+      self.y = eePos.y;
+
+      // if we're colliding with a solid block, we need to not to that
+      if (collidingWithBorder || !this.noCollision(self, position.x, position.y)) {
+        // go back
+        position = originalPosition;
+        const eePos = Vector.mults(position, Config.blockSize);
+        self.x = eePos.x;
+        self.y = eePos.y;
+
+        // do we have any other directions we could go?
+        const nextDir = self.zoostQueue.shift();
+
+        if (nextDir) {
+          // we'll try that direction instead then
+          direction = nextDir;
+          continue;
+        } else {
+          break;
+        }
+      }
+
+      // perform actions (trigger keys/etc)
+      this.hoveringOver(self, self.x, self.y);
+
+      if (self.isDead) {
+        brokeEarly = true;
+        break;
+      }
+    }
+
+    brokeEarly ||= max === 0;
+
+    // if we broke early, we didn't finish going the queued direction
+    if (brokeEarly) {
+      self.pushZoostQueue(direction);
     }
   }
 
