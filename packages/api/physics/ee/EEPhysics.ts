@@ -503,7 +503,10 @@ export class EEPhysics implements PhysicsSystem {
       // note about this section: ee weirdness: if you're perfectly pixel aligned,
       // you consume all of your speed at once (lol)
 
-      if (me.remainder !== 0 || isBoost(current)) {
+      // hey! want to enable 4 block jump?
+      // remove this conditional!:
+      //  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      if (me.remainder + me.currentSpeed < 0 && (me.remainder !== 0 || isBoost(current))) {
         // clip ourselves to the nearest pixel
         // me.pos = Math.trunc(me.pos);
         // use up some speed for moving
