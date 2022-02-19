@@ -528,105 +528,49 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   performAutoalign(self: Player, modifierX: number, modifierY: number) {
-    // makes it so `imx` is `>= 1` when `self.speedX` is `>= 0.00390625`
-    // i guess when we start applying auto align is if our speed is `< 0.00390625`... ok?
-    const imx = (self.speedX * 256) >> 0;
-    const imy = (self.speedY * 256) >> 0;
+    const isSlowSpeed = (n: number) => Math.abs(n) < 1 / 256;
+    const pullIsLow = (n: number) => Math.abs(n) < 0.1;
 
-    // if our speed is not within a slow enough threshold, don't autoalign
-    // if the force that's being applied to us is small enough,
-    if (imx == 0 && Math.abs(modifierX) < 0.1) {
-      // time to apply auto align
-
-      // how far off of a block we are
-      const tx = self.x % Config.blockSize;
-      // if we're close to the left side of a block
-      if (tx < Config.physics.autoalign_range) {
-        // within snapping range? snap ourselves to be exactly on the block
-        if (tx < Config.physics.autoalign_snap_range) {
-          self.x >>= 0;
-        } else {
-          // otherwise, gradually inch towards that block
-          // we know `tx \in [0.2, 2)`
-          // so this will be at least 0.2/15 (0.0133...) and at most 2/15 (0.1333...)
-          // the farther away you are the stronger it pulls you
-          self.x -= tx / (Config.blockSize - 1);
-        }
-      }
-      // but if you're close to the right side
-      else if (tx > Config.blockSize - Config.physics.autoalign_range) {
-        // if you're within the snap range
-        if (tx > Config.blockSize - Config.physics.autoalign_snap_range) {
-          // it snaps you to that block
-          self.x >>= 0;
-          self.x++;
-        } else {
-          // otherwise, it inches you there
-          // uses the same mechanism as the other branch, except switched
-          self.x +=
-            (tx - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
-        }
-      }
+    if (isSlowSpeed(self.speedX) && pullIsLow(modifierX)) {
+      self.x = this.tryAutoAlign(self.x);
     }
 
-    if (imy == 0 && Math.abs(modifierY) < 0.1) {
-      const ty = self.y % Config.blockSize;
-      if (ty < Config.physics.autoalign_range) {
-        if (ty < Config.physics.autoalign_snap_range) {
-          self.y >>= 0;
-        } else self.y -= ty / (Config.blockSize - 1);
-      } else if (ty > Config.blockSize - Config.physics.autoalign_range) {
-        if (ty > Config.blockSize - Config.physics.autoalign_snap_range) {
-          self.y >>= 0;
-          self.y++;
-        } else
-          self.y +=
-            (ty - (Config.blockSize - Config.physics.autoalign_range)) / (Config.blockSize - 1);
-      }
+    if (isSlowSpeed(self.speedY) && pullIsLow(modifierY)) {
+      self.y = this.tryAutoAlign(self.y);
     }
-
-    // self.y -= ty / denom
-    // self.y += (ty - (16 - r)) / denom
-
-    // self.y += -ty / denom
-    // self.y += (ty - (16 - r)) / denom
-
-    // to = 16 - ty
-    // e = (ty - (16 - r))
-    // e = ty - 16 + r
-    // -e = -ty + 16 - r
-    // -e = 16 - ty - r
-    // -e = to - r
-    // e = r - to
-
-    // self.y += -ty / denom
-    // self.y += (r - to) / denom
   }
 
   tryAutoAlign(position: number): number {
-    // handle auto aligning close to left side
     const blockOffset = position % Config.blockSize;
-    if (blockOffset < Config.physics.autoalign_snap_range) {
-      return Math.floor(position);
+
+    // sadly we can't really de-duplicate this very well
+    // left and right autoaligning have distinctly different behaviors, so we
+    // have to keep both branches.
+    //
+    // as for the snap range thing,
+
+    const blockCoords = position / Config.blockSize;
+
+    const distance = (a: number, b: number) => Math.abs(a - b);
+
+    const leftBlock = Math.floor(blockCoords) * Config.blockSize;
+    if (distance(leftBlock, position) < Config.physics.autoalign_snap_range) {
+      return leftBlock;
+    }
+
+    const rightBlock = Math.ceil(blockCoords) * Config.blockSize;
+    if (distance(rightBlock, position) < Config.physics.autoalign_snap_range) {
+      return rightBlock;
     }
 
     if (blockOffset < Config.physics.autoalign_range) {
-      const nudgeNum = -blockOffset;
-
-      const nudge = nudgeNum / (Config.blockSize - 1);
+      const nudge = -blockOffset / (Config.blockSize - 1);
       return position + nudge;
     }
 
-    // handle auto aligning close to right side
     const oppositeBlockOffset = 16 - blockOffset;
-    if (oppositeBlockOffset < Config.physics.autoalign_snap_range) {
-      return Math.ceil(position);
-    }
-
     if (oppositeBlockOffset < Config.physics.autoalign_range) {
-      const nudgeNum = Config.physics.autoalign_range - oppositeBlockOffset;
-
-      const nudge = nudgeNum / (Config.blockSize - 1);
+      const nudge = (Config.physics.autoalign_range - oppositeBlockOffset) / (Config.blockSize - 1);
       return position + nudge;
     }
 
