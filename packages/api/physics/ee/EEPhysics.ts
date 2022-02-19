@@ -62,7 +62,7 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   updatePlayer(movement: ZSMovement, player: Player): void {
-    player.position = movement.position;
+    player.sfgPosition = movement.position;
     player.velocity = movement.velocity;
     player.input = movement.inputs;
 
@@ -168,7 +168,7 @@ export class EEPhysics implements PhysicsSystem {
     let movementDirection = new Vector(horizontalInput, verticalInput);
 
     // prevent the player from moving in the direction of gravity
-    movementDirection = Vector.filter(delayedGravityDirection, movementDirection);
+    movementDirection = Vector.filterOut(delayedGravityDirection, movementDirection);
 
     const playerForce = Vector.mults(movementDirection, self.speedMult);
 
@@ -181,17 +181,12 @@ export class EEPhysics implements PhysicsSystem {
       Config.physics.variable_multiplyer
     );
 
-    self.speedX = this.performSpeedDrag(
-      self.speedX,
-      appliedForce.x,
-      movementDirection.x,
-      currentGravityDirection.y
-    );
-    self.speedY = this.performSpeedDrag(
-      self.speedY,
-      appliedForce.y,
-      movementDirection.y,
-      currentGravityDirection.x
+    let velocity = Vector.call(
+      this.performSpeedDrag.bind(this),
+      self.velocity,
+      appliedForce,
+      movementDirection,
+      Vector.swap(currentGravityDirection)
     );
 
     // the previous section was for the physics direction we're trying to go in
@@ -200,12 +195,10 @@ export class EEPhysics implements PhysicsSystem {
     if (!isFlying) {
       const appliedForce = this.getAppliedForceOf(current);
 
-      if (appliedForce.x) self.speedX = appliedForce.x;
-      if (appliedForce.y) self.speedY = appliedForce.y;
+      velocity = Vector.substituteZeros(appliedForce, velocity);
 
       if (self.isDead) {
-        self.speedX = 0;
-        self.speedY = 0;
+        velocity = Vector.Zero;
       }
     }
 
@@ -218,14 +211,17 @@ export class EEPhysics implements PhysicsSystem {
         grounded,
         currentGravityForce,
         currentGravityDirection,
-        delayedGravityDirection
+        delayedGravityDirection,
+        velocity
       );
 
       this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
     } else {
-      self.x += self.speedX;
-      self.y += self.speedY;
+      self.position = Vector.add(self.position, velocity);
     }
+
+    self.velocity = velocity;
+
     // sendMovement(cx, cy);
 
     // autoalign
@@ -289,11 +285,8 @@ export class EEPhysics implements PhysicsSystem {
     grounded: boolean,
     currentGravityForce: Vector,
     currentGravity: Vector,
-    delayedGravity: Vector
-    // origModX: number,
-    // modX: number,
-    // origModY: number,
-    // modY: number
+    delayedGravity: Vector,
+    velocity: Vector
   ) {
     const { x: origModX, y: origModY } = currentGravity;
     const { x: modX, y: modY } = delayedGravity;
@@ -334,7 +327,7 @@ export class EEPhysics implements PhysicsSystem {
       // - we are not moving horizontally but we have horizontal force applied on us
       // - we are not moving vertically but we have vertical force applied on us
       // i think the check for origModX is unnecessary here
-      ((self.speedX == 0 && origModX && modX) || (self.speedY == 0 && origModY && modY)) &&
+      ((velocity.x == 0 && origModX && modX) || (velocity.y == 0 && origModY && modY)) &&
       // and we're grounded
       grounded
     ) {
@@ -361,22 +354,24 @@ export class EEPhysics implements PhysicsSystem {
         self.lastJump = self.ticks;
         self.jumpCount += 1;
 
-        if (origModX)
-          self.speedX =
-            (-currentGravityForce.x * Config.physics.jump_height * self.jumpMult) /
-            Config.physics.variable_multiplyer;
-        else if (origModY)
-          self.speedY =
-            (-currentGravityForce.y * Config.physics.jump_height * self.jumpMult) /
-            Config.physics.variable_multiplyer;
-
         if (self.waitedForInitialLongJump === "idle") {
           self.waitedForInitialLongJump = "waiting";
         } else if (self.waitedForInitialLongJump === "waiting") {
           self.waitedForInitialLongJump = "jumped";
         }
+
+        const jumpForce =
+          (Config.physics.jump_height * self.jumpMult) / Config.physics.variable_multiplyer;
+
+        // a vector `jumpForce` units against gravity
+        const jumpVector = Vector.mults(Vector.negate(currentGravityForce), jumpForce);
+
+        // update velocity to have jump force applied to it
+        return Vector.substituteZeros(jumpVector, velocity);
       }
     }
+
+    return velocity;
   }
 
   private performStepping(self: Player, current: number, currentGravityDirection: Vector) {
@@ -708,23 +703,23 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   capIntoWorldBoundaries(self: Player) {
-    const previousX = self.position.x;
-    const previousY = self.position.y;
+    const previousX = self.sfgPosition.x;
+    const previousY = self.sfgPosition.y;
 
     const PLAYER_WIDTH = 32;
     const PLAYER_HEIGHT = 32;
 
-    self.position = Vector.mutateX(
-      self.position,
+    self.sfgPosition = Vector.mutateX(
+      self.sfgPosition,
       clamp(self.x, 0, (this.world.size.x - 1) * PLAYER_WIDTH)
     );
-    self.position = Vector.mutateY(
-      self.position,
-      clamp(self.position.y, 0, (this.world.size.y - 1) * PLAYER_HEIGHT)
+    self.sfgPosition = Vector.mutateY(
+      self.sfgPosition,
+      clamp(self.sfgPosition.y, 0, (this.world.size.y - 1) * PLAYER_HEIGHT)
     );
 
-    if (previousX !== self.position.x) self.velocity = Vector.mutateX(self.velocity, 0);
-    if (previousY !== self.position.y) self.velocity = Vector.mutateY(self.velocity, 0);
+    if (previousX !== self.sfgPosition.x) self.velocity = Vector.mutateX(self.velocity, 0);
+    if (previousY !== self.sfgPosition.y) self.velocity = Vector.mutateY(self.velocity, 0);
   }
 
   cleanup() {
@@ -741,8 +736,8 @@ export class EEPhysics implements PhysicsSystem {
       return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
     }
 
-    const worldX = Math.floor(self.position.x / 32);
-    const worldY = Math.floor(self.position.y / 32);
+    const worldX = Math.floor(self.sfgPosition.x / 32);
+    const worldY = Math.floor(self.sfgPosition.y / 32);
 
     const maxX = this.world.size.x;
     const maxY = this.world.size.y;
@@ -755,10 +750,10 @@ export class EEPhysics implements PhysicsSystem {
     const has11 = has(worldX + 1, worldY + 1);
 
     return (
-      (has00 && rectInRect(self.position.x, self.position.y, worldX, worldY)) ||
-      (has10 && rectInRect(self.position.x, self.position.y, worldX + 1, worldY)) ||
-      (has01 && rectInRect(self.position.x, self.position.y, worldX, worldY + 1)) ||
-      (has11 && rectInRect(self.position.x, self.position.y, worldX + 1, worldY + 1))
+      (has00 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX, worldY)) ||
+      (has10 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX + 1, worldY)) ||
+      (has01 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX, worldY + 1)) ||
+      (has11 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX + 1, worldY + 1))
     );
   }
 

@@ -24,22 +24,12 @@ export interface CheapPlayer {
 export class Player {
   input: Inputs;
 
-  get velocity(): Vector {
-    return { x: this.speedX, y: this.speedY };
+  get sfgPosition(): Vector {
+    return Vector.mults(this.position, 2);
   }
 
-  set velocity(v: Vector) {
-    this.speedX = v.x;
-    this.speedY = v.y;
-  }
-
-  get position(): Vector {
-    return { x: this.x * 2, y: this.y * 2 };
-  }
-
-  set position(v: Vector) {
-    this.x = v.x / 2;
-    this.y = v.y / 2;
+  set sfgPosition(v: Vector) {
+    this.position = Vector.divs(v, 2);
   }
 
   get hasEdit(): boolean {
@@ -63,7 +53,7 @@ export class Player {
       jump: false,
     };
 
-    this.position = position;
+    this.sfgPosition = position;
 
     this.isInGodMode = inGod;
   }
@@ -74,7 +64,7 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   get worldPosition(): Vector {
-    return Vector.round(Vector.divs(new Vector(this.x, this.y), 16));
+    return Vector.round(Vector.divs(this.position, 16));
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
@@ -108,13 +98,9 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   gravityMult = 1;
   /** @version eephysics This may be removed when the physics engine changes */
-  speedX = 0;
+  velocity: Vector = Vector.Zero;
   /** @version eephysics This may be removed when the physics engine changes */
-  speedY = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  x = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  y = 0;
+  position: Vector = Vector.SPAWN_LOCATION;
   /** @version eephysics This may be removed when the physics engine changes */
   ticks = 0;
   /** @version eephysics This may be removed when the physics engine changes */
@@ -136,7 +122,7 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   get center(): Vector {
     // TODO: don't hardcode 16
-    return Vector.adds(this.position, 16);
+    return Vector.adds(this.sfgPosition, 16);
   }
   /** @version eephysics This may be removed when the physics engine changes */
   get centerEE(): Vector {
@@ -170,13 +156,12 @@ export class Player {
    * @version eephysics This may be removed when the physics engine changes
    */
   revive(at: Vector) {
-    this.speedX = 0;
-    this.speedY = 0;
+    this.velocity = Vector.Zero;
     this.isDead = false;
     this.queue = [0, 0];
 
     // TODO: don't hardcode 32x32 world
-    this.position = Vector.mults(at, 32);
+    this.sfgPosition = Vector.mults(at, 32);
   }
 
   shouldBeRevived(ticksAfterDeath: number): boolean {

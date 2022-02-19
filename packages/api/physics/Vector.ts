@@ -69,38 +69,82 @@ export class Vector {
     return new Vector(Math.round(self.x), Math.round(self.y));
   }
 
+  static negate(v: Vector): Vector {
+    return new Vector(-v.x, -v.y);
+  }
+
+  static swap(v: Vector): Vector {
+    return new Vector(v.y, v.x);
+  }
+
   /**
-   * Given a predicate vector, filters out values form the value vector.
+   * Opposite of `filterIn`
    *
-   * For example, consider the filter operator to be called `|>`:
+   * Given a predicate vector, filters out values from the value vector.
    *
-   * ```
-   * (0, 0) |> (1, 2) = (1, 2)
-   * (1, 0) |> (1, 2) = (0, 2)
-   * (0, 1) |> (1, 2) = (1, 0)
-   * (1, 1) |> (1, 2) = (0, 0)
-   * ```
+   * For both X and Y components:
    *
-   * More generally,
+   * - If the predicate component is falsy (0), the value component is used
+   * - If the predicate component is truthy (not 0), the value `0` is used
    *
    * ```
-   * (p_1, p_2, ..., p_n) |> (v_1, v_2, ... v_n) = (F(p_1, v_1), F(p_2, v_2), ..., F(p_n, v_n))
-   * ```
-   *
-   * where
-   *
-   * ```
-   * F(0, b) = b
-   * F(a, b) = 0
+   * filterOut(        0, value) = value
+   * filterOut(predicate, value) = 0
    * ```
    *
    * @param predicate The vector which uses zeros to determine pass-through
    * @param value The value vector to filter values out of
    * @returns A vector, such that any zeros present in the predicate vector are
-   * present in the resultant vector, and any non-zeros are replaced by values
-   * in the value vector.
+   * replaced by values in the value vector, and any non-zeros are replaced by zeros.
    */
-  static filter(predicate: Vector, value: Vector): Vector {
+  static filterOut(predicate: Vector, value: Vector): Vector {
     return new Vector(predicate.x === 0 ? value.x : 0, predicate.y === 0 ? value.y : 0);
+  }
+
+  /**
+   * Opposite of `filterOut`
+   *
+   * Given a predicate vector, filters values in from the value vector.
+   *
+   * For both X and Y components:
+   *
+   * - If the predicate component is falsy (0), the value `0` is used is used
+   * - If the predicate component is truthy (not 0), the value component is used
+   *
+   * ```
+   * filterIn(        0, value) = 0
+   * filterIn(predicate, value) = value
+   * ```
+   *
+   * @param predicate The vector which uses zeros to determine pass-through
+   * @param value The value vector to filter values in to
+   * @returns A vector, such that any zeros present in the predicate vector are
+   * kept, and any non-zeros are replaced by values in the value vector.
+   */
+  static filterIn(predicate: Vector, value: Vector): Vector {
+    return new Vector(predicate.x === 0 ? 0 : value.x, predicate.y === 0 ? 0 : value.y);
+  }
+
+  /**
+   * Replaces zeros in `zeroful` with values in `substitute`.
+   *
+   * ```
+   * substituteZeros(      0, substitute) = substitute
+   * substituteZeros(zeroful, substitute) = zeroful
+   * ```
+   *
+   * @param zeroful The vector whose zeros should be replaced by values in `replacement`
+   * @param substitute The vector whoze values replace zeros in `zerofull`
+   * @returns A vector where the zeros of `zerofull` are substituted by `replacement`
+   */
+  static substituteZeros(zeroful: Vector, substitute: Vector): Vector {
+    return new Vector(
+      zeroful.x === 0 ? substitute.x : zeroful.x,
+      zeroful.y === 0 ? substitute.y : zeroful.y
+    );
+  }
+
+  static call(func: (...args: number[]) => number, ...args: Vector[]): Vector {
+    return new Vector(func(...args.map((v) => v.x)), func(...args.map((v) => v.y)));
   }
 }
