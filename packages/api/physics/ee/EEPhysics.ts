@@ -206,73 +206,8 @@ export class EEPhysics implements PhysicsSystem {
     let modifierX = (modX + movementX) / Config.physics.variable_multiplyer;
     let modifierY = (modY + movementY) / Config.physics.variable_multiplyer;
 
-    // NOTES: we could actually run through this code no matter what, couldn't we?
-    // basically if speedx/modifierx is 0, all the multiplication will have no effect
-    //
-    // if our horizontal speed is changing
-    if (self.speedX || modifierX) {
-      self.speedX += modifierX;
-
-      self.speedX *= Config.physics.base_drag;
-
-      // =-=-=
-      // apply different physics drags in different liquids/blocks/etc
-      // =-=-=
-
-      // this applies a lot of drag - helps us slow down fast
-      if (
-        // if we have vertical gravitational pull AND we're not moving
-        // when would we want both conditions?
-        // (self.modY) ||: the drag would ALWAYS be applied (when in air blocks)
-        //                 making it really hard to move left/right
-        // (!movementX) ||: when there's no vertitcal pull (like on dots),
-        //                  the player has just as much grip as when they're on land
-        //                  this makes dots not slippery
-        (!movementX && modY) ||
-        // OR we're going left and want to go right
-        // why do we want this? to be able to make hard left->right turns
-        (self.speedX < 0 && movementX > 0) ||
-        // OR we're going right and want to go left
-        // why do we want this? to be able to make hard right->left turns
-        (self.speedX > 0 && movementX < 0)
-      ) {
-        self.speedX *= Config.physics.no_modifier_drag;
-      }
-
-      // clamping speed
-      // 16 is the maximum speed allowed before we start phasing through blocks
-      if (self.speedX > 16) {
-        self.speedX = 16;
-      } else if (self.speedX < -16) {
-        self.speedX = -16;
-      }
-      // if our speed is really tiny we want to round that to 0 so we don't move
-      else if (Math.abs(self.speedX) < 0.0001) {
-        self.speedX = 0;
-      }
-    }
-
-    // same case as previous section (lol duplicated code)
-    if (self.speedY || modifierY) {
-      self.speedY += modifierY;
-
-      self.speedY *= Config.physics.base_drag;
-      if (
-        (!movementY && modX) ||
-        (self.speedY < 0 && movementY > 0) ||
-        (self.speedY > 0 && movementY < 0)
-      ) {
-        self.speedY *= Config.physics.no_modifier_drag;
-      }
-
-      if (self.speedY > 16) {
-        self.speedY = 16;
-      } else if (self.speedY < -16) {
-        self.speedY = -16;
-      } else if (Math.abs(self.speedY) < 0.0001) {
-        self.speedY = 0;
-      }
-    }
+    self.speedX = this.performSpeedDrag(self.speedX, modifierX, movementX, modY);
+    self.speedY = this.performSpeedDrag(self.speedY, modifierY, movementY, modX);
 
     // the previous section was for the physics direction we're trying to go in
     // here, we apply this regardless of what the previous section has done because
@@ -289,18 +224,73 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    let grounded = this.performStepping(self, current, origModX, origModY);
-
-    // jumping
-    this.performJumping(self, grounded, origModX, modX, origModY, modY);
-
     if (!isFlying) {
+      let grounded = this.performStepping(self, current, origModX, origModY);
+
+      // jumping
+      this.performJumping(self, grounded, origModX, modX, origModY, modY);
+
       this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
+    } else {
+      self.x += self.speedX;
+      self.y += self.speedY;
     }
     // sendMovement(cx, cy);
 
     // autoalign
     this.performAutoalign(self, modifierX, modifierY);
+  }
+
+  private performSpeedDrag(
+    speed: number,
+    modifier: number,
+    movement: number,
+    currentGravPullOtherAxis: number
+  ) {
+    // NOTES: we could actually run through this code no matter what, couldn't we?
+    // basically if speedx/modifierx is 0, all the multiplication will have no effect
+    //
+    // if our horizontal speed is changing
+    if (speed || modifier) {
+      speed += modifier;
+
+      // =-=-=
+      // apply different physics drags in different liquids/blocks/etc
+      // =-=-=
+
+      // this applies a lot of drag - helps us slow down fast
+      speed *= Config.physics.base_drag;
+      if (
+        // if we have vertical gravitational pull AND we're not moving
+        // when would we want both conditions?
+        // (self.modY) ||: the drag would ALWAYS be applied (when in air blocks)
+        //                 making it really hard to move left/right
+        // (!movementX) ||: when there's no vertitcal pull (like on dots),
+        //                  the player has just as much grip as when they're on land
+        //                  this makes dots not slippery
+        (!movement && currentGravPullOtherAxis) ||
+        // OR we're going left and want to go right
+        // why do we want this? to be able to make hard left->right turns
+        (speed < 0 && movement > 0) ||
+        // OR we're going right and want to go left
+        // why do we want this? to be able to make hard right->left turns
+        (speed > 0 && movement < 0)
+      ) {
+        speed *= Config.physics.no_modifier_drag;
+      }
+
+      // clamping speed
+      // 16 is the maximum speed allowed before we start phasing through blocks
+      if (speed > 16) {
+        speed = 16;
+      } else if (speed < -16) {
+        speed = -16;
+      } else if (Math.abs(speed) < 0.0001) {
+        speed = 0;
+      }
+    }
+
+    return speed;
   }
 
   private performJumping(
