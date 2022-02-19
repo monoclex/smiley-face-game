@@ -137,8 +137,6 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   jumpMult = 1;
   /** @version eephysics This may be removed when the physics engine changes */
-  moving = false;
-  /** @version eephysics This may be removed when the physics engine changes */
   queue: [number, number] = [0, 0];
   /** @version eephysics This may be removed when the physics engine changes */
   origModX = 0;
