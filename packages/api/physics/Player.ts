@@ -133,6 +133,8 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   jumpCount = 0;
   /** @version eephysics This may be removed when the physics engine changes */
+  waitedForInitialLongJump: "idle" | "waiting" | "jumped" = "idle";
+  /** @version eephysics This may be removed when the physics engine changes */
   maxJumps = 1;
   /** @version eephysics This may be removed when the physics engine changes */
   jumpMult = 1;

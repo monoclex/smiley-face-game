@@ -307,13 +307,14 @@ export class EEPhysics implements PhysicsSystem {
     // if space has just been pressed, we want to jump immediately
     if (self.isSpaceJustPressed) {
       tryToPerformJump = true;
+      self.waitedForInitialLongJump = "idle";
     }
     // otherwise, if space has been (or is just) held
     else if (self.isSpaceDown) {
       // if lastJump is negative, meaning
       // it is only negative if `isSpaceJustPressed` has been the "most recently"
       // pressed thing
-      if (self.jumpCount === 1) {
+      if (self.waitedForInitialLongJump === "waiting") {
         // if 750ms has elapsed since the last jump
         if (self.ticks - self.lastJump > 75) {
           // we want to perform a jump
@@ -369,11 +370,16 @@ export class EEPhysics implements PhysicsSystem {
           self.speedX =
             (-self.origModX * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
-
-        if (self.origModY)
+        else if (self.origModY)
           self.speedY =
             (-self.origModY * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
+
+        if (self.waitedForInitialLongJump === "idle") {
+          self.waitedForInitialLongJump = "waiting";
+        } else if (self.waitedForInitialLongJump === "waiting") {
+          self.waitedForInitialLongJump = "jumped";
+        }
       }
     }
   }
