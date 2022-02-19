@@ -102,12 +102,6 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    // take user input
-    self.horizontal = Number(self.input.right) - Number(self.input.left);
-    self.vertical = Number(self.input.down) - Number(self.input.up);
-    self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
-    self.isSpaceDown = self.input.jump;
-
     const worldPosition = self.worldPosition;
     const blockX = worldPosition.x;
     const blockY = worldPosition.y;
@@ -142,10 +136,8 @@ export class EEPhysics implements PhysicsSystem {
       self.clearZoostQueue();
     }
 
-    let origModX = 0,
-      origModY = 0,
-      modX = 0,
-      modY = 0;
+    let currentGravityDirection = Vector.Zero,
+      delayedGravityDirection = Vector.Zero;
 
     if (!isFlying) {
       let direction = self.zoostQueue.shift();
@@ -154,9 +146,7 @@ export class EEPhysics implements PhysicsSystem {
         return;
       }
 
-      const currentGravitationalPull = this.getGravitationalPull(current);
-      origModX = currentGravitationalPull.x;
-      origModY = currentGravitationalPull.y;
+      currentGravityDirection = this.getGraviationalPull(current);
 
       if (
         current == this.ids.spikeUp ||
@@ -167,47 +157,42 @@ export class EEPhysics implements PhysicsSystem {
         self.kill();
       }
 
-      const delayedGravitationalPull = this.getGravitationalPull(delayed);
-      modX = delayedGravitationalPull.x;
-      modY = delayedGravitationalPull.y;
+      delayedGravityDirection = this.getGraviationalPull(delayed);
     }
 
-    let movementX = 0,
-      movementY = 0;
+    const horizontalInput = Number(self.input.right) - Number(self.input.left);
+    const verticalInput = Number(self.input.down) - Number(self.input.up);
+    self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
+    self.isSpaceDown = self.input.jump;
 
-    // if we are being pulled vertically (so gravity)
-    if (modY) {
-      // allow the player to move horizontally
-      movementX = self.horizontal;
-      // but not vertically
-      movementY = 0;
-    }
-    // if we are being pulled horiontally (gravity)
-    else if (modX) {
-      // do not allow the player to fight gravity
-      movementX = 0;
-      // but we can move vertically
-      movementY = self.vertical;
-    }
-    // we're not being pulled in any direction
-    else {
-      // allow the player to move in any direction
-      movementX = self.horizontal;
-      movementY = self.vertical;
-    }
+    let movementDirection = new Vector(horizontalInput, verticalInput);
 
-    movementX *= self.speedMult;
-    movementY *= self.speedMult;
-    modX *= self.gravityMult;
-    modY *= self.gravityMult;
+    // prevent the player from moving in the direction of gravity
+    movementDirection = Vector.filter(delayedGravityDirection, movementDirection);
 
-    // the current gravitational pull (modX) plus the force the player is applying (movementX)
-    // divided by "Config.physics.variable_multiplyer" for some reason
-    let modifierX = (modX + movementX) / Config.physics.variable_multiplyer;
-    let modifierY = (modY + movementY) / Config.physics.variable_multiplyer;
+    const playerForce = Vector.mults(movementDirection, self.speedMult);
 
-    self.speedX = this.performSpeedDrag(self.speedX, modifierX, movementX, modY);
-    self.speedY = this.performSpeedDrag(self.speedY, modifierY, movementY, modX);
+    const gravity = Config.physics.gravity * self.gravityMult;
+    const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
+    const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
+
+    const appliedForce = Vector.divs(
+      Vector.add(playerForce, delayedGravityForce),
+      Config.physics.variable_multiplyer
+    );
+
+    self.speedX = this.performSpeedDrag(
+      self.speedX,
+      appliedForce.x,
+      movementDirection.x,
+      currentGravityDirection.y
+    );
+    self.speedY = this.performSpeedDrag(
+      self.speedY,
+      appliedForce.y,
+      movementDirection.y,
+      currentGravityDirection.x
+    );
 
     // the previous section was for the physics direction we're trying to go in
     // here, we apply this regardless of what the previous section has done because
@@ -225,10 +210,16 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     if (!isFlying) {
-      let grounded = this.performStepping(self, current, origModX, origModY);
+      let grounded = this.performStepping(self, current, currentGravityDirection);
 
       // jumping
-      this.performJumping(self, grounded, origModX, modX, origModY, modY);
+      this.performJumping(
+        self,
+        grounded,
+        currentGravityForce,
+        currentGravityDirection,
+        delayedGravityDirection
+      );
 
       this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
     } else {
@@ -238,7 +229,7 @@ export class EEPhysics implements PhysicsSystem {
     // sendMovement(cx, cy);
 
     // autoalign
-    this.performAutoalign(self, modifierX, modifierY);
+    this.performAutoalign(self, appliedForce);
   }
 
   private performSpeedDrag(
@@ -296,11 +287,17 @@ export class EEPhysics implements PhysicsSystem {
   private performJumping(
     self: Player,
     grounded: boolean,
-    origModX: number,
-    modX: number,
-    origModY: number,
-    modY: number
+    currentGravityForce: Vector,
+    currentGravity: Vector,
+    delayedGravity: Vector
+    // origModX: number,
+    // modX: number,
+    // origModY: number,
+    // modY: number
   ) {
+    const { x: origModX, y: origModY } = currentGravity;
+    const { x: modX, y: modY } = delayedGravity;
+
     let tryToPerformJump = false;
 
     // if space has just been pressed, we want to jump immediately
@@ -366,11 +363,11 @@ export class EEPhysics implements PhysicsSystem {
 
         if (origModX)
           self.speedX =
-            (-origModX * Config.physics.jump_height * self.jumpMult) /
+            (-currentGravityForce.x * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
         else if (origModY)
           self.speedY =
-            (-origModY * Config.physics.jump_height * self.jumpMult) /
+            (-currentGravityForce.y * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
 
         if (self.waitedForInitialLongJump === "idle") {
@@ -382,7 +379,7 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  private performStepping(self: Player, current: number, origModX: number, origModY: number) {
+  private performStepping(self: Player, current: number, currentGravityDirection: Vector) {
     const speedX = self.speedX,
       x = self.x,
       factoryHorzState = () => ({ pos: x, remainder: x % 1, currentSpeed: speedX });
@@ -411,9 +408,9 @@ export class EEPhysics implements PhysicsSystem {
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
         // we must be grounded!
-        if (self.speedX > 0 && origModX > 0) grounded = true;
+        if (self.speedX > 0 && currentGravityDirection.x > 0) grounded = true;
         // same for the other direction
-        if (self.speedX < 0 && origModX < 0) grounded = true;
+        if (self.speedX < 0 && currentGravityDirection.x < 0) grounded = true;
 
         // we ran into collision so we shouldn't move anymore
         self.speedX = 0;
@@ -436,8 +433,8 @@ export class EEPhysics implements PhysicsSystem {
       self.x = horzGenState.pos;
       self.y = vertGenState.pos;
       if (this.playerIsInFourSurroundingBlocks(self)) {
-        if (self.speedY > 0 && origModY > 0) grounded = true;
-        if (self.speedY < 0 && origModY < 0) grounded = true;
+        if (self.speedY > 0 && currentGravityDirection.y > 0) grounded = true;
+        if (self.speedY < 0 && currentGravityDirection.y < 0) grounded = true;
 
         self.speedY = 0;
 
@@ -534,15 +531,15 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  performAutoalign(self: Player, modifierX: number, modifierY: number) {
+  performAutoalign(self: Player, appliedForce: Vector) {
     const isSlowSpeed = (n: number) => Math.abs(n) < 1 / 256;
     const pullIsLow = (n: number) => Math.abs(n) < 0.1;
 
-    if (isSlowSpeed(self.speedX) && pullIsLow(modifierX)) {
+    if (isSlowSpeed(self.speedX) && pullIsLow(appliedForce.x)) {
       self.x = this.tryAutoAlign(self.x);
     }
 
-    if (isSlowSpeed(self.speedY) && pullIsLow(modifierY)) {
+    if (isSlowSpeed(self.speedY) && pullIsLow(appliedForce.y)) {
       self.y = this.tryAutoAlign(self.y);
     }
   }
@@ -899,29 +896,36 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  getGravitationalPull(blockId: number) {
-    const gravity = new Vector(Config.physics.gravity, Config.physics.gravity);
-
+  /**
+   * The gravitational pull of a block will not only apply a force to the player,
+   * it will also determine the axis that the player is allowed to jump against.
+   */
+  getGraviationalPull(blockId: number) {
+    // boosts (and dots) are considered to have no gravitational pull
+    // as we do not want to allow the player to jump in any axis.
     switch (blockId) {
       case this.ids.boostUp:
       case this.ids.boostRight:
       case this.ids.boostLeft:
       case this.ids.boostDown:
+        return Vector.Zero;
+
+      case this.ids.arrowUp:
+        return Vector.Up;
+      case this.ids.arrowRight:
+        return Vector.Right;
+      case this.ids.arrowLeft:
+        return Vector.Left;
+      case this.ids.arrowDown:
+        return Vector.Down;
+
       case this.ids.dot:
         return Vector.Zero;
-      case this.ids.arrowUp:
-        return Vector.mult(Vector.Up, gravity);
-      case this.ids.arrowRight:
-        return Vector.mult(Vector.Right, gravity);
-      case this.ids.arrowLeft:
-        return Vector.mult(Vector.Left, gravity);
-      case this.ids.arrowDown:
-      case this.ids.spikeUp:
-      case this.ids.spikeRight:
-      case this.ids.spikeLeft:
-      case this.ids.spikeDown:
+
+      // TODO(feature-gravity-effect): change default direction depending upon
+      //   gravity effect direction
       default:
-        return Vector.mult(Vector.Down, gravity);
+        return Vector.Down;
     }
   }
 

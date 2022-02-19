@@ -24,6 +24,13 @@ export class Config {
   static physics = {
     ms_per_tick: 10,
     max_ticks_per_frame: 150,
+
+    /**
+     * This variable, according to Seb135 in the EEO discord, is because:
+     *
+     * > I think benjaminsen took some stock physics engine but wanted all of his physics units in pixels per tick
+     * > So he scaled down all the physics until max running speed was appropriate for a 16px block
+     */
     variable_multiplyer: 7.752,
 
     base_drag: Math.pow(0.9981, 10) * 1.00016093,

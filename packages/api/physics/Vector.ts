@@ -23,6 +23,8 @@ export class Vector {
 
   constructor(readonly x: number, readonly y: number) {}
 
+  // the `s` suffix stands for scalar
+
   static add(self: Vector, b: Vector): Vector {
     return new Vector(self.x + b.x, self.y + b.y);
   }
@@ -65,5 +67,40 @@ export class Vector {
 
   static round(self: Vector): Vector {
     return new Vector(Math.round(self.x), Math.round(self.y));
+  }
+
+  /**
+   * Given a predicate vector, filters out values form the value vector.
+   *
+   * For example, consider the filter operator to be called `|>`:
+   *
+   * ```
+   * (0, 0) |> (1, 2) = (1, 2)
+   * (1, 0) |> (1, 2) = (0, 2)
+   * (0, 1) |> (1, 2) = (1, 0)
+   * (1, 1) |> (1, 2) = (0, 0)
+   * ```
+   *
+   * More generally,
+   *
+   * ```
+   * (p_1, p_2, ..., p_n) |> (v_1, v_2, ... v_n) = (F(p_1, v_1), F(p_2, v_2), ..., F(p_n, v_n))
+   * ```
+   *
+   * where
+   *
+   * ```
+   * F(0, b) = b
+   * F(a, b) = 0
+   * ```
+   *
+   * @param predicate The vector which uses zeros to determine pass-through
+   * @param value The value vector to filter values out of
+   * @returns A vector, such that any zeros present in the predicate vector are
+   * present in the resultant vector, and any non-zeros are replaced by values
+   * in the value vector.
+   */
+  static filter(predicate: Vector, value: Vector): Vector {
+    return new Vector(predicate.x === 0 ? value.x : 0, predicate.y === 0 ? value.y : 0);
   }
 }
