@@ -88,22 +88,11 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   set isInGodMode(flag: boolean) {
     this.inGodMode = flag;
-    if (this.inGodMode) {
-      this.resetModifiers();
-    }
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
   toggleGodMode() {
     this.isInGodMode = !this.isInGodMode;
-  }
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  resetModifiers() {
-    this.origModX = 0;
-    this.origModY = 0;
-    this.modX = 0;
-    this.modY = 0;
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
@@ -140,14 +129,6 @@ export class Player {
   jumpMult = 1;
   /** @version eephysics This may be removed when the physics engine changes */
   queue: [number, number] = [0, 0];
-  /** @version eephysics This may be removed when the physics engine changes */
-  origModX = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  origModY = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  modX = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  modY = 0;
   /** @version eephysics This may be removed when the physics engine changes */
   insideRedKey = false;
   /** @version eephysics This may be removed when the physics engine changes */
@@ -189,8 +170,6 @@ export class Player {
    * @version eephysics This may be removed when the physics engine changes
    */
   revive(at: Vector) {
-    this.modX = 0;
-    this.modY = 0;
     this.speedX = 0;
     this.speedY = 0;
     this.isDead = false;

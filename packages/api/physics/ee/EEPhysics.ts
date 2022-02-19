@@ -142,6 +142,11 @@ export class EEPhysics implements PhysicsSystem {
       self.clearZoostQueue();
     }
 
+    let origModX = 0,
+      origModY = 0,
+      modX = 0,
+      modY = 0;
+
     if (!isFlying) {
       let direction = self.zoostQueue.shift();
       if (direction != null) {
@@ -149,12 +154,9 @@ export class EEPhysics implements PhysicsSystem {
         return;
       }
 
-      self.origModX = self.modX;
-      self.origModY = self.modY;
-
       const currentGravitationalPull = this.getGravitationalPull(current);
-      self.origModX = currentGravitationalPull.x;
-      self.origModY = currentGravitationalPull.y;
+      origModX = currentGravitationalPull.x;
+      origModY = currentGravitationalPull.y;
 
       if (
         current == this.ids.spikeUp ||
@@ -166,22 +168,22 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       const delayedGravitationalPull = this.getGravitationalPull(delayed);
-      self.modX = delayedGravitationalPull.x;
-      self.modY = delayedGravitationalPull.y;
+      modX = delayedGravitationalPull.x;
+      modY = delayedGravitationalPull.y;
     }
 
     let movementX = 0,
       movementY = 0;
 
     // if we are being pulled vertically (so gravity)
-    if (self.modY) {
+    if (modY) {
       // allow the player to move horizontally
       movementX = self.horizontal;
       // but not vertically
       movementY = 0;
     }
     // if we are being pulled horiontally (gravity)
-    else if (self.modX) {
+    else if (modX) {
       // do not allow the player to fight gravity
       movementX = 0;
       // but we can move vertically
@@ -196,13 +198,13 @@ export class EEPhysics implements PhysicsSystem {
 
     movementX *= self.speedMult;
     movementY *= self.speedMult;
-    self.modX *= self.gravityMult;
-    self.modY *= self.gravityMult;
+    modX *= self.gravityMult;
+    modY *= self.gravityMult;
 
     // the current gravitational pull (modX) plus the force the player is applying (movementX)
     // divided by "Config.physics.variable_multiplyer" for some reason
-    let modifierX = (self.modX + movementX) / Config.physics.variable_multiplyer;
-    let modifierY = (self.modY + movementY) / Config.physics.variable_multiplyer;
+    let modifierX = (modX + movementX) / Config.physics.variable_multiplyer;
+    let modifierY = (modY + movementY) / Config.physics.variable_multiplyer;
 
     // NOTES: we could actually run through this code no matter what, couldn't we?
     // basically if speedx/modifierx is 0, all the multiplication will have no effect
@@ -226,7 +228,7 @@ export class EEPhysics implements PhysicsSystem {
         // (!movementX) ||: when there's no vertitcal pull (like on dots),
         //                  the player has just as much grip as when they're on land
         //                  this makes dots not slippery
-        (!movementX && self.modY) ||
+        (!movementX && modY) ||
         // OR we're going left and want to go right
         // why do we want this? to be able to make hard left->right turns
         (self.speedX < 0 && movementX > 0) ||
@@ -256,7 +258,7 @@ export class EEPhysics implements PhysicsSystem {
 
       self.speedY *= Config.physics.base_drag;
       if (
-        (!movementY && self.modX) ||
+        (!movementY && modX) ||
         (self.speedY < 0 && movementY > 0) ||
         (self.speedY > 0 && movementY < 0)
       ) {
@@ -287,10 +289,10 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    let grounded = this.performStepping(self, current);
+    let grounded = this.performStepping(self, current, origModX, origModY);
 
     // jumping
-    this.performJumping(self, grounded);
+    this.performJumping(self, grounded, origModX, modX, origModY, modY);
 
     if (!isFlying) {
       this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
@@ -301,7 +303,14 @@ export class EEPhysics implements PhysicsSystem {
     this.performAutoalign(self, modifierX, modifierY);
   }
 
-  private performJumping(self: Player, grounded: boolean) {
+  private performJumping(
+    self: Player,
+    grounded: boolean,
+    origModX: number,
+    modX: number,
+    origModY: number,
+    modY: number
+  ) {
     let tryToPerformJump = false;
 
     // if space has just been pressed, we want to jump immediately
@@ -338,8 +347,7 @@ export class EEPhysics implements PhysicsSystem {
       // - we are not moving horizontally but we have horizontal force applied on us
       // - we are not moving vertically but we have vertical force applied on us
       // i think the check for origModX is unnecessary here
-      ((self.speedX == 0 && self.origModX && self.modX) ||
-        (self.speedY == 0 && self.origModY && self.modY)) &&
+      ((self.speedX == 0 && origModX && modX) || (self.speedY == 0 && origModY && modY)) &&
       // and we're grounded
       grounded
     ) {
@@ -360,19 +368,19 @@ export class EEPhysics implements PhysicsSystem {
       // it's very unlikely that that the origModX will differ from modX, so i don't think
       // we need to check both. plus we should only be checking delayed (modX) as physics
       // work based on the previous tick's block (or second prev block, depending on what's in the queue)
-      const beingPulledByGravity = (self.origModX && self.modX) || (self.origModY && self.modY);
+      const beingPulledByGravity = (origModX && modX) || (origModY && modY);
 
       if (self.jumpCount < self.maxJumps && beingPulledByGravity) {
         self.lastJump = self.ticks;
         self.jumpCount += 1;
 
-        if (self.origModX)
+        if (origModX)
           self.speedX =
-            (-self.origModX * Config.physics.jump_height * self.jumpMult) /
+            (-origModX * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
-        else if (self.origModY)
+        else if (origModY)
           self.speedY =
-            (-self.origModY * Config.physics.jump_height * self.jumpMult) /
+            (-origModY * Config.physics.jump_height * self.jumpMult) /
             Config.physics.variable_multiplyer;
 
         if (self.waitedForInitialLongJump === "idle") {
@@ -384,7 +392,7 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  private performStepping(self: Player, current: number) {
+  private performStepping(self: Player, current: number, origModX: number, origModY: number) {
     const speedX = self.speedX,
       x = self.x,
       factoryHorzState = () => ({ pos: x, remainder: x % 1, currentSpeed: speedX });
@@ -413,9 +421,9 @@ export class EEPhysics implements PhysicsSystem {
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
         // we must be grounded!
-        if (self.speedX > 0 && self.origModX > 0) grounded = true;
+        if (self.speedX > 0 && origModX > 0) grounded = true;
         // same for the other direction
-        if (self.speedX < 0 && self.origModX < 0) grounded = true;
+        if (self.speedX < 0 && origModX < 0) grounded = true;
 
         // we ran into collision so we shouldn't move anymore
         self.speedX = 0;
@@ -438,8 +446,8 @@ export class EEPhysics implements PhysicsSystem {
       self.x = horzGenState.pos;
       self.y = vertGenState.pos;
       if (this.playerIsInFourSurroundingBlocks(self)) {
-        if (self.speedY > 0 && self.origModY > 0) grounded = true;
-        if (self.speedY < 0 && self.origModY < 0) grounded = true;
+        if (self.speedY > 0 && origModY > 0) grounded = true;
+        if (self.speedY < 0 && origModY < 0) grounded = true;
 
         self.speedY = 0;
 
@@ -595,10 +603,6 @@ export class EEPhysics implements PhysicsSystem {
     self.velocity = Vector.Zero;
     self.x = eePos.x;
     self.y = eePos.y;
-    self.modX = 0;
-    self.modY = 0;
-    self.origModX = 0;
-    self.origModY = 0;
 
     let brokeEarly = false;
     let max = 10; // define arbitrarily high amount of times to iterate before stopping
