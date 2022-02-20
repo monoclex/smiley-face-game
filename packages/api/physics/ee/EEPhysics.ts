@@ -247,8 +247,10 @@ export class EEPhysics implements PhysicsSystem {
       Vector.Zero
     );
 
+    const worldBounds = Vector.mults(Vector.subs(this.world.size, 1), Config.blockSize);
+
     position = Vector.add(position, velocity);
-    position = Vector.clamp(position, Vector.Zero, Vector.mults(this.world.size, Config.blockSize));
+    position = Vector.clamp(position, Vector.Zero, worldBounds);
     position = this.performAutoalign(position, velocity, appliedForce);
 
     self.position = position;
