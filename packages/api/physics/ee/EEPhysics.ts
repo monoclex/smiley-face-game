@@ -104,7 +104,7 @@ export class EEPhysics implements PhysicsSystem {
       return;
     }
 
-    if (this.ids.isSpikes(current)) {
+    if (this.ids.isHazard(current)) {
       self.kill();
       return;
     }
@@ -420,7 +420,7 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private handleActionSpikes(actionBlock: number, self: Player) {
-    if (this.ids.isSpikes(actionBlock)) {
+    if (this.ids.isHazard(actionBlock)) {
       self.kill();
     }
   }
