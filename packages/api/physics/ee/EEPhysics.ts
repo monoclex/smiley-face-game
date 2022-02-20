@@ -418,6 +418,7 @@ export class EEPhysics implements PhysicsSystem {
 
     let horzGenState = factoryHorzState();
     let vertGenState = factoryVertState();
+    const getPositionFromState = () => ({ x: horzGenState.pos, y: vertGenState.pos });
 
     let grounded = false;
 
@@ -427,17 +428,33 @@ export class EEPhysics implements PhysicsSystem {
     let vertStepper = this.stepAlgo(current, vertGenState);
     let vertSteps = 0;
 
-    const checkHorzCollision = () => {
+    const checkCollision = (
+      velocity: number,
+      currentGravityDirection: number,
+      reset: () => void
+    ) => {
       // if we are in collision with any blocks after stepping a singular pixel
-      if (this.playerIsColliding(self, { x: horzGenState.pos, y: vertGenState.pos })) {
+      if (this.playerIsColliding(self, getPositionFromState())) {
         // if we are being pulled to the right,
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
         // we must be grounded!
-        if (velocity.x > 0 && currentGravityDirection.x > 0) grounded = true;
+        if (velocity > 0 && currentGravityDirection > 0) grounded = true;
         // same for the other direction
-        if (velocity.x < 0 && currentGravityDirection.x < 0) grounded = true;
+        if (velocity < 0 && currentGravityDirection < 0) grounded = true;
 
+        reset();
+      }
+    };
+
+    let doneX = false,
+      doneY = false;
+
+    // if we have x speed and we haven't collided yet (or same for y)
+    while ((horzGenState.currentSpeed && !doneX) || (vertGenState.currentSpeed && !doneY)) {
+      doneX = Boolean(horzStepper.next().done) || doneX;
+      horzSteps++;
+      checkCollision(velocity.x, currentGravityDirection.x, () => {
         // we ran into collision so we shouldn't move anymore
         keep = Vector.mutateX(keep, 0);
 
@@ -451,15 +468,12 @@ export class EEPhysics implements PhysicsSystem {
         }
 
         doneX = true;
-      }
-    };
+      });
 
-    // same as stepX
-    const checkVertCollision = () => {
-      if (this.playerIsColliding(self, { x: horzGenState.pos, y: vertGenState.pos })) {
-        if (velocity.y > 0 && currentGravityDirection.y > 0) grounded = true;
-        if (velocity.y < 0 && currentGravityDirection.y < 0) grounded = true;
-
+      doneY = Boolean(vertStepper.next().done) || doneY;
+      vertSteps++;
+      checkCollision(velocity.y, currentGravityDirection.y, () => {
+        // we ran into collision so we shouldn't move anymore
         keep = Vector.mutateY(keep, 0);
 
         // reset our generator to right before it performed this tick
@@ -472,25 +486,11 @@ export class EEPhysics implements PhysicsSystem {
         }
 
         doneY = true;
-      }
-    };
-
-    let doneX = false,
-      doneY = false;
-
-    // if we have x speed and we haven't collided yet (or same for y)
-    while ((horzGenState.currentSpeed && !doneX) || (vertGenState.currentSpeed && !doneY)) {
-      doneX = Boolean(horzStepper.next().done) || doneX;
-      horzSteps++;
-      checkHorzCollision();
-
-      doneY = Boolean(vertStepper.next().done) || doneY;
-      vertSteps++;
-      checkVertCollision();
+      });
     }
 
     return {
-      position: new Vector(horzGenState.pos, vertGenState.pos),
+      position: getPositionFromState(),
       velocity: Vector.mult(keep, velocity),
       grounded,
     };
@@ -720,24 +720,23 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   triggerBlockAction(self: Player, position: Vector) {
-    const x = Math.floor(position.x / Config.blockSize);
-    const y = Math.floor(position.y / Config.blockSize);
+    const blockPosition = this.roundPositionToBlockCoords(position);
 
     const maxX = this.world.size.x;
     const maxY = this.world.size.y;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
-    if (!inBounds(x, y)) {
-      throw new Error("we should never be out of bounds");
-    }
+    // if (!inBounds(x, y)) {
+    //   throw new Error("we should never be out of bounds");
+    // }
 
-    const deco = this.world.blockAt({ x, y }, TileLayer.Decoration);
+    const deco = this.world.blockAt(blockPosition, TileLayer.Decoration);
 
-    this.handleActionSigns(deco, position, self, x, y);
+    this.handleActionSigns(deco, position, self, blockPosition);
 
-    const actionBlock = this.world.blockAt({ x, y }, TileLayer.Action);
+    const actionBlock = this.world.blockAt(blockPosition, TileLayer.Action);
 
-    this.handleActionCheckpoints(actionBlock, x, y, self);
+    this.handleActionCheckpoints(actionBlock, blockPosition, self);
     this.handleActionSpikes(actionBlock, self);
     this.handleActionKeys(actionBlock, self, inBounds, position);
   }
@@ -746,8 +745,7 @@ export class EEPhysics implements PhysicsSystem {
     deco: number,
     position: Vector<number>,
     self: Player,
-    x: number,
-    y: number
+    { x, y }: Vector
   ) {
     let currentlyInSign: false | Vector = false;
     if (deco === this.ids.sign) {
@@ -775,7 +773,7 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  private handleActionCheckpoints(actionBlock: number, x: number, y: number, self: Player) {
+  private handleActionCheckpoints(actionBlock: number, { x, y }: Vector, self: Player) {
     if (this.ids.checkpoint === actionBlock) {
       const checkpoint = new Vector(x, y);
 
