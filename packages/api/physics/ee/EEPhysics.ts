@@ -109,17 +109,12 @@ export class EEPhysics implements PhysicsSystem {
 
     // if we're on a zoost, push the direction it's in to the queue
     if (this.isZoost(current)) {
-      self.pushZoostQueue(this.zoostDirToVec(current));
+      this.performZoosts(self, self.worldPosition, this.zoostDirToVec(current));
+      return;
     }
 
     let currentGravityDirection = Vector.Zero,
       delayedGravityDirection = Vector.Zero;
-
-    let direction = self.zoostQueue.shift();
-    if (direction != null) {
-      this.performZoosts(self, self.worldPosition, direction);
-      return;
-    }
 
     currentGravityDirection = this.getGraviationalPull(current);
 
@@ -221,8 +216,6 @@ export class EEPhysics implements PhysicsSystem {
     if (self.isDead) {
       self.revive();
     }
-
-    self.clearZoostQueue();
 
     const horizontalInput = Number(self.input.right) - Number(self.input.left);
     const verticalInput = Number(self.input.down) - Number(self.input.up);
@@ -612,19 +605,14 @@ export class EEPhysics implements PhysicsSystem {
     return position;
   }
 
-  performZoosts(self: Player, { x: blockX, y: blockY }: Vector, direction: Vector) {
+  performZoosts(self: Player, position: Vector, direction: Vector) {
     // snap player to zoost
-    let position = new Vector(blockX, blockY);
 
     const eePos = Vector.mults(position, Config.blockSize);
     self.position = eePos;
-    self.velocity = Vector.Zero;
 
-    let brokeEarly = false;
-    let max = 10; // define arbitrarily high amount of times to iterate before stopping
-    while (max) {
-      max--;
-
+    let turns = 0;
+    while (turns < 1) {
       const originalPosition = position;
       position = Vector.add(position, direction);
 
@@ -645,32 +633,26 @@ export class EEPhysics implements PhysicsSystem {
         self.position = eePos;
 
         // do we have any other directions we could go?
-        const nextDir = self.zoostQueue.shift();
-
-        if (nextDir) {
-          // we'll try that direction instead then
-          direction = nextDir;
+        const actionBlockOn = this.world.blockAt(position, TileLayer.Action);
+        if (this.isZoost(actionBlockOn)) {
+          direction = this.zoostDirToVec(actionBlockOn);
+          turns++;
           continue;
-        } else {
-          break;
         }
+
+        break;
       }
 
       // perform actions (trigger keys/etc)
       this.triggerBlockAction(self, self.position);
 
       if (self.isDead) {
-        brokeEarly = true;
         break;
       }
     }
 
-    brokeEarly ||= max === 0;
-
-    // if we broke early, we didn't finish going the queued direction
-    if (brokeEarly) {
-      self.pushZoostQueue(direction);
-    }
+    self.position = Vector.mults(position, Config.blockSize);
+    // self.velocity = Vector.Zero;
   }
 
   playerIsInFourSurroundingBlocks(self: Player, position: Vector): boolean {
@@ -752,7 +734,6 @@ export class EEPhysics implements PhysicsSystem {
 
     this.handleActionCheckpoints(actionBlock, x, y, self);
     this.handleActionSpikes(actionBlock, self);
-    this.handleActionZoosts(actionBlock, self);
     this.handleActionKeys(actionBlock, self, inBounds, position);
   }
 
@@ -809,12 +790,6 @@ export class EEPhysics implements PhysicsSystem {
       this.ids.spikeLeft === actionBlock
     ) {
       self.kill();
-    }
-  }
-
-  private handleActionZoosts(actionBlock: number, self: Player) {
-    if (this.isZoost(actionBlock)) {
-      self.pushZoostQueue(this.zoostDirToVec(actionBlock));
     }
   }
 

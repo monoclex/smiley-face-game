@@ -192,36 +192,4 @@ export class Player {
   clearCheckpoint() {
     this.checkpoint = null;
   }
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  zoostQueue: Vector[] = [];
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  clearZoostQueue() {
-    if (this.zoostQueue.length > 0) {
-      this.zoostQueue = [];
-    }
-  }
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  pushZoostQueue(direction: Vector) {
-    // a totally viable implementation of this function is just
-    //
-    // this.zoostQueue.push(direction);
-    //
-    // but for performance, we don't want to push the same direction twice
-
-    // try to peek at the top item
-    const top = this.zoostQueue.pop();
-
-    if (top != null) {
-      this.zoostQueue.push(top);
-
-      // don't push duplicate directions
-      if (Vector.eq(top, direction)) return;
-    }
-
-    // either nothing at the top or not a duplicate, push it
-    this.zoostQueue.push(direction);
-  }
 }
