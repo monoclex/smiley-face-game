@@ -83,8 +83,8 @@ export class Vector<T = number> {
     return new Vector(left.x && right.x, left.y && right.y);
   }
 
-  static map<T, U>(vector: Vector<T>, map: (data: T) => U): Vector<U> {
-    return new Vector(map(vector.x), map(vector.y));
+  static map<T, U>(map: (...args: T[]) => U, ...args: Vector<T>[]): Vector<U> {
+    return new Vector(map(...args.map((v) => v.x)), map(...args.map((v) => v.y)));
   }
 
   /**
@@ -152,9 +152,5 @@ export class Vector<T = number> {
       zeroful.x === 0 ? substitute.x : zeroful.x,
       zeroful.y === 0 ? substitute.y : zeroful.y
     );
-  }
-
-  static call<T = number, U = number>(func: (...args: T[]) => U, ...args: Vector<T>[]): Vector<U> {
-    return new Vector<U>(func(...args.map((v) => v.x)), func(...args.map((v) => v.y)));
   }
 }

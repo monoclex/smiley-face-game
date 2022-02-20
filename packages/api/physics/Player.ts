@@ -1,7 +1,5 @@
 import { Inputs } from "../game/Inputs";
 import { ZRole } from "../types";
-import { Config } from "./ee/Config";
-import { ArrowDirection } from "./ee/Directions";
 import { Vector } from "./Vector";
 
 // regarding physics variables:
@@ -138,11 +136,7 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   get center(): Vector {
     // TODO: don't hardcode 16
-    return Vector.adds(this.sfgPosition, 16);
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  get centerEE(): Vector {
-    return Vector.divs(this.center, 2);
+    return Vector.adds(this.position, 8);
   }
   /** @version eephysics This may be removed when the physics engine changes */
   insideSign: false | Vector = false;

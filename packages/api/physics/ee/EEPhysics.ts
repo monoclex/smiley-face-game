@@ -3,20 +3,11 @@ import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
 import { TileLayer } from "../../types";
-import clamp from "../clamp";
 import { PhysicsEvents, PhysicsSystem } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
 import { Config } from "./Config";
-import {
-  DotDirection,
-  ArrowDirection,
-  BoostDirection,
-  ZoostDirection,
-  isBoost,
-  SpikeDirection,
-} from "./Directions";
 import equal from "fast-deep-equal";
 
 // half a second until alive
@@ -181,7 +172,7 @@ export class EEPhysics implements PhysicsSystem {
       Config.physics.variable_multiplyer
     );
 
-    let velocity = Vector.call(
+    let velocity = Vector.map(
       this.performSpeedDrag.bind(this),
       self.velocity,
       appliedForce,
@@ -222,7 +213,7 @@ export class EEPhysics implements PhysicsSystem {
         velocity
       );
 
-      this.hoveringOver(self, self.centerEE);
+      this.triggerBlockAction(self, self.center);
     } else {
       self.position = Vector.add(self.position, velocity);
     }
@@ -236,55 +227,57 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private performSpeedDrag(
-    speed: number,
-    modifier: number,
-    movement: number,
-    currentGravPullOtherAxis: number
+    velocity: number,
+    appliedForce: number,
+    axisMovement: number,
+    crossAxisGravity: number
   ) {
     // NOTES: we could actually run through this code no matter what, couldn't we?
     // basically if speedx/modifierx is 0, all the multiplication will have no effect
     //
     // if our horizontal speed is changing
-    if (speed || modifier) {
-      speed += modifier;
-
-      // =-=-=
-      // apply different physics drags in different liquids/blocks/etc
-      // =-=-=
-
-      // this applies a lot of drag - helps us slow down fast
-      speed *= Config.physics.base_drag;
-      if (
-        // if we have vertical gravitational pull AND we're not moving
-        // when would we want both conditions?
-        // (self.modY) ||: the drag would ALWAYS be applied (when in air blocks)
-        //                 making it really hard to move left/right
-        // (!movementX) ||: when there's no vertitcal pull (like on dots),
-        //                  the player has just as much grip as when they're on land
-        //                  this makes dots not slippery
-        (!movement && currentGravPullOtherAxis) ||
-        // OR we're going left and want to go right
-        // why do we want this? to be able to make hard left->right turns
-        (speed < 0 && movement > 0) ||
-        // OR we're going right and want to go left
-        // why do we want this? to be able to make hard right->left turns
-        (speed > 0 && movement < 0)
-      ) {
-        speed *= Config.physics.no_modifier_drag;
-      }
-
-      // clamping speed
-      // 16 is the maximum speed allowed before we start phasing through blocks
-      if (speed > 16) {
-        speed = 16;
-      } else if (speed < -16) {
-        speed = -16;
-      } else if (Math.abs(speed) < 0.0001) {
-        speed = 0;
-      }
+    if (!(velocity || appliedForce)) {
+      return velocity;
     }
 
-    return speed;
+    velocity += appliedForce;
+
+    // =-=-=
+    // apply different physics drags in different liquids/blocks/etc
+    // =-=-=
+
+    // this applies a lot of drag - helps us slow down fast
+    velocity *= Config.physics.base_drag;
+    if (
+      // if we have vertical gravitational pull AND we're not moving
+      // when would we want both conditions?
+      // (self.modY) ||: the drag would ALWAYS be applied (when in air blocks)
+      //                 making it really hard to move left/right
+      // (!movementX) ||: when there's no vertitcal pull (like on dots),
+      //                  the player has just as much grip as when they're on land
+      //                  this makes dots not slippery
+      (!axisMovement && crossAxisGravity) ||
+      // OR we're going left and want to go right
+      // why do we want this? to be able to make hard left->right turns
+      (velocity < 0 && axisMovement > 0) ||
+      // OR we're going right and want to go left
+      // why do we want this? to be able to make hard right->left turns
+      (velocity > 0 && axisMovement < 0)
+    ) {
+      velocity *= Config.physics.no_modifier_drag;
+    }
+
+    // clamping speed
+    // 16 is the maximum speed allowed before we start phasing through blocks
+    if (velocity > 16) {
+      velocity = 16;
+    } else if (velocity < -16) {
+      velocity = -16;
+    } else if (Math.abs(velocity) < 0.0001) {
+      velocity = 0;
+    }
+
+    return velocity;
   }
 
   private performJumping(
@@ -295,9 +288,6 @@ export class EEPhysics implements PhysicsSystem {
     delayedGravity: Vector,
     velocity: Vector
   ) {
-    const { x: origModX, y: origModY } = currentGravity;
-    const { x: modX, y: modY } = delayedGravity;
-
     let tryToPerformJump = false;
 
     // if space has just been pressed, we want to jump immediately
@@ -329,12 +319,15 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
+    const horziontalGravityApplied = currentGravity.x && delayedGravity.y;
+    const verticalGravityApplied = currentGravity.y && delayedGravity.y;
+
     if (
       // if either:
       // - we are not moving horizontally but we have horizontal force applied on us
       // - we are not moving vertically but we have vertical force applied on us
-      // i think the check for origModX is unnecessary here
-      ((velocity.x == 0 && origModX && modX) || (velocity.y == 0 && origModY && modY)) &&
+      ((velocity.x == 0 && horziontalGravityApplied) ||
+        (velocity.y == 0 && verticalGravityApplied)) &&
       // and we're grounded
       grounded
     ) {
@@ -344,7 +337,9 @@ export class EEPhysics implements PhysicsSystem {
 
     // we needs this here because - what if we never jumped and we're falling?
     // we don't want to let the player jump in mid-air just from falling
-    if (self.jumpCount == 0 && !grounded) self.jumpCount = 1; // Not on ground so first 'jump' removed
+    if (self.jumpCount == 0 && !grounded) {
+      self.jumpCount = 1; // Not on ground so first 'jump' removed
+    }
 
     if (tryToPerformJump) {
       // if we can jump, AND we're being pulled in the X direction
@@ -355,7 +350,7 @@ export class EEPhysics implements PhysicsSystem {
       // it's very unlikely that that the origModX will differ from modX, so i don't think
       // we need to check both. plus we should only be checking delayed (modX) as physics
       // work based on the previous tick's block (or second prev block, depending on what's in the queue)
-      const beingPulledByGravity = (origModX && modX) || (origModY && modY);
+      const beingPulledByGravity = horziontalGravityApplied || verticalGravityApplied;
 
       if (self.jumpCount < self.maxJumps && beingPulledByGravity) {
         self.lastJump = self.ticks;
@@ -512,7 +507,7 @@ export class EEPhysics implements PhysicsSystem {
       // hey! want to enable 4 block jump?
       // remove this conditional!:
       //  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-      if (me.remainder + me.currentSpeed < 0 && (me.remainder !== 0 || isBoost(current))) {
+      if (me.remainder + me.currentSpeed < 0 && (me.remainder !== 0 || this.isBoost(current))) {
         // clip ourselves to the nearest pixel
         // me.pos = Math.trunc(me.pos);
         // use up some speed for moving
@@ -543,26 +538,18 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   performAutoalign(position: Vector, velocity: Vector, appliedForce: Vector): Vector {
-    const isSlowSpeed = (n: number) => Math.abs(n) < 1 / 256;
-    const pullIsLow = (n: number) => Math.abs(n) < 0.1;
-
-    const slow = Vector.call((n) => isSlowSpeed(n), velocity);
-    const lowPull = Vector.call((n) => pullIsLow(n), appliedForce);
-
-    // TODO: maybe clean up this code a bit later
-    const isSlowAndLowPull = Vector.and(slow, lowPull);
-
-    const autoAligned = Vector.call(this.tryAutoAlign.bind(this), position);
-
-    const newPos = new Vector(
-      isSlowAndLowPull.x ? autoAligned.x : position.x,
-      isSlowAndLowPull.y ? autoAligned.y : position.y
-    );
-
-    return newPos;
+    return Vector.map(this.tryAutoAlign.bind(this), position, velocity, appliedForce);
   }
 
-  tryAutoAlign(position: number): number {
+  tryAutoAlign(position: number, velocity: number, appliedForce: number): number {
+    const isSlow = (n: number) => Math.abs(n) < 1 / 256;
+    const lowPull = (n: number) => Math.abs(n) < 0.1;
+
+    // don't perform auto align if not slow enough
+    if (!isSlow(velocity) || !lowPull(appliedForce)) {
+      return position;
+    }
+
     const blockOffset = position % Config.blockSize;
 
     // sadly we can't really de-duplicate this very well
@@ -626,7 +613,7 @@ export class EEPhysics implements PhysicsSystem {
       self.position = eePos;
 
       // if we're colliding with a solid block, we need to not to that
-      if (collidingWithBorder || !this.noCollision(self, position.x, position.y)) {
+      if (collidingWithBorder || this.willCollide(self, position)) {
         // go back
         position = originalPosition;
         const eePos = Vector.mults(position, Config.blockSize);
@@ -645,7 +632,7 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       // perform actions (trigger keys/etc)
-      this.hoveringOver(self, self.position);
+      this.triggerBlockAction(self, self.position);
 
       if (self.isDead) {
         brokeEarly = true;
@@ -679,7 +666,8 @@ export class EEPhysics implements PhysicsSystem {
     const maxY = this.world.size.y;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
-    const has = (x: number, y: number) => (inBounds(x, y) ? !this.noCollision(self, x, y) : true);
+    const has = (x: number, y: number) =>
+      inBounds(x, y) ? this.willCollide(self, { x, y }) : true;
     const has00 = has(worldX, worldY);
     const has10 = has(worldX + 1, worldY);
     const has01 = has(worldX, worldY + 1);
@@ -693,11 +681,12 @@ export class EEPhysics implements PhysicsSystem {
     );
   }
 
-  noCollision(self: Player, x: number, y: number): boolean {
+  willCollide(self: Player, blockPosition: Vector): boolean {
     if (self.isInGodMode) {
-      return true;
+      return false;
     }
 
+    const { x, y } = blockPosition;
     const fgId = this.world.blockAt(x, y, TileLayer.Foreground);
     const actionId = this.world.blockAt(x, y, TileLayer.Action);
 
@@ -714,10 +703,10 @@ export class EEPhysics implements PhysicsSystem {
     const isPassthru = (id: number) =>
       id === 0 || id === keyNotSolid || this.ids.tiles.forId(id).isSolid === false;
 
-    return isPassthru(fgId) && isPassthru(actionId);
+    return !isPassthru(fgId) || !isPassthru(actionId);
   }
 
-  hoveringOver(self: Player, position: Vector) {
+  triggerBlockAction(self: Player, position: Vector) {
     const x = Math.floor(position.x / Config.blockSize);
     const y = Math.floor(position.y / Config.blockSize);
 
@@ -725,15 +714,34 @@ export class EEPhysics implements PhysicsSystem {
     const maxY = this.world.size.y;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
+    // wtf?
     if (!inBounds(x, y)) {
       self.insideRedKey = false;
-      return;
+      throw new Error(">????????<");
     }
 
     const deco = this.world.blockAt(x, y, TileLayer.Decoration);
+
+    this.handleActionSigns(deco, position, self, x, y);
+
+    const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
+
+    this.handleActionCheckpoints(actionBlock, x, y, self);
+    this.handleActionSpikes(actionBlock, self);
+    this.handleActionZoosts(actionBlock, self);
+    this.handleActionKeys(actionBlock, self, inBounds, position);
+  }
+
+  private handleActionSigns(
+    deco: number,
+    position: Vector<number>,
+    self: Player,
+    x: number,
+    y: number
+  ) {
     let currentlyInSign: false | Vector = false;
     if (deco === this.ids.sign) {
-      currentlyInSign = { x, y };
+      currentlyInSign = position;
     }
 
     const inSign = (x: false | Vector) => !!x;
@@ -743,28 +751,21 @@ export class EEPhysics implements PhysicsSystem {
       self.insideSign = currentlyInSign;
       this.events.emit("signOn", x, y);
     }
+
     // if we aren't in a sign but we were
     else if (!inSign(currentlyInSign) && inSign(self.insideSign)) {
       self.insideSign = false;
       this.events.emit("signOff");
     }
+
     // if we're in a different sign
     else if (!equal(currentlyInSign, self.insideSign)) {
       self.insideSign = currentlyInSign;
       this.events.emit("signOn", x, y);
     }
+  }
 
-    const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
-    if (this.ids.keysRedKey === actionBlock) {
-      if (!self.insideRedKey) {
-        this.events.emit("keyTouch", "red", self);
-      }
-
-      self.insideRedKey = true;
-    } else {
-      self.insideRedKey = false;
-    }
-
+  private handleActionCheckpoints(actionBlock: number, x: number, y: number, self: Player) {
     if (this.ids.checkpoint === actionBlock) {
       const checkpoint = new Vector(x, y);
 
@@ -774,7 +775,9 @@ export class EEPhysics implements PhysicsSystem {
 
       self.checkpoint = checkpoint;
     }
+  }
 
+  private handleActionSpikes(actionBlock: number, self: Player) {
     if (
       this.ids.spikeUp === actionBlock ||
       this.ids.spikeRight === actionBlock ||
@@ -783,9 +786,28 @@ export class EEPhysics implements PhysicsSystem {
     ) {
       self.kill();
     }
+  }
 
+  private handleActionZoosts(actionBlock: number, self: Player) {
     if (this.isZoost(actionBlock)) {
       self.pushZoostQueue(this.zoostDirToVec(actionBlock));
+    }
+  }
+
+  private handleActionKeys(
+    actionBlock: number,
+    self: Player,
+    inBounds: (x: number, y: number) => boolean,
+    position: Vector<number>
+  ) {
+    if (this.ids.keysRedKey === actionBlock) {
+      if (!self.insideRedKey) {
+        this.events.emit("keyTouch", "red", self);
+      }
+
+      self.insideRedKey = true;
+    } else {
+      self.insideRedKey = false;
     }
 
     const checkInsideKey = (x: number, y: number) => {
@@ -881,6 +903,15 @@ export class EEPhysics implements PhysicsSystem {
       id == this.ids.zoostRight ||
       id == this.ids.zoostDown ||
       id == this.ids.zoostLeft
+    );
+  }
+
+  isBoost(id: number) {
+    return (
+      id == this.ids.boostUp ||
+      id == this.ids.boostRight ||
+      id == this.ids.boostLeft ||
+      id == this.ids.boostDown
     );
   }
 
