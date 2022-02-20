@@ -1,9 +1,11 @@
-export class Vector {
+export class Vector<T = number> {
   static readonly Zero: Vector = new Vector(0, 0);
   static readonly Up: Vector = new Vector(0, -1);
   static readonly Down: Vector = new Vector(0, 1);
   static readonly Right: Vector = new Vector(1, 0);
   static readonly Left: Vector = new Vector(-1, 0);
+
+  static readonly Ones: Vector = new Vector(1, 1);
 
   // just holding the static value "1, 1".
   // could probably replace it later
@@ -13,15 +15,15 @@ export class Vector {
     return new Vector(scalar, scalar);
   }
 
-  static mutateX(vector: Vector, x: number): Vector {
-    return new Vector(x, vector.y);
+  static mutateX<T = number>(vector: Vector<T>, x: T): Vector<T> {
+    return new Vector<T>(x, vector.y);
   }
 
-  static mutateY(vector: Vector, y: number): Vector {
-    return new Vector(vector.x, y);
+  static mutateY<T = number>(vector: Vector<T>, y: T): Vector<T> {
+    return new Vector<T>(vector.x, y);
   }
 
-  constructor(readonly x: number, readonly y: number) {}
+  constructor(readonly x: T, readonly y: T) {}
 
   // the `s` suffix stands for scalar
 
@@ -57,7 +59,7 @@ export class Vector {
     return new Vector(self.x / scalar, self.y / scalar);
   }
 
-  static eq(self: Vector, other: Vector): boolean {
+  static eq<T = number>(self: Vector<T>, other: Vector<T>): boolean {
     return self.x === other.x && self.y === other.y;
   }
 
@@ -73,8 +75,16 @@ export class Vector {
     return new Vector(-v.x, -v.y);
   }
 
-  static swap(v: Vector): Vector {
-    return new Vector(v.y, v.x);
+  static swap<T = number>(v: Vector<T>): Vector<T> {
+    return new Vector<T>(v.y, v.x);
+  }
+
+  static and(left: Vector<boolean>, right: Vector<boolean>): Vector<boolean> {
+    return new Vector(left.x && right.x, left.y && right.y);
+  }
+
+  static map<T, U>(vector: Vector<T>, map: (data: T) => U): Vector<U> {
+    return new Vector(map(vector.x), map(vector.y));
   }
 
   /**
@@ -144,7 +154,7 @@ export class Vector {
     );
   }
 
-  static call(func: (...args: number[]) => number, ...args: Vector[]): Vector {
-    return new Vector(func(...args.map((v) => v.x)), func(...args.map((v) => v.y)));
+  static call<T = number, U = number>(func: (...args: T[]) => U, ...args: Vector<T>[]): Vector<U> {
+    return new Vector<U>(func(...args.map((v) => v.x)), func(...args.map((v) => v.y)));
   }
 }

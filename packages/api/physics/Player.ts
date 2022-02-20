@@ -108,6 +108,22 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   jumpCount = 0;
   /** @version eephysics This may be removed when the physics engine changes */
+  get x(): number {
+    return this.position.x;
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  set x(x: number) {
+    this.position = Vector.mutateX(this.position, x);
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  get y(): number {
+    return this.position.y;
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  set y(y: number) {
+    this.position = Vector.mutateY(this.position, y);
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
   waitedForInitialLongJump: "idle" | "waiting" | "jumped" = "idle";
   /** @version eephysics This may be removed when the physics engine changes */
   maxJumps = 1;

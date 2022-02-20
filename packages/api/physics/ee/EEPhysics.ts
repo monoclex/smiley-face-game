@@ -203,10 +203,17 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     if (!isFlying) {
-      let grounded = this.performStepping(self, current, currentGravityDirection);
+      let {
+        grounded,
+        position,
+        velocity: stepVelocity,
+      } = this.performStepping(self, self.position, velocity, current, currentGravityDirection);
+
+      velocity = stepVelocity;
+      self.position = position;
 
       // jumping
-      this.performJumping(
+      velocity = this.performJumping(
         self,
         grounded,
         currentGravityForce,
@@ -215,7 +222,7 @@ export class EEPhysics implements PhysicsSystem {
         velocity
       );
 
-      this.hoveringOver(self, self.centerEE.x, self.centerEE.y);
+      this.hoveringOver(self, self.centerEE);
     } else {
       self.position = Vector.add(self.position, velocity);
     }
@@ -225,7 +232,7 @@ export class EEPhysics implements PhysicsSystem {
     // sendMovement(cx, cy);
 
     // autoalign
-    this.performAutoalign(self, appliedForce);
+    self.position = this.performAutoalign(self.position, self.velocity, appliedForce);
   }
 
   private performSpeedDrag(
@@ -374,13 +381,21 @@ export class EEPhysics implements PhysicsSystem {
     return velocity;
   }
 
-  private performStepping(self: Player, current: number, currentGravityDirection: Vector) {
-    const speedX = self.speedX,
-      x = self.x,
+  private performStepping(
+    self: Player,
+    position: Vector,
+    velocity: Vector,
+    current: number,
+    currentGravityDirection: Vector
+  ) {
+    let keep = Vector.Ones;
+
+    const speedX = velocity.x,
+      x = position.x,
       factoryHorzState = () => ({ pos: x, remainder: x % 1, currentSpeed: speedX });
 
-    const speedY = self.speedY,
-      y = self.y,
+    const speedY = velocity.y,
+      y = position.y,
       factoryVertState = () => ({ pos: y, remainder: y % 1, currentSpeed: speedY });
 
     let horzGenState = factoryHorzState();
@@ -396,19 +411,19 @@ export class EEPhysics implements PhysicsSystem {
 
     const checkHorzCollision = () => {
       // if we are in collision with any blocks after stepping a singular pixel
-      self.x = horzGenState.pos;
-      self.y = vertGenState.pos;
-      if (this.playerIsInFourSurroundingBlocks(self)) {
+      if (
+        this.playerIsInFourSurroundingBlocks(self, { x: horzGenState.pos, y: vertGenState.pos })
+      ) {
         // if we are being pulled to the right,
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
         // we must be grounded!
-        if (self.speedX > 0 && currentGravityDirection.x > 0) grounded = true;
+        if (velocity.x > 0 && currentGravityDirection.x > 0) grounded = true;
         // same for the other direction
-        if (self.speedX < 0 && currentGravityDirection.x < 0) grounded = true;
+        if (velocity.x < 0 && currentGravityDirection.x < 0) grounded = true;
 
         // we ran into collision so we shouldn't move anymore
-        self.speedX = 0;
+        keep = Vector.mutateX(keep, 0);
 
         // reset our generator to right before it performed this tick
         horzGenState = factoryHorzState();
@@ -425,13 +440,13 @@ export class EEPhysics implements PhysicsSystem {
 
     // same as stepX
     const checkVertCollision = () => {
-      self.x = horzGenState.pos;
-      self.y = vertGenState.pos;
-      if (this.playerIsInFourSurroundingBlocks(self)) {
-        if (self.speedY > 0 && currentGravityDirection.y > 0) grounded = true;
-        if (self.speedY < 0 && currentGravityDirection.y < 0) grounded = true;
+      if (
+        this.playerIsInFourSurroundingBlocks(self, { x: horzGenState.pos, y: vertGenState.pos })
+      ) {
+        if (velocity.y > 0 && currentGravityDirection.y > 0) grounded = true;
+        if (velocity.y < 0 && currentGravityDirection.y < 0) grounded = true;
 
-        self.speedY = 0;
+        keep = Vector.mutateY(keep, 0);
 
         // reset our generator to right before it performed this tick
         vertGenState = factoryVertState();
@@ -460,10 +475,11 @@ export class EEPhysics implements PhysicsSystem {
       checkVertCollision();
     }
 
-    self.x = horzGenState.pos;
-    self.y = vertGenState.pos;
-
-    return grounded;
+    return {
+      position: new Vector(horzGenState.pos, vertGenState.pos),
+      velocity: Vector.mult(keep, velocity),
+      grounded,
+    };
   }
 
   *stepAlgo(current: number, me: { pos: number; remainder: number; currentSpeed: number }) {
@@ -526,17 +542,24 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  performAutoalign(self: Player, appliedForce: Vector) {
+  performAutoalign(position: Vector, velocity: Vector, appliedForce: Vector): Vector {
     const isSlowSpeed = (n: number) => Math.abs(n) < 1 / 256;
     const pullIsLow = (n: number) => Math.abs(n) < 0.1;
 
-    if (isSlowSpeed(self.speedX) && pullIsLow(appliedForce.x)) {
-      self.x = this.tryAutoAlign(self.x);
-    }
+    const slow = Vector.call((n) => isSlowSpeed(n), velocity);
+    const lowPull = Vector.call((n) => pullIsLow(n), appliedForce);
 
-    if (isSlowSpeed(self.speedY) && pullIsLow(appliedForce.y)) {
-      self.y = this.tryAutoAlign(self.y);
-    }
+    // TODO: maybe clean up this code a bit later
+    const isSlowAndLowPull = Vector.and(slow, lowPull);
+
+    const autoAligned = Vector.call(this.tryAutoAlign.bind(this), position);
+
+    const newPos = new Vector(
+      isSlowAndLowPull.x ? autoAligned.x : position.x,
+      isSlowAndLowPull.y ? autoAligned.y : position.y
+    );
+
+    return newPos;
   }
 
   tryAutoAlign(position: number): number {
@@ -582,9 +605,8 @@ export class EEPhysics implements PhysicsSystem {
     let position = new Vector(blockX, blockY);
 
     const eePos = Vector.mults(position, Config.blockSize);
+    self.position = eePos;
     self.velocity = Vector.Zero;
-    self.x = eePos.x;
-    self.y = eePos.y;
 
     let brokeEarly = false;
     let max = 10; // define arbitrarily high amount of times to iterate before stopping
@@ -601,16 +623,14 @@ export class EEPhysics implements PhysicsSystem {
         position.y >= this.world.size.y;
 
       const eePos = Vector.mults(position, Config.blockSize);
-      self.x = eePos.x;
-      self.y = eePos.y;
+      self.position = eePos;
 
       // if we're colliding with a solid block, we need to not to that
       if (collidingWithBorder || !this.noCollision(self, position.x, position.y)) {
         // go back
         position = originalPosition;
         const eePos = Vector.mults(position, Config.blockSize);
-        self.x = eePos.x;
-        self.y = eePos.y;
+        self.position = eePos;
 
         // do we have any other directions we could go?
         const nextDir = self.zoostQueue.shift();
@@ -625,7 +645,7 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       // perform actions (trigger keys/etc)
-      this.hoveringOver(self, self.x, self.y);
+      this.hoveringOver(self, self.position);
 
       if (self.isDead) {
         brokeEarly = true;
@@ -641,18 +661,19 @@ export class EEPhysics implements PhysicsSystem {
     }
   }
 
-  playerIsInFourSurroundingBlocks(self: Player): boolean {
+  playerIsInFourSurroundingBlocks(self: Player, position: Vector): boolean {
+    const SZ = 16;
     function rectInRect(px: number, py: number, tx: number, ty: number) {
       // lol, im lazy
-      tx *= 32;
-      ty *= 32;
+      tx *= SZ;
+      ty *= SZ;
 
       // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-      return px < tx + 32 && px + 32 > tx && py < ty + 32 && py + 32 > ty;
+      return px < tx + SZ && px + SZ > tx && py < ty + SZ && py + SZ > ty;
     }
 
-    const worldX = Math.floor(self.sfgPosition.x / 32);
-    const worldY = Math.floor(self.sfgPosition.y / 32);
+    const worldX = Math.floor(position.x / SZ);
+    const worldY = Math.floor(position.y / SZ);
 
     const maxX = this.world.size.x;
     const maxY = this.world.size.y;
@@ -665,10 +686,10 @@ export class EEPhysics implements PhysicsSystem {
     const has11 = has(worldX + 1, worldY + 1);
 
     return (
-      (has00 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX, worldY)) ||
-      (has10 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX + 1, worldY)) ||
-      (has01 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX, worldY + 1)) ||
-      (has11 && rectInRect(self.sfgPosition.x, self.sfgPosition.y, worldX + 1, worldY + 1))
+      (has00 && rectInRect(position.x, position.y, worldX, worldY)) ||
+      (has10 && rectInRect(position.x, position.y, worldX + 1, worldY)) ||
+      (has01 && rectInRect(position.x, position.y, worldX, worldY + 1)) ||
+      (has11 && rectInRect(position.x, position.y, worldX + 1, worldY + 1))
     );
   }
 
@@ -696,9 +717,9 @@ export class EEPhysics implements PhysicsSystem {
     return isPassthru(fgId) && isPassthru(actionId);
   }
 
-  hoveringOver(self: Player, inX: number, inY: number) {
-    const x = Math.floor(inX / Config.blockSize);
-    const y = Math.floor(inY / Config.blockSize);
+  hoveringOver(self: Player, position: Vector) {
+    const x = Math.floor(position.x / Config.blockSize);
+    const y = Math.floor(position.y / Config.blockSize);
 
     const maxX = this.world.size.x;
     const maxY = this.world.size.y;
@@ -789,11 +810,11 @@ export class EEPhysics implements PhysicsSystem {
 
     // lol this is such a hack
     const didUpdateInsideKey =
-      checkInsideKey(inX, inY) ||
-      checkInsideKey(inX - 16, inY - 16) ||
-      checkInsideKey(inX + 15.9, inY - 16) ||
-      checkInsideKey(inX - 16, inY + 15.9) ||
-      checkInsideKey(inX + 15.9, inY + 15.9);
+      checkInsideKey(position.x, position.y) ||
+      checkInsideKey(position.x - 16, position.y - 16) ||
+      checkInsideKey(position.x + 15.9, position.y - 16) ||
+      checkInsideKey(position.x - 16, position.y + 15.9) ||
+      checkInsideKey(position.x + 15.9, position.y + 15.9);
 
     if (!didUpdateInsideKey) {
       self.insideKeyBlock = [false, false];
