@@ -65,6 +65,15 @@ export class Vector<T = number> {
     return self.x === other.x && self.y === other.y;
   }
 
+  // less than vectors
+  static ltv(a: Vector, b: Vector): Vector<boolean> {
+    return new Vector(a.x < b.x, a.y < b.y);
+  }
+
+  static gtv(a: Vector, b: Vector): Vector<boolean> {
+    return new Vector(a.x > b.x, a.y > b.y);
+  }
+
   static floor(self: Vector): Vector {
     return new Vector(Math.floor(self.x), Math.floor(self.y));
   }

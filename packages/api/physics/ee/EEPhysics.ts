@@ -9,6 +9,7 @@ import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
 import { Config } from "./Config";
 import equal from "fast-deep-equal";
+import { Rectangle } from "../Rectangle";
 
 // half a second until alive
 const TIME_UNTIL_ALIVE = 250;
@@ -428,9 +429,7 @@ export class EEPhysics implements PhysicsSystem {
 
     const checkHorzCollision = () => {
       // if we are in collision with any blocks after stepping a singular pixel
-      if (
-        this.playerIsInFourSurroundingBlocks(self, { x: horzGenState.pos, y: vertGenState.pos })
-      ) {
+      if (this.playerIsColliding(self, { x: horzGenState.pos, y: vertGenState.pos })) {
         // if we are being pulled to the right,
         // but yet we still have speed to go right that was not yet applied
         // and we are also in collision with a block,
@@ -457,9 +456,7 @@ export class EEPhysics implements PhysicsSystem {
 
     // same as stepX
     const checkVertCollision = () => {
-      if (
-        this.playerIsInFourSurroundingBlocks(self, { x: horzGenState.pos, y: vertGenState.pos })
-      ) {
+      if (this.playerIsColliding(self, { x: horzGenState.pos, y: vertGenState.pos })) {
         if (velocity.y > 0 && currentGravityDirection.y > 0) grounded = true;
         if (velocity.y < 0 && currentGravityDirection.y < 0) grounded = true;
 
@@ -610,31 +607,15 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   performZoosts(self: Player, position: Vector, direction: Vector) {
-    // snap player to zoost
-
-    const eePos = Vector.mults(position, Config.blockSize);
-    self.position = eePos;
-
     let turns = 0;
     while (turns < 1) {
       const originalPosition = position;
       position = Vector.add(position, direction);
 
-      const collidingWithBorder =
-        position.x < 0 ||
-        position.y < 0 ||
-        position.x >= this.world.size.x ||
-        position.y >= this.world.size.y;
-
-      const eePos = Vector.mults(position, Config.blockSize);
-      self.position = eePos;
-
       // if we're colliding with a solid block, we need to not to that
-      if (collidingWithBorder || this.willCollide(self, position)) {
+      if (this.blockOutsideBounds(position) || this.willCollide(self, position)) {
         // go back
         position = originalPosition;
-        const eePos = Vector.mults(position, Config.blockSize);
-        self.position = eePos;
 
         // do we have any other directions we could go?
         const actionBlockOn = this.world.blockAt(position, TileLayer.Action);
@@ -648,7 +629,7 @@ export class EEPhysics implements PhysicsSystem {
       }
 
       // perform actions (trigger keys/etc)
-      this.triggerBlockAction(self, self.position);
+      this.triggerBlockAction(self, Vector.mults(position, Config.blockSize));
 
       if (self.isDead) {
         break;
@@ -656,40 +637,62 @@ export class EEPhysics implements PhysicsSystem {
     }
 
     self.position = Vector.mults(position, Config.blockSize);
-    // self.velocity = Vector.Zero;
   }
 
-  playerIsInFourSurroundingBlocks(self: Player, position: Vector): boolean {
-    const SZ = 16;
-    function rectInRect(px: number, py: number, tx: number, ty: number) {
-      // lol, im lazy
-      tx *= SZ;
-      ty *= SZ;
+  playerIsColliding(self: Player, position: Vector): boolean {
+    const corners = [
+      position,
+      new Vector(position.x + Config.blockSize, position.y),
+      new Vector(position.x, position.y + Config.blockSize),
+      Vector.adds(position, Config.blockSize),
+    ];
 
-      // https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
-      return px < tx + SZ && px + SZ > tx && py < ty + SZ && py + SZ > ty;
+    for (const position of corners) {
+      if (this.pointOutsideBounds(position)) {
+        return true;
+      }
     }
 
-    const worldX = Math.floor(position.x / SZ);
-    const worldY = Math.floor(position.y / SZ);
+    const surroundingBlocks = corners.map((position) => this.roundPositionToBlockCoords(position));
 
-    const maxX = this.world.size.x;
-    const maxY = this.world.size.y;
-    const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
+    const playerHitbox = new Rectangle(position, Vector.newScalar(Config.blockSize));
 
-    const has = (x: number, y: number) =>
-      inBounds(x, y) ? this.willCollide(self, { x, y }) : true;
-    const has00 = has(worldX, worldY);
-    const has10 = has(worldX + 1, worldY);
-    const has01 = has(worldX, worldY + 1);
-    const has11 = has(worldX + 1, worldY + 1);
+    for (const blockCoord of surroundingBlocks) {
+      if (this.blockOutsideBounds(blockCoord)) continue;
+      if (!this.willCollide(self, blockCoord)) continue;
 
+      // TODO: add more hitboxes for collision (e.g. slabs, stairs)
+      const blockPosition = Vector.mults(blockCoord, Config.blockSize);
+      const blockHitbox = new Rectangle(blockPosition, Vector.newScalar(Config.blockSize));
+
+      if (Rectangle.overlaps(playerHitbox, blockHitbox)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  blockOutsideBounds(blockCoord: Vector): boolean {
     return (
-      (has00 && rectInRect(position.x, position.y, worldX, worldY)) ||
-      (has10 && rectInRect(position.x, position.y, worldX + 1, worldY)) ||
-      (has01 && rectInRect(position.x, position.y, worldX, worldY + 1)) ||
-      (has11 && rectInRect(position.x, position.y, worldX + 1, worldY + 1))
+      blockCoord.x < 0 ||
+      blockCoord.y < 0 ||
+      blockCoord.x >= this.world.size.x ||
+      blockCoord.y >= this.world.size.y
     );
+  }
+
+  pointOutsideBounds(point: Vector): boolean {
+    return (
+      point.x < 0 ||
+      point.y < 0 ||
+      point.x > this.world.size.x * Config.blockSize ||
+      point.y > this.world.size.y * Config.blockSize
+    );
+  }
+
+  roundPositionToBlockCoords(position: Vector): Vector {
+    return Vector.floor(Vector.divs(position, Config.blockSize));
   }
 
   willCollide(self: Player, blockPosition: Vector): boolean {
@@ -724,10 +727,8 @@ export class EEPhysics implements PhysicsSystem {
     const maxY = this.world.size.y;
     const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
 
-    // wtf?
     if (!inBounds(x, y)) {
-      self.insideRedKey = false;
-      throw new Error(">????????<");
+      throw new Error("we should never be out of bounds");
     }
 
     const deco = this.world.blockAt({ x, y }, TileLayer.Decoration);
