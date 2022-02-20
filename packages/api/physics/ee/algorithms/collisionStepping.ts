@@ -1,6 +1,123 @@
 import { Player } from "../../Player";
 import { Vector } from "../../Vector";
 
+interface StepState {
+  /** how far off the player is from a single pixel, `x % 1` where x is 16 units per block */
+  pixelOffset: number;
+  position: number;
+  currentSpeed: number;
+}
+
+/**
+ * This is the algorithm used when stepping the player a single pixel at a time,
+ * checking for collisions along the way.
+ *
+ * Editors note: the algorithm for going to the right is implemented correctly,
+ * but going left is very buggy. This buggyness is intentionally left alone, so
+ * anything confusing about it is intentional.
+ *
+ * @param currentIsBoost Conditional that states whether the current block the
+ * player is on is a boost
+ */
+export function* stepAlgo(currentIsBoost: boolean, me: StepState) {
+  const goingRight = me.currentSpeed > 0;
+  if (goingRight) {
+    // align ourselves to the nearest pixel first, using speed to do so
+    if (me.currentSpeed + me.pixelOffset >= 1) {
+      me.position += 1 - me.pixelOffset;
+      me.position >>= 0;
+      me.currentSpeed -= 1 - me.pixelOffset;
+      yield;
+    }
+
+    // move a full pixel at a time
+    while (me.currentSpeed >= 1) {
+      me.position += 1;
+      me.position >>= 0;
+      me.currentSpeed -= 1;
+      yield;
+    }
+
+    // we don't have enough speed to move a full pixel, apply rest of speed
+    me.position += me.currentSpeed;
+    me.currentSpeed = 0;
+    yield;
+    return;
+  }
+
+  const goingLeft = me.currentSpeed < 0;
+  if (goingLeft) {
+    // hey! want to enable 4 block jump?
+    // remove this conditional!:
+    //  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    if (me.pixelOffset + me.currentSpeed < 0 && (me.pixelOffset !== 0 || currentIsBoost)) {
+      // align ourselves to the nearest pixel, using speed to do so
+      me.position -= me.pixelOffset;
+      me.position >>= 0;
+      me.currentSpeed += me.pixelOffset;
+      yield;
+
+      // while we can move a full pixel, move a full pixel
+      while (me.currentSpeed < -1) {
+        me.currentSpeed += 1;
+        me.position -= 1;
+        yield;
+      }
+
+      // consume the rest of our speed
+      me.position += me.currentSpeed;
+      me.currentSpeed = 0;
+      yield;
+    } else {
+      // consume all of our speed all at once! (wow!)
+      // why does ee do this? a hypothesis is that it's an optimzation
+      me.position += me.currentSpeed;
+      me.currentSpeed = 0;
+      yield;
+    }
+
+    return;
+  }
+}
+
+class StepAlgorithm {
+  generator!: Generator;
+  state!: StepState;
+  done: boolean = false;
+  collided: boolean = false;
+
+  private steps = 0;
+
+  constructor(readonly currentIsBoost: boolean, readonly initialState: StepState) {
+    this.init();
+  }
+
+  private init() {
+    this.state = { ...this.initialState };
+    this.generator = stepAlgo(this.currentIsBoost, this.state);
+  }
+
+  step() {
+    const result = this.generator.next();
+
+    if (result.done) {
+      this.done = true;
+    }
+
+    this.steps++;
+  }
+
+  back() {
+    // to step back a state, we replay the generator from the very beginning... lol
+    this.init();
+
+    this.steps--;
+    for (let step = 0; step < this.steps; step++) {
+      this.generator.next();
+    }
+  }
+}
+
 export function collisionStepping(
   checkIsColliding: (position: Vector) => boolean,
   position: Vector,
@@ -8,29 +125,22 @@ export function collisionStepping(
   currentGravityDirection: Vector,
   currentIsBoost: boolean
 ) {
-  let keep = Vector.Ones;
+  const steppers = Vector.map(
+    (position, currentSpeed) =>
+      new StepAlgorithm(currentIsBoost, { position, currentSpeed, pixelOffset: position % 1 }),
+    position,
+    velocity
+  );
 
-  const speedX = velocity.x,
-    x = position.x,
-    factoryHorzState = () => ({ pos: x, remainder: x % 1, currentSpeed: speedX });
-
-  const speedY = velocity.y,
-    y = position.y,
-    factoryVertState = () => ({ pos: y, remainder: y % 1, currentSpeed: speedY });
-
-  let horzGenState = factoryHorzState();
-  let vertGenState = factoryVertState();
-  const getPositionFromState = () => ({ x: horzGenState.pos, y: vertGenState.pos });
+  const getPositionFromState = () => Vector.map((stepper) => stepper.state.position, steppers);
 
   let grounded = false;
 
-  let horzStepper = stepAlgo(currentIsBoost, horzGenState);
-  let horzSteps = 0;
-
-  let vertStepper = stepAlgo(currentIsBoost, vertGenState);
-  let vertSteps = 0;
-
-  const checkCollision = (velocity: number, currentGravityDirection: number, reset: () => void) => {
+  const checkCollision = (
+    velocity: number,
+    currentGravityDirection: number,
+    stepper: StepAlgorithm
+  ) => {
     // if we are in collision with any blocks after stepping a singular pixel
     if (checkIsColliding(getPositionFromState())) {
       // if we are being pulled to the right,
@@ -41,118 +151,33 @@ export function collisionStepping(
       // same for the other direction
       if (velocity < 0 && currentGravityDirection < 0) grounded = true;
 
-      reset();
+      stepper.back();
+
+      stepper.collided = true;
+      stepper.done = true;
     }
   };
 
-  let doneX = false,
-    doneY = false;
+  const shouldStep = () => {
+    const results = Vector.map((stepper) => stepper.state.currentSpeed && !stepper.done, steppers);
+    return results.x || results.y;
+  };
 
-  // if we have x speed and we haven't collided yet (or same for y)
-  while ((horzGenState.currentSpeed && !doneX) || (vertGenState.currentSpeed && !doneY)) {
-    doneX = Boolean(horzStepper.next().done) || doneX;
-    horzSteps++;
-    checkCollision(velocity.x, currentGravityDirection.x, () => {
-      // we ran into collision so we shouldn't move anymore
-      keep = Vector.mutateX(keep, 0);
+  while (shouldStep()) {
+    steppers.x.step();
+    checkCollision(velocity.x, currentGravityDirection.x, steppers.x);
 
-      // reset our generator to right before it performed this tick
-      horzGenState = factoryHorzState();
-      horzStepper = stepAlgo(currentIsBoost, horzGenState);
-
-      horzSteps--;
-      for (let i = 0; i < horzSteps; i++) {
-        horzStepper.next();
-      }
-
-      doneX = true;
-    });
-
-    doneY = Boolean(vertStepper.next().done) || doneY;
-    vertSteps++;
-    checkCollision(velocity.y, currentGravityDirection.y, () => {
-      // we ran into collision so we shouldn't move anymore
-      keep = Vector.mutateY(keep, 0);
-
-      // reset our generator to right before it performed this tick
-      vertGenState = factoryVertState();
-      vertStepper = stepAlgo(currentIsBoost, vertGenState);
-
-      vertSteps--;
-      for (let i = 0; i < vertSteps; i++) {
-        vertStepper.next();
-      }
-
-      doneY = true;
-    });
+    steppers.y.step();
+    checkCollision(velocity.y, currentGravityDirection.y, steppers.y);
   }
+
+  // if they collided, discord the velocity (mutliply it by 0) - otherwise, multiply it by 1
+  const keep = Vector.map((stepper) => Number(!stepper.collided), steppers);
+  velocity = Vector.mult(keep, velocity);
 
   return {
     position: getPositionFromState(),
-    velocity: Vector.mult(keep, velocity),
+    velocity,
     grounded,
   };
-}
-
-export function* stepAlgo(
-  currentIsBoost: boolean,
-  me: { pos: number; remainder: number; currentSpeed: number }
-) {
-  // if we're going right
-  if (me.currentSpeed > 0) {
-    if (me.currentSpeed + me.remainder >= 1) {
-      me.pos += 1 - me.remainder;
-      me.pos >>= 0;
-      me.currentSpeed -= 1 - me.remainder;
-      yield;
-    }
-
-    while (me.currentSpeed >= 1) {
-      me.pos += 1;
-      me.pos >>= 0;
-      me.currentSpeed -= 1;
-      yield;
-    }
-
-    // we don't have enough speed to move a full pixel, apply rest of speed
-    me.pos += me.currentSpeed;
-    me.currentSpeed = 0;
-    yield;
-  }
-  // if we're going left
-  else if (me.currentSpeed < 0) {
-    // note about this section: ee weirdness: if you're perfectly pixel aligned,
-    // you consume all of your speed at once (lol)
-
-    // hey! want to enable 4 block jump?
-    // remove this conditional!:
-    //  vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    if (me.remainder + me.currentSpeed < 0 && (me.remainder !== 0 || currentIsBoost)) {
-      // clip ourselves to the nearest pixel
-      // me.pos = Math.trunc(me.pos);
-      // use up some speed for moving
-      // me.currentSpeed += me.remainder;
-      me.pos -= me.remainder;
-      me.pos >>= 0;
-      me.currentSpeed += me.remainder;
-      yield;
-
-      while (me.currentSpeed < -1) {
-        // while we can move a full pixel, move a full pixel
-        me.currentSpeed += 1;
-        me.pos -= 1;
-        yield;
-      }
-
-      // consume the rest of our speed
-      me.pos += me.currentSpeed;
-      me.currentSpeed = 0;
-      yield;
-    } else {
-      // consume all of our speed all at once! (wow!)
-      me.pos += me.currentSpeed;
-      me.currentSpeed = 0;
-      yield;
-    }
-  }
 }

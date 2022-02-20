@@ -13,11 +13,11 @@ export class Config {
      */
     variable_multiplyer: 7.752,
 
-    base_drag: Math.pow(0.9981, 10) * 1.00016093,
+    base_drag: Math.pow(0.9981, 10) * 1.00016093, // 0.9813195279915707
     ice_no_mod_drag: Math.pow(0.9993, 10) * 1.00016093,
     ice_drag: Math.pow(0.9998, 10) * 1.00016093,
     //Multiplyer when not applying force by userkeys
-    no_modifier_drag: Math.pow(0.99, 10) * 1.00016093,
+    no_modifier_drag: Math.pow(0.99, 10) * 1.00016093, // 0.9045276172161356
     water_drag: Math.pow(0.995, 10) * 1.00016093,
     mud_drag: Math.pow(0.975, 10) * 1.00016093,
     lava_drag: Math.pow(0.98, 10) * 1.00016093,

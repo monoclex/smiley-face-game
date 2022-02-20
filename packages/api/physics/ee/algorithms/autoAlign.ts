@@ -10,24 +10,25 @@ export function autoAlignVector(position: Vector, velocity: Vector, appliedForce
 }
 
 export function autoAlignValue(position: number, velocity: number, appliedForce: number): number {
+  // don't auto align if far away
   if (!isSlow(velocity) || !lowPull(appliedForce)) {
     return position;
   }
 
   const blockOffset = position % Config.blockSize;
 
-  const blockCoords = position / Config.blockSize;
-
-  const leftBlock = Math.floor(blockCoords) * Config.blockSize;
-  if (distance(leftBlock, position) < Config.physics.autoalign_snap_range) {
-    return leftBlock;
+  // snap if close to block
+  const leftEdge = 0;
+  if (distance(leftEdge, blockOffset) < Config.physics.autoalign_snap_range) {
+    return Math.floor(position);
   }
 
-  const rightBlock = Math.ceil(blockCoords) * Config.blockSize;
-  if (distance(rightBlock, position) < Config.physics.autoalign_snap_range) {
-    return rightBlock;
+  const rightEdge = Config.blockSize;
+  if (distance(rightEdge, blockOffset) < Config.physics.autoalign_snap_range) {
+    return Math.ceil(position);
   }
 
+  // nudge if not far from the block
   if (blockOffset < Config.physics.autoalign_range) {
     const nudge = -blockOffset / (Config.blockSize - 1);
     return position + nudge;
@@ -39,6 +40,6 @@ export function autoAlignValue(position: number, velocity: number, appliedForce:
     return position + nudge;
   }
 
-  // did not auto align
+  // too far to auto align
   return position;
 }

@@ -123,7 +123,7 @@ export class Player {
     this.position = Vector.mutateY(this.position, y);
   }
   /** @version eephysics This may be removed when the physics engine changes */
-  waitedForInitialLongJump: "idle" | "waiting" | "jumped" = "idle";
+  jumpTimes: "none" | "once" | "many" = "none";
   /** @version eephysics This may be removed when the physics engine changes */
   maxJumps = 1;
   /** @version eephysics This may be removed when the physics engine changes */
