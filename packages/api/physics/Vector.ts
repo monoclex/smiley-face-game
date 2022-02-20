@@ -1,3 +1,5 @@
+import clamp from "./clamp";
+
 export class Vector<T = number> {
   static readonly Zero: Vector = new Vector(0, 0);
   static readonly Up: Vector = new Vector(0, -1);
@@ -85,6 +87,10 @@ export class Vector<T = number> {
 
   static map<T, U>(map: (...args: T[]) => U, ...args: Vector<T>[]): Vector<U> {
     return new Vector(map(...args.map((v) => v.x)), map(...args.map((v) => v.y)));
+  }
+
+  static clamp(value: Vector, min: Vector, max: Vector): Vector {
+    return new Vector(clamp(value.x, min.x, max.x), clamp(value.y, min.y, max.y));
   }
 
   /**

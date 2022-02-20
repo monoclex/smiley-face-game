@@ -1,5 +1,6 @@
 import { Inputs } from "../game/Inputs";
 import { ZRole } from "../types";
+import { Config } from "./ee/Config";
 import { Vector } from "./Vector";
 
 // regarding physics variables:
@@ -165,13 +166,14 @@ export class Player {
    * Revives the player at a certain position (in block coordinates)
    * @version eephysics This may be removed when the physics engine changes
    */
-  revive(at: Vector) {
+  revive(at?: Vector) {
     this.velocity = Vector.Zero;
     this.isDead = false;
     this.queue = [0, 0];
 
-    // TODO: don't hardcode 32x32 world
-    this.sfgPosition = Vector.mults(at, 32);
+    if (at) {
+      this.position = Vector.mults(at, Config.blockSize);
+    }
   }
 
   shouldBeRevived(ticksAfterDeath: number): boolean {
@@ -196,7 +198,9 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   clearZoostQueue() {
-    this.zoostQueue = [];
+    if (this.zoostQueue.length > 0) {
+      this.zoostQueue = [];
+    }
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

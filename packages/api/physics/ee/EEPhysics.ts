@@ -74,20 +74,15 @@ export class EEPhysics implements PhysicsSystem {
   tickPlayer(player: Player) {
     const self = player;
 
-    // # if they're dead, don't perform ticks
+    if (self.isInGodMode) {
+      this.tickGodPlayer(self);
+      return;
+    }
+
     if (self.isDead) {
+      // TODO(ee-sync): is the player allowed to move on the tick they respawn?
       if (self.shouldBeRevived(this.ticksUntilAlive)) {
-        let respawn = Vector.SPAWN_LOCATION;
-
-        if (self.checkpoint) {
-          const { x, y } = self.checkpoint;
-
-          if (this.world.blockAt(x, y, TileLayer.Action) === this.ids.checkpoint) {
-            respawn = self.checkpoint;
-          }
-        }
-
-        self.revive(respawn);
+        self.revive(this.getRespawnLocation(self));
       } else {
         return;
       }
@@ -121,35 +116,27 @@ export class EEPhysics implements PhysicsSystem {
       self.pushZoostQueue(this.zoostDirToVec(current));
     }
 
-    // don't process zoosts if we're in god mode
-    const isFlying = self.isInGodMode;
-    if (isFlying) {
-      self.clearZoostQueue();
-    }
-
     let currentGravityDirection = Vector.Zero,
       delayedGravityDirection = Vector.Zero;
 
-    if (!isFlying) {
-      let direction = self.zoostQueue.shift();
-      if (direction != null) {
-        this.performZoosts(self, blockX, blockY, direction);
-        return;
-      }
-
-      currentGravityDirection = this.getGraviationalPull(current);
-
-      if (
-        current == this.ids.spikeUp ||
-        current == this.ids.spikeRight ||
-        current == this.ids.spikeDown ||
-        current == this.ids.spikeLeft
-      ) {
-        self.kill();
-      }
-
-      delayedGravityDirection = this.getGraviationalPull(delayed);
+    let direction = self.zoostQueue.shift();
+    if (direction != null) {
+      this.performZoosts(self, blockX, blockY, direction);
+      return;
     }
+
+    currentGravityDirection = this.getGraviationalPull(current);
+
+    if (
+      current == this.ids.spikeUp ||
+      current == this.ids.spikeRight ||
+      current == this.ids.spikeDown ||
+      current == this.ids.spikeLeft
+    ) {
+      self.kill();
+    }
+
+    delayedGravityDirection = this.getGraviationalPull(delayed);
 
     const horizontalInput = Number(self.input.right) - Number(self.input.left);
     const verticalInput = Number(self.input.down) - Number(self.input.up);
@@ -183,47 +170,89 @@ export class EEPhysics implements PhysicsSystem {
     // the previous section was for the physics direction we're trying to go in
     // here, we apply this regardless of what the previous section has done because
     // boost's gravity overtakes regular gravity
-    if (!isFlying) {
-      const appliedForce = this.getAppliedForceOf(current);
+    const requiredForce = this.getRequiredForce(current);
+    velocity = Vector.substituteZeros(requiredForce, velocity);
 
-      velocity = Vector.substituteZeros(appliedForce, velocity);
-
-      if (self.isDead) {
-        velocity = Vector.Zero;
-      }
+    if (self.isDead) {
+      velocity = Vector.Zero;
     }
 
-    if (!isFlying) {
-      let {
-        grounded,
-        position,
-        velocity: stepVelocity,
-      } = this.performStepping(self, self.position, velocity, current, currentGravityDirection);
+    let {
+      grounded,
+      position,
+      velocity: stepVelocity,
+    } = this.performStepping(self, self.position, velocity, current, currentGravityDirection);
 
-      velocity = stepVelocity;
-      self.position = position;
+    velocity = stepVelocity;
+    self.position = position;
 
-      // jumping
-      velocity = this.performJumping(
-        self,
-        grounded,
-        currentGravityForce,
-        currentGravityDirection,
-        delayedGravityDirection,
-        velocity
-      );
+    // jumping
+    velocity = this.performJumping(
+      self,
+      grounded,
+      currentGravityForce,
+      currentGravityDirection,
+      delayedGravityDirection,
+      velocity
+    );
 
-      this.triggerBlockAction(self, self.center);
-    } else {
-      self.position = Vector.add(self.position, velocity);
-    }
+    this.triggerBlockAction(self, self.center);
 
     self.velocity = velocity;
 
-    // sendMovement(cx, cy);
-
     // autoalign
     self.position = this.performAutoalign(self.position, self.velocity, appliedForce);
+  }
+
+  private getRespawnLocation(self: Player) {
+    let respawn = Vector.SPAWN_LOCATION;
+
+    if (self.checkpoint) {
+      const { x, y } = self.checkpoint;
+
+      if (this.world.blockAt(x, y, TileLayer.Action) === this.ids.checkpoint) {
+        respawn = self.checkpoint;
+      }
+    }
+    return respawn;
+  }
+
+  /**
+   * God mode players have a different enough routine to warrant putting their
+   * code into another function.
+   */
+  tickGodPlayer(player: Player) {
+    const self = player;
+
+    if (self.isDead) {
+      self.revive();
+    }
+
+    self.clearZoostQueue();
+
+    const horizontalInput = Number(self.input.right) - Number(self.input.left);
+    const verticalInput = Number(self.input.down) - Number(self.input.up);
+    self.isSpaceJustPressed = self.isSpaceDown = false;
+
+    const movementDirection = new Vector(horizontalInput, verticalInput);
+    const playerForce = Vector.mults(movementDirection, self.speedMult);
+    const appliedForce = Vector.divs(playerForce, Config.physics.variable_multiplyer);
+
+    let position = self.position;
+    let velocity = Vector.map(
+      this.performSpeedDrag.bind(this),
+      self.velocity,
+      appliedForce,
+      movementDirection,
+      Vector.Zero
+    );
+
+    position = Vector.add(position, velocity);
+    position = Vector.clamp(position, Vector.Zero, Vector.mults(this.world.size, Config.blockSize));
+    position = this.performAutoalign(position, velocity, appliedForce);
+
+    self.position = position;
+    self.velocity = velocity;
   }
 
   private performSpeedDrag(
@@ -683,7 +712,7 @@ export class EEPhysics implements PhysicsSystem {
 
   willCollide(self: Player, blockPosition: Vector): boolean {
     if (self.isInGodMode) {
-      return false;
+      throw new Error("this is impossible because we only check collisions in not-god-mode");
     }
 
     const { x, y } = blockPosition;
@@ -918,7 +947,7 @@ export class EEPhysics implements PhysicsSystem {
   // so basically boosts while they don't have "gravity" (so they technically
   // aren't pulling you in a direction) have an amount of force they apply instead
   // to the player.
-  getAppliedForceOf(block: number) {
+  getRequiredForce(block: number) {
     const MAX_SPEED = 16;
 
     switch (block) {
