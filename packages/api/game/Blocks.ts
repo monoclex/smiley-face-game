@@ -81,7 +81,7 @@ export class Blocks {
     return true;
   }
 
-  blockAt(x: number, y: number, tileLayer: TileLayer): number {
+  blockAt({ x, y }: Vector, tileLayer: TileLayer): number {
     return this.state.get(tileLayer, x, y);
   }
 

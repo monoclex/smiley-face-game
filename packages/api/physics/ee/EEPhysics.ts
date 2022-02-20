@@ -88,15 +88,11 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    const worldPosition = self.worldPosition;
-    const blockX = worldPosition.x;
-    const blockY = worldPosition.y;
-
     // the queue `self.queue` gives the game a bouncier feel
     // if we didn't have this here, holding "up" on dots or standing on up arrows
     // would not have you swing between two blocks - you would be right on the edge
     // of the dot and the air, or the arrow and the air.
-    const current = this.world.blockAt(blockX, blockY, TileLayer.Action);
+    const current = this.world.blockAt(self.worldPosition, TileLayer.Action);
 
     let delayed: number;
     if (current === this.ids.dot) {
@@ -121,7 +117,7 @@ export class EEPhysics implements PhysicsSystem {
 
     let direction = self.zoostQueue.shift();
     if (direction != null) {
-      this.performZoosts(self, blockX, blockY, direction);
+      this.performZoosts(self, self.worldPosition, direction);
       return;
     }
 
@@ -205,16 +201,14 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private getRespawnLocation(self: Player) {
-    let respawn = Vector.SPAWN_LOCATION;
-
-    if (self.checkpoint) {
-      const { x, y } = self.checkpoint;
-
-      if (this.world.blockAt(x, y, TileLayer.Action) === this.ids.checkpoint) {
-        respawn = self.checkpoint;
-      }
+    if (
+      self.checkpoint &&
+      this.world.blockAt(self.checkpoint, TileLayer.Action) === this.ids.checkpoint
+    ) {
+      return self.checkpoint;
     }
-    return respawn;
+
+    return Vector.SPAWN_LOCATION;
   }
 
   /**
@@ -618,7 +612,7 @@ export class EEPhysics implements PhysicsSystem {
     return position;
   }
 
-  performZoosts(self: Player, blockX: number, blockY: number, direction: Vector) {
+  performZoosts(self: Player, { x: blockX, y: blockY }: Vector, direction: Vector) {
     // snap player to zoost
     let position = new Vector(blockX, blockY);
 
@@ -717,9 +711,8 @@ export class EEPhysics implements PhysicsSystem {
       throw new Error("this is impossible because we only check collisions in not-god-mode");
     }
 
-    const { x, y } = blockPosition;
-    const fgId = this.world.blockAt(x, y, TileLayer.Foreground);
-    const actionId = this.world.blockAt(x, y, TileLayer.Action);
+    const fgId = this.world.blockAt(blockPosition, TileLayer.Foreground);
+    const actionId = this.world.blockAt(blockPosition, TileLayer.Action);
 
     const [isInsideKeyBlock, redKeyTouchedState] = self.insideKeyBlock;
 
@@ -751,11 +744,11 @@ export class EEPhysics implements PhysicsSystem {
       throw new Error(">????????<");
     }
 
-    const deco = this.world.blockAt(x, y, TileLayer.Decoration);
+    const deco = this.world.blockAt({ x, y }, TileLayer.Decoration);
 
     this.handleActionSigns(deco, position, self, x, y);
 
-    const actionBlock = this.world.blockAt(x, y, TileLayer.Action);
+    const actionBlock = this.world.blockAt({ x, y }, TileLayer.Action);
 
     this.handleActionCheckpoints(actionBlock, x, y, self);
     this.handleActionSpikes(actionBlock, self);
@@ -846,7 +839,7 @@ export class EEPhysics implements PhysicsSystem {
       y = Math.floor(y / Config.blockSize);
       if (!inBounds(x, y)) return false;
 
-      const foregroundBlock = this.world.blockAt(x, y, TileLayer.Foreground);
+      const foregroundBlock = this.world.blockAt({ x, y }, TileLayer.Foreground);
       if (this.ids.keysRedDoor === foregroundBlock || this.ids.keysRedGate === foregroundBlock) {
         const [prevInsideKeyBlock, _] = self.insideKeyBlock;
 
