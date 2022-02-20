@@ -12,4 +12,20 @@ export class Rectangle {
 
     return overlaps.x && overlaps.y;
   }
+
+  static pointInside(rectangle: Rectangle, point: Vector) {
+    const inside = Vector.and(
+      Vector.gev(point, rectangle.position),
+      Vector.lev(point, Vector.add(rectangle.position, rectangle.size))
+    );
+
+    return inside.x && inside.y;
+  }
+
+  static mults(rectangle: Rectangle, scalar: number): Rectangle {
+    return new Rectangle(
+      Vector.mults(rectangle.position, scalar),
+      Vector.mults(rectangle.size, scalar)
+    );
+  }
 }

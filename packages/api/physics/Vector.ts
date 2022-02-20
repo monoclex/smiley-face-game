@@ -73,6 +73,13 @@ export class Vector<T = number> {
   static gtv(a: Vector, b: Vector): Vector<boolean> {
     return new Vector(a.x > b.x, a.y > b.y);
   }
+  static lev(a: Vector, b: Vector): Vector<boolean> {
+    return new Vector(a.x <= b.x, a.y <= b.y);
+  }
+
+  static gev(a: Vector, b: Vector): Vector<boolean> {
+    return new Vector(a.x >= b.x, a.y >= b.y);
+  }
 
   static floor(self: Vector): Vector {
     return new Vector(Math.floor(self.x), Math.floor(self.y));

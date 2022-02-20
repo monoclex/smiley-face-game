@@ -14,11 +14,15 @@ import { autoAlignVector } from "./algorithms/autoAlign";
 import { calculateDragVector } from "./algorithms/calculateDrag";
 import { collisionStepping } from "./algorithms/collisionStepping";
 import { performJumping } from "./algorithms/jumping";
+import { performZoosts } from "./algorithms/zoosts";
 
 // half a second until alive
 const TIME_UNTIL_ALIVE = 250;
 
+// for the reference EE physics implementation, see here:
 // https://github.com/Seb-135/ee-offline/blob/main/src/Player.as
+// the physics code in SFG has been completely rewritten from scratch but keeps
+// all of the bugs and quirks the original EE physics code has
 export class EEPhysics implements PhysicsSystem {
   readonly optimalTickRate: number;
   readonly events = createNanoEvents<PhysicsEvents>();
@@ -95,13 +99,12 @@ export class EEPhysics implements PhysicsSystem {
 
     const { current, delayed } = this.getPhysicsBlockOn(self);
 
-    // if we're on a zoost, push the direction it's in to the queue
-    if (this.isZoost(current)) {
-      this.performZoosts(self, self.worldPosition, this.zoostDirToVec(current));
+    if (this.ids.isZoost(current)) {
+      this.performZoosts(self, self.worldPosition, this.ids.zoostDirToVec(current));
       return;
     }
 
-    if (this.isSpikes(current)) {
+    if (this.ids.isSpikes(current)) {
       self.kill();
       return;
     }
@@ -109,8 +112,8 @@ export class EEPhysics implements PhysicsSystem {
     let position = self.position;
     let velocity = self.velocity;
 
-    const currentGravityDirection = this.getGraviationalPull(current);
-    const delayedGravityDirection = this.getGraviationalPull(delayed);
+    const currentGravityDirection = this.ids.getGraviationalPull(current);
+    const delayedGravityDirection = this.ids.getGraviationalPull(delayed);
 
     const horizontalInput = Number(self.input.right) - Number(self.input.left);
     const verticalInput = Number(self.input.down) - Number(self.input.up);
@@ -128,23 +131,20 @@ export class EEPhysics implements PhysicsSystem {
     const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
     const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
 
-    // applied force is the force that will be applied to the player
-    const appliedForce = Vector.divs(
+    const forceAppliedToPlayer = Vector.divs(
       Vector.add(playerForce, delayedGravityForce),
       Config.physics.variable_multiplyer
     );
 
     velocity = calculateDragVector(
       velocity,
-      appliedForce,
+      forceAppliedToPlayer,
       movementDirection,
       currentGravityDirection
     );
 
-    // the previous section was for the physics direction we're trying to go in
-    // here, we apply this regardless of what the previous section has done because
-    // boost's gravity overtakes regular gravity
-    const requiredForce = this.getRequiredForce(current);
+    // override any force calculations if we're in boosts
+    const requiredForce = this.ids.getRequiredForce(current);
     velocity = Vector.substituteZeros(requiredForce, velocity);
 
     let {
@@ -156,7 +156,7 @@ export class EEPhysics implements PhysicsSystem {
       position,
       velocity,
       currentGravityDirection,
-      this.isBoost(current)
+      this.ids.isBoost(current)
     );
 
     position = stepPosition;
@@ -171,13 +171,23 @@ export class EEPhysics implements PhysicsSystem {
       velocity
     );
 
-    position = autoAlignVector(position, velocity, appliedForce);
+    position = autoAlignVector(position, velocity, forceAppliedToPlayer);
 
     self.position = position;
     self.velocity = velocity;
     this.triggerBlockAction(self, self.center);
   }
 
+  /**
+   * In EE physics, there is the concept of the `current` and `delayed` physics
+   * blocks.
+   *
+   * The `current` physics block is the block you're currently standing
+   * on, as of the current tick.
+   *
+   * The `delayed` physics block is the block you *were* standing on, as of two
+   * to three ticks ago.
+   */
   private getPhysicsBlockOn(self: Player) {
     // the queue `self.queue` gives the game a bouncier feel
     // if we didn't have this here, holding "up" on dots or standing on up arrows
@@ -244,36 +254,26 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   performZoosts(self: Player, position: Vector, direction: Vector) {
-    let turns = 0;
-    while (turns < 1) {
-      const originalPosition = position;
-      position = Vector.add(position, direction);
+    const checkCollision = (position: Vector) =>
+      this.blockOutsideBounds(position) || this.willCollide(self, position);
 
-      // if we're colliding with a solid block, we need to not to that
-      if (this.blockOutsideBounds(position) || this.willCollide(self, position)) {
-        // go back
-        position = originalPosition;
+    const interactionPositions = performZoosts(
+      checkCollision,
+      this.world,
+      this.ids,
+      self,
+      position,
+      direction
+    );
 
-        // do we have any other directions we could go?
-        const actionBlockOn = this.world.blockAt(position, TileLayer.Action);
-        if (this.isZoost(actionBlockOn)) {
-          direction = this.zoostDirToVec(actionBlockOn);
-          turns++;
-          continue;
-        }
+    let next = interactionPositions.next();
 
-        break;
-      }
-
-      // perform actions (trigger keys/etc)
-      this.triggerBlockAction(self, Vector.mults(position, Config.blockSize));
-
-      if (self.isDead) {
-        break;
-      }
+    while (!next.done) {
+      this.triggerBlockAction(self, Vector.mults(next.value, Config.blockSize));
+      next = interactionPositions.next();
     }
 
-    self.position = Vector.mults(position, Config.blockSize);
+    self.position = next.value;
   }
 
   playerIsColliding(self: Player, position: Vector): boolean {
@@ -320,17 +320,14 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   pointOutsideBounds(point: Vector): boolean {
-    return (
-      point.x < 0 ||
-      point.y < 0 ||
-      point.x > this.world.size.x * Config.blockSize ||
-      point.y > this.world.size.y * Config.blockSize
-    );
+    return !Rectangle.pointInside(Rectangle.mults(this.world.bounds, Config.blockSize), point);
   }
 
   roundPositionToBlockCoords(position: Vector): Vector {
     return Vector.floor(Vector.divs(position, Config.blockSize));
   }
+
+  // TODO: below this point still needs cleaning
 
   willCollide(self: Player, blockPosition: Vector): boolean {
     if (self.isInGodMode) {
@@ -423,7 +420,7 @@ export class EEPhysics implements PhysicsSystem {
   }
 
   private handleActionSpikes(actionBlock: number, self: Player) {
-    if (this.isSpikes(actionBlock)) {
+    if (this.ids.isSpikes(actionBlock)) {
       self.kill();
     }
   }
@@ -480,101 +477,6 @@ export class EEPhysics implements PhysicsSystem {
 
     if (prev[0] !== current[0]) {
       this.events.emit("moveOutOfKeys", self);
-    }
-  }
-
-  /**
-   * The gravitational pull of a block will not only apply a force to the player,
-   * it will also determine the axis that the player is allowed to jump against.
-   */
-  getGraviationalPull(blockId: number) {
-    // boosts (and dots) are considered to have no gravitational pull
-    // as we do not want to allow the player to jump in any axis.
-    switch (blockId) {
-      case this.ids.boostUp:
-      case this.ids.boostRight:
-      case this.ids.boostLeft:
-      case this.ids.boostDown:
-        return Vector.Zero;
-
-      case this.ids.arrowUp:
-        return Vector.Up;
-      case this.ids.arrowRight:
-        return Vector.Right;
-      case this.ids.arrowLeft:
-        return Vector.Left;
-      case this.ids.arrowDown:
-        return Vector.Down;
-
-      case this.ids.dot:
-        return Vector.Zero;
-
-      // TODO(feature-gravity-effect): change default direction depending upon
-      //   gravity effect direction
-      default:
-        return Vector.Down;
-    }
-  }
-
-  zoostDirToVec(zoostId: number) {
-    switch (zoostId) {
-      case this.ids.zoostUp:
-        return Vector.Up;
-      case this.ids.zoostRight:
-        return Vector.Right;
-      case this.ids.zoostDown:
-        return Vector.Down;
-      case this.ids.zoostLeft:
-        return Vector.Left;
-      default:
-        throw new Error("called `zoostDirToVec` without zoost");
-    }
-  }
-
-  private isSpikes(current: number) {
-    return (
-      current == this.ids.spikeUp ||
-      current == this.ids.spikeRight ||
-      current == this.ids.spikeDown ||
-      current == this.ids.spikeLeft
-    );
-  }
-
-  isZoost(id: number) {
-    return (
-      id == this.ids.zoostUp ||
-      id == this.ids.zoostRight ||
-      id == this.ids.zoostDown ||
-      id == this.ids.zoostLeft
-    );
-  }
-
-  isBoost(id: number) {
-    return (
-      id == this.ids.boostUp ||
-      id == this.ids.boostRight ||
-      id == this.ids.boostLeft ||
-      id == this.ids.boostDown
-    );
-  }
-
-  // so basically boosts while they don't have "gravity" (so they technically
-  // aren't pulling you in a direction) have an amount of force they apply instead
-  // to the player.
-  getRequiredForce(block: number) {
-    const MAX_SPEED = 16;
-
-    switch (block) {
-      case this.ids.boostUp:
-        return Vector.mults(Vector.Up, MAX_SPEED);
-      case this.ids.boostRight:
-        return Vector.mults(Vector.Right, MAX_SPEED);
-      case this.ids.boostDown:
-        return Vector.mults(Vector.Down, MAX_SPEED);
-      case this.ids.boostLeft:
-        return Vector.mults(Vector.Left, MAX_SPEED);
-      default:
-        return Vector.Zero;
     }
   }
 }
