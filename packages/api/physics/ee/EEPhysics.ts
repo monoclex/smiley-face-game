@@ -88,24 +88,7 @@ export class EEPhysics implements PhysicsSystem {
       }
     }
 
-    // the queue `self.queue` gives the game a bouncier feel
-    // if we didn't have this here, holding "up" on dots or standing on up arrows
-    // would not have you swing between two blocks - you would be right on the edge
-    // of the dot and the air, or the arrow and the air.
-    const current = this.world.blockAt(self.worldPosition, TileLayer.Action);
-
-    let delayed: number;
-    if (current === this.ids.dot) {
-      // this is here to make dots grab more
-      // if you remove this, then holding up on dots will make you fall
-      // this is because dots are in the queue less
-
-      delayed = self.queue[1];
-      self.queue = [current, current];
-    } else {
-      delayed = self.queue.shift()!;
-      self.queue.push(current);
-    }
+    const { current, delayed } = this.getPhysicsBlockOn(self);
 
     // if we're on a zoost, push the direction it's in to the queue
     if (this.isZoost(current)) {
@@ -113,21 +96,16 @@ export class EEPhysics implements PhysicsSystem {
       return;
     }
 
-    let currentGravityDirection = Vector.Zero,
-      delayedGravityDirection = Vector.Zero;
-
-    currentGravityDirection = this.getGraviationalPull(current);
-
-    if (
-      current == this.ids.spikeUp ||
-      current == this.ids.spikeRight ||
-      current == this.ids.spikeDown ||
-      current == this.ids.spikeLeft
-    ) {
+    if (this.isSpikes(current)) {
       self.kill();
+      return;
     }
 
-    delayedGravityDirection = this.getGraviationalPull(delayed);
+    let position = self.position;
+    let velocity = self.velocity;
+
+    const currentGravityDirection = this.getGraviationalPull(current);
+    const delayedGravityDirection = this.getGraviationalPull(delayed);
 
     const horizontalInput = Number(self.input.right) - Number(self.input.left);
     const verticalInput = Number(self.input.down) - Number(self.input.up);
@@ -145,14 +123,15 @@ export class EEPhysics implements PhysicsSystem {
     const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
     const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
 
+    // applied force is the force that will be applied to the player
     const appliedForce = Vector.divs(
       Vector.add(playerForce, delayedGravityForce),
       Config.physics.variable_multiplyer
     );
 
-    let velocity = Vector.map(
+    velocity = Vector.map(
       this.performSpeedDrag.bind(this),
-      self.velocity,
+      velocity,
       appliedForce,
       movementDirection,
       Vector.swap(currentGravityDirection)
@@ -164,20 +143,15 @@ export class EEPhysics implements PhysicsSystem {
     const requiredForce = this.getRequiredForce(current);
     velocity = Vector.substituteZeros(requiredForce, velocity);
 
-    if (self.isDead) {
-      velocity = Vector.Zero;
-    }
-
     let {
       grounded,
-      position,
+      position: stepPosition,
       velocity: stepVelocity,
-    } = this.performStepping(self, self.position, velocity, current, currentGravityDirection);
+    } = this.performStepping(self, position, velocity, current, currentGravityDirection);
 
+    position = stepPosition;
     velocity = stepVelocity;
-    self.position = position;
 
-    // jumping
     velocity = this.performJumping(
       self,
       grounded,
@@ -187,12 +161,42 @@ export class EEPhysics implements PhysicsSystem {
       velocity
     );
 
-    this.triggerBlockAction(self, self.center);
+    position = this.performAutoalign(position, velocity, appliedForce);
 
+    self.position = position;
     self.velocity = velocity;
+    this.triggerBlockAction(self, self.center);
+  }
 
-    // autoalign
-    self.position = this.performAutoalign(self.position, self.velocity, appliedForce);
+  private isSpikes(current: number) {
+    return (
+      current == this.ids.spikeUp ||
+      current == this.ids.spikeRight ||
+      current == this.ids.spikeDown ||
+      current == this.ids.spikeLeft
+    );
+  }
+
+  private getPhysicsBlockOn(self: Player) {
+    // the queue `self.queue` gives the game a bouncier feel
+    // if we didn't have this here, holding "up" on dots or standing on up arrows
+    // would not have you swing between two blocks - you would be right on the edge
+    // of the dot and the air, or the arrow and the air.
+    const current = this.world.blockAt(self.worldPosition, TileLayer.Action);
+
+    let delayed: number;
+    if (current === this.ids.dot) {
+      // this is here to make dots grab more
+      // if you remove this, then holding up on dots will make you fall
+      // this is because dots are in the queue less
+      delayed = self.queue[1];
+      self.queue = [current, current];
+    } else {
+      delayed = self.queue.shift()!;
+      self.queue.push(current);
+    }
+
+    return { current, delayed };
   }
 
   private getRespawnLocation(self: Player) {
