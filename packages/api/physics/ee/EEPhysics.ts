@@ -3,7 +3,7 @@ import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
 import { TileLayer } from "../../types";
-import { PhysicsEvents, PhysicsSystem } from "../PhysicsSystem";
+import { PhysicsEvents } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
 import { BlockIdCache } from "./BlockIdCache";
@@ -23,7 +23,7 @@ const TIME_UNTIL_ALIVE = 250;
 // https://github.com/Seb-135/ee-offline/blob/main/src/Player.as
 // the physics code in SFG has been completely rewritten from scratch but keeps
 // all of the bugs and quirks the original EE physics code has
-export class EEPhysics implements PhysicsSystem {
+export class EEPhysics {
   readonly optimalTickRate: number;
   readonly events = createNanoEvents<PhysicsEvents>();
 

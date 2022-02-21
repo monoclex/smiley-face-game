@@ -21,22 +21,3 @@ export interface PhysicsEvents {
 
   checkpoint(player: Player, position: Vector): void;
 }
-
-export interface PhysicsSystem {
-  /**
-   * Specifies an optimal tick rate, in milliseconds per tick.
-   */
-  readonly optimalTickRate: number;
-
-  readonly events: Emitter<PhysicsEvents>;
-
-  readonly ticks: number;
-
-  readonly redKeyOn: boolean;
-
-  update(elapsedMs: number, players: Player[]): void;
-
-  triggerKey(kind: "red", deactivateTime: number, player: Player): void;
-
-  updatePlayer(movement: ZSMovement, player: Player): void;
-}

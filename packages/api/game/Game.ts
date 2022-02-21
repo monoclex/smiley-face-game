@@ -2,7 +2,6 @@ import { ZSPacket } from "..";
 import type { ZSEvent, ZSInit, ZSWorldAction } from "../packets";
 import { Blocks } from "./Blocks";
 import { EEPhysics } from "../physics/ee/EEPhysics";
-import { PhysicsSystem } from "../physics/PhysicsSystem";
 import { Players } from "./Players";
 import { Vector } from "../physics/Vector";
 import TileRegistration from "../tiles/TileRegistration";
@@ -18,14 +17,14 @@ export class Game {
   readonly tiles: TileRegistration;
   readonly players: Players;
   readonly blocks: Blocks;
-  readonly physics: PhysicsSystem;
+  readonly physics: EEPhysics;
 
   // static new(): Game {}
 
   constructor(tiles: TileRegistration, init: ZSInit);
-  constructor(tiles: TileRegistration, players: Players, blocks: Blocks, physics: PhysicsSystem);
+  constructor(tiles: TileRegistration, players: Players, blocks: Blocks, physics: EEPhysics);
 
-  constructor(tiles: TileRegistration, a: Players | ZSInit, b?: Blocks, c?: PhysicsSystem) {
+  constructor(tiles: TileRegistration, a: Players | ZSInit, b?: Blocks, c?: EEPhysics) {
     if (a instanceof Players && b != null && c != null) {
       this.tiles = tiles;
       this.players = a;
