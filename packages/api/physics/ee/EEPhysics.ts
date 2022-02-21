@@ -29,18 +29,15 @@ export class EEPhysics {
   readonly events = createNanoEvents<PhysicsEvents>();
 
   ticks = 0;
-  private tickRedDisabled = 0;
   start = Date.now();
 
   private ids: BlockIdCache;
 
-  lastRedKeyOn = this.redKeyOn;
   get redKeyOn() {
-    return this.ticks < this.tickRedDisabled;
+    return this.collisionStates.willCollideWith("redkey", this.ticks);
   }
 
   collisionStates = new CollisionStates();
-  collidedWith = new DifferentialSet<StateStorageKey>();
   collidedChanges = new DifferentialRecord<StateStorageKey, boolean>();
 
   private readonly ticksUntilAlive: number;
@@ -54,16 +51,22 @@ export class EEPhysics {
   update(elapsedMs: number, players: Player[]) {
     while ((this.ticks + 1) * this.optimalTickRate <= elapsedMs) {
       this.tick(players);
+    }
+  }
 
-      if (this.lastRedKeyOn !== this.redKeyOn) {
-        this.events.emit("keyState", "red", this.redKeyOn);
-        this.lastRedKeyOn = this.redKeyOn;
-      }
+  handleChangesToCollisions() {
+    const changes = this.collidedChanges.update(
+      this.collisionStates.getCollisionStates(this.ticks)
+    );
+
+    for (const [change, key] of changes) {
+      this.events.emit("keyState", "red", this.collisionStates.willCollideWith(key, this.ticks));
     }
   }
 
   triggerKey(kind: "red", deactivateTime: number, player: Player): void {
-    this.tickRedDisabled = Math.ceil((deactivateTime - this.start) / this.optimalTickRate);
+    const tickDisablesAt = Math.ceil((deactivateTime - this.start) / this.optimalTickRate);
+    this.collisionStates.setCollisionOffOnTick("redkey", tickDisablesAt);
   }
 
   updatePlayer(movement: ZSMovement, player: Player): void {
@@ -82,6 +85,7 @@ export class EEPhysics {
       player.ticks++;
     }
 
+    this.handleChangesToCollisions();
     this.ticks += 1;
   }
 
@@ -359,16 +363,52 @@ export class EEPhysics {
     const storageKey = block.stateStorage;
     if (storageKey) {
       willCollide = this.collisionStates.playerWillCollideWith(storageKey, this.ticks, self);
+      if (block.negateCollisionFromState) willCollide = !willCollide;
     }
 
     return willCollide;
   }
 
   handleSurroundingBlocks(self: Player) {
+    const surroundedBlocks = this.getSurroundingBlocks(self);
+
+    const changes = self.collidedWith.update(surroundedBlocks);
+    for (const [change, key] of changes) {
+      switch (change) {
+        case "added":
+          self.stateStorage.setCollisionState(
+            key,
+            this.collisionStates.willCollideWith(key, self.ticks)
+          );
+          break;
+        case "removed":
+          self.stateStorage.setCollisionState(key, undefined);
+          break;
+      }
+
+      const keyState = this.collisionStates.playerWillCollideWith("redkey", this.ticks, self);
+      this.events.emit("playerKeyState", "red", self, keyState);
+    }
+  }
+
+  getSurroundingBlocks(self: Player) {
     const inside = new Set<StateStorageKey>();
+
     const surroundingBlocks = this.cornersOfPlayer(self.position).map(
       this.roundPositionToBlockCoords
     );
+
+    for (const surroundingBlock of surroundingBlocks) {
+      const id = this.world.blockAt(surroundingBlock, TileLayer.Foreground);
+      const block = this.ids.tiles.forId(id);
+
+      const storageKey = block.stateStorage;
+      if (storageKey) {
+        inside.add(storageKey);
+      }
+    }
+
+    return inside;
   }
 
   triggerBlockAction(self: Player) {
@@ -420,9 +460,8 @@ export class EEPhysics {
 
       if (!self.hasCheckpoint || !Vector.eq(self.checkpoint!, checkpoint)) {
         this.events.emit("checkpoint", self, checkpoint);
+        self.checkpoint = checkpoint;
       }
-
-      self.checkpoint = checkpoint;
     }
   }
 
@@ -434,13 +473,7 @@ export class EEPhysics {
 
   private handleActionKeys(self: Player, actionBlock: number) {
     if (this.ids.keysRedKey === actionBlock) {
-      if (!self.insideRedKey) {
-        this.events.emit("keyTouch", "red", self);
-      }
-
-      self.insideRedKey = true;
-    } else {
-      self.insideRedKey = false;
+      this.events.emit("keyTouch", "red", self);
     }
   }
 }
@@ -502,7 +535,7 @@ class TickCollisionValue implements CollisionValue {
   }
 }
 
-class DifferentialSet<T> {
+export class DifferentialSet<T> {
   last: Set<T> = new Set();
 
   constructor() {}

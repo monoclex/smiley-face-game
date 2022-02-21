@@ -14,7 +14,7 @@ export interface PhysicsEvents {
    * a signal to the renderer to re-render what the
    * keys look like.
    */
-  moveOutOfKeys(player: Player): void;
+  playerKeyState(kind: "red", player: Player, state: boolean): void;
 
   signOn(x: number, y: number): void;
   signOff(): void;

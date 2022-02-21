@@ -321,11 +321,15 @@ function makeKeys(make: TilesMaker) {
   make.block({
     id: 65,
     textureId: "keys-red-door",
+    stateStorage: "redkey",
+    negateCollisionFromState: true,
   });
 
   make.block({
     id: 66,
     textureId: "keys-red-gate",
+    stateStorage: "redkey",
+    isSolid: false,
   });
 
   make.pack({ name: "keys" });

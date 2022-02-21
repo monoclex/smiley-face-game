@@ -2,6 +2,7 @@ import { Inputs } from "../game/Inputs";
 import { StateStorageKey } from "../tiles/register";
 import { ZRole } from "../types";
 import { Config } from "./ee/Config";
+import { DifferentialSet } from "./ee/EEPhysics";
 import { Vector } from "./Vector";
 
 // regarding physics variables:
@@ -135,10 +136,6 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   queue: [number, number] = [0, 0];
   /** @version eephysics This may be removed when the physics engine changes */
-  insideRedKey = false;
-  /** @version eephysics This may be removed when the physics engine changes */
-  insideKeyBlock = [false, false];
-  /** @version eephysics This may be removed when the physics engine changes */
   get center(): Vector {
     // TODO: don't hardcode 16
     return Vector.adds(this.position, 8);
@@ -197,7 +194,11 @@ export class Player {
     this.checkpoint = null;
   }
 
+  /** @version eephysics This may be removed when the physics engine changes */
   stateStorage: StateStorage = new StateStorage();
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  collidedWith = new DifferentialSet<StateStorageKey>();
 }
 
 class StateStorage {

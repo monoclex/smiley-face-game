@@ -79,12 +79,11 @@ export default class WorldRendering {
       [TileLayer.Decoration]: this.decoration,
     };
 
-    const [isInsideKeyBlock, redKeyTouchedState] = this.self.insideKeyBlock;
-
-    let redKeyTouched = this.game.physics.redKeyOn;
-    if (isInsideKeyBlock) {
-      redKeyTouched = redKeyTouchedState;
-    }
+    const redKeyTouched = this.game.physics.collisionStates.playerWillCollideWith(
+      "redkey",
+      this.game.physics.ticks,
+      this.self
+    );
 
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
