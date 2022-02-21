@@ -2,7 +2,7 @@ import { createNanoEvents } from "../../nanoevents";
 import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
-import { TileLayer } from "../../types";
+import { TileLayer, ZStateStorageKey } from "../../types";
 import { PhysicsEvents } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
@@ -77,6 +77,9 @@ export class EEPhysics {
     if (movement.queue.length !== 2) throw new Error("invalid movement packet");
     //@ts-expect-error doesn't coerce nicely
     player.queue = movement.queue;
+
+    player.stateStorage.state = movement.collisions;
+    player.collidedWith.last = new Set(Object.keys(movement.collisions) as ZStateStorageKey[]);
   }
 
   tick(players: Player[]) {
@@ -323,11 +326,20 @@ export class EEPhysics {
   }
 
   cornersOfPlayer(position: Vector): Vector[] {
+    // TODO: we consider the player a very small bit away from the actual
+    // edges, as when we round down we don't want the player to be considered
+    // to be touching the bottom/right blocks below them.
+    //
+    // this works fine, but i really wonder if there's a less hacky solution
+    const SMALL_DELTA = 0.0001;
+
+    const OFFSET = Config.blockSize - SMALL_DELTA;
+
     return [
       position,
-      new Vector(position.x + Config.blockSize, position.y),
-      new Vector(position.x, position.y + Config.blockSize),
-      Vector.adds(position, Config.blockSize),
+      new Vector(position.x + OFFSET, position.y),
+      new Vector(position.x, position.y + OFFSET),
+      Vector.adds(position, OFFSET),
     ];
   }
 

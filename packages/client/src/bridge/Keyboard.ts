@@ -86,7 +86,8 @@ export default class Keyboard {
         this.player.position,
         this.player.velocity,
         this.player.input,
-        this.player.queue
+        this.player.queue,
+        this.player.stateStorage.state
       );
     }
   }

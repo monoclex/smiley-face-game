@@ -1,6 +1,6 @@
 import { Config } from "../physics/ee/Config";
 import { Vector } from "../physics/Vector";
-import { TileLayer } from "../types";
+import { TileLayer, ZStateStorageKey } from "../types";
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -90,7 +90,7 @@ export enum Behavior {
   Zoost,
 }
 
-export type StateStorageKey = "redkey";
+export type StateStorageKey = ZStateStorageKey;
 
 export interface BlockConfig {
   id: number;
