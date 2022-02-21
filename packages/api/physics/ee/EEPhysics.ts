@@ -67,7 +67,7 @@ export class EEPhysics {
   }
 
   updatePlayer(movement: ZSMovement, player: Player): void {
-    player.sfgPosition = movement.position;
+    player.position = movement.position;
     player.velocity = movement.velocity;
     player.input = movement.inputs;
 

@@ -8,6 +8,7 @@ export class Vector<T = number> {
   static readonly Left: Vector = new Vector(-1, 0);
 
   static readonly Ones: Vector = new Vector(1, 1);
+  static readonly NegativeOnes: Vector = new Vector(-1, -1);
 
   // just holding the static value "1, 1".
   // could probably replace it later

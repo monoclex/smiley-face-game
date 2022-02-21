@@ -28,10 +28,6 @@ export class Player {
     return Vector.mults(this.position, 2);
   }
 
-  set sfgPosition(v: Vector) {
-    this.position = Vector.divs(v, 2);
-  }
-
   get hasEdit(): boolean {
     return this.role !== "non";
   }
@@ -53,7 +49,7 @@ export class Player {
       jump: false,
     };
 
-    this.sfgPosition = position;
+    this.position = position;
 
     this.isInGodMode = inGod;
   }
@@ -66,6 +62,13 @@ export class Player {
   get worldPosition(): Vector {
     return Vector.round(Vector.divs(this.position, 16));
   }
+
+  set worldPosition(v: Vector) {
+    this.position = Vector.mults(v, Config.blockSize);
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  lastActivateBlockPosition: Vector = Vector.NegativeOnes;
 
   /** @version eephysics This may be removed when the physics engine changes */
   private inGodMode = false;
