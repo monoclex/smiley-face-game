@@ -1,4 +1,5 @@
 import { Inputs } from "../game/Inputs";
+import { StateStorageKey } from "../tiles/register";
 import { ZRole } from "../types";
 import { Config } from "./ee/Config";
 import { Vector } from "./Vector";
@@ -191,5 +192,19 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   clearCheckpoint() {
     this.checkpoint = null;
+  }
+
+  stateStorage: StateStorage = new StateStorage();
+}
+
+class StateStorage {
+  state: { [K in StateStorageKey]?: boolean | undefined } = {};
+
+  getCollisionState(storageKey: StateStorageKey): boolean | undefined {
+    return this.state[storageKey];
+  }
+
+  setCollisionState(storageKey: StateStorageKey, value: boolean | undefined) {
+    this.state[storageKey] = value;
   }
 }

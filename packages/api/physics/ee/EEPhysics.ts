@@ -15,6 +15,7 @@ import { calculateDragVector } from "./algorithms/calculateDrag";
 import { collisionStepping } from "./algorithms/collisionStepping";
 import { performJumping } from "./algorithms/jumping";
 import { performZoosts } from "./algorithms/zoosts";
+import { StateStorageKey } from "../../tiles/register";
 
 // half a second until alive
 const TIME_UNTIL_ALIVE = 250;
@@ -37,6 +38,10 @@ export class EEPhysics {
   get redKeyOn() {
     return this.ticks < this.tickRedDisabled;
   }
+
+  collisionStates = new CollisionStates();
+  collidedWith = new DifferentialSet<StateStorageKey>();
+  collidedChanges = new DifferentialRecord<StateStorageKey, boolean>();
 
   private readonly ticksUntilAlive: number;
 
@@ -277,12 +282,7 @@ export class EEPhysics {
   }
 
   playerIsColliding(self: Player, position: Vector): boolean {
-    const corners = [
-      position,
-      new Vector(position.x + Config.blockSize, position.y),
-      new Vector(position.x, position.y + Config.blockSize),
-      Vector.adds(position, Config.blockSize),
-    ];
+    const corners = this.cornersOfPlayer(position);
 
     for (const position of corners) {
       if (this.pointOutsideBounds(position)) {
@@ -310,6 +310,15 @@ export class EEPhysics {
     return false;
   }
 
+  cornersOfPlayer(position: Vector): Vector[] {
+    return [
+      position,
+      new Vector(position.x + Config.blockSize, position.y),
+      new Vector(position.x, position.y + Config.blockSize),
+      Vector.adds(position, Config.blockSize),
+    ];
+  }
+
   blockOutsideBounds(blockCoord: Vector): boolean {
     return (
       blockCoord.x < 0 ||
@@ -334,23 +343,17 @@ export class EEPhysics {
       throw new Error("this is impossible because we only check collisions in not-god-mode");
     }
 
-    const fgId = this.world.blockAt(blockPosition, TileLayer.Foreground);
-    const actionId = this.world.blockAt(blockPosition, TileLayer.Action);
+    const id = this.world.blockAt(blockPosition, TileLayer.Foreground);
+    const block = this.ids.tiles.forId(id);
 
-    const [isInsideKeyBlock, redKeyTouchedState] = self.insideKeyBlock;
+    let willCollide = block.isSolid;
 
-    let redKeyTouched = this.redKeyOn;
-    if (isInsideKeyBlock) {
-      redKeyTouched = redKeyTouchedState;
+    const storageKey = block.stateStorage;
+    if (storageKey) {
+      willCollide = this.collisionStates.playerWillCollideWith(storageKey, this.ticks, self);
     }
 
-    // TODO: there's got to be a better way to switch the solid-ness of a gate/door
-    const keyNotSolid = redKeyTouched ? this.ids.keysRedDoor : this.ids.keysRedGate;
-
-    const isPassthru = (id: number) =>
-      id === 0 || id === keyNotSolid || this.ids.tiles.forId(id).isSolid === false;
-
-    return !isPassthru(fgId) || !isPassthru(actionId);
+    return willCollide;
   }
 
   triggerBlockAction(self: Player, position: Vector) {
@@ -478,5 +481,115 @@ export class EEPhysics {
     if (prev[0] !== current[0]) {
       this.events.emit("moveOutOfKeys", self);
     }
+  }
+}
+
+class CollisionStates {
+  collisionStates: { [K in StateStorageKey]?: CollisionValue } = {};
+
+  constructor() {}
+
+  playerWillCollideWith(stateStorageKey: StateStorageKey, ticks: number, player: Player): boolean {
+    return (
+      player.stateStorage.getCollisionState(stateStorageKey) ??
+      this.willCollideWith(stateStorageKey, ticks)
+    );
+  }
+
+  willCollideWith(stateStorageKey: StateStorageKey, ticks: number): boolean {
+    const collisionValue = this.collisionStates[stateStorageKey];
+    if (!collisionValue) return false;
+    else return collisionValue.hasCollisionOn(ticks);
+  }
+
+  setCollisionTo(stateStorageKey: StateStorageKey, value: boolean) {
+    this.collisionStates[stateStorageKey] = new ConstantCollisionValue(value);
+  }
+
+  setCollisionOffOnTick(stateStorageKey: StateStorageKey, tickOffAt: number) {
+    this.collisionStates[stateStorageKey] = new TickCollisionValue(tickOffAt);
+  }
+
+  getCollisionStates(ticks: number): Partial<Record<StateStorageKey, boolean>> {
+    const states: Partial<Record<StateStorageKey, boolean>> = {};
+
+    for (const rawKey in this.collisionStates) {
+      const key = rawKey as StateStorageKey;
+      states[key] = this.willCollideWith(key, ticks);
+    }
+
+    return states;
+  }
+}
+
+interface CollisionValue {
+  hasCollisionOn(ticks: number): boolean;
+}
+
+class ConstantCollisionValue implements CollisionValue {
+  constructor(readonly collisionOn: boolean) {}
+
+  hasCollisionOn(): boolean {
+    return this.collisionOn;
+  }
+}
+class TickCollisionValue implements CollisionValue {
+  constructor(readonly tickCollisionDisabledAt: number) {}
+
+  hasCollisionOn(ticks: number): boolean {
+    return ticks < this.tickCollisionDisabledAt;
+  }
+}
+
+class DifferentialSet<T> {
+  last: Set<T> = new Set();
+
+  constructor() {}
+
+  update(next: Set<T>): ["added" | "removed", T][] {
+    const elements: ["added" | "removed", T][] = [];
+
+    const all = new Set<T>([...this.last, ...next]);
+    for (const element of all) {
+      const lastHas = this.last.has(element);
+      const nextHas = next.has(element);
+
+      if (lastHas && !nextHas) {
+        elements.push(["removed", element]);
+      } else if (!lastHas && nextHas) {
+        elements.push(["added", element]);
+      }
+    }
+
+    this.last = next;
+    return elements;
+  }
+}
+
+class DifferentialRecord<K extends string, V> {
+  last: Partial<Record<K, V>> = {};
+
+  constructor() {}
+
+  update(next: Partial<Record<K, V>>): ["added" | "removed" | "updated", K][] {
+    const updates: ["added" | "removed" | "updated", K][] = [];
+
+    const keys = [...Object.keys(this.last), ...Object.keys(next)] as K[];
+    for (const key of keys) {
+      const lastHas = key in this.last;
+      const nextHas = key in next;
+
+      if (lastHas && !nextHas) {
+        updates.push(["removed", key]);
+      } else if (!lastHas && nextHas) {
+        updates.push(["added", key]);
+      } else if (lastHas && nextHas) {
+        if (this.last[key] !== next[key]) {
+          updates.push(["updated", key]);
+        }
+      }
+    }
+
+    return updates;
   }
 }

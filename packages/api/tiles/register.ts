@@ -90,6 +90,8 @@ export enum Behavior {
   Zoost,
 }
 
+export type StateStorageKey = "redkey";
+
 export interface BlockConfig {
   id: number;
   textureId: string;
@@ -100,6 +102,8 @@ export interface BlockConfig {
   gravitationalPull?: Vector | undefined;
   requiredForce?: Vector | undefined;
   behavior?: Behavior;
+  stateStorage?: StateStorageKey | undefined;
+  negateCollisionFromState?: boolean;
 }
 
 export type BlockInfo = Readonly<{
@@ -112,6 +116,8 @@ export type BlockInfo = Readonly<{
   gravitationalPull: Vector | undefined;
   requiredForce: Vector | undefined;
   behavior: Behavior;
+  stateStorage: StateStorageKey | undefined;
+  negateCollisionFromState: boolean;
 }>;
 
 export interface PackConfig {
@@ -143,12 +149,15 @@ export class TilesMaker {
     gravitationalPull,
     requiredForce,
     behavior,
+    stateStorage,
+    negateCollisionFromState,
   }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
     isSolid ??= true;
     heap ??= HeapKind.None;
     direction ??= Vector.Zero;
     behavior ??= Behavior.Typical;
+    negateCollisionFromState ??= false;
 
     if (this.usedIds.has(id))
       throw new Error(`tile id already registered: ${id} (duplicate: ${textureId})`);
@@ -163,6 +172,8 @@ export class TilesMaker {
       gravitationalPull,
       requiredForce,
       behavior,
+      stateStorage,
+      negateCollisionFromState,
     });
 
     this.map.set(id, info);
@@ -429,7 +440,7 @@ function makeBasic(make: TilesMaker) {
 }
 
 function makeEmpty(make: TilesMaker) {
-  make.block({ id: 0, textureId: "empty" });
+  make.block({ id: 0, textureId: "empty", isSolid: false });
   make.pack({ name: "empty" });
 }
 
