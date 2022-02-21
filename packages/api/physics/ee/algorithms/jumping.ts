@@ -29,7 +29,7 @@ export function performJumping(
     }
   }
 
-  const horziontalGravityApplied = currentGravity.x && delayedGravity.y;
+  const horziontalGravityApplied = currentGravity.x && delayedGravity.x;
   const verticalGravityApplied = currentGravity.y && delayedGravity.y;
 
   const movingHorizontally = velocity.x != 0;

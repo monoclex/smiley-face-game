@@ -482,20 +482,38 @@ p
   });
 });
 
-it("player can jump", () => {
-  const simulation = new Simulator(
-    `
+describe("jumping works lol", () => {
+  it("player can jump up", () => {
+    const simulation = new Simulator(
+      `
 >X
 p.
 `,
-    {
-      ">": "boost-right",
-    }
-  );
+      {
+        ">": "boost-right",
+      }
+    );
 
-  simulation.player.input.jump = true;
+    simulation.player.input.jump = true;
 
-  simulation.simulateMs(1000);
+    simulation.simulateMs(1000);
 
-  expect(simulation.player.worldPosition).toEqual(simulation.goal);
+    expect(simulation.player.worldPosition).toEqual(simulation.goal);
+  });
+
+  it("player can jump right", () => {
+    const simulation = new Simulator(
+      `
+<   .
+< pX.
+^<<..
+`
+    );
+
+    simulation.player.input.jump = true;
+
+    simulation.simulateMs(1000);
+
+    expect(simulation.player.worldPosition).toEqual(simulation.goal);
+  });
 });
