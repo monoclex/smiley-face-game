@@ -481,3 +481,21 @@ p
     expect(simulation.player.x).toEqual(16);
   });
 });
+
+it("player can jump", () => {
+  const simulation = new Simulator(
+    `
+>X
+p.
+`,
+    {
+      ">": "boost-right",
+    }
+  );
+
+  simulation.player.input.jump = true;
+
+  simulation.simulateMs(1000);
+
+  expect(simulation.player.worldPosition).toEqual(simulation.goal);
+});

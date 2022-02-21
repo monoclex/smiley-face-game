@@ -32,8 +32,8 @@ export function performJumping(
   const horziontalGravityApplied = currentGravity.x && delayedGravity.y;
   const verticalGravityApplied = currentGravity.y && delayedGravity.y;
 
-  const movingHorizontally = velocity.x == 0;
-  const movingVertically = velocity.y == 0;
+  const movingHorizontally = velocity.x != 0;
+  const movingVertically = velocity.y != 0;
 
   if (
     ((!movingHorizontally && horziontalGravityApplied) ||
