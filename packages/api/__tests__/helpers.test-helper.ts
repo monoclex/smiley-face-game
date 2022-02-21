@@ -2,6 +2,7 @@ import { Game } from "..";
 import { Blocks } from "../game/Blocks";
 import { EE_TPS } from "../game/Game";
 import { Players } from "../game/Players";
+import { Config } from "../physics/ee/Config";
 import { EEPhysics } from "../physics/ee/EEPhysics";
 import { Player } from "../physics/Player";
 import { Vector } from "../physics/Vector";
@@ -99,7 +100,7 @@ export class Simulator {
       "unit test",
       "non",
       false,
-      Vector.mults(playerPosition, 32),
+      Vector.mults(playerPosition, Config.blockSize),
       true,
       false
     );

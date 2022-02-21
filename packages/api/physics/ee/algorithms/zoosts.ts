@@ -42,5 +42,5 @@ export function* performZoosts(
     }
   }
 
-  return Vector.mults(position, Config.blockSize);
+  return position;
 }

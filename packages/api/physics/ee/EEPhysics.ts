@@ -180,7 +180,9 @@ export class EEPhysics {
 
     self.position = position;
     self.velocity = velocity;
-    this.triggerBlockAction(self, self.center);
+
+    this.triggerBlockAction(self);
+    this.handleSurroundingBlocks(self);
   }
 
   /**
@@ -274,11 +276,12 @@ export class EEPhysics {
     let next = interactionPositions.next();
 
     while (!next.done) {
-      this.triggerBlockAction(self, Vector.mults(next.value, Config.blockSize));
+      self.worldPosition = next.value;
+      this.triggerBlockAction(self);
       next = interactionPositions.next();
     }
 
-    self.position = next.value;
+    self.worldPosition = next.value;
   }
 
   playerIsColliding(self: Player, position: Vector): boolean {
@@ -296,18 +299,23 @@ export class EEPhysics {
 
     for (const blockCoord of surroundingBlocks) {
       if (this.blockOutsideBounds(blockCoord)) continue;
-      if (!this.willCollide(self, blockCoord)) continue;
 
-      // TODO: add more hitboxes for collision (e.g. slabs, stairs)
-      const blockPosition = Vector.mults(blockCoord, Config.blockSize);
-      const blockHitbox = new Rectangle(blockPosition, Vector.newScalar(Config.blockSize));
-
-      if (Rectangle.overlaps(playerHitbox, blockHitbox)) {
+      if (this.collidesWithBlock(playerHitbox, self, blockCoord)) {
         return true;
       }
     }
 
     return false;
+  }
+
+  collidesWithBlock(playerHitbox: Rectangle, player: Player, blockCoord: Vector) {
+    if (!this.willCollide(player, blockCoord)) return false;
+
+    // TODO: add more hitboxes for collision (e.g. slabs, stairs)
+    const blockPosition = Vector.mults(blockCoord, Config.blockSize);
+    const blockHitbox = new Rectangle(blockPosition, Vector.newScalar(Config.blockSize));
+
+    return Rectangle.overlaps(playerHitbox, blockHitbox);
   }
 
   cornersOfPlayer(position: Vector): Vector[] {
@@ -356,38 +364,34 @@ export class EEPhysics {
     return willCollide;
   }
 
-  triggerBlockAction(self: Player, position: Vector) {
-    const blockPosition = this.roundPositionToBlockCoords(position);
-
-    const maxX = this.world.size.x;
-    const maxY = this.world.size.y;
-    const inBounds = (x: number, y: number) => x >= 0 && x < maxX && y >= 0 && y < maxY;
-
-    // if (!inBounds(x, y)) {
-    //   throw new Error("we should never be out of bounds");
-    // }
-
-    const deco = this.world.blockAt(blockPosition, TileLayer.Decoration);
-
-    this.handleActionSigns(deco, position, self, blockPosition);
-
-    const actionBlock = this.world.blockAt(blockPosition, TileLayer.Action);
-
-    this.handleActionCheckpoints(actionBlock, blockPosition, self);
-    this.handleActionSpikes(actionBlock, self);
-    this.handleActionKeys(actionBlock, self, inBounds, position);
+  handleSurroundingBlocks(self: Player) {
+    const inside = new Set<StateStorageKey>();
+    const surroundingBlocks = this.cornersOfPlayer(self.position).map(
+      this.roundPositionToBlockCoords
+    );
   }
 
-  private handleActionSigns(
-    deco: number,
-    position: Vector<number>,
-    self: Player,
-    { x, y }: Vector
-  ) {
+  triggerBlockAction(self: Player) {
+    if (Vector.eq(self.worldPosition, self.lastActivateBlockPosition)) return;
+
+    const decorationBlock = this.world.blockAt(self.worldPosition, TileLayer.Decoration);
+    this.handleActionSigns(self, decorationBlock, self.worldPosition);
+
+    const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
+    this.handleActionCheckpoints(self, actionBlock, self.worldPosition);
+    this.handleActionHazards(self, actionBlock);
+    this.handleActionKeys(self, actionBlock);
+
+    self.lastActivateBlockPosition = self.worldPosition;
+  }
+
+  private handleActionSigns(self: Player, blockId: number, position: Vector) {
     let currentlyInSign: false | Vector = false;
-    if (deco === this.ids.sign) {
+    if (blockId === this.ids.sign) {
       currentlyInSign = position;
     }
+
+    const { x, y } = position;
 
     const inSign = (x: false | Vector) => !!x;
 
@@ -410,9 +414,9 @@ export class EEPhysics {
     }
   }
 
-  private handleActionCheckpoints(actionBlock: number, { x, y }: Vector, self: Player) {
-    if (this.ids.checkpoint === actionBlock) {
-      const checkpoint = new Vector(x, y);
+  private handleActionCheckpoints(self: Player, blockId: number, blockPosition: Vector) {
+    if (this.ids.checkpoint === blockId) {
+      const checkpoint = blockPosition;
 
       if (!self.hasCheckpoint || !Vector.eq(self.checkpoint!, checkpoint)) {
         this.events.emit("checkpoint", self, checkpoint);
@@ -422,18 +426,13 @@ export class EEPhysics {
     }
   }
 
-  private handleActionSpikes(actionBlock: number, self: Player) {
+  private handleActionHazards(self: Player, actionBlock: number) {
     if (this.ids.isHazard(actionBlock)) {
       self.kill();
     }
   }
 
-  private handleActionKeys(
-    actionBlock: number,
-    self: Player,
-    inBounds: (x: number, y: number) => boolean,
-    position: Vector<number>
-  ) {
+  private handleActionKeys(self: Player, actionBlock: number) {
     if (this.ids.keysRedKey === actionBlock) {
       if (!self.insideRedKey) {
         this.events.emit("keyTouch", "red", self);
@@ -442,44 +441,6 @@ export class EEPhysics {
       self.insideRedKey = true;
     } else {
       self.insideRedKey = false;
-    }
-
-    const checkInsideKey = (x: number, y: number) => {
-      x = Math.floor(x / Config.blockSize);
-      y = Math.floor(y / Config.blockSize);
-      if (!inBounds(x, y)) return false;
-
-      const foregroundBlock = this.world.blockAt({ x, y }, TileLayer.Foreground);
-      if (this.ids.keysRedDoor === foregroundBlock || this.ids.keysRedGate === foregroundBlock) {
-        const [prevInsideKeyBlock, _] = self.insideKeyBlock;
-
-        if (!prevInsideKeyBlock) {
-          self.insideKeyBlock = [true, this.redKeyOn];
-        }
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    const prev = self.insideKeyBlock;
-
-    // lol this is such a hack
-    const didUpdateInsideKey =
-      checkInsideKey(position.x, position.y) ||
-      checkInsideKey(position.x - 16, position.y - 16) ||
-      checkInsideKey(position.x + 15.9, position.y - 16) ||
-      checkInsideKey(position.x - 16, position.y + 15.9) ||
-      checkInsideKey(position.x + 15.9, position.y + 15.9);
-
-    if (!didUpdateInsideKey) {
-      self.insideKeyBlock = [false, false];
-    }
-
-    const current = self.insideKeyBlock;
-
-    if (prev[0] !== current[0]) {
-      this.events.emit("moveOutOfKeys", self);
     }
   }
 }
