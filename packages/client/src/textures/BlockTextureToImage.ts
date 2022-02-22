@@ -28,6 +28,9 @@ class TextureToImageifier {
 
     const url = URL.createObjectURL(blob);
 
+    this.sprite.x = 0;
+    this.sprite.y = 0;
+
     const tileTexture = new Image();
     tileTexture.src = url;
     return tileTexture;

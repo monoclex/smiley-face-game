@@ -5,6 +5,10 @@ import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
 import { TileLayer, ZHeap } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
+import { slabHitbox, solidHitbox } from "./hitboxes";
+
+// TODO: have a command developers can run to get a list of IDs used to then
+// know what the last ID available is
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -115,6 +119,7 @@ export interface BlockConfig {
   textureId: string;
   preferredLayer?: TileLayer;
   isSolid?: boolean;
+  hitbox?: Rectangle;
   heap?: HeapKind;
   direction?: Vector;
   gravitationalPull?: Vector | undefined;
@@ -127,7 +132,7 @@ export type BlockInfo = Readonly<{
   id: number;
   textureId: string;
   preferredLayer: TileLayer;
-  isSolid: boolean;
+  hitbox: Rectangle | undefined;
   heap: HeapKind;
   direction: Vector;
   gravitationalPull: Vector | undefined;
@@ -160,6 +165,7 @@ export class TilesMaker {
     textureId,
     preferredLayer,
     isSolid,
+    hitbox,
     heap,
     direction,
     gravitationalPull,
@@ -168,7 +174,6 @@ export class TilesMaker {
     complex,
   }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
-    isSolid ??= true;
     heap ??= HeapKind.None;
     direction ??= Vector.Zero;
     behavior ??= Behavior.Typical;
@@ -176,11 +181,16 @@ export class TilesMaker {
     if (this.usedIds.has(id))
       throw new Error(`tile id already registered: ${id} (duplicate: ${textureId})`);
 
+    if (!hitbox) {
+      if (isSolid === undefined) hitbox = solidHitbox;
+      else hitbox = isSolid ? solidHitbox : undefined;
+    }
+
     const info = Object.freeze({
       id,
       textureId,
       preferredLayer,
-      isSolid,
+      hitbox,
       heap,
       direction,
       gravitationalPull,
@@ -239,7 +249,7 @@ export class TilesMaker {
   /**
    * Helper for creating a "solid" block pack of blocks.
    */
-  helpMakeSolid(name: string, start: number, end: number, tiles: string[]) {
+  helpMakeSolid(name: string, start: number, end: number, tiles: string[], pack: boolean = true) {
     if (end - start !== tiles.length) {
       throw new Error(`invalid range detected ${start} to ${end} (${tiles.length} tiles)`);
     }
@@ -251,11 +261,13 @@ export class TilesMaker {
       textureId: name + "-" + suffix,
     }));
 
-    this.pack({ name });
+    if (pack) {
+      this.pack({ name });
+    }
   }
 }
 
-const directions = ["up", "right", "down", "left"] as const;
+export const directions = ["up", "right", "down", "left"] as const;
 const vectorDirection: { [K in typeof directions[number]]: Vector } = {
   up: Vector.Up,
   right: Vector.Right,
@@ -292,13 +304,20 @@ function makeTiles() {
 }
 
 function makeSpike(make: TilesMaker) {
-  make.blocks(zip(range(73, 78), [...directions, "checkpoint" as const]), ([id, suffix]) => ({
+  make.blocks(zip(range(73, 77), directions), ([id, suffix]) => ({
     id,
     textureId: "spike-" + suffix,
-    direction: suffix !== "checkpoint" ? vectorDirection[suffix] : Vector.Zero,
+    direction: vectorDirection[suffix],
     behavior: Behavior.Hazard,
     ...actionBlock,
   }));
+
+  make.block({
+    id: 77,
+    textureId: "spike-checkpoint",
+    ...actionBlock,
+  });
+
   make.alias("spike-checkpoint", "checkpoint");
   make.pack({ name: "spike" });
 }
@@ -416,7 +435,27 @@ function makeGemstone(make: TilesMaker) {
 }
 
 function makePrismarine(make: TilesMaker) {
-  make.helpMakeSolid("prismarine", 17, 22, ["basic", "anchor", "brick", "slab", "crystal"]);
+  make.helpMakeSolid("prismarine", 17, 22, ["basic", "anchor", "brick", "slab", "crystal"], false);
+
+  make.block({
+    id: 82,
+    textureId: "prismarine-hollow",
+  });
+
+  make.blocks(zip(range(78, 82), directions), ([id, suffix]) => ({
+    id,
+    textureId: "prismarine-slab-" + suffix,
+    direction: vectorDirection[suffix],
+    hitbox: slabHitbox[suffix],
+  }));
+
+  make.blocks(zip(range(83, 86), ["top", "middle", "bottom"]), ([id, suffix]) => ({
+    id,
+    textureId: "prismarine-pillar-" + suffix,
+    ...decorationBlock,
+  }));
+
+  make.pack({ name: "prismarine" });
 }
 
 function makeGun(make: TilesMaker) {

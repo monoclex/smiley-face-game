@@ -14,8 +14,10 @@ export interface PhysicsEvents {
    */
   playerKeyState(kind: "red", player: Player, state: boolean): void;
 
-  signOn(x: number, y: number): void;
-  signOff(): void;
+  signOn(player: Player, x: number, y: number): void;
+  signOff(player: Player): void;
 
   checkpoint(player: Player, position: Vector): void;
+
+  death(player: Player): void;
 }

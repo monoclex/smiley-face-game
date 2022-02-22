@@ -130,10 +130,11 @@ export enum Rotation {
 export const zBlock = addParse(Schema.either(number));
 export type ZBlock = SchemaInput<typeof zBlock>;
 
+export const MAX_SIGN_LENGTH = 200;
 export const zSignHeap = addParse(
   Schema({
     kind: "sign" as const,
-    text: string.max(200),
+    text: string.max(MAX_SIGN_LENGTH),
   })
 );
 export type ZSignHeap = SchemaInput<typeof zSignHeap>;
