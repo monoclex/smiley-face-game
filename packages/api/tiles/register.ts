@@ -304,13 +304,20 @@ function makeTiles() {
 }
 
 function makeSpike(make: TilesMaker) {
-  make.blocks(zip(range(73, 78), [...directions, "checkpoint" as const]), ([id, suffix]) => ({
+  make.blocks(zip(range(73, 77), directions), ([id, suffix]) => ({
     id,
     textureId: "spike-" + suffix,
-    direction: suffix !== "checkpoint" ? vectorDirection[suffix] : Vector.Zero,
+    direction: vectorDirection[suffix],
     behavior: Behavior.Hazard,
     ...actionBlock,
   }));
+
+  make.block({
+    id: 77,
+    textureId: "spike-checkpoint",
+    ...actionBlock,
+  });
+
   make.alias("spike-checkpoint", "checkpoint");
   make.pack({ name: "spike" });
 }
