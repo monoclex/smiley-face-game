@@ -7,6 +7,9 @@ import { TileLayer, ZHeap } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
 import { slabHitbox, solidHitbox } from "./hitboxes";
 
+// TODO: have a command developers can run to get a list of IDs used to then
+// know what the last ID available is
+
 export default class Tiles {
   readonly emptyPack: PackInfo;
   readonly packs: Readonly<PackInfo[]>;
@@ -427,11 +430,22 @@ function makeGemstone(make: TilesMaker) {
 function makePrismarine(make: TilesMaker) {
   make.helpMakeSolid("prismarine", 17, 22, ["basic", "anchor", "brick", "slab", "crystal"], false);
 
+  make.block({
+    id: 82,
+    textureId: "prismarine-hollow",
+  });
+
   make.blocks(zip(range(78, 82), directions), ([id, suffix]) => ({
     id,
     textureId: "prismarine-slab-" + suffix,
     direction: vectorDirection[suffix],
     hitbox: slabHitbox[suffix],
+  }));
+
+  make.blocks(zip(range(83, 86), ["top", "middle", "bottom"]), ([id, suffix]) => ({
+    id,
+    textureId: "prismarine-pillar-" + suffix,
+    ...decorationBlock,
   }));
 
   make.pack({ name: "prismarine" });
