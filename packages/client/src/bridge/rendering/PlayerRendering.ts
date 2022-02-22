@@ -51,8 +51,8 @@ export default class PlayerRenderer {
       const gamePlayer = this.gamePlayers.get(player.id);
       if (!gamePlayer) throw new Error("impossible player id desync");
 
-      gamePlayer.container.x = player.position.x;
-      gamePlayer.container.y = player.position.y;
+      gamePlayer.container.x = player.sfgPosition.x;
+      gamePlayer.container.y = player.sfgPosition.y;
 
       gamePlayer.wings.visible = player.isInGodMode;
 
@@ -69,8 +69,8 @@ export default class PlayerRenderer {
   updateCameraView() {
     // calculate position for player to be in the center
     const HALF_PLAYER_SIZE = 16;
-    const centerX = -this.focus.position.x - HALF_PLAYER_SIZE + this.renderer.width / 2;
-    const centerY = -this.focus.position.y - HALF_PLAYER_SIZE + this.renderer.height / 2;
+    const centerX = -this.focus.sfgPosition.x - HALF_PLAYER_SIZE + this.renderer.width / 2;
+    const centerY = -this.focus.sfgPosition.y - HALF_PLAYER_SIZE + this.renderer.height / 2;
 
     // calc some camera lag
     const CAMERA_LAG_MODIFIER = 1 / 16;

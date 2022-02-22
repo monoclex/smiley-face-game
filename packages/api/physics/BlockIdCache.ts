@@ -1,4 +1,6 @@
-import TileRegistration from "../../tiles/TileRegistration";
+import { Behavior } from "../tiles/register";
+import TileRegistration from "../tiles/TileRegistration";
+import { Vector } from "./Vector";
 
 export class BlockIdCache {
   readonly dot: number;
@@ -49,5 +51,38 @@ export class BlockIdCache {
     this.spikeDown = tiles.id("spike-down");
     this.spikeLeft = tiles.id("spike-left");
     this.checkpoint = tiles.id("checkpoint");
+  }
+
+  isHazard(id: number) {
+    return this.tiles.tryForId(id)?.behavior === Behavior.Hazard;
+  }
+
+  isZoost(id: number) {
+    return this.tiles.tryForId(id)?.behavior === Behavior.Zoost;
+  }
+
+  isBoost(id: number) {
+    return this.tiles.tryForId(id)?.behavior === Behavior.Boost;
+  }
+
+  // TODO: these should be values on the blocks themselves
+
+  /**
+   * The gravitational pull of a block will not only apply a force to the player,
+   * it will also determine the axis that the player is allowed to jump against.
+   */
+  getGraviationalPull(blockId: number) {
+    return this.tiles.tryForId(blockId)?.gravitationalPull ?? Vector.Down;
+  }
+
+  zoostDirToVec(zoostId: number) {
+    return this.tiles.forId(zoostId).direction;
+  }
+
+  // so basically boosts while they don't have "gravity" (so they technically
+  // aren't pulling you in a direction) have an amount of force they apply instead
+  // to the player.
+  getRequiredForce(block: number) {
+    return this.tiles.tryForId(block)?.requiredForce ?? Vector.Zero;
   }
 }

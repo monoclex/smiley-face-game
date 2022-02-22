@@ -19,9 +19,11 @@ export class Players {
     return this._list;
   }
 
-  constructor(init: ZSInit) {
-    for (const player of init.players) {
-      this.add(player);
+  constructor(init?: ZSInit) {
+    if (init) {
+      for (const player of init.players) {
+        this.add(player);
+      }
     }
   }
 
@@ -32,6 +34,7 @@ export class Players {
     return player;
   }
 
+  // TODO: rename `handleEvent`
   add(event: ZSPlayerJoin): Player {
     const player = new Player(
       event.playerId,
@@ -42,7 +45,11 @@ export class Players {
       event.canGod,
       event.inGod
     );
-    this.map.set(event.playerId, player);
+    return this.addPlayer(player);
+  }
+
+  addPlayer(player: Player): Player {
+    this.map.set(player.id, player);
     this._list = Array.from(this.map.values());
     this.events.emit("add", player);
     return player;

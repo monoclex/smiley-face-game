@@ -1,4 +1,10 @@
-import { TileLayer } from "../types";
+import { Config } from "../physics/Config";
+import { EEPhysics } from "../physics/EEPhysics";
+import { Player } from "../physics/Player";
+import { Rectangle } from "../physics/Rectangle";
+import { Vector } from "../physics/Vector";
+import { TileLayer, ZHeap } from "../types";
+import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -53,6 +59,10 @@ export default class Tiles {
     return block;
   }
 
+  tryForId(id: number): BlockInfo | undefined {
+    return this.idToBlock.get(id);
+  }
+
   forTexture(texture: string): BlockInfo {
     const block = this.textureToBlock.get(texture);
 
@@ -77,12 +87,40 @@ export enum HeapKind {
   Sign,
 }
 
+export enum Behavior {
+  Typical,
+  Hazard,
+  Boost,
+  Zoost,
+}
+
+export interface ComplexBlockBehavior {
+  collides(
+    world: EEPhysics,
+    player: Player,
+    id: number,
+    heap: ZHeap | 0,
+    playerHitbox: Rectangle
+  ): boolean;
+
+  near(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+  far(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+
+  in(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+  out(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+}
+
 export interface BlockConfig {
   id: number;
   textureId: string;
   preferredLayer?: TileLayer;
   isSolid?: boolean;
   heap?: HeapKind;
+  direction?: Vector;
+  gravitationalPull?: Vector | undefined;
+  requiredForce?: Vector | undefined;
+  behavior?: Behavior;
+  complex?: ComplexBlockBehavior;
 }
 
 export type BlockInfo = Readonly<{
@@ -91,6 +129,11 @@ export type BlockInfo = Readonly<{
   preferredLayer: TileLayer;
   isSolid: boolean;
   heap: HeapKind;
+  direction: Vector;
+  gravitationalPull: Vector | undefined;
+  requiredForce: Vector | undefined;
+  behavior: Behavior;
+  complex: undefined | ComplexBlockBehavior;
 }>;
 
 export interface PackConfig {
@@ -112,15 +155,39 @@ export class TilesMaker {
 
   packs: PackInfo[] = [];
 
-  block({ id, textureId, preferredLayer, isSolid, heap }: BlockConfig): BlockInfo {
+  block({
+    id,
+    textureId,
+    preferredLayer,
+    isSolid,
+    heap,
+    direction,
+    gravitationalPull,
+    requiredForce,
+    behavior,
+    complex,
+  }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
     isSolid ??= true;
     heap ??= HeapKind.None;
+    direction ??= Vector.Zero;
+    behavior ??= Behavior.Typical;
 
     if (this.usedIds.has(id))
       throw new Error(`tile id already registered: ${id} (duplicate: ${textureId})`);
 
-    const info = Object.freeze({ id, textureId, preferredLayer, isSolid, heap });
+    const info = Object.freeze({
+      id,
+      textureId,
+      preferredLayer,
+      isSolid,
+      heap,
+      direction,
+      gravitationalPull,
+      requiredForce,
+      behavior,
+      complex,
+    });
 
     this.map.set(id, info);
     this.usedIds.add(id);
@@ -189,6 +256,12 @@ export class TilesMaker {
 }
 
 const directions = ["up", "right", "down", "left"] as const;
+const vectorDirection: { [K in typeof directions[number]]: Vector } = {
+  up: Vector.Up,
+  right: Vector.Right,
+  down: Vector.Down,
+  left: Vector.Left,
+};
 
 const actionBlock: Partial<BlockConfig> = { isSolid: false, preferredLayer: TileLayer.Action };
 
@@ -219,9 +292,11 @@ function makeTiles() {
 }
 
 function makeSpike(make: TilesMaker) {
-  make.blocks(zip(range(73, 78), [...directions, "checkpoint"]), ([id, suffix]) => ({
+  make.blocks(zip(range(73, 78), [...directions, "checkpoint" as const]), ([id, suffix]) => ({
     id,
     textureId: "spike-" + suffix,
+    direction: suffix !== "checkpoint" ? vectorDirection[suffix] : Vector.Zero,
+    behavior: Behavior.Hazard,
     ...actionBlock,
   }));
   make.alias("spike-checkpoint", "checkpoint");
@@ -242,6 +317,8 @@ function makeZoost(make: TilesMaker) {
   make.blocks(zip(range(67, 71), directions), ([id, suffix]) => ({
     id,
     textureId: "zoost-" + suffix,
+    direction: vectorDirection[suffix],
+    behavior: Behavior.Zoost,
     ...actionBlock,
   }));
   make.pack({ name: "zoost" });
@@ -251,17 +328,21 @@ function makeKeys(make: TilesMaker) {
   make.block({
     id: 64,
     textureId: "keys-red-key",
+    complex: new KeyBehavior("red"),
     ...actionBlock,
   });
 
   make.block({
     id: 65,
     textureId: "keys-red-door",
+    complex: new KeyDoorGateBehavior("red", false),
   });
 
   make.block({
     id: 66,
     textureId: "keys-red-gate",
+    isSolid: false,
+    complex: new KeyDoorGateBehavior("red", true),
   });
 
   make.pack({ name: "keys" });
@@ -271,6 +352,10 @@ function makeBoost(make: TilesMaker) {
   make.blocks(zip(range(59, 63), directions), ([id, suffix]) => ({
     id,
     textureId: "boost-" + suffix,
+    direction: vectorDirection[suffix],
+    gravitationalPull: Vector.Zero,
+    requiredForce: Vector.mults(vectorDirection[suffix], Config.physics.boost),
+    behavior: Behavior.Boost,
     ...actionBlock,
   }));
   make.pack({ name: "boost" });
@@ -340,9 +425,11 @@ function makeGun(make: TilesMaker) {
 }
 
 function makeGravity(make: TilesMaker) {
-  make.blocks(zip(range(11, 16), [...directions, "dot"]), ([id, suffix]) => ({
+  make.blocks(zip(range(11, 16), [...directions, "dot" as const]), ([id, suffix]) => ({
     id,
     textureId: "gravity-" + suffix,
+    direction: suffix !== "dot" ? vectorDirection[suffix] : Vector.Zero,
+    gravitationalPull: suffix !== "dot" ? vectorDirection[suffix] : Vector.Zero,
     ...actionBlock,
   }));
   make.pack({ name: "gravity" });
@@ -370,7 +457,7 @@ function makeBasic(make: TilesMaker) {
 }
 
 function makeEmpty(make: TilesMaker) {
-  make.block({ id: 0, textureId: "empty" });
+  make.block({ id: 0, textureId: "empty", isSolid: false });
   make.pack({ name: "empty" });
 }
 

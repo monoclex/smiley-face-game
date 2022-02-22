@@ -27,7 +27,7 @@ import {
   zUserId,
 } from "../types";
 import inferLayer from "../inferLayer";
-import type { ZSPacket, ZPacket, ZSInit } from "../packets";
+import { ZSPacket, ZPacket, ZSInit, zMovementQueue, ZMovementQueue } from "../packets";
 import { zsInit, zPacket, zsPacket } from "../packets";
 import AsyncQueue from "../AsyncQueue";
 import { boolean, addParse } from "../computed-types-wrapper";
@@ -210,19 +210,26 @@ export default class Connection {
    * @param velocity The current velocity of the player.
    * @param inputs The inputs the player is pressing.
    */
-  move(position: ZPlayerPosition, velocity: ZVelocity, inputs: ZInputs): void;
+  move(
+    position: ZPlayerPosition,
+    velocity: ZVelocity,
+    inputs: ZInputs,
+    queue: ZMovementQueue
+  ): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  move(argPosition: unknown, argVelocity: unknown, argInputs: unknown) {
+  move(argPosition: unknown, argVelocity: unknown, argInputs: unknown, argQueue: unknown) {
     const position = zPlayerPosition.parse(argPosition);
     const velocity = zVelocity.parse(argVelocity);
     const inputs = zInputs.parse(argInputs);
+    const queue = zMovementQueue.parse(argQueue);
 
     this._send({
       packetId: "MOVEMENT",
       position,
       velocity,
       inputs,
+      queue,
     });
   }
 

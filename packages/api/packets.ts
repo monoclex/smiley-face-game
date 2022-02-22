@@ -32,12 +32,18 @@ export const zPickupGun = addParse(
 );
 export type ZPickupGun = SchemaInput<typeof zPickupGun>;
 
+export const zMovementQueue = addParse(array.of(number).min(2).max(2));
+export type ZMovementQueue = SchemaInput<typeof zMovementQueue>;
+
 export const zMovement = addParse(
   Schema({
     packetId: "MOVEMENT" as const,
     position: zPlayerPosition,
     velocity: zVelocity,
     inputs: zInputs,
+
+    // ee physics
+    queue: zMovementQueue,
   })
 );
 export type ZMovement = SchemaInput<typeof zMovement>;
@@ -213,6 +219,9 @@ export const zsMovement = addParse(
     position: zPlayerPosition,
     velocity: zVelocity,
     inputs: zInputs,
+
+    // ee physics
+    queue: zMovementQueue,
   })
 );
 export type ZSMovement = SchemaInput<typeof zsMovement>;

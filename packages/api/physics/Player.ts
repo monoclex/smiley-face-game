@@ -1,7 +1,7 @@
 import { Inputs } from "../game/Inputs";
-import { ZRole } from "../types";
-import { Config } from "./ee/Config";
-import { ArrowDirection } from "./ee/Directions";
+import { ComplexBlockBehavior } from "../tiles/register";
+import { ZHeap, ZKeyKind, ZRole } from "../types";
+import { Config } from "./Config";
 import { Vector } from "./Vector";
 
 // regarding physics variables:
@@ -23,7 +23,10 @@ export interface CheapPlayer {
 
 export class Player {
   input: Inputs;
-  velocity: Vector = Vector.Zero;
+
+  get sfgPosition(): Vector {
+    return Vector.mults(this.position, 2);
+  }
 
   get hasEdit(): boolean {
     return this.role !== "non";
@@ -34,7 +37,7 @@ export class Player {
     readonly name: string,
     public role: ZRole,
     readonly isGuest: boolean,
-    public position: Vector,
+    position: Vector,
     public canGod: boolean,
     inGod: boolean
   ) {
@@ -46,12 +49,29 @@ export class Player {
       jump: false,
     };
 
+    this.position = position;
+
     this.isInGodMode = inGod;
   }
 
   cheap(): CheapPlayer {
     return { id: this.id, role: this.role, username: this.name, canGod: this.canGod };
   }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  get worldPosition(): Vector {
+    return Vector.round(Vector.divs(this.position, 16));
+  }
+
+  set worldPosition(v: Vector) {
+    this.position = Vector.mults(v, Config.blockSize);
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  lastBlockIn: Vector = Vector.NegativeOnes;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  lastNear: [Vector, ComplexBlockBehavior, number, ZHeap][] = [];
 
   /** @version eephysics This may be removed when the physics engine changes */
   private inGodMode = false;
@@ -64,22 +84,11 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   set isInGodMode(flag: boolean) {
     this.inGodMode = flag;
-    if (this.inGodMode) {
-      this.resetModifiers();
-    }
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
   toggleGodMode() {
     this.isInGodMode = !this.isInGodMode;
-  }
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  resetModifiers() {
-    this.origModX = 0;
-    this.origModY = 0;
-    this.modX = 0;
-    this.modY = 0;
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
@@ -95,25 +104,9 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   gravityMult = 1;
   /** @version eephysics This may be removed when the physics engine changes */
-  speedX = 0;
+  velocity: Vector = Vector.Zero;
   /** @version eephysics This may be removed when the physics engine changes */
-  speedY = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  get x(): number {
-    return this.position.x / 2;
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  set x(x: number) {
-    this.position = Vector.mutateX(this.position, x * 2);
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  get y(): number {
-    return this.position.y / 2;
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  set y(y: number) {
-    this.position = Vector.mutateY(this.position, y * 2);
-  }
+  position: Vector = Vector.SPAWN_LOCATION;
   /** @version eephysics This may be removed when the physics engine changes */
   ticks = 0;
   /** @version eephysics This may be removed when the physics engine changes */
@@ -121,33 +114,33 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   jumpCount = 0;
   /** @version eephysics This may be removed when the physics engine changes */
+  get x(): number {
+    return this.position.x;
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  set x(x: number) {
+    this.position = Vector.mutateX(this.position, x);
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  get y(): number {
+    return this.position.y;
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  set y(y: number) {
+    this.position = Vector.mutateY(this.position, y);
+  }
+  /** @version eephysics This may be removed when the physics engine changes */
+  jumpTimes: "none" | "once" | "many" = "none";
+  /** @version eephysics This may be removed when the physics engine changes */
   maxJumps = 1;
   /** @version eephysics This may be removed when the physics engine changes */
   jumpMult = 1;
   /** @version eephysics This may be removed when the physics engine changes */
-  moving = false;
-  /** @version eephysics This may be removed when the physics engine changes */
-  queue: number[] = new Array(Config.physics.queue_length).fill(0);
-  /** @version eephysics This may be removed when the physics engine changes */
-  origModX = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  origModY = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  modX = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  modY = 0;
-  /** @version eephysics This may be removed when the physics engine changes */
-  insideRedKey = false;
-  /** @version eephysics This may be removed when the physics engine changes */
-  insideKeyBlock = [false, false];
+  queue: [number, number] = [0, 0];
   /** @version eephysics This may be removed when the physics engine changes */
   get center(): Vector {
     // TODO: don't hardcode 16
-    return Vector.adds(this.position, 16);
-  }
-  /** @version eephysics This may be removed when the physics engine changes */
-  get centerEE(): Vector {
-    return Vector.divs(this.center, 2);
+    return Vector.adds(this.position, 8);
   }
   /** @version eephysics This may be removed when the physics engine changes */
   insideSign: false | Vector = false;
@@ -176,16 +169,18 @@ export class Player {
    * Revives the player at a certain position (in block coordinates)
    * @version eephysics This may be removed when the physics engine changes
    */
-  revive(at: Vector) {
-    this.modX = 0;
-    this.modY = 0;
-    this.speedX = 0;
-    this.speedY = 0;
+  revive(at?: Vector) {
+    this.velocity = Vector.Zero;
     this.isDead = false;
-    this.queue = [ArrowDirection.Down]; // differs from ee `[]` default
+    this.queue = [0, 0];
 
-    // TODO: don't hardcode 32x32 world
-    this.position = Vector.mults(at, 32);
+    if (at) {
+      this.position = Vector.mults(at, Config.blockSize);
+    }
+  }
+
+  shouldBeRevived(ticksAfterDeath: number): boolean {
+    return this.ticks >= this.deathTick + ticksAfterDeath;
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
@@ -202,32 +197,37 @@ export class Player {
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
-  zoostQueue: Vector[] = [];
+  keys = new PlayerKeys();
+}
 
-  /** @version eephysics This may be removed when the physics engine changes */
-  clearZoostQueue() {
-    this.zoostQueue = [];
+// overrides for key collision, cuz when we're in a key gate but the key turns off
+// we still wanna collide with key doors and not collide with gates n stuff
+class PlayerKeys {
+  state: Partial<Record<ZKeyKind, boolean>> = {};
+  numIn: Partial<Record<ZKeyKind, number>> = {};
+
+  clear() {
+    this.state = {};
+    this.numIn = {};
   }
 
-  /** @version eephysics This may be removed when the physics engine changes */
-  pushZoostQueue(direction: Vector) {
-    // a totally viable implementation of this function is just
-    //
-    // this.zoostQueue.push(direction);
-    //
-    // but for performance, we don't want to push the same direction twice
+  removeCollision(key: ZKeyKind) {
+    delete this.state[key];
+  }
 
-    // try to peek at the top item
-    const top = this.zoostQueue.pop();
+  setCollision(key: ZKeyKind, on: boolean) {
+    this.state[key] = on;
+  }
 
-    if (top != null) {
-      this.zoostQueue.push(top);
+  getCollision(key: ZKeyKind): boolean | undefined {
+    return this.state[key];
+  }
 
-      // don't push duplicate directions
-      if (Vector.eq(top, direction)) return;
-    }
+  setCountIn(key: ZKeyKind, countIn: number) {
+    this.numIn[key] = countIn;
+  }
 
-    // either nothing at the top or not a duplicate, push it
-    this.zoostQueue.push(direction);
+  getCountIn(key: ZKeyKind): number {
+    return this.numIn[key] ?? 0;
   }
 }

@@ -1,3 +1,5 @@
+import { Vector } from "../physics/Vector";
+
 const undef = (x: unknown) => x === null || x === undefined;
 
 /**
@@ -19,6 +21,10 @@ export class WorldLayer<T> {
   }
 
   constructor(private readonly factory: T) {}
+
+  getv(layer: number, { x, y }: Vector) {
+    return this.get(layer, x, y);
+  }
 
   get(layer: number, x: number, y: number): T {
     const ys = this.getYsSafe(layer, y, x);

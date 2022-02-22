@@ -5,6 +5,7 @@ import TileRegistration from "../tiles/TileRegistration";
 import { createNanoEvents } from "../nanoevents";
 import { WorldLayer } from "./WorldLayer";
 import equal from "fast-deep-equal";
+import { Rectangle } from "../physics/Rectangle";
 
 interface BlockEvents {
   load(blocks: ZWorldBlocks, heaps: ZHeaps): void;
@@ -16,6 +17,7 @@ export class Blocks {
   heap: WorldLayer<ZHeap | 0> = new WorldLayer(0);
 
   readonly events = createNanoEvents<BlockEvents>();
+  readonly bounds: Rectangle;
 
   constructor(
     readonly tiles: TileRegistration,
@@ -23,6 +25,7 @@ export class Blocks {
     heaps: ZHeaps,
     readonly size: Vector
   ) {
+    this.bounds = new Rectangle(Vector.Zero, this.size);
     this.load(blocks, heaps);
   }
 
@@ -81,7 +84,7 @@ export class Blocks {
     return true;
   }
 
-  blockAt(x: number, y: number, tileLayer: TileLayer): number {
+  blockAt({ x, y }: Vector, tileLayer: TileLayer): number {
     return this.state.get(tileLayer, x, y);
   }
 
