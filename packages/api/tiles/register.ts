@@ -4,6 +4,7 @@ import { Player } from "../physics/Player";
 import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
 import { TileLayer, ZHeap } from "../types";
+import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -94,19 +95,19 @@ export enum Behavior {
 }
 
 export interface ComplexBlockBehavior {
-  collides: (
+  collides(
     world: EEPhysics,
     player: Player,
     id: number,
     heap: ZHeap | 0,
     playerHitbox: Rectangle
-  ) => boolean;
+  ): boolean;
 
-  near: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
-  far: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+  near(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+  far(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
 
-  in: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
-  out: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+  in(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
+  out(world: EEPhysics, player: Player, id: number, heap: ZHeap | 0): void;
 }
 
 export interface BlockConfig {
@@ -119,7 +120,6 @@ export interface BlockConfig {
   gravitationalPull?: Vector | undefined;
   requiredForce?: Vector | undefined;
   behavior?: Behavior;
-  negateCollisionFromState?: boolean;
   complex?: ComplexBlockBehavior;
 }
 
@@ -133,7 +133,6 @@ export type BlockInfo = Readonly<{
   gravitationalPull: Vector | undefined;
   requiredForce: Vector | undefined;
   behavior: Behavior;
-  negateCollisionFromState: boolean;
   complex: undefined | ComplexBlockBehavior;
 }>;
 
@@ -166,7 +165,6 @@ export class TilesMaker {
     gravitationalPull,
     requiredForce,
     behavior,
-    negateCollisionFromState,
     complex,
   }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
@@ -174,7 +172,6 @@ export class TilesMaker {
     heap ??= HeapKind.None;
     direction ??= Vector.Zero;
     behavior ??= Behavior.Typical;
-    negateCollisionFromState ??= false;
 
     if (this.usedIds.has(id))
       throw new Error(`tile id already registered: ${id} (duplicate: ${textureId})`);
@@ -189,7 +186,6 @@ export class TilesMaker {
       gravitationalPull,
       requiredForce,
       behavior,
-      negateCollisionFromState,
       complex,
     });
 
@@ -332,21 +328,21 @@ function makeKeys(make: TilesMaker) {
   make.block({
     id: 64,
     textureId: "keys-red-key",
+    complex: new KeyBehavior("red"),
     ...actionBlock,
   });
 
   make.block({
     id: 65,
     textureId: "keys-red-door",
-    stateStorage: "redkey",
-    negateCollisionFromState: true,
+    complex: new KeyDoorGateBehavior("red", false),
   });
 
   make.block({
     id: 66,
     textureId: "keys-red-gate",
-    stateStorage: "redkey",
     isSolid: false,
+    complex: new KeyDoorGateBehavior("red", true),
   });
 
   make.pack({ name: "keys" });

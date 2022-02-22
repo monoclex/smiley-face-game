@@ -110,6 +110,30 @@ export class Vector<T = number> {
     return new Vector(clamp(value.x, min.x, max.x), clamp(value.y, min.y, max.y));
   }
 
+  static unique(vectors: Vector[]): Vector[] {
+    if (vectors.length === 0) return [];
+
+    const unique: Vector[] = [vectors.shift()!];
+
+    let v;
+    while ((v = vectors.shift())) {
+      let duplicate = false;
+
+      for (const w of unique) {
+        if (Vector.eq(v, w)) {
+          duplicate = true;
+          break;
+        }
+      }
+
+      if (!duplicate) {
+        unique.push(v);
+      }
+    }
+
+    return unique;
+  }
+
   /**
    * Opposite of `filterIn`
    *

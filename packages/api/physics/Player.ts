@@ -1,5 +1,6 @@
 import { Inputs } from "../game/Inputs";
-import { ZRole } from "../types";
+import { ComplexBlockBehavior } from "../tiles/register";
+import { ZHeap, ZKeyKind, ZRole } from "../types";
 import { Config } from "./ee/Config";
 import { Vector } from "./Vector";
 
@@ -70,7 +71,7 @@ export class Player {
   lastBlockIn: Vector = Vector.NegativeOnes;
 
   /** @version eephysics This may be removed when the physics engine changes */
-  lastNear: Vector[] = [];
+  lastNear: [Vector, ComplexBlockBehavior, number, ZHeap][] = [];
 
   /** @version eephysics This may be removed when the physics engine changes */
   private inGodMode = false;
@@ -193,5 +194,40 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   clearCheckpoint() {
     this.checkpoint = null;
+  }
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  keys = new PlayerKeys();
+}
+
+// overrides for key collision, cuz when we're in a key gate but the key turns off
+// we still wanna collide with key doors and not collide with gates n stuff
+class PlayerKeys {
+  state: Partial<Record<ZKeyKind, boolean>> = {};
+  numIn: Partial<Record<ZKeyKind, number>> = {};
+
+  clear() {
+    this.state = {};
+    this.numIn = {};
+  }
+
+  removeCollision(key: ZKeyKind) {
+    delete this.state[key];
+  }
+
+  setCollision(key: ZKeyKind, on: boolean) {
+    this.state[key] = on;
+  }
+
+  getCollision(key: ZKeyKind): boolean | undefined {
+    return this.state[key];
+  }
+
+  setCountIn(key: ZKeyKind, countIn: number) {
+    this.numIn[key] = countIn;
+  }
+
+  getCountIn(key: ZKeyKind): number {
+    return this.numIn[key] ?? 0;
   }
 }

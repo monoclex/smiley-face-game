@@ -91,7 +91,11 @@ export class Game {
       case "SERVER_INIT":
         throw new Error(`unexpected packet '${event.packetId}'`);
       case "SERVER_KEY_TOUCH":
-        this.physics.triggerKey(event.kind, event.deactivateTime, this.players.get(event.playerId));
+        this.physics.keys.trigger(
+          event.kind,
+          event.deactivateTime,
+          this.players.get(event.playerId)
+        );
         return 0;
       case "SERVER_MOVEMENT":
         this.physics.updatePlayer(event, this.players.get(event.playerId));

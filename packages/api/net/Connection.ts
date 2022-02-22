@@ -27,15 +27,7 @@ import {
   zUserId,
 } from "../types";
 import inferLayer from "../inferLayer";
-import {
-  ZSPacket,
-  ZPacket,
-  ZSInit,
-  zMovementQueue,
-  zMovementCollisions,
-  ZMovementQueue,
-  ZMovementCollisions,
-} from "../packets";
+import { ZSPacket, ZPacket, ZSInit, zMovementQueue, ZMovementQueue } from "../packets";
 import { zsInit, zPacket, zsPacket } from "../packets";
 import AsyncQueue from "../AsyncQueue";
 import { boolean, addParse } from "../computed-types-wrapper";
@@ -222,23 +214,15 @@ export default class Connection {
     position: ZPlayerPosition,
     velocity: ZVelocity,
     inputs: ZInputs,
-    queue: ZMovementQueue,
-    collisions: ZMovementCollisions
+    queue: ZMovementQueue
   ): void;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  move(
-    argPosition: unknown,
-    argVelocity: unknown,
-    argInputs: unknown,
-    argQueue: unknown,
-    argCollisions: unknown
-  ) {
+  move(argPosition: unknown, argVelocity: unknown, argInputs: unknown, argQueue: unknown) {
     const position = zPlayerPosition.parse(argPosition);
     const velocity = zVelocity.parse(argVelocity);
     const inputs = zInputs.parse(argInputs);
     const queue = zMovementQueue.parse(argQueue);
-    const collisions = zMovementCollisions.parse(argCollisions);
 
     this._send({
       packetId: "MOVEMENT",
@@ -246,7 +230,6 @@ export default class Connection {
       velocity,
       inputs,
       queue,
-      collisions,
     });
   }
 

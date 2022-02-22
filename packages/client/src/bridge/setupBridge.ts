@@ -74,14 +74,10 @@ export default async function setupBridge(
   game.physics.events.on("keyTouch", (_, player) => {
     if (player === self) {
       connection.touchRedKey();
-
-      // + 7 seconds is a rough estimate
-      // server time should set the key time to be proper i guess
-      game.physics.triggerKey("red", Date.now() + 7000, player);
     }
   });
 
-  game.physics.events.on("moveOutOfKeys", (player) => {
+  game.physics.events.on("playerKeyState", (key, player) => {
     if (player === self) {
       // needed so that when the player walks out of a blob of keys,
       // the keys will turn back to doors/gates

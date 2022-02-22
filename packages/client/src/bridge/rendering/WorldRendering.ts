@@ -37,9 +37,11 @@ export default class WorldRendering {
     this.worldBehind.addChild(this.foreground);
     this.worldInfront.addChild(this.decoration);
 
-    game.blocks.events.on("block", () => (this.dirty = true));
-    game.blocks.events.on("load", () => (this.dirty = true));
-    game.physics.events.on("keyState", () => (this.dirty = true));
+    const dirty = this.flagDirty.bind(this);
+    game.blocks.events.on("block", dirty);
+    game.blocks.events.on("load", dirty);
+    game.physics.events.on("keyState", dirty);
+    game.physics.events.on("keyTouch", dirty);
   }
 
   flagDirty() {
@@ -79,11 +81,7 @@ export default class WorldRendering {
       [TileLayer.Decoration]: this.decoration,
     };
 
-    const redKeyTouched = this.game.physics.collisionStates.playerWillCollideWith(
-      "redkey",
-      this.game.physics.ticks,
-      this.self
-    );
+    const redKeyOn = this.game.physics.keyIsOnForPlayer(this.self, "red");
 
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
@@ -99,11 +97,7 @@ export default class WorldRendering {
           if (y[x] === 0 || y[x] === null || y[x] === undefined) continue;
 
           const pos = new Vector(x, yIdx);
-          const textureName = this.mapTextureName(
-            redKeyTouched,
-            this.game.tiles.texture(y[x]),
-            pos
-          );
+          const textureName = this.mapTextureName(redKeyOn, this.game.tiles.texture(y[x]), pos);
 
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }

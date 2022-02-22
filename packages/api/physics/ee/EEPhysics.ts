@@ -2,7 +2,7 @@ import { createNanoEvents } from "../../nanoevents";
 import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
-import { TileLayer, ZHeap } from "../../types";
+import { TileLayer, ZHeap, ZKeyKind } from "../../types";
 import { PhysicsEvents } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
@@ -71,6 +71,10 @@ export class EEPhysics {
     for (const player of players) {
       this.tickPlayer(player);
       player.ticks++;
+    }
+
+    for (const key of this.keys.anyJustTurnedOff()) {
+      this.events.emit("keyState", key, false);
     }
 
     this.ticks += 1;
@@ -288,10 +292,15 @@ export class EEPhysics {
 
     const surroundingBlocks = corners.map((position) => this.roundPositionToBlockCoords(position));
 
-    const playerHitbox = new Rectangle(position, Vector.newScalar(Config.blockSize));
-
     for (const blockCoord of surroundingBlocks) {
       if (this.blockOutsideBounds(blockCoord)) continue;
+
+      // normalize player's hitbox to (0, 0) coords
+      const blockWorldCoord = Vector.mults(blockCoord, Config.blockSize);
+      const playerHitbox = new Rectangle(
+        Vector.sub(position, blockWorldCoord),
+        Vector.newScalar(Config.blockSize)
+      );
 
       if (this.collidesWithBlock(playerHitbox, self, blockCoord)) {
         return true;
@@ -359,32 +368,32 @@ export class EEPhysics {
 
   handleSurroundingBlocks(self: Player) {
     const oldNear = self.lastNear;
-    const nowNear = this.cornersOfPlayer(self.position).map(this.roundPositionToBlockCoords);
+    const nowNear = Vector.unique(
+      this.cornersOfPlayer(self.position).map(this.roundPositionToBlockCoords)
+    );
 
-    const any: <T>(it: T[], predicate: (it: T) => boolean) => boolean = (it, predicate) =>
-      it.filter(predicate).length > 0;
+    const appendPos = (layer: TileLayer, position: Vector) => {
+      const complexInfo = this.getComplexInfo(layer, position);
+      if (!complexInfo) return null;
+      return [position, ...complexInfo] as const;
+    };
 
-    const vectorExistsIn = (vector: Vector, array: Vector[]) =>
-      any(array, (element) => Vector.eq(vector, element));
+    const nearAndBehaviors = nowNear
+      .flatMap((position) => [
+        appendPos(TileLayer.Foreground, position),
+        appendPos(TileLayer.Action, position),
+      ])
+      .filter(Boolean) as [Vector, ComplexBlockBehavior, number, ZHeap][];
 
-    const noLongerNear = oldNear.filter((old) => !vectorExistsIn(old, nowNear));
-    const newlyNear = nowNear.filter((now) => !vectorExistsIn(now, oldNear));
-
-    for (const layer of [TileLayer.Foreground, TileLayer.Action]) {
-      for (const old of noLongerNear) {
-        this.triggerComplex(TileLayer.Foreground, old, (complex, id, heap) => {
-          complex.far(this, self, id, heap);
-        });
-      }
-
-      for (const now of newlyNear) {
-        this.triggerComplex(TileLayer.Foreground, now, (complex, id, heap) => {
-          complex.near(this, self, id, heap);
-        });
-      }
+    for (const [_, complex, id, heap] of nearAndBehaviors) {
+      complex.near(this, self, id, heap);
     }
 
-    self.lastNear = nowNear;
+    for (const [_, complex, id, heap] of oldNear) {
+      complex.far(this, self, id, heap);
+    }
+
+    self.lastNear = nearAndBehaviors;
   }
 
   triggerBlockAction(self: Player) {
@@ -417,12 +426,25 @@ export class EEPhysics {
     position: Vector,
     trigger: (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) => void
   ) {
+    const complexInfo = this.getComplexInfo(layer, position);
+
+    if (complexInfo) {
+      trigger(...complexInfo);
+    }
+  }
+
+  private getComplexInfo(
+    layer: TileLayer,
+    position: Vector
+  ): null | [ComplexBlockBehavior, number, ZHeap | 0] {
     const blockId = this.world.blockAt(position, layer);
     const complex = this.ids.tiles.forId(blockId).complex;
     if (complex) {
       const heap = this.world.heap.getv(layer, position);
-      trigger(complex, blockId, heap);
+      return [complex, blockId, heap];
     }
+
+    return null;
   }
 
   private handleActionSigns(self: Player, blockId: number, position: Vector) {
@@ -469,5 +491,13 @@ export class EEPhysics {
     if (this.ids.isHazard(actionBlock)) {
       self.kill();
     }
+  }
+
+  keyIsOnForPlayer(player: Player, kind: ZKeyKind) {
+    const playerCollision = player.keys.getCollision(kind);
+    if (typeof playerCollision !== "undefined") return playerCollision;
+
+    const worldCollision = this.keys.isOn(kind);
+    return worldCollision;
   }
 }
