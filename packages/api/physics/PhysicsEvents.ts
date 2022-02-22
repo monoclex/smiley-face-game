@@ -18,4 +18,6 @@ export interface PhysicsEvents {
   signOff(player: Player): void;
 
   checkpoint(player: Player, position: Vector): void;
+
+  death(player: Player): void;
 }

@@ -106,6 +106,7 @@ export class EEPhysics {
 
     if (this.ids.isHazard(current)) {
       self.kill();
+      this.events.emit("death", self);
       return;
     }
 
@@ -498,6 +499,7 @@ export class EEPhysics {
   private handleActionHazards(self: Player, actionBlock: number) {
     if (this.ids.isHazard(actionBlock)) {
       self.kill();
+      this.events.emit("death", self);
     }
   }
 
