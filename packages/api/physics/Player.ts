@@ -1,8 +1,6 @@
 import { Inputs } from "../game/Inputs";
-import { StateStorageKey } from "../tiles/register";
 import { ZRole } from "../types";
 import { Config } from "./ee/Config";
-import { DifferentialSet } from "./ee/EEPhysics";
 import { Vector } from "./Vector";
 
 // regarding physics variables:
@@ -69,7 +67,10 @@ export class Player {
   }
 
   /** @version eephysics This may be removed when the physics engine changes */
-  lastActivateBlockPosition: Vector = Vector.NegativeOnes;
+  lastBlockIn: Vector = Vector.NegativeOnes;
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  lastNear: Vector[] = [];
 
   /** @version eephysics This may be removed when the physics engine changes */
   private inGodMode = false;
@@ -192,23 +193,5 @@ export class Player {
   /** @version eephysics This may be removed when the physics engine changes */
   clearCheckpoint() {
     this.checkpoint = null;
-  }
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  stateStorage: StateStorage = new StateStorage();
-
-  /** @version eephysics This may be removed when the physics engine changes */
-  collidedWith = new DifferentialSet<StateStorageKey>();
-}
-
-class StateStorage {
-  state: { [K in StateStorageKey]?: boolean | undefined } = {};
-
-  getCollisionState(storageKey: StateStorageKey): boolean | undefined {
-    return this.state[storageKey];
-  }
-
-  setCollisionState(storageKey: StateStorageKey, value: boolean | undefined) {
-    this.state[storageKey] = value;
   }
 }

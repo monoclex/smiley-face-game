@@ -1,5 +1,4 @@
 import Schema, { SchemaInput, boolean, addParse, array, number } from "./computed-types-wrapper";
-import { StateStorageKey } from "./tiles/register";
 import {
   zInputs,
   zPlayerPosition,
@@ -21,7 +20,6 @@ import {
   zMessage,
   zHeap,
   zHeaps,
-  zStateStorageKey,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -37,18 +35,6 @@ export type ZPickupGun = SchemaInput<typeof zPickupGun>;
 export const zMovementQueue = addParse(array.of(number).min(2).max(2));
 export type ZMovementQueue = SchemaInput<typeof zMovementQueue>;
 
-const redkey: StateStorageKey = "redkey";
-export const zMovementCollisions = addParse(
-  Schema.either(
-    Schema({
-      // TODO: somehow assert keys are statestoragekeys
-      ["redkey" as const]: boolean,
-    }),
-    Schema({})
-  )
-);
-export type ZMovementCollisions = SchemaInput<typeof zMovementCollisions>;
-
 export const zMovement = addParse(
   Schema({
     packetId: "MOVEMENT" as const,
@@ -58,9 +44,6 @@ export const zMovement = addParse(
 
     // ee physics
     queue: zMovementQueue,
-
-    // to make a player look right while inside keys/doors
-    collisions: zMovementCollisions,
   })
 );
 export type ZMovement = SchemaInput<typeof zMovement>;
@@ -239,9 +222,6 @@ export const zsMovement = addParse(
 
     // ee physics
     queue: zMovementQueue,
-
-    // to make a player look right while inside keys/doors
-    collisions: zMovementCollisions,
   })
 );
 export type ZSMovement = SchemaInput<typeof zsMovement>;

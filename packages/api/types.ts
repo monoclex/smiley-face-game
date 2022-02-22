@@ -81,8 +81,8 @@ export const zInputs = addParse(
 );
 export type ZInputs = SchemaInput<typeof zInputs>;
 
-export const zStateStorageKey = addParse(Schema.either("redkey" as const));
-export type ZStateStorageKey = SchemaInput<typeof zStateStorageKey>;
+export const zKeyKind = addParse(Schema.either("red" as const));
+export type ZKeyKind = SchemaInput<typeof zKeyKind>;
 
 export const zVelocity = addParse(
   Schema({

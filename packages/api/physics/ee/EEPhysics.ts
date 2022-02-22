@@ -2,7 +2,7 @@ import { createNanoEvents } from "../../nanoevents";
 import { Blocks } from "../../game/Blocks";
 import { ZSMovement } from "../../packets";
 import TileRegistration from "../../tiles/TileRegistration";
-import { TileLayer, ZStateStorageKey } from "../../types";
+import { TileLayer, ZHeap } from "../../types";
 import { PhysicsEvents } from "../PhysicsSystem";
 import { Player } from "../Player";
 import { Vector } from "../Vector";
@@ -15,58 +15,38 @@ import { calculateDragVector } from "./algorithms/calculateDrag";
 import { collisionStepping } from "./algorithms/collisionStepping";
 import { performJumping } from "./algorithms/jumping";
 import { performZoosts } from "./algorithms/zoosts";
-import { StateStorageKey } from "../../tiles/register";
+import { Keys } from "./Keys";
+import { solidHitbox } from "../../tiles/hitboxes";
+import { ComplexBlockBehavior } from "../../tiles/register";
 
 // half a second until alive
 const TIME_UNTIL_ALIVE = 250;
+const TIME_UNTIL_FIRST_JUMP = 750;
+const TIME_UNTIL_NTH_JUMP = 150;
 
 // for the reference EE physics implementation, see here:
 // https://github.com/Seb-135/ee-offline/blob/main/src/Player.as
 // the physics code in SFG has been completely rewritten from scratch but keeps
 // all of the bugs and quirks the original EE physics code has
 export class EEPhysics {
-  readonly optimalTickRate: number;
+  readonly msPerTick: number;
   readonly events = createNanoEvents<PhysicsEvents>();
+  readonly ids: BlockIdCache;
+  readonly keys: Keys = new Keys(this);
 
   ticks = 0;
   start = Date.now();
 
-  private ids: BlockIdCache;
-
-  get redKeyOn() {
-    return this.collisionStates.willCollideWith("redkey", this.ticks);
-  }
-
-  collisionStates = new CollisionStates();
-  collidedChanges = new DifferentialRecord<StateStorageKey, boolean>();
-
   private readonly ticksUntilAlive: number;
+  private readonly ticksUntilFirstJump: number;
+  private readonly ticksUntilNthJump: number;
 
   constructor(tiles: TileRegistration, private readonly world: Blocks, ticksPerSecond: number) {
-    this.optimalTickRate = 1000 / ticksPerSecond;
-    this.ticksUntilAlive = TIME_UNTIL_ALIVE / this.optimalTickRate;
+    this.msPerTick = 1000 / ticksPerSecond;
     this.ids = new BlockIdCache(tiles);
-  }
-
-  update(elapsedMs: number, players: Player[]) {
-    while ((this.ticks + 1) * this.optimalTickRate <= elapsedMs) {
-      this.tick(players);
-    }
-  }
-
-  handleChangesToCollisions() {
-    const changes = this.collidedChanges.update(
-      this.collisionStates.getCollisionStates(this.ticks)
-    );
-
-    for (const [change, key] of changes) {
-      this.events.emit("keyState", "red", this.collisionStates.willCollideWith(key, this.ticks));
-    }
-  }
-
-  triggerKey(kind: "red", deactivateTime: number, player: Player): void {
-    const tickDisablesAt = Math.ceil((deactivateTime - this.start) / this.optimalTickRate);
-    this.collisionStates.setCollisionOffOnTick("redkey", tickDisablesAt);
+    this.ticksUntilAlive = TIME_UNTIL_ALIVE / this.msPerTick;
+    this.ticksUntilFirstJump = TIME_UNTIL_FIRST_JUMP / this.msPerTick;
+    this.ticksUntilNthJump = TIME_UNTIL_NTH_JUMP / this.msPerTick;
   }
 
   updatePlayer(movement: ZSMovement, player: Player): void {
@@ -77,9 +57,14 @@ export class EEPhysics {
     if (movement.queue.length !== 2) throw new Error("invalid movement packet");
     //@ts-expect-error doesn't coerce nicely
     player.queue = movement.queue;
+  }
 
-    player.stateStorage.state = movement.collisions;
-    player.collidedWith.last = new Set(Object.keys(movement.collisions) as ZStateStorageKey[]);
+  // --- physics below ---
+
+  update(elapsedMs: number, players: Player[]) {
+    while ((this.ticks + 1) * this.msPerTick <= elapsedMs) {
+      this.tick(players);
+    }
   }
 
   tick(players: Player[]) {
@@ -88,7 +73,6 @@ export class EEPhysics {
       player.ticks++;
     }
 
-    this.handleChangesToCollisions();
     this.ticks += 1;
   }
 
@@ -180,7 +164,9 @@ export class EEPhysics {
       currentGravityForce,
       currentGravityDirection,
       delayedGravityDirection,
-      velocity
+      velocity,
+      this.ticksUntilFirstJump,
+      this.ticksUntilNthJump
     );
 
     position = autoAlignVector(position, velocity, forceAppliedToPlayer);
@@ -269,7 +255,7 @@ export class EEPhysics {
 
   performZoosts(self: Player, position: Vector, direction: Vector) {
     const checkCollision = (position: Vector) =>
-      this.blockOutsideBounds(position) || this.willCollide(self, position);
+      this.blockOutsideBounds(position) || this.willCollide(self, solidHitbox, position);
 
     const interactionPositions = performZoosts(
       checkCollision,
@@ -316,13 +302,7 @@ export class EEPhysics {
   }
 
   collidesWithBlock(playerHitbox: Rectangle, player: Player, blockCoord: Vector) {
-    if (!this.willCollide(player, blockCoord)) return false;
-
-    // TODO: add more hitboxes for collision (e.g. slabs, stairs)
-    const blockPosition = Vector.mults(blockCoord, Config.blockSize);
-    const blockHitbox = new Rectangle(blockPosition, Vector.newScalar(Config.blockSize));
-
-    return Rectangle.overlaps(playerHitbox, blockHitbox);
+    return this.willCollide(player, playerHitbox, blockCoord);
   }
 
   cornersOfPlayer(position: Vector): Vector[] {
@@ -330,7 +310,8 @@ export class EEPhysics {
     // edges, as when we round down we don't want the player to be considered
     // to be touching the bottom/right blocks below them.
     //
-    // this works fine, but i really wonder if there's a less hacky solution
+    // this works fine, but a less hacky solution would be to check if the hitbox
+    // of the player is near the edges of the blocks
     const SMALL_DELTA = 0.0001;
 
     const OFFSET = Config.blockSize - SMALL_DELTA;
@@ -362,79 +343,86 @@ export class EEPhysics {
 
   // TODO: below this point still needs cleaning
 
-  willCollide(self: Player, blockPosition: Vector): boolean {
-    if (self.isInGodMode) {
-      throw new Error("this is impossible because we only check collisions in not-god-mode");
-    }
-
+  willCollide(self: Player, playerHitbox: Rectangle, blockPosition: Vector): boolean {
     const id = this.world.blockAt(blockPosition, TileLayer.Foreground);
     const block = this.ids.tiles.forId(id);
 
     let willCollide = block.isSolid;
-
-    const storageKey = block.stateStorage;
-    if (storageKey) {
-      willCollide = this.collisionStates.playerWillCollideWith(storageKey, this.ticks, self);
-      if (block.negateCollisionFromState) willCollide = !willCollide;
-    }
+    this.triggerComplex(
+      TileLayer.Foreground,
+      blockPosition,
+      (complex, id, heap) => (willCollide = complex.collides(this, self, id, heap, playerHitbox))
+    );
 
     return willCollide;
   }
 
   handleSurroundingBlocks(self: Player) {
-    const surroundedBlocks = this.getSurroundingBlocks(self);
+    const oldNear = self.lastNear;
+    const nowNear = this.cornersOfPlayer(self.position).map(this.roundPositionToBlockCoords);
 
-    const changes = self.collidedWith.update(surroundedBlocks);
-    for (const [change, key] of changes) {
-      switch (change) {
-        case "added":
-          self.stateStorage.setCollisionState(
-            key,
-            this.collisionStates.willCollideWith(key, self.ticks)
-          );
-          break;
-        case "removed":
-          self.stateStorage.setCollisionState(key, undefined);
-          break;
+    const any: <T>(it: T[], predicate: (it: T) => boolean) => boolean = (it, predicate) =>
+      it.filter(predicate).length > 0;
+
+    const vectorExistsIn = (vector: Vector, array: Vector[]) =>
+      any(array, (element) => Vector.eq(vector, element));
+
+    const noLongerNear = oldNear.filter((old) => !vectorExistsIn(old, nowNear));
+    const newlyNear = nowNear.filter((now) => !vectorExistsIn(now, oldNear));
+
+    for (const layer of [TileLayer.Foreground, TileLayer.Action]) {
+      for (const old of noLongerNear) {
+        this.triggerComplex(TileLayer.Foreground, old, (complex, id, heap) => {
+          complex.far(this, self, id, heap);
+        });
       }
 
-      const keyState = this.collisionStates.playerWillCollideWith("redkey", this.ticks, self);
-      this.events.emit("playerKeyState", "red", self, keyState);
-    }
-  }
-
-  getSurroundingBlocks(self: Player) {
-    const inside = new Set<StateStorageKey>();
-
-    const surroundingBlocks = this.cornersOfPlayer(self.position).map(
-      this.roundPositionToBlockCoords
-    );
-
-    for (const surroundingBlock of surroundingBlocks) {
-      const id = this.world.blockAt(surroundingBlock, TileLayer.Foreground);
-      const block = this.ids.tiles.forId(id);
-
-      const storageKey = block.stateStorage;
-      if (storageKey) {
-        inside.add(storageKey);
+      for (const now of newlyNear) {
+        this.triggerComplex(TileLayer.Foreground, now, (complex, id, heap) => {
+          complex.near(this, self, id, heap);
+        });
       }
     }
 
-    return inside;
+    self.lastNear = nowNear;
   }
 
   triggerBlockAction(self: Player) {
-    if (Vector.eq(self.worldPosition, self.lastActivateBlockPosition)) return;
+    if (Vector.eq(self.worldPosition, self.lastBlockIn)) return;
 
     const decorationBlock = this.world.blockAt(self.worldPosition, TileLayer.Decoration);
-    this.handleActionSigns(self, decorationBlock, self.worldPosition);
-
     const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
+
+    this.handleActionSigns(self, decorationBlock, self.worldPosition);
     this.handleActionCheckpoints(self, actionBlock, self.worldPosition);
     this.handleActionHazards(self, actionBlock);
-    this.handleActionKeys(self, actionBlock);
 
-    self.lastActivateBlockPosition = self.worldPosition;
+    // handle more complex blocks
+    const performIn = (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) =>
+      complex.in(this, self, id, heap);
+
+    const performOut = (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) =>
+      complex.in(this, self, id, heap);
+
+    this.triggerComplex(TileLayer.Foreground, self.worldPosition, performIn);
+    this.triggerComplex(TileLayer.Action, self.worldPosition, performIn);
+    this.triggerComplex(TileLayer.Foreground, self.lastBlockIn, performOut);
+    this.triggerComplex(TileLayer.Action, self.lastBlockIn, performOut);
+
+    self.lastBlockIn = self.worldPosition;
+  }
+
+  private triggerComplex(
+    layer: TileLayer,
+    position: Vector,
+    trigger: (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) => void
+  ) {
+    const blockId = this.world.blockAt(position, layer);
+    const complex = this.ids.tiles.forId(blockId).complex;
+    if (complex) {
+      const heap = this.world.heap.getv(layer, position);
+      trigger(complex, blockId, heap);
+    }
   }
 
   private handleActionSigns(self: Player, blockId: number, position: Vector) {
@@ -481,121 +469,5 @@ export class EEPhysics {
     if (this.ids.isHazard(actionBlock)) {
       self.kill();
     }
-  }
-
-  private handleActionKeys(self: Player, actionBlock: number) {
-    if (this.ids.keysRedKey === actionBlock) {
-      this.events.emit("keyTouch", "red", self);
-    }
-  }
-}
-
-class CollisionStates {
-  collisionStates: { [K in StateStorageKey]?: CollisionValue } = {};
-
-  constructor() {}
-
-  playerWillCollideWith(stateStorageKey: StateStorageKey, ticks: number, player: Player): boolean {
-    return (
-      player.stateStorage.getCollisionState(stateStorageKey) ??
-      this.willCollideWith(stateStorageKey, ticks)
-    );
-  }
-
-  willCollideWith(stateStorageKey: StateStorageKey, ticks: number): boolean {
-    const collisionValue = this.collisionStates[stateStorageKey];
-    if (!collisionValue) return false;
-    else return collisionValue.hasCollisionOn(ticks);
-  }
-
-  setCollisionTo(stateStorageKey: StateStorageKey, value: boolean) {
-    this.collisionStates[stateStorageKey] = new ConstantCollisionValue(value);
-  }
-
-  setCollisionOffOnTick(stateStorageKey: StateStorageKey, tickOffAt: number) {
-    this.collisionStates[stateStorageKey] = new TickCollisionValue(tickOffAt);
-  }
-
-  getCollisionStates(ticks: number): Partial<Record<StateStorageKey, boolean>> {
-    const states: Partial<Record<StateStorageKey, boolean>> = {};
-
-    for (const rawKey in this.collisionStates) {
-      const key = rawKey as StateStorageKey;
-      states[key] = this.willCollideWith(key, ticks);
-    }
-
-    return states;
-  }
-}
-
-interface CollisionValue {
-  hasCollisionOn(ticks: number): boolean;
-}
-
-class ConstantCollisionValue implements CollisionValue {
-  constructor(readonly collisionOn: boolean) {}
-
-  hasCollisionOn(): boolean {
-    return this.collisionOn;
-  }
-}
-class TickCollisionValue implements CollisionValue {
-  constructor(readonly tickCollisionDisabledAt: number) {}
-
-  hasCollisionOn(ticks: number): boolean {
-    return ticks < this.tickCollisionDisabledAt;
-  }
-}
-
-export class DifferentialSet<T> {
-  last: Set<T> = new Set();
-
-  constructor() {}
-
-  update(next: Set<T>): ["added" | "removed", T][] {
-    const elements: ["added" | "removed", T][] = [];
-
-    const all = new Set<T>([...this.last, ...next]);
-    for (const element of all) {
-      const lastHas = this.last.has(element);
-      const nextHas = next.has(element);
-
-      if (lastHas && !nextHas) {
-        elements.push(["removed", element]);
-      } else if (!lastHas && nextHas) {
-        elements.push(["added", element]);
-      }
-    }
-
-    this.last = next;
-    return elements;
-  }
-}
-
-class DifferentialRecord<K extends string, V> {
-  last: Partial<Record<K, V>> = {};
-
-  constructor() {}
-
-  update(next: Partial<Record<K, V>>): ["added" | "removed" | "updated", K][] {
-    const updates: ["added" | "removed" | "updated", K][] = [];
-
-    const keys = [...Object.keys(this.last), ...Object.keys(next)] as K[];
-    for (const key of keys) {
-      const lastHas = key in this.last;
-      const nextHas = key in next;
-
-      if (lastHas && !nextHas) {
-        updates.push(["removed", key]);
-      } else if (!lastHas && nextHas) {
-        updates.push(["added", key]);
-      } else if (lastHas && nextHas) {
-        if (this.last[key] !== next[key]) {
-          updates.push(["updated", key]);
-        }
-      }
-    }
-
-    return updates;
   }
 }

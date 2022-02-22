@@ -8,7 +8,9 @@ export function performJumping(
   currentGravityForce: Vector,
   currentGravity: Vector,
   delayedGravity: Vector,
-  velocity: Vector
+  velocity: Vector,
+  ticksUntilFirstJump: number,
+  ticksUntilNthJump: number
 ) {
   let tryToPerformJump = false;
 
@@ -18,12 +20,12 @@ export function performJumping(
   } else if (self.isSpaceDown) {
     if (self.jumpTimes === "once") {
       // if 750ms has elapsed since the last jump
-      if (self.ticks - self.lastJump > 75) {
+      if (self.ticks - self.lastJump > ticksUntilFirstJump) {
         tryToPerformJump = true;
       }
     } else {
       // if it's been 150ms
-      if (self.ticks - self.lastJump > 15) {
+      if (self.ticks - self.lastJump > ticksUntilNthJump) {
         tryToPerformJump = true;
       }
     }

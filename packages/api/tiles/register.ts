@@ -1,6 +1,9 @@
 import { Config } from "../physics/ee/Config";
+import { EEPhysics } from "../physics/ee/EEPhysics";
+import { Player } from "../physics/Player";
+import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
-import { TileLayer, ZStateStorageKey } from "../types";
+import { TileLayer, ZHeap } from "../types";
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -90,7 +93,21 @@ export enum Behavior {
   Zoost,
 }
 
-export type StateStorageKey = ZStateStorageKey;
+export interface ComplexBlockBehavior {
+  collides: (
+    world: EEPhysics,
+    player: Player,
+    id: number,
+    heap: ZHeap | 0,
+    playerHitbox: Rectangle
+  ) => boolean;
+
+  near: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+  far: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+
+  in: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+  out: (world: EEPhysics, player: Player, id: number, heap: ZHeap | 0) => void;
+}
 
 export interface BlockConfig {
   id: number;
@@ -102,8 +119,8 @@ export interface BlockConfig {
   gravitationalPull?: Vector | undefined;
   requiredForce?: Vector | undefined;
   behavior?: Behavior;
-  stateStorage?: StateStorageKey | undefined;
   negateCollisionFromState?: boolean;
+  complex?: ComplexBlockBehavior;
 }
 
 export type BlockInfo = Readonly<{
@@ -116,8 +133,8 @@ export type BlockInfo = Readonly<{
   gravitationalPull: Vector | undefined;
   requiredForce: Vector | undefined;
   behavior: Behavior;
-  stateStorage: StateStorageKey | undefined;
   negateCollisionFromState: boolean;
+  complex: undefined | ComplexBlockBehavior;
 }>;
 
 export interface PackConfig {
@@ -149,8 +166,8 @@ export class TilesMaker {
     gravitationalPull,
     requiredForce,
     behavior,
-    stateStorage,
     negateCollisionFromState,
+    complex,
   }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
     isSolid ??= true;
@@ -172,8 +189,8 @@ export class TilesMaker {
       gravitationalPull,
       requiredForce,
       behavior,
-      stateStorage,
       negateCollisionFromState,
+      complex,
     });
 
     this.map.set(id, info);
