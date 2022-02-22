@@ -82,5 +82,31 @@
                 "direction": "90 counterclockwise"
             }
         ]
+    },
+    {
+        "source": "prismarine-slab-horizontal-src",
+        "destinations": [
+            {
+                "target": "prismarine-slab-up",
+                "shift": "none"
+            },
+            {
+                "target": "prismarine-slab-down",
+                "shift": "half down"
+            }
+        ]
+    },
+    {
+        "source": "prismarine-slab-vertical-src",
+        "destinations": [
+            {
+                "target": "prismarine-slab-left",
+                "shift": "none"
+            },
+            {
+                "target": "prismarine-slab-right",
+                "shift": "half right"
+            }
+        ]
     }
 ]

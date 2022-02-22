@@ -5,6 +5,7 @@ import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
 import { TileLayer, ZHeap } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
+import { slabHitbox, solidHitbox } from "./hitboxes";
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -115,6 +116,7 @@ export interface BlockConfig {
   textureId: string;
   preferredLayer?: TileLayer;
   isSolid?: boolean;
+  hitbox?: Rectangle;
   heap?: HeapKind;
   direction?: Vector;
   gravitationalPull?: Vector | undefined;
@@ -127,7 +129,7 @@ export type BlockInfo = Readonly<{
   id: number;
   textureId: string;
   preferredLayer: TileLayer;
-  isSolid: boolean;
+  hitbox: Rectangle | undefined;
   heap: HeapKind;
   direction: Vector;
   gravitationalPull: Vector | undefined;
@@ -160,6 +162,7 @@ export class TilesMaker {
     textureId,
     preferredLayer,
     isSolid,
+    hitbox,
     heap,
     direction,
     gravitationalPull,
@@ -168,7 +171,6 @@ export class TilesMaker {
     complex,
   }: BlockConfig): BlockInfo {
     preferredLayer ??= TileLayer.Foreground;
-    isSolid ??= true;
     heap ??= HeapKind.None;
     direction ??= Vector.Zero;
     behavior ??= Behavior.Typical;
@@ -176,11 +178,16 @@ export class TilesMaker {
     if (this.usedIds.has(id))
       throw new Error(`tile id already registered: ${id} (duplicate: ${textureId})`);
 
+    if (!hitbox) {
+      if (isSolid === undefined) hitbox = solidHitbox;
+      else hitbox = isSolid ? solidHitbox : undefined;
+    }
+
     const info = Object.freeze({
       id,
       textureId,
       preferredLayer,
-      isSolid,
+      hitbox,
       heap,
       direction,
       gravitationalPull,
@@ -239,7 +246,7 @@ export class TilesMaker {
   /**
    * Helper for creating a "solid" block pack of blocks.
    */
-  helpMakeSolid(name: string, start: number, end: number, tiles: string[]) {
+  helpMakeSolid(name: string, start: number, end: number, tiles: string[], pack: boolean = true) {
     if (end - start !== tiles.length) {
       throw new Error(`invalid range detected ${start} to ${end} (${tiles.length} tiles)`);
     }
@@ -251,11 +258,13 @@ export class TilesMaker {
       textureId: name + "-" + suffix,
     }));
 
-    this.pack({ name });
+    if (pack) {
+      this.pack({ name });
+    }
   }
 }
 
-const directions = ["up", "right", "down", "left"] as const;
+export const directions = ["up", "right", "down", "left"] as const;
 const vectorDirection: { [K in typeof directions[number]]: Vector } = {
   up: Vector.Up,
   right: Vector.Right,
@@ -416,7 +425,16 @@ function makeGemstone(make: TilesMaker) {
 }
 
 function makePrismarine(make: TilesMaker) {
-  make.helpMakeSolid("prismarine", 17, 22, ["basic", "anchor", "brick", "slab", "crystal"]);
+  make.helpMakeSolid("prismarine", 17, 22, ["basic", "anchor", "brick", "slab", "crystal"], false);
+
+  make.blocks(zip(range(78, 82), directions), ([id, suffix]) => ({
+    id,
+    textureId: "prismarine-slab-" + suffix,
+    direction: vectorDirection[suffix],
+    hitbox: slabHitbox[suffix],
+  }));
+
+  make.pack({ name: "prismarine" });
 }
 
 function makeGun(make: TilesMaker) {

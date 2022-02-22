@@ -1,3 +1,4 @@
+import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { Texture } from "pixi.js";
 import { cloneTexture } from "../BlockTextureToImage";
 import Resolver from "./Resolver";
@@ -9,12 +10,20 @@ interface RotationConfig {
   destinations: Destination[];
 }
 
-interface Destination {
+type Destination = RotationDestination | ShiftDestination;
+
+interface RotationDestination {
   target: string;
   direction: Direction;
 }
 
+interface ShiftDestination {
+  target: string;
+  shift: Shift;
+}
+
 type Direction = "90 clockwise" | "90 counterclockwise" | "180" | "0";
+type Shift = "none" | "half down" | "half right";
 
 // http://scottmcdonnell.github.io/pixi-examples/index.html?s=demos&f=texture-rotate.js&title=Texture%20Rotate
 const dirsToRotate: { [K in Direction]: number } = {
@@ -22,6 +31,12 @@ const dirsToRotate: { [K in Direction]: number } = {
   "180": 4,
   "90 clockwise": 6,
   "90 counterclockwise": 2,
+};
+
+const offsetsToShift: Record<Shift, Vector> = {
+  none: Vector.Zero,
+  "half down": new Vector(0, 16),
+  "half right": new Vector(16, 0),
 };
 
 /**
@@ -43,16 +58,30 @@ export default class RotationResolver implements Resolver {
           throw new Error(`Duplicate rotation texture ${destination.target} detected.`);
         }
 
-        const rotatedTexture = sourceTexture.clone();
-        rotatedTexture.rotate = dirsToRotate[destination.direction];
+        if ("direction" in destination) {
+          const rotatedTexture = sourceTexture.clone();
+          rotatedTexture.rotate = dirsToRotate[destination.direction];
 
-        // fully clone the texture because the pixi tilemap render can't handle
-        // a `.rotate` property
-        const clonedTexture = await cloneTexture((sprite) => (sprite.texture = rotatedTexture));
+          // fully clone the texture because the pixi tilemap render can't handle
+          // a `.rotate` property
+          const clonedTexture = await cloneTexture((sprite) => (sprite.texture = rotatedTexture));
 
-        rotatedTexture.destroy(false);
+          rotatedTexture.destroy(false);
 
-        textures.set(destination.target, clonedTexture);
+          textures.set(destination.target, clonedTexture);
+        } else {
+          const offset = offsetsToShift[destination.shift];
+
+          // fully clone the texture because the pixi tilemap render can't handle
+          // a `.rotate` property
+          const clonedTexture = await cloneTexture((sprite) => {
+            sprite.texture = sourceTexture;
+            sprite.x += offset.x;
+            sprite.y += offset.y;
+          });
+
+          textures.set(destination.target, clonedTexture);
+        }
       }
     }
 

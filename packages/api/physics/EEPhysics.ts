@@ -296,11 +296,7 @@ export class EEPhysics {
       if (this.blockOutsideBounds(blockCoord)) continue;
 
       // normalize player's hitbox to (0, 0) coords
-      const blockWorldCoord = Vector.mults(blockCoord, Config.blockSize);
-      const playerHitbox = new Rectangle(
-        Vector.sub(position, blockWorldCoord),
-        Vector.newScalar(Config.blockSize)
-      );
+      const playerHitbox = this.normalizePlayerHitbox(blockCoord, position);
 
       if (this.collidesWithBlock(playerHitbox, self, blockCoord)) {
         return true;
@@ -308,6 +304,15 @@ export class EEPhysics {
     }
 
     return false;
+  }
+
+  private normalizePlayerHitbox(blockCoord: Vector<number>, playerPosition: Vector<number>) {
+    const blockWorldCoord = Vector.mults(blockCoord, Config.blockSize);
+    const playerHitbox = new Rectangle(
+      Vector.sub(playerPosition, blockWorldCoord),
+      Vector.newScalar(Config.blockSize)
+    );
+    return playerHitbox;
   }
 
   collidesWithBlock(playerHitbox: Rectangle, player: Player, blockCoord: Vector) {
@@ -356,14 +361,17 @@ export class EEPhysics {
     const id = this.world.blockAt(blockPosition, TileLayer.Foreground);
     const block = this.ids.tiles.forId(id);
 
-    let willCollide = block.isSolid;
-    this.triggerComplex(
-      TileLayer.Foreground,
-      blockPosition,
-      (complex, id, heap) => (willCollide = complex.collides(this, self, id, heap, playerHitbox))
-    );
+    const complexInfo = this.getComplexInfo(TileLayer.Foreground, blockPosition);
+    if (complexInfo) {
+      const [complex, id, heap] = complexInfo;
+      return complex.collides(this, self, id, heap, playerHitbox);
+    }
 
-    return willCollide;
+    if (block.hitbox) {
+      return Rectangle.overlaps(playerHitbox, block.hitbox);
+    }
+
+    return false;
   }
 
   handleSurroundingBlocks(self: Player) {
