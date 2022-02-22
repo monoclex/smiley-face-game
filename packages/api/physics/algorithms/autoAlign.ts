@@ -1,4 +1,4 @@
-import { Vector } from "../../Vector";
+import { Vector } from "../Vector";
 import { Config } from "../Config";
 
 const isSlow = (n: number) => Math.abs(n) < 1 / 256;

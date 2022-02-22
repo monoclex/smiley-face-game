@@ -1,23 +1,23 @@
-import { createNanoEvents } from "../../nanoevents";
-import { Blocks } from "../../game/Blocks";
-import { ZSMovement } from "../../packets";
-import TileRegistration from "../../tiles/TileRegistration";
-import { TileLayer, ZHeap, ZKeyKind } from "../../types";
-import { PhysicsEvents } from "../PhysicsSystem";
-import { Player } from "../Player";
-import { Vector } from "../Vector";
+import { createNanoEvents } from "../nanoevents";
+import { Blocks } from "../game/Blocks";
+import { ZSMovement } from "../packets";
+import TileRegistration from "../tiles/TileRegistration";
+import { TileLayer, ZHeap, ZKeyKind } from "../types";
+import { Player } from "./Player";
+import { Vector } from "./Vector";
 import { BlockIdCache } from "./BlockIdCache";
 import { Config } from "./Config";
 import equal from "fast-deep-equal";
-import { Rectangle } from "../Rectangle";
+import { Rectangle } from "./Rectangle";
 import { autoAlignVector } from "./algorithms/autoAlign";
 import { calculateDragVector } from "./algorithms/calculateDrag";
 import { collisionStepping } from "./algorithms/collisionStepping";
 import { performJumping } from "./algorithms/jumping";
 import { performZoosts } from "./algorithms/zoosts";
 import { Keys } from "./Keys";
-import { solidHitbox } from "../../tiles/hitboxes";
-import { ComplexBlockBehavior } from "../../tiles/register";
+import { solidHitbox } from "../tiles/hitboxes";
+import { ComplexBlockBehavior } from "../tiles/register";
+import { PhysicsEvents } from "./PhysicsEvents";
 
 // half a second until alive
 const TIME_UNTIL_ALIVE = 250;

@@ -1,7 +1,7 @@
 import { Inputs } from "../game/Inputs";
 import { ComplexBlockBehavior } from "../tiles/register";
 import { ZHeap, ZKeyKind, ZRole } from "../types";
-import { Config } from "./ee/Config";
+import { Config } from "./Config";
 import { Vector } from "./Vector";
 
 // regarding physics variables:

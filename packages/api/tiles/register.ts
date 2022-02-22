@@ -1,5 +1,5 @@
-import { Config } from "../physics/ee/Config";
-import { EEPhysics } from "../physics/ee/EEPhysics";
+import { Config } from "../physics/Config";
+import { EEPhysics } from "../physics/EEPhysics";
 import { Player } from "../physics/Player";
 import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";

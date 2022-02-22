@@ -1,5 +1,5 @@
-import { Player } from "../../Player";
-import { Vector } from "../../Vector";
+import { Player } from "../Player";
+import { Vector } from "../Vector";
 
 interface StepState {
   /** how far off the player is from a single pixel, `x % 1` where x is 16 units per block */

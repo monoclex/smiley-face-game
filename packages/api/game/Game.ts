@@ -1,7 +1,7 @@
 import { ZSPacket } from "..";
 import type { ZSEvent, ZSInit, ZSWorldAction } from "../packets";
 import { Blocks } from "./Blocks";
-import { EEPhysics } from "../physics/ee/EEPhysics";
+import { EEPhysics } from "../physics/EEPhysics";
 import { Players } from "./Players";
 import { Vector } from "../physics/Vector";
 import TileRegistration from "../tiles/TileRegistration";

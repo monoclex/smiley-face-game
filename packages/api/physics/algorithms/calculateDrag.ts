@@ -1,5 +1,5 @@
-import clamp from "../../clamp";
-import { Vector } from "../../Vector";
+import clamp from "../clamp";
+import { Vector } from "../Vector";
 import { Config } from "../Config";
 
 export function calculateDragVector(

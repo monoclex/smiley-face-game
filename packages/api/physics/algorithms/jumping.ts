@@ -1,5 +1,5 @@
-import { Player } from "../../Player";
-import { Vector } from "../../Vector";
+import { Player } from "../Player";
+import { Vector } from "../Vector";
 import { Config } from "../Config";
 
 export function performJumping(

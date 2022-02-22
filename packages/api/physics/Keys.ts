@@ -1,5 +1,5 @@
-import { ZKeyKind } from "../../types";
-import { Player } from "../Player";
+import { ZKeyKind } from "../types";
+import { Player } from "./Player";
 import { EEPhysics } from "./EEPhysics";
 
 export class Keys {

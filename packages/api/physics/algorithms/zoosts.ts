@@ -1,7 +1,7 @@
-import { TileLayer } from "../../..";
-import { Blocks } from "../../../game/Blocks";
-import { Player } from "../../Player";
-import { Vector } from "../../Vector";
+import { TileLayer } from "../..";
+import { Blocks } from "../../game/Blocks";
+import { Player } from "../Player";
+import { Vector } from "../Vector";
 import { BlockIdCache } from "../BlockIdCache";
 import { Config } from "../Config";
 

@@ -1,6 +1,6 @@
-import { Behavior } from "../../tiles/register";
-import TileRegistration from "../../tiles/TileRegistration";
-import { Vector } from "../Vector";
+import { Behavior } from "../tiles/register";
+import TileRegistration from "../tiles/TileRegistration";
+import { Vector } from "./Vector";
 
 export class BlockIdCache {
   readonly dot: number;

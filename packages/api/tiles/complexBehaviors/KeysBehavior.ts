@@ -1,4 +1,4 @@
-import { EEPhysics } from "../../physics/ee/EEPhysics";
+import { EEPhysics } from "../../physics/EEPhysics";
 import { Player } from "../../physics/Player";
 import { Rectangle } from "../../physics/Rectangle";
 import { ZKeyKind } from "../../types";

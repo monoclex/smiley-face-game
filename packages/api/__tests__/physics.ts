@@ -1,4 +1,4 @@
-import { Config } from "../physics/ee/Config";
+import { Config } from "../physics/Config";
 import { Vector } from "../physics/Vector";
 import { Simulator } from "./helpers.test-helper";
 

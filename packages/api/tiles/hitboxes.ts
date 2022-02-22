@@ -1,4 +1,4 @@
-import { Config } from "../physics/ee/Config";
+import { Config } from "../physics/Config";
 import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
 
