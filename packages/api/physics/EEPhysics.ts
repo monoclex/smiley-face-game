@@ -468,19 +468,19 @@ export class EEPhysics {
     // if we weren't in a sign but we are
     if (!inSign(self.insideSign) && inSign(currentlyInSign)) {
       self.insideSign = currentlyInSign;
-      this.events.emit("signOn", x, y);
+      this.events.emit("signOn", self, x, y);
     }
 
     // if we aren't in a sign but we were
     else if (!inSign(currentlyInSign) && inSign(self.insideSign)) {
       self.insideSign = false;
-      this.events.emit("signOff");
+      this.events.emit("signOff", self);
     }
 
     // if we're in a different sign
     else if (!equal(currentlyInSign, self.insideSign)) {
       self.insideSign = currentlyInSign;
-      this.events.emit("signOn", x, y);
+      this.events.emit("signOn", self, x, y);
     }
   }
 

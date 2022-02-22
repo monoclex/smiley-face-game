@@ -7,13 +7,13 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   TextField,
 } from "@mui/material";
 
 import PromiseCompletionSource from "../../../PromiseCompletionSource";
 import { signStateAtom, text } from "../../../state/signDialog";
+import { MAX_SIGN_LENGTH } from "@smiley-face-game/api/types";
 
 type Inputs = {
   message: string;
@@ -21,7 +21,12 @@ type Inputs = {
 
 export default function Sign() {
   const [signState, setSign] = useRecoilState(signStateAtom);
-  const { handleSubmit, register, reset } = useForm<Inputs>();
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>();
 
   const handleClose = () => {
     text.it.reject("dialog closed");
@@ -54,7 +59,13 @@ export default function Sign() {
             multiline
             fullWidth
             autoFocus
-            {...register("message", { required: true })}
+            error={Boolean(errors && errors.message)}
+            helperText={errors && errors.message && "A message must be no longer than 200 chars..."}
+            inputProps={{
+              min: 0,
+              max: MAX_SIGN_LENGTH,
+            }}
+            {...register("message", { required: true, maxLength: MAX_SIGN_LENGTH })}
           />
         </DialogContent>
 
