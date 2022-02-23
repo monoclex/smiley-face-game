@@ -1,5 +1,5 @@
 //@ts-check
-import React from "react";
+import React, { useRef } from "react";
 import { useRecoilValue } from "recoil";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material";
@@ -14,14 +14,20 @@ const Clickable = styled(IconButton)({
 const GodModeButton = () => {
   const game = useGameState();
 
+  const ref = useRef<HTMLButtonElement>(null);
+
   const mainPlayer = useRecoilValue(currentPlayerState);
   if (!mainPlayer.canGod) return null;
 
-  const triggerGod = () => game.keyboard.triggerGod();
+  const triggerGod = () => {
+    if (ref.current !== null) ref.current.blur();
+    game.keyboard.triggerGod();
+  };
 
   return (
     <>
       <Clickable
+        ref={ref}
         // TODO: what does it want here?
         // variant="contained"
         aria-haspopup="true"

@@ -34,7 +34,7 @@ export function loadWorldVersion2(loader: FormatLoader, blocks: Block[][][]) {
 export function saveWorldVersion2(loader: FormatLoader): Block[][][] {
   const state = new WorldLayer<Block>(0);
 
-  for (let layerIdx = TileLayer.Foreground; layerIdx < TileLayer.Decoration; layerIdx++) {
+  for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
     const layer = loader.world.state[layerIdx];
     if (!layer) continue;
 
