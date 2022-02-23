@@ -85,6 +85,13 @@ export default class RotationResolver implements Resolver {
       }
     }
 
+    // so apparently the last texture of rotated resolver doesn't get saved... or something?
+    // so here we clone a texture to simulate some work which somehow fixes it?
+    // idk man
+    await cloneTexture(() => {
+      // do nothing lol
+    });
+
     return new RotationResolver(textures);
   }
 
