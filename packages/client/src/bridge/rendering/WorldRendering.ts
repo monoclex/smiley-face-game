@@ -2,7 +2,7 @@ import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
-import { TileLayer } from "@smiley-face-game/api/types";
+import { TileLayer, ZKeyKind } from "@smiley-face-game/api/types";
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
 import textures from "../textures";
 
@@ -81,7 +81,7 @@ export default class WorldRendering {
       [TileLayer.Decoration]: this.decoration,
     };
 
-    const redKeyOn = this.game.physics.keyIsOnForPlayer(this.self, "red");
+    const keysOn = this.game.physics.getAllKeysOn(this.self);
 
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
@@ -97,7 +97,7 @@ export default class WorldRendering {
           if (y[x] === 0 || y[x] === null || y[x] === undefined) continue;
 
           const pos = new Vector(x, yIdx);
-          const textureName = this.mapTextureName(redKeyOn, this.game.tiles.texture(y[x]), pos);
+          const textureName = this.mapTextureName(keysOn, this.game.tiles.texture(y[x]), pos);
 
           tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
         }
@@ -105,13 +105,14 @@ export default class WorldRendering {
     }
   }
 
-  mapTextureName(redKeyTouched: boolean, name: string, pos: Vector): string {
+  mapTextureName(keysOn: ZKeyKind[], name: string, pos: Vector): string {
     // TODO: there's got to be a better way to render different tiles depending
     //   on if the key is pressed or not
 
-    if (redKeyTouched) {
-      if (name === "keys-red-door") return "keys-red-gate";
-      if (name === "keys-red-gate") return "keys-red-door";
+    for (const keyOn of keysOn) {
+      if (name === `keys-${keyOn}-door`) return `keys-${keyOn}-gate`;
+      if (name === `keys-${keyOn}-gate`) return `keys-${keyOn}-door`;
+      if (name === `keys-${keyOn}-key`) return `keys-${keyOn}-key-on`;
     }
 
     if (this.onCheckpoint) {

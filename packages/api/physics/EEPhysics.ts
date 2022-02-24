@@ -510,4 +510,19 @@ export class EEPhysics {
     const worldCollision = this.keys.isOn(kind);
     return worldCollision;
   }
+
+  getAllKeysOn(player: Player): ZKeyKind[] {
+    const keysWithState = Object.keys(player.keys.state) as ZKeyKind[];
+    const playerKeysOn = keysWithState.filter((key) => player.keys.getCollision(key) === true);
+    const playerKeysOff = keysWithState.filter((key) => player.keys.getCollision(key) === false);
+
+    const worldKeysOn = this.keys.allKeysThatAreOn();
+
+    const unsetKeysInPlayerThatAreOn = worldKeysOn.filter(
+      (key) => !playerKeysOn.includes(key) && !playerKeysOff.includes(key)
+    );
+
+    console.log("getting all keys on", playerKeysOn, playerKeysOff, worldKeysOn);
+    return [...playerKeysOn, ...unsetKeysInPlayerThatAreOn];
+  }
 }

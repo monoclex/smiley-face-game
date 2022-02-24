@@ -3,7 +3,7 @@ import { Player } from "./Player";
 import { EEPhysics } from "./EEPhysics";
 
 export class Keys {
-  private readonly state: Partial<Record<ZKeyKind, number>> = {};
+  readonly state: Partial<Record<ZKeyKind, number>> = {};
 
   constructor(private readonly physics: EEPhysics) {}
 
@@ -30,6 +30,20 @@ export class Keys {
       const key = rawKey as ZKeyKind;
 
       if (this.physics.ticks === Math.floor(ticksOffAt)) {
+        keys.push(key);
+      }
+    }
+
+    return keys;
+  }
+
+  allKeysThatAreOn(): ZKeyKind[] {
+    const keys: ZKeyKind[] = [];
+
+    for (const rawKey of Object.keys(this.state)) {
+      const key = rawKey as ZKeyKind;
+
+      if (this.isOn(key)) {
         keys.push(key);
       }
     }
