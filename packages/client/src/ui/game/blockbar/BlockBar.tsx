@@ -22,9 +22,11 @@ function isMapIndex(s: string): s is keyof typeof map {
 const keys = "`1234567890-=[".split("");
 
 const MemoizedBlock = React.memo(Block);
+MemoizedBlock.whyDidYouRender = false;
 
 const BlockBar = () => {
   const self = useRecoilValue(currentPlayerState);
+  const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
   const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(undefined);
   selectedBlockState.it = selectedBlock;
   const state = useGameState();
@@ -36,7 +38,7 @@ const BlockBar = () => {
     tiles.packs.filter((pack) => pack.visible).map((pack) => ({ pack, entry: 0 }))
   );
 
-  const selectSlot = React.useCallback((slotIdx: number) => {
+  const selectSlot = React.useCallback((slotIdx: number, moveDir = 1) => {
     const slot = slots?.[slotIdx];
     if (!slot) return;
 
@@ -44,9 +46,12 @@ const BlockBar = () => {
 
     // if we're selecting the same slot, rotate the block
     if (block === selectedBlockState.it) {
-      slot.entry += 1;
+      slot.entry += moveDir;
       if (slot.entry >= slot.pack.blocks.length) {
         slot.entry = 0;
+      }
+      if (slot.entry < 0) {
+        slot.entry = slot.pack.blocks.length - 1;
       }
 
       // n.b. this actually doesn't do anything because it's the same reference
@@ -57,10 +62,30 @@ const BlockBar = () => {
     }
 
     // switch to new block
+    setCurrentSlot(slotIdx);
     setSelectedBlock(block);
   }, []);
 
-  const loaderLoad = React.useCallback(blockBar.load.bind(blockBar), []);
+  useEffect(() => {
+    const handler = (event: WheelEvent) => {
+      if (currentSlot == null) return;
+
+      const delta = event.deltaY;
+      const isUp = delta < 0;
+      const isDown = delta > 0;
+
+      if (isUp) {
+        selectSlot(currentSlot, 1);
+      } else if (isDown) {
+        selectSlot(currentSlot, -1);
+      }
+    };
+
+    document.addEventListener("wheel", handler);
+    return () => document.removeEventListener("wheel", handler);
+  });
+
+  const loaderLoad = React.useCallback((id: number) => blockBar.load(id), []);
 
   useEffect(() => {
     const listener = (keyboardEvent: KeyboardEvent) => {
