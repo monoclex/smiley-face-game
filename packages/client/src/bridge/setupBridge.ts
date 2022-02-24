@@ -100,6 +100,7 @@ export default async function setupBridge(
   );
   gameRenderer.events.on("draw", () => mouseInteraction.draw());
   gameRenderer.root.addChild(mouseInteraction.selection);
+  gameRenderer.root.addChild(mouseInteraction.blockChanged);
 
   (async () => {
     for await (const message of connection) {
@@ -123,6 +124,7 @@ export default async function setupBridge(
 
   state.gameRenderer = gameRenderer;
   state.keyboard = keyboard;
+  state.mouseInteraction = mouseInteraction;
 
   waitPromise.it.resolve({
     game,
@@ -131,6 +133,7 @@ export default async function setupBridge(
     keyboard,
     blockBar,
     self,
+    mouseInteraction,
   });
 
   registerPlayerJoinNLeaveSoundEffects(game);

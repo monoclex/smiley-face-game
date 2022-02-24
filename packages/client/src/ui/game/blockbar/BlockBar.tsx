@@ -64,10 +64,12 @@ const BlockBar = () => {
     // switch to new block
     setCurrentSlot(slotIdx);
     setSelectedBlock(block);
+    state.mouseInteraction.triggerBlockChange(block.textureId);
   }, []);
 
   useEffect(() => {
     const handler = (event: WheelEvent) => {
+      if (!state.mouseInteraction.mouseInGame) return;
       if (currentSlot == null) return;
 
       const delta = event.deltaY;

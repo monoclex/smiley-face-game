@@ -3,6 +3,7 @@ import type { Player } from "@smiley-face-game/api/physics/Player";
 import PromiseCompletionSource from "../PromiseCompletionSource";
 import type ClientBlockBar from "./ClientBlockBar";
 import type Keyboard from "./Keyboard";
+import MouseInteraction from "./MouseInteraction";
 import type GameRenderer from "./rendering/GameRenderer";
 
 export const waitPromise = { it: new PromiseCompletionSource<GameState>() };
@@ -14,6 +15,7 @@ export interface GameState {
   keyboard: Keyboard;
   blockBar: ClientBlockBar;
   self: Player;
+  mouseInteraction: MouseInteraction;
 }
 
 type StateOptional = Partial<GameState>;
