@@ -20,6 +20,7 @@ import {
   zMessage,
   zHeap,
   zHeaps,
+  zKeyKind,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -113,7 +114,7 @@ export type ZBlockLine = SchemaInput<typeof zBlockLine>;
 export const zKeyTouch = addParse(
   Schema({
     packetId: "KEY_TOUCH" as const,
-    kind: "red" as const,
+    kind: zKeyKind,
   })
 );
 export type ZKeyTouch = SchemaInput<typeof zKeyTouch>;
@@ -282,7 +283,7 @@ export const zsKeyTouch = addParse(
   Schema({
     packetId: "SERVER_KEY_TOUCH" as const,
     playerId: zUserId,
-    kind: "red" as const,
+    kind: zKeyKind,
     // TODO: change to some kind of date?
     deactivateTime: number.integer(),
   })

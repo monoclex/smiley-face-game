@@ -13,6 +13,8 @@ import {
   ZAngle,
   ZHeap,
   zHeap,
+  ZKeyKind,
+  zKeyKind,
 } from "../types";
 import {
   zToken,
@@ -518,10 +520,14 @@ export default class Connection {
   /**
    * Touches a red key. Players receive the ID of the user triggering a key touch, and the time at which the key effect is to wear off.
    */
-  touchRedKey() {
+  touchKey(kind: ZKeyKind): void;
+
+  touchKey(argKind: unknown) {
+    const kind = zKeyKind.parse(argKind);
+
     this._send({
       packetId: "KEY_TOUCH",
-      kind: "red",
+      kind,
     });
   }
 }

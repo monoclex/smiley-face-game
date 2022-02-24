@@ -71,9 +71,9 @@ export default async function setupBridge(
   playerList.self = self;
   state.self = self;
 
-  game.physics.events.on("keyTouch", (_, player) => {
+  game.physics.events.on("keyTouch", (kind, player) => {
     if (player === self) {
-      connection.touchRedKey();
+      connection.touchKey(kind);
     }
   });
 
