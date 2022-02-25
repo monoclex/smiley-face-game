@@ -1,7 +1,7 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import textures from "./textures";
-import state, { waitPromise } from "./state";
+import state, { waitPromise, gameRunningState } from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./rendering/GameRenderer";
@@ -110,6 +110,7 @@ export default async function setupBridge(
     }
 
     // connection died, cleanup
+    gameRunningState.set(false);
     waitPromise.it = new PromiseCompletionSource();
     state.wait = waitPromise.it.handle;
 
@@ -126,6 +127,7 @@ export default async function setupBridge(
   state.keyboard = keyboard;
   state.mouseInteraction = mouseInteraction;
 
+  gameRunningState.set(true);
   waitPromise.it.resolve({
     game,
     connection,

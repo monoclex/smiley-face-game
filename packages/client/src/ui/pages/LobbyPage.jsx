@@ -28,6 +28,7 @@ import { Navigate, useNavigate, use, useMatch, useLocation } from "react-router"
 import { useAuth, usePlayer, useSetToken, useLobby, useRefresher } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
+import { gameRunningState } from "../../bridge/state";
 import ConnectionError from "@smiley-face-game/api/net/ConnectionError";
 import { ValidationError } from "@smiley-face-game/api/computed-types-wrapper";
 
@@ -143,6 +144,7 @@ const LobbyPage = () => {
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
           setCreateRoomDialogOpen(false);
+          gameRunningState.set(undefined);
           navigate(`/games/loading`, {
             state: { type: "create", name, width: parseInt(width), height: parseInt(height) },
           });
@@ -168,6 +170,22 @@ function DisplayErrorAlert({ state }) {
       state: undefined,
     });
   };
+
+  const snackbar = useSnackbar();
+
+  let doEnqueue = false;
+  useEffect(() => {
+    if (!doEnqueue) return;
+    snackbar.enqueueSnackbar("You have been disconnected!", {
+      variant: "error",
+    });
+    closeError();
+  }, []);
+
+  if (state?.name === "DisconnectError") {
+    doEnqueue = true;
+    return null;
+  }
 
   if (!openErr) return null;
 
@@ -233,6 +251,7 @@ function DisplayErrorAlert({ state }) {
           <Grid item>
             <Button
               onClick={() => {
+                gameRunningState.set(undefined);
                 navigate(`/games/${state.id}`);
               }}
             >
