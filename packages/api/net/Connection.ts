@@ -35,6 +35,7 @@ import AsyncQueue from "../AsyncQueue";
 import { boolean, addParse } from "../computed-types-wrapper";
 import TileRegistration from "../tiles/TileRegistration";
 import createRegistration from "../tiles/createRegistration";
+import ConnectionError from "./ConnectionError";
 
 const zEquipped = addParse(boolean);
 const zGodMode = addParse(boolean);
@@ -80,7 +81,7 @@ export default class Connection {
 
       // we've created a websocket, but did we really join?
       // listen for either 'init' or an error
-      websocket.onclose = (e) => reject(new Error("WebSocket Rejection Error: " + e.reason));
+      websocket.onclose = (e) => reject(new ConnectionError(e.reason));
       websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
     });
   }
