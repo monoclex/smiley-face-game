@@ -223,9 +223,19 @@ function DisplayErrorAlert({ state }) {
   } else if (state.name === "ValidationError") {
     body = (
       <Typography variant="body1" component="p">
-        It appears the world you were trying to connect to a world, but <b>the ID is malformed</b>.
-        Check that the URL is properly well formed, and that there are no missing. replaced, or
-        extraneous characters at the end of the URL.
+        It appears some piece of data was malformed while you were trying to connect to a world. It
+        could be:
+        <ul>
+          <li>
+            <b>The ID is malformed</b>: Check that the URL is properly well formed, and that there
+            are no missing. replaced, or extraneous characters at the end of the URL.
+          </li>
+          <li>
+            <b>The game has updated</b>: It is possible that your browser is caching old code, which
+            does not recognize the newer datastructures an updated version of the game is using. Try
+            press <b>CTRL + SHIFT + R</b> to perform a hard reload.
+          </li>
+        </ul>
       </Typography>
     );
   } else {
