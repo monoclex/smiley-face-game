@@ -240,7 +240,7 @@ d
 
     simulation.simulateMs(10_000);
 
-    expect(simulation.player.y).toBeCloseTo(121.97268244827184, 4);
+    expect(simulation.player.y).toBeCloseTo(112, 4);
   });
 
   it("players go right the right amount of spaces", () => {
@@ -262,7 +262,7 @@ ddddddddddddddd
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(166.33360981842642, 4);
+    expect(simulation.player.x).toBeCloseTo(160, 4);
   });
 
   it("players go right the right amount of spaces", () => {
@@ -284,7 +284,7 @@ p
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(55.723055449141526, 4);
+    expect(simulation.player.x).toBeCloseTo(55.58909969359451, 4);
   });
 
   it("players jump up the right amount of dots", () => {
@@ -296,7 +296,7 @@ p
 
     simulation.simulateMs(10_000);
 
-    expect(simulation.player.y).toBeCloseTo(24.283892956145568, 4);
+    expect(simulation.player.y).toBeCloseTo(32, 4);
   });
 
   it("players go right the right amount of dots", () => {
@@ -318,7 +318,7 @@ ddddddddddddddd
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(166.33360981842642, 4);
+    expect(simulation.player.x).toBeCloseTo(160, 4);
   });
 
   it("players go left the right amount of dots", () => {
@@ -341,7 +341,7 @@ ddddddddddddd
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(25.66639018157356, 4);
+    expect(simulation.player.x).toBeCloseTo(32, 4);
   });
 
   it("players go right the right amount of spaces", () => {
@@ -363,7 +363,7 @@ p
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(55.723055449141526, 4);
+    expect(simulation.player.x).toBeCloseTo(55.58909969359451, 4);
   });
 
   it("players go left the right amount of spaces", () => {
@@ -386,7 +386,7 @@ p
 
     simulation.simulateMs(2_000);
 
-    expect(simulation.player.x).toBeCloseTo(24.27694455085845, 4);
+    expect(simulation.player.x).toBeCloseTo(24.350995961845303, 4);
   });
 });
 
@@ -553,7 +553,7 @@ p
         0.22643092313982305, 0.21257036053212922, 0.19949507808828532, 0.18716831587478797, 0,
       ];
 
-      let holdRight = 3;
+      let holdRight = 2;
       for (const xValue of xValues) {
         simulation.player.input.right = holdRight > 0;
         holdRight--;
