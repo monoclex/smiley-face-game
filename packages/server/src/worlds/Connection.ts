@@ -12,6 +12,7 @@ export default class Connection {
   connected = false;
   username!: string;
   isGuest!: boolean;
+  isOwner = false;
   private _room?: Room;
 
   // room things

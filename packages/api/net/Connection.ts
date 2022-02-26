@@ -29,7 +29,14 @@ import {
   zUserId,
 } from "../types";
 import inferLayer from "../inferLayer";
-import { ZSPacket, ZPacket, ZSInit, zMovementQueue, ZMovementQueue } from "../packets";
+import {
+  ZSPacket,
+  ZPacket,
+  ZSInit,
+  zMovementQueue,
+  ZMovementQueue,
+  ZTeleportPlayer,
+} from "../packets";
 import { zsInit, zPacket, zsPacket } from "../packets";
 import AsyncQueue from "../AsyncQueue";
 import { boolean, addParse } from "../computed-types-wrapper";
@@ -530,5 +537,31 @@ export default class Connection {
       packetId: "KEY_TOUCH",
       kind,
     });
+  }
+
+  /**
+   * Teleports a player to a given position, perhaps with velocity.
+   * @param player The player to teleport
+   * @param to The position to teleport to, in 16x16 pixels
+   * @param velocity The velocity of the player
+   */
+  teleport(player: ZUserId, to: ZPlayerPosition, velocity?: ZVelocity): void;
+
+  teleport(argPlayer: unknown, argTo: unknown, argVelocity?: unknown) {
+    const player = zUserId.parse(argPlayer);
+    const to = zPlayerPosition.parse(argTo);
+    const velocity = Boolean(argVelocity) && zVelocity.parse(argVelocity);
+
+    const teleportPacket: ZTeleportPlayer = {
+      packetId: "TELEPORT_PLAYER",
+      playerId: player,
+      position: to,
+    };
+
+    if (velocity) {
+      teleportPacket.velocity = velocity;
+    }
+
+    this._send(teleportPacket);
   }
 }

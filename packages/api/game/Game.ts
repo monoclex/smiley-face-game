@@ -115,6 +115,9 @@ export class Game {
       case "SERVER_TOGGLE_GOD":
         this.players.get(event.playerId).isInGodMode = event.god;
         return 0;
+      case "SERVER_TELEPORT_PLAYER":
+        this.players.get(event.teleportedPlayerId).handleTeleport(event);
+        return 0;
       case "SERVER_WORLD_ACTION":
         return this.handleWorldAction(event);
       case "SERVER_EVENT":

@@ -1,4 +1,5 @@
 import { Inputs } from "../game/Inputs";
+import { ZSTeleportPlayer } from "../packets";
 import { ComplexBlockBehavior } from "../tiles/register";
 import { ZHeap, ZKeyKind, ZRole } from "../types";
 import { Config } from "./Config";
@@ -56,6 +57,14 @@ export class Player {
 
   cheap(): CheapPlayer {
     return { id: this.id, role: this.role, username: this.name, canGod: this.canGod };
+  }
+
+  handleTeleport(event: ZSTeleportPlayer) {
+    this.position = event.position;
+
+    if (event.velocity) {
+      this.velocity = event.velocity;
+    }
   }
 
   /** @version eephysics This may be removed when the physics engine changes */

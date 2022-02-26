@@ -12,6 +12,7 @@ import handlePlayerlistAction from "./handlers/handlePlayerlistAction";
 import handleWorldAction from "./handlers/handleWorldAction";
 import handleKeyTouch from "./handlers/handleKeyTouch";
 import handleToggleGod from "./handlers/handleToggleGod";
+import handleTeleportPlayer from "./handlers/handleTeleportPlayer";
 
 type MaybeAsync<T> = T | Promise<T>;
 
@@ -27,6 +28,7 @@ const packetLookup: ZPacketLookup<[Connection, RoomLogic], MaybeAsync<void | boo
   WORLD_ACTION: handleWorldAction,
   KEY_TOUCH: handleKeyTouch,
   TOGGLE_GOD: handleToggleGod,
+  TELEPORT_PLAYER: handleTeleportPlayer,
 };
 
 export default packetLookup;

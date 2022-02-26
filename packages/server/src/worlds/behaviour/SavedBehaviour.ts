@@ -28,6 +28,7 @@ export default class SavedBehaviour implements Behaviour {
       const isOwner = this.#details.ownerId === connection.authTokenPayload.aud;
       connection.hasEdit = isOwner;
       connection.canGod = isOwner;
+      connection.isOwner = isOwner;
     }
   }
 
