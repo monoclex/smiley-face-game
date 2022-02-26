@@ -37,11 +37,10 @@ export function performJumping(
   const movingHorizontally = velocity.x != 0;
   const movingVertically = velocity.y != 0;
 
-  if (
-    ((!movingHorizontally && horziontalGravityApplied) ||
-      (!movingVertically && verticalGravityApplied)) &&
-    grounded
-  ) {
+  const horizontallyStationary = !movingHorizontally && horziontalGravityApplied;
+  const verticallyStationary = !movingVertically && verticalGravityApplied;
+
+  if ((horizontallyStationary || verticallyStationary) && grounded) {
     // on the ground, reset jump count to 0
     self.jumpCount = 0;
   }

@@ -631,7 +631,7 @@ p.
   });
 });
 
-it("boosts propel the player the right amount of blocks", () => {
+it("boosts propel the player the right amount of blocks in half slabs", () => {
   const simulation = new Simulator(
     `
 p
@@ -650,6 +650,25 @@ p
   simulation.simulateMs(1000);
 
   expect(simulation.player.position).toEqual(Vector.mults(simulation.goal!, Config.blockSize));
+});
+
+it("boosts propel the player the right amount of blocks", () => {
+  const simulation = new Simulator(
+    `
+p
+> .
+. .. . . . .
+ }         
+.............
+`,
+    {
+      "}": "boost-right",
+    }
+  );
+
+  simulation.simulateMs(1000);
+
+  expect(simulation.player.position.x).toBeCloseTo(11.602 * Config.blockSize, 4);
 });
 
 it("afk minigame rotates player around", () => {

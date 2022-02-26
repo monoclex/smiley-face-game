@@ -69,7 +69,8 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   get worldPosition(): Vector {
-    return Vector.round(Vector.divs(this.position, 16));
+    return new Vector((this.x + 8) >> 4, (this.y + 8) >> 4);
+    // return Vector.round(Vector.divs(this.position, 16));
   }
 
   set worldPosition(v: Vector) {

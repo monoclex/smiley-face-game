@@ -126,14 +126,13 @@ export class EEPhysics {
     // prevent the player from moving in the direction of gravity
     movementDirection = Vector.filterOut(delayedGravityDirection, movementDirection);
 
-    const playerForce = Vector.mults(movementDirection, self.speedMult);
-
     const gravity = Config.physics.gravity * self.gravityMult;
     const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
     const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
 
+    const playerForce = Vector.mults(movementDirection, self.speedMult);
     const forceAppliedToPlayer = Vector.divs(
-      Vector.add(playerForce, delayedGravityForce),
+      Vector.add(delayedGravityForce, playerForce),
       Config.physics.variable_multiplyer
     );
 
