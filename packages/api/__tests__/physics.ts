@@ -98,6 +98,34 @@ it("players can perform 1x1s", () => {
   expect(simulation.player.worldPosition).toEqual(simulation.goal);
 });
 
+it("players can perform hold space 1x1s", () => {
+  const simulation = new Simulator(
+    `
+.  .
+. X.
+. ..
+. <.
+. ..
+.p..
+....
+`
+  );
+
+  simulation.player.input.right = true;
+  simulation.player.input.jump = true;
+
+  // some arbitrary amount of time spent attempting minigame
+  simulation.simulateMs(2000);
+
+  simulation.player.input.jump = false;
+  simulation.player.input.left = false;
+
+  // get them to stand still for a bit
+  simulation.simulateMs(500);
+
+  expect(simulation.player.worldPosition).toEqual(simulation.goal);
+});
+
 // just some EE minigame that someone asked if it was possible in SFG
 it("players can perform 'false hooks'", () => {
   const simulation = new Simulator(
@@ -480,6 +508,91 @@ p
 
     expect(simulation.player.x).toEqual(16);
   });
+
+  describe("has correct position values", () => {
+    it("when holding right for 1 tick", () => {
+      const simulation = new Simulator("p .");
+
+      const xValues = [
+        0, 0.12658920639726146, 0.2230234173493919, 0.30124411111087135, 0.36378974702858446,
+        0.41288075149150816, 0.45045744095484347, 0.4782135378534885, 0.49762578434408566,
+        0.5099801014275027, 0.5163946901079982, 0.5178404261091154, 0.5151588596396868,
+        0.5090780962095434, 0.5002268030219144, 0.489146557564033, 0.47630273027625797,
+        0.4620940712456011, 0.44686115142476185, 0.4308937916411734, 0.4144375973825024,
+        0.3976997038039767, 0.38085382340231827, 0.3640446781665703, 0.3473918885930436,
+        0.33099338360274877, 0.3149283880032941, 0.2992600375853314, 0.2840376661404397,
+        0.2692988035478861, 0.25507091952663086, 0.24137294361941553, 0.22821658840850306,
+        0.21560749980505203, 0.20354625545958352, 0.19202922986818638, 0,
+      ];
+
+      let holdRight = 1;
+      for (const xValue of xValues) {
+        simulation.player.input.right = holdRight > 0;
+        holdRight--;
+
+        expect(simulation.player.x).toBeCloseTo(xValue, 4);
+        simulation.simulateTicks(1);
+      }
+    });
+
+    it("when holding right for 2 ticks", () => {
+      const simulation = new Simulator("p .");
+
+      const xValues = [
+        0, 0.12658920639726146, 0.37740287306511106, 0.5600305779645416, 0.7071341042758241,
+        0.8237054431609473, 0.9141089613993861, 0.9821563723145391, 1.031172985919211,
+        1.0640562379852063, 1.0833273840887705, 1.0911771438892475, 1.089505991512107,
+        1.0799597086420447, 1.0639607466448004, 1.042735881714035, 1.0173405917826,
+        0.9886805349477716, 0.9575304657293762, 0.9245508869799283, 0.8903027011394873,
+        0.8552600942803263, 0.8198218595789176, 0.784321343095859, 0.7490351736928523,
+        0.7141909202632882, 0.6799738029276153, 0.6465325702053516, 0.6139846412084593,
+        0.5824206004161442, 0.5519081224206706, 0.5224953950282597, 0.4942141011261773,
+        0.4670820126693214, 0.44110524389286526, 0.4162802053294654, 0.39259529531832943,
+        0.3700323613664505, 0.34856795989517936, 0.32817443952094233, 0.3088208700267259,
+        0.2904738365360707, 0.27309811606398865, 0.25665725155418573, 0.24111403668799522,
+        0.22643092313982305, 0.21257036053212922, 0.19949507808828532, 0.18716831587478797, 0,
+      ];
+
+      let holdRight = 3;
+      for (const xValue of xValues) {
+        simulation.player.input.right = holdRight > 0;
+        holdRight--;
+
+        expect(simulation.player.x).toBeCloseTo(xValue, 4);
+        simulation.simulateTicks(1);
+      }
+    });
+
+    it("when holding right for 3 ticks", () => {
+      const simulation = new Simulator("p .");
+
+      const xValues = [
+        0, 0.12658920639726146, 0.37740287306511106, 0.7501204284507018, 1.008892211719957,
+        1.2157151450243495, 1.3779514102955714, 1.5020342574996706, 1.5935791646916553,
+        1.6574820553137026, 1.6980060572245093, 1.7188581191285128, 1.7232566503588145,
+        1.7139912172010456, 1.6934752112143414, 1.6637923006126984, 1.626737383209251,
+        1.5838526773610553, 1.5364595145970976, 1.4856863331153776, 1.4324933141625908,
+        1.3776940526339934, 1.3219746083166297, 1.265910244394401, 1.209980124560046,
+        1.1545802088239634, 1.1000345604177155, 1.0466052516572768, 0.9945010348994229,
+        0.9438849254763908, 0.8948808264472576, 0.8475793099094074, 0.8020426562482899,
+        0.758309240871775, 0.7163973475023925, 0.676308477831958, 0.6380302191413912,
+        0.6015387242322991, 0.5668008515983205, 0.5337760080876683, 0.5024177312890241,
+        0.4726750444357625, 0.44449361270181165, 0.41781672629722294, 0.39258613271039605,
+        0.3687427377404903, 0.34622719257673934, 0.3249803820747434, 0.3049438275210587,
+        0.2860600155379424, 0.2682726633345995, 0.25152692923728165, 0.23576957630822196,
+        0.22094909587505218, 0.20701579692245442, 0.19392186653254292, 0,
+      ];
+
+      let holdRight = 3;
+      for (const xValue of xValues) {
+        simulation.player.input.right = holdRight > 0;
+        holdRight--;
+
+        expect(simulation.player.x).toBeCloseTo(xValue, 4);
+        simulation.simulateTicks(1);
+      }
+    });
+  });
 });
 
 describe("jumping works lol", () => {
@@ -516,4 +629,39 @@ p.
 
     expect(simulation.player.worldPosition).toEqual(simulation.goal);
   });
+});
+
+it("boosts propel the player the right amount of blocks", () => {
+  const simulation = new Simulator(
+    `
+p
+>]
+[]. . . . .
+ }         X
+............
+`,
+    {
+      "]": "prismarine-slab-right",
+      "[": "prismarine-slab-left",
+      "}": "boost-right",
+    }
+  );
+
+  simulation.simulateMs(1000);
+
+  expect(simulation.player.position).toEqual(Vector.mults(simulation.goal!, Config.blockSize));
+});
+
+it("afk minigame rotates player around", () => {
+  const simulation = new Simulator(
+    `
+> p
+>.<
+^^<
+`
+  );
+
+  simulation.simulateTicks(50);
+
+  expect(simulation.player.worldPosition.x).toBeLessThan(2);
 });
