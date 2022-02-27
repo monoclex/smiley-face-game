@@ -30,7 +30,6 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
 import { gameRunningState } from "../../bridge/state";
 import ConnectionError from "@smiley-face-game/api/net/ConnectionError";
-import { ValidationError } from "@smiley-face-game/api/computed-types-wrapper";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
