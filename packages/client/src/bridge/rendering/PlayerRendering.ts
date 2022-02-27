@@ -16,7 +16,7 @@ export default class PlayerRenderer {
   ) {
     // todo: make this a function lol
     for (const player of game.players.list) {
-      const gamePlayer = new GamePlayer();
+      const gamePlayer = new GamePlayer(player.name);
       this.gamePlayers.set(player.id, gamePlayer);
 
       this.players.addChild(gamePlayer.container);
