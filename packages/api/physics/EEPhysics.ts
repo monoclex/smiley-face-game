@@ -81,105 +81,538 @@ export class EEPhysics {
   }
 
   tickPlayer(player: Player) {
+    //This must happen for all players!
     const self = player;
 
-    if (self.isInGodMode) {
-      this.tickGodPlayer(self);
-      return;
+    var cx = (player.x + 8) >> 4;
+    var cy = (player.y + 8) >> 4;
+
+    var delayed = player.queue.shift()!;
+    let current = this.world.blockAt({ x: cx, y: cy }, TileLayer.Action);
+
+    player.queue.push(current);
+
+    if (current == this.ids.dot) {
+      delayed = player.queue.shift()!;
+      player.queue.push(current);
     }
 
-    if (self.isDead) {
-      // TODO(ee-sync): is the player allowed to move on the tick they respawn?
-      if (self.shouldBeRevived(this.ticksUntilAlive)) {
-        self.revive(this.getRespawnLocation(self));
-      } else {
-        return;
-      }
-    }
-
-    const { current, delayed } = this.getPhysicsBlockOn(self);
-
-    if (this.ids.isZoost(current)) {
-      this.performZoosts(self, self.worldPosition, this.ids.zoostDirToVec(current));
-      return;
-    }
-
-    if (this.ids.isHazard(current)) {
-      self.kill();
-      this.events.emit("death", self);
-      return;
-    }
-
-    let position = self.position;
-    let velocity = self.velocity;
-
-    const currentGravityDirection = this.ids.getGraviationalPull(current);
-    const delayedGravityDirection = this.ids.getGraviationalPull(delayed);
-
-    const horizontalInput = Number(self.input.right) - Number(self.input.left);
-    const verticalInput = Number(self.input.down) - Number(self.input.up);
+    let horizontal = Number(self.input.right) - Number(self.input.left);
+    let vertical = Number(self.input.down) - Number(self.input.up);
     self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
     self.isSpaceDown = self.input.jump;
 
-    let movementDirection = new Vector(horizontalInput, verticalInput);
+    let isDead = player.isDead;
 
-    // prevent the player from moving in the direction of gravity
-    movementDirection = Vector.filterOut(delayedGravityDirection, movementDirection);
+    let spacejustdown = self.isSpaceJustPressed;
+    let spacedown = self.isSpaceDown;
 
-    const gravity = Config.physics.gravity * self.gravityMult;
-    const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
-    const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
+    if (isDead) {
+      spacejustdown = false;
+      spacedown = false;
+      horizontal = 0;
+      vertical = 0;
+    }
 
-    const playerForce = Vector.mults(movementDirection, self.speedMult);
-    const forceAppliedToPlayer = Vector.divs(
-      Vector.add(delayedGravityForce, playerForce),
-      Config.physics.variable_multiplyer
-    );
+    var rotateGravitymo = true;
+    var rotateGravitymor = true;
+    var isgodmod = self.isInGodMode;
+    let morx = 0;
+    let mory = 0;
+    let mox = 0;
+    let moy = 0;
 
-    velocity = calculateDragVector(
-      velocity,
-      forceAppliedToPlayer,
-      movementDirection,
-      currentGravityDirection
-    );
+    let _gravity = Config.physics.gravity;
 
-    // override any force calculations if we're in boosts
-    const requiredForce = this.ids.getRequiredForce(current);
-    velocity = Vector.substituteZeros(requiredForce, velocity);
+    if (!isgodmod) {
+      if (false) {
+      } else {
+        //Process gravity
+        switch (current) {
+          case this.ids.arrowLeft: {
+            morx = -_gravity;
+            mory = 0;
+            rotateGravitymor = false;
+            break;
+          }
+          case this.ids.arrowUp: {
+            morx = 0;
+            mory = -_gravity;
+            rotateGravitymor = false;
+            break;
+          }
+          case this.ids.arrowRight: {
+            morx = _gravity;
+            mory = 0;
+            rotateGravitymor = false;
+            break;
+          }
+          case this.ids.boostLeft:
+          case this.ids.boostRight:
+          case this.ids.boostUp:
+          case this.ids.boostDown:
+          case this.ids.dot: {
+            morx = 0;
+            mory = 0;
+            break;
+          }
+          case this.ids.spikeUp:
+          case this.ids.spikeDown:
+          case this.ids.spikeLeft:
+          case this.ids.spikeRight: {
+            morx = 0;
+            mory = _gravity;
+            if (!isDead) {
+              player.kill();
+            }
+            break;
+          }
+          default: {
+            morx = 0;
+            mory = _gravity;
+            break;
+          }
+        }
+      }
 
-    let {
-      grounded,
-      position: stepPosition,
-      velocity: stepVelocity,
-    } = collisionStepping(
-      (position) => this.playerIsColliding(self, position),
-      position,
-      velocity,
-      currentGravityDirection,
-      this.ids.isBoost(current)
-    );
+      if (false) {
+      } else {
+        switch (delayed) {
+          case this.ids.arrowLeft: {
+            mox = -_gravity;
+            moy = 0;
+            rotateGravitymo = false;
+            break;
+          }
+          case this.ids.arrowUp: {
+            mox = 0;
+            moy = -_gravity;
+            rotateGravitymo = false;
+            break;
+          }
+          case this.ids.arrowRight: {
+            mox = _gravity;
+            moy = 0;
+            rotateGravitymo = false;
+            break;
+          }
+          case this.ids.boostLeft:
+          case this.ids.boostRight:
+          case this.ids.boostUp:
+          case this.ids.boostDown:
+          case this.ids.dot: {
+            mox = 0;
+            moy = 0;
+            break;
+          }
+          default: {
+            mox = 0;
+            moy = _gravity;
+            break;
+          }
+        }
+      }
+    }
 
-    position = stepPosition;
-    velocity = stepVelocity;
+    let mx, my;
 
-    velocity = performJumping(
-      self,
-      grounded,
-      currentGravityForce,
-      currentGravityDirection,
-      delayedGravityDirection,
-      velocity,
-      this.ticksUntilFirstJump,
-      this.ticksUntilNthJump
-    );
+    if (false) {
+    } else if (moy) {
+      mx = horizontal;
+      my = 0;
+    } else if (mox) {
+      mx = 0;
+      my = vertical;
+    } else {
+      mx = horizontal;
+      my = vertical;
+    }
 
-    position = autoAlignVector(position, velocity, forceAppliedToPlayer);
+    let speedMultiplier = player.speedMult;
+    let gravityMultiplier = player.gravityMult;
 
-    self.position = position;
-    self.velocity = velocity;
+    mx *= speedMultiplier;
+    my *= speedMultiplier;
+    mox *= gravityMultiplier;
+    moy *= gravityMultiplier;
 
-    this.triggerBlockAction(self);
-    this.handleSurroundingBlocks(self);
+    let _modifierX = (mox + mx) / Config.physics.variable_multiplyer;
+    let _modifierY = (moy + my) / Config.physics.variable_multiplyer;
+
+    let _speedX = player.velocity.x;
+    let _speedY = player.velocity.y;
+
+    if (_speedX || _modifierX) {
+      _speedX += _modifierX;
+      if (
+        (((mx == 0 && moy != 0) || (_speedX < 0 && mx > 0) || (_speedX > 0 && mx < 0)) &&
+          (true || isgodmod)) ||
+        (false && !isgodmod)
+      ) {
+        _speedX *= Config.physics.base_drag;
+        _speedX *= Config.physics.no_modifier_drag;
+      } else {
+        _speedX *= Config.physics.base_drag;
+      }
+
+      if (_speedX > 16) {
+        _speedX = 16;
+      } else if (_speedX < -16) {
+        _speedX = -16;
+      } else if (_speedX < 0.0001 && _speedX > -0.0001) {
+        _speedX = 0;
+      }
+    }
+
+    if (_speedY || _modifierY) {
+      _speedY += _modifierY;
+      if (
+        (((my == 0 && mox != 0) || (_speedY < 0 && my > 0) || (_speedY > 0 && my < 0)) &&
+          (0 <= 0 || isgodmod)) ||
+        (false && !isgodmod)
+      ) {
+        _speedY *= Config.physics.base_drag;
+        _speedY *= Config.physics.no_modifier_drag;
+      } else {
+        _speedY *= Config.physics.base_drag;
+      }
+
+      if (_speedY > 16) {
+        _speedY = 16;
+      } else if (_speedY < -16) {
+        _speedY = -16;
+      } else if (_speedY < 0.0001 && _speedY > -0.0001) {
+        _speedY = 0;
+      }
+    }
+
+    if (!isgodmod) {
+      let _boost = 16;
+      switch (current) {
+        case this.ids.boostLeft: {
+          _speedX = -_boost;
+          break;
+        }
+        case this.ids.boostRight: {
+          _speedX = _boost;
+          break;
+        }
+        case this.ids.boostUp: {
+          _speedY = -_boost;
+          break;
+        }
+        case this.ids.boostDown: {
+          _speedY = _boost;
+          break;
+        }
+      }
+
+      if (isDead) {
+        _speedX = 0;
+        _speedY = 0;
+      }
+    }
+
+    let x = player.x;
+    let y = player.y;
+
+    var reminderX: number = x % 1;
+    var currentSX: number = _speedX;
+
+    var reminderY: number = y % 1;
+    var currentSY: number = _speedY;
+
+    let donex = false;
+    let doney = false;
+
+    let ox: number;
+    let oy: number;
+
+    var grounded: boolean = false;
+
+    //todo flipgravity
+    const stepx = (): void => {
+      if (currentSX > 0) {
+        if (currentSX + reminderX >= 1) {
+          x += 1 - reminderX;
+          x >>= 0;
+          currentSX -= 1 - reminderX;
+          reminderX = 0;
+        } else {
+          x += currentSX;
+          currentSX = 0;
+        }
+      } else if (currentSX < 0) {
+        if (reminderX + currentSX < 0 && (reminderX != 0 || this.ids.isBoost(current))) {
+          currentSX += reminderX;
+          x -= reminderX;
+          x >>= 0;
+          reminderX = 1;
+        } else {
+          x += currentSX;
+          currentSX = 0;
+        }
+      }
+      if (1 != null) {
+        if (this.playerIsColliding(player, { x, y })) {
+          x = ox;
+          if (_speedX > 0 && morx > 0) grounded = true;
+          if (_speedX < 0 && morx < 0) grounded = true;
+
+          _speedX = 0;
+          currentSX = osx;
+          donex = true;
+        }
+      }
+    };
+
+    const stepy = (): void => {
+      if (currentSY > 0) {
+        if (currentSY + reminderY >= 1) {
+          y += 1 - reminderY;
+          y >>= 0;
+          currentSY -= 1 - reminderY;
+          reminderY = 0;
+        } else {
+          y += currentSY;
+          currentSY = 0;
+        }
+      } else if (currentSY < 0) {
+        if (reminderY + currentSY < 0 && (reminderY != 0 || this.ids.isBoost(current))) {
+          y -= reminderY;
+          y >>= 0;
+          currentSY += reminderY;
+          reminderY = 1;
+        } else {
+          y += currentSY;
+          currentSY = 0;
+        }
+      }
+      if (1 != null) {
+        if (this.playerIsColliding(player, { x, y })) {
+          y = oy;
+          if (_speedY > 0 && mory > 0) grounded = true;
+          if (_speedY < 0 && mory < 0) grounded = true;
+
+          _speedY = 0;
+          currentSY = osy;
+          doney = true;
+        }
+      }
+    };
+
+    var osx: number;
+    var osy: number;
+
+    while ((currentSX != 0 && !donex) || (currentSY != 0 && !doney)) {
+      ox = x;
+      oy = y;
+
+      osx = currentSX;
+      osy = currentSY;
+
+      stepx();
+      stepy();
+    }
+
+    if (!isDead) {
+      var mod: number = 1;
+      var injump: boolean = false;
+      if (spacejustdown) {
+        player.lastJump = -this.ticks;
+        injump = true;
+        mod = -1;
+      }
+
+      if (spacedown) {
+        if (player.lastJump < 0) {
+          if (this.ticks + player.lastJump > 75) {
+            injump = true;
+          }
+        } else {
+          if (this.ticks - player.lastJump > 15) {
+            injump = true;
+          }
+        }
+      }
+
+      let speedX = _speedX * Config.physics.variable_multiplyer;
+      let speedY = _speedY * Config.physics.variable_multiplyer;
+
+      if (((speedX == 0 && morx && mox) || (speedY == 0 && mory && moy)) && grounded) {
+        // On ground so reset jumps to 0
+        player.jumpCount = 0;
+      }
+
+      if (player.jumpCount == 0 && !grounded) player.jumpCount = 1; // Not on ground so first 'jump' removed
+
+      if (injump && !false) {
+        if (player.jumpCount < player.maxJumps && morx && mox) {
+          // Jump in x direction
+          if (player.maxJumps < 1000) {
+            // Not infinite jumps
+            player.jumpCount += 1;
+          }
+          _speedX = (-morx * Config.physics.jump_height * 1) / Config.physics.variable_multiplyer;
+          player.lastJump = this.ticks * mod;
+        }
+        if (player.jumpCount < player.maxJumps && mory && moy) {
+          // Jump in y direction
+          if (player.maxJumps < 1000) {
+            // Not infinite jumps
+            player.jumpCount += 1;
+          }
+          _speedY = (-mory * Config.physics.jump_height * 1) / Config.physics.variable_multiplyer;
+          player.lastJump = this.ticks * mod;
+        }
+      }
+
+      // touchBlock(cx, cy, isgodmod);
+      // sendMovement(cx, cy);
+      // changed = false;
+    }
+
+    //////////////// messing about with jetpack stuff ////////////////
+    //////////////////////////////////////////////////////////////////
+
+    //Auto align to grid. (do not autocorrect in liquid)
+    var imx: number = _speedX << 8;
+    var imy: number = _speedY << 8;
+
+    if (imx != 0 || (false && !isgodmod)) {
+    } else if (_modifierX < 0.1 && _modifierX > -0.1) {
+      var tx: number = x % 16;
+      if (tx < 2) {
+        if (tx < 0.2) {
+          x >>= 0;
+        } else x -= tx / 15;
+      } else if (tx > 14) {
+        if (tx > 15.8) {
+          x >>= 0;
+          x++;
+        } else x += (tx - 14) / 15;
+      }
+    }
+
+    if (imy != 0 || (false && !isgodmod)) {
+    } else if (_modifierY < 0.1 && _modifierY > -0.1) {
+      var ty: number = y % 16;
+
+      if (ty < 2) {
+        if (ty < 0.2) {
+          y >>= 0;
+        } else y -= ty / 15;
+      } else if (ty > 14) {
+        if (ty > 15.8) {
+          y >>= 0;
+          y++;
+        } else y += (ty - 14) / 15;
+      }
+    }
+
+    player.isDead = isDead;
+    player.velocity = new Vector(_speedX, _speedY);
+    player.position = { x, y };
+
+    // const self = player;
+
+    // if (self.isInGodMode) {
+    //   this.tickGodPlayer(self);
+    //   return;
+    // }
+
+    // if (self.isDead) {
+    //   // TODO(ee-sync): is the player allowed to move on the tick they respawn?
+    //   if (self.shouldBeRevived(this.ticksUntilAlive)) {
+    //     self.revive(this.getRespawnLocation(self));
+    //   } else {
+    //     return;
+    //   }
+    // }
+
+    // const { current, delayed } = this.getPhysicsBlockOn(self);
+
+    // if (this.ids.isZoost(current)) {
+    //   this.performZoosts(self, self.worldPosition, this.ids.zoostDirToVec(current));
+    //   return;
+    // }
+
+    // if (this.ids.isHazard(current)) {
+    //   self.kill();
+    //   this.events.emit("death", self);
+    //   return;
+    // }
+
+    // let position = self.position;
+    // let velocity = self.velocity;
+
+    // const currentGravityDirection = this.ids.getGraviationalPull(current);
+    // const delayedGravityDirection = this.ids.getGraviationalPull(delayed);
+
+    // const horizontalInput = Number(self.input.right) - Number(self.input.left);
+    // const verticalInput = Number(self.input.down) - Number(self.input.up);
+    // self.isSpaceJustPressed = !self.isSpaceDown && self.input.jump;
+    // self.isSpaceDown = self.input.jump;
+
+    // let movementDirection = new Vector(horizontalInput, verticalInput);
+
+    // // prevent the player from moving in the direction of gravity
+    // movementDirection = Vector.filterOut(delayedGravityDirection, movementDirection);
+
+    // const gravity = Config.physics.gravity * self.gravityMult;
+    // const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
+    // const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
+
+    // const playerForce = Vector.mults(movementDirection, self.speedMult);
+    // const forceAppliedToPlayer = Vector.divs(
+    //   Vector.add(delayedGravityForce, playerForce),
+    //   Config.physics.variable_multiplyer
+    // );
+
+    // velocity = calculateDragVector(
+    //   velocity,
+    //   forceAppliedToPlayer,
+    //   movementDirection,
+    //   currentGravityDirection
+    // );
+
+    // // override any force calculations if we're in boosts
+    // const requiredForce = this.ids.getRequiredForce(current);
+    // velocity = Vector.substituteZeros(requiredForce, velocity);
+
+    // let {
+    //   grounded,
+    //   position: stepPosition,
+    //   velocity: stepVelocity,
+    // } = collisionStepping(
+    //   (position) => this.playerIsColliding(self, position),
+    //   position,
+    //   velocity,
+    //   currentGravityDirection,
+    //   this.ids.isBoost(current)
+    // );
+
+    // position = stepPosition;
+    // velocity = stepVelocity;
+
+    // velocity = performJumping(
+    //   self,
+    //   grounded,
+    //   currentGravityForce,
+    //   currentGravityDirection,
+    //   delayedGravityDirection,
+    //   velocity,
+    //   this.ticksUntilFirstJump,
+    //   this.ticksUntilNthJump
+    // );
+
+    // position = autoAlignVector(position, velocity, forceAppliedToPlayer);
+
+    // self.position = position;
+    // self.velocity = velocity;
+
+    // this.triggerBlockAction(self);
+    // this.handleSurroundingBlocks(self);
   }
 
   /**

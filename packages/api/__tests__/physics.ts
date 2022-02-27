@@ -102,6 +102,7 @@ it("players can perform hold space 1x1s", () => {
   const simulation = new Simulator(
     `
 .  .
+.  .
 . X.
 . ..
 . <.
@@ -666,9 +667,9 @@ p
     }
   );
 
-  simulation.simulateMs(1000);
+  simulation.simulateMs(1500);
 
-  expect(simulation.player.position.x).toBeCloseTo(11.602 * Config.blockSize, 4);
+  expect(simulation.player.position.x).toBeCloseTo(185.62408749771458, 4);
 });
 
 it("afk minigame rotates player around", () => {
