@@ -1,4 +1,4 @@
-import { Container, Sprite } from "pixi.js";
+import { Container, Sprite, Text } from "pixi.js";
 import textures from "./textures";
 
 function center(sprite: Sprite, relativeTo: Sprite) {
@@ -12,8 +12,9 @@ export default class GamePlayer {
   sprite: Sprite;
   gun: Sprite;
   wings: Sprite;
+  name: Text;
 
-  constructor() {
+  constructor(name: string) {
     this.container = new Container();
     this.cosmetic = new Sprite(textures.get("smile"));
     this.sprite = new Sprite(textures.get("player"));
@@ -21,9 +22,13 @@ export default class GamePlayer {
     this.gun.visible = false;
     this.wings = new Sprite(textures.get("wings-default"));
     this.wings.visible = false;
+    this.name = new Text(name, { fill: "white" });
     center(this.wings, this.sprite);
+    center(this.name, this.sprite);
 
-    this.container.addChild(this.wings, this.sprite, this.cosmetic, this.gun);
+    this.name.y += 32;
+
+    this.container.addChild(this.wings, this.sprite, this.cosmetic, this.gun, this.name);
   }
 
   cleanup() {

@@ -23,7 +23,7 @@ export default class PlayerRenderer {
     }
 
     game.players.events.on("add", (player) => {
-      const gamePlayer = new GamePlayer();
+      const gamePlayer = new GamePlayer(player.name);
       this.gamePlayers.set(player.id, gamePlayer);
 
       this.players.addChild(gamePlayer.container);
