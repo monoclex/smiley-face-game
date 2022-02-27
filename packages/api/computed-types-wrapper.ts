@@ -29,5 +29,3 @@ export function addParse<T>(input: T): ParsableSchemaInput<T> {
 
 export { array, boolean, number, string } from "computed-types";
 export type { SchemaInput } from "computed-types";
-
-export { ValidationError } from "computed-types/lib/schema/errors";
