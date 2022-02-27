@@ -126,14 +126,13 @@ export class EEPhysics {
     // prevent the player from moving in the direction of gravity
     movementDirection = Vector.filterOut(delayedGravityDirection, movementDirection);
 
-    const playerForce = Vector.mults(movementDirection, self.speedMult);
-
     const gravity = Config.physics.gravity * self.gravityMult;
     const delayedGravityForce = Vector.mults(delayedGravityDirection, gravity);
     const currentGravityForce = Vector.mults(currentGravityDirection, gravity);
 
+    const playerForce = Vector.mults(movementDirection, self.speedMult);
     const forceAppliedToPlayer = Vector.divs(
-      Vector.add(playerForce, delayedGravityForce),
+      Vector.add(delayedGravityForce, playerForce),
       Config.physics.variable_multiplyer
     );
 
@@ -141,7 +140,7 @@ export class EEPhysics {
       velocity,
       forceAppliedToPlayer,
       movementDirection,
-      currentGravityDirection
+      delayedGravityDirection
     );
 
     // override any force calculations if we're in boosts
@@ -509,5 +508,20 @@ export class EEPhysics {
 
     const worldCollision = this.keys.isOn(kind);
     return worldCollision;
+  }
+
+  getAllKeysOn(player: Player): ZKeyKind[] {
+    const keysWithState = Object.keys(player.keys.state) as ZKeyKind[];
+    const playerKeysOn = keysWithState.filter((key) => player.keys.getCollision(key) === true);
+    const playerKeysOff = keysWithState.filter((key) => player.keys.getCollision(key) === false);
+
+    const worldKeysOn = this.keys.allKeysThatAreOn();
+
+    const unsetKeysInPlayerThatAreOn = worldKeysOn.filter(
+      (key) => !playerKeysOn.includes(key) && !playerKeysOff.includes(key)
+    );
+
+    console.log("getting all keys on", playerKeysOn, playerKeysOff, worldKeysOn);
+    return [...playerKeysOn, ...unsetKeysInPlayerThatAreOn];
   }
 }

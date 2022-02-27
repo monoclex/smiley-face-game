@@ -9,6 +9,7 @@ import WorldSettingsButton from "./WorldSettingsButton";
 import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
+import { gameRunningState } from "../../bridge/state";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -44,7 +45,17 @@ const PlayWindow = styled(Grid)({
   backgroundColor: "black",
 });
 
+class DisconnectError extends Error {
+  constructor() {
+    super();
+    this.name = "DisconnectError";
+  }
+}
+
 export default function GameUI({ children: gameCanvas }) {
+  const gameRunning = gameRunningState.useValue();
+  if (gameRunning === false) throw new DisconnectError();
+
   // if you're trying to do UI design, see "uncomment me" in packages/server/src/RoomManager.ts
   // that way you don't have to constanttly create a new room
 

@@ -6,14 +6,14 @@ export function calculateDragVector(
   velocity: Vector,
   appliedForce: Vector,
   movementDirection: Vector,
-  currentGravityDirection: Vector
+  delayedGravityDirection: Vector
 ) {
   return Vector.map(
     calculateDragValue,
     velocity,
     appliedForce,
     movementDirection,
-    Vector.swap(currentGravityDirection)
+    Vector.swap(delayedGravityDirection)
   );
 }
 

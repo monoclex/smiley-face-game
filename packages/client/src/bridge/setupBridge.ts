@@ -1,7 +1,7 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
 import type { Renderer } from "pixi.js";
 import textures from "./textures";
-import state, { waitPromise } from "./state";
+import state, { waitPromise, gameRunningState } from "./state";
 import Chat from "./Chat";
 import { PlayerList } from "./PlayerList";
 import GameRenderer from "./rendering/GameRenderer";
@@ -71,9 +71,9 @@ export default async function setupBridge(
   playerList.self = self;
   state.self = self;
 
-  game.physics.events.on("keyTouch", (_, player) => {
+  game.physics.events.on("keyTouch", (kind, player) => {
     if (player === self) {
-      connection.touchRedKey();
+      connection.touchKey(kind);
     }
   });
 
@@ -100,6 +100,7 @@ export default async function setupBridge(
   );
   gameRenderer.events.on("draw", () => mouseInteraction.draw());
   gameRenderer.root.addChild(mouseInteraction.selection);
+  gameRenderer.root.addChild(mouseInteraction.blockChanged);
 
   (async () => {
     for await (const message of connection) {
@@ -109,6 +110,7 @@ export default async function setupBridge(
     }
 
     // connection died, cleanup
+    gameRunningState.set(false);
     waitPromise.it = new PromiseCompletionSource();
     state.wait = waitPromise.it.handle;
 
@@ -123,7 +125,9 @@ export default async function setupBridge(
 
   state.gameRenderer = gameRenderer;
   state.keyboard = keyboard;
+  state.mouseInteraction = mouseInteraction;
 
+  gameRunningState.set(true);
   waitPromise.it.resolve({
     game,
     connection,
@@ -131,6 +135,7 @@ export default async function setupBridge(
     keyboard,
     blockBar,
     self,
+    mouseInteraction,
   });
 
   registerPlayerJoinNLeaveSoundEffects(game);

@@ -3,7 +3,7 @@ import { EEPhysics } from "../physics/EEPhysics";
 import { Player } from "../physics/Player";
 import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
-import { TileLayer, ZHeap } from "../types";
+import { TileLayer, ZHeap, ZKeyKind } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
 import { slabHitbox, solidHitbox } from "./hitboxes";
 
@@ -344,25 +344,41 @@ function makeZoost(make: TilesMaker) {
 }
 
 function makeKeys(make: TilesMaker) {
-  make.block({
-    id: 64,
-    textureId: "keys-red-key",
-    complex: new KeyBehavior("red"),
-    ...actionBlock,
-  });
+  const makeKey = (kind: ZKeyKind, idGen: Iterable<number>) => {
+    const ids = Array.from(idGen);
+    if (ids.length !== 3) throw new Error("more than 3 ids");
 
-  make.block({
-    id: 65,
-    textureId: "keys-red-door",
-    complex: new KeyDoorGateBehavior("red", false),
-  });
+    make.block({
+      id: ids[0],
+      textureId: `keys-${kind}-key`,
+      complex: new KeyBehavior(kind),
+      ...actionBlock,
+    });
 
-  make.block({
-    id: 66,
-    textureId: "keys-red-gate",
-    isSolid: false,
-    complex: new KeyDoorGateBehavior("red", true),
-  });
+    make.block({
+      id: ids[1],
+      textureId: `keys-${kind}-door`,
+      complex: new KeyDoorGateBehavior(kind, false),
+    });
+
+    make.block({
+      id: ids[2],
+      textureId: `keys-${kind}-gate`,
+      isSolid: false,
+      complex: new KeyDoorGateBehavior(kind, true),
+    });
+  };
+
+  makeKey("white", range(86, 89));
+  makeKey("gray", range(89, 92));
+  makeKey("black", range(92, 95));
+  makeKey("red", range(64, 67));
+  makeKey("orange", range(95, 98));
+  makeKey("yellow", range(98, 101));
+  makeKey("green", range(101, 104));
+  makeKey("aqua", range(104, 107));
+  makeKey("blue", range(107, 110));
+  makeKey("purple", range(110, 113));
 
   make.pack({ name: "keys" });
 }

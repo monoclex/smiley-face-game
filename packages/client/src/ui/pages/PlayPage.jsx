@@ -7,13 +7,15 @@ import { useNavigate, useLocation, useMatch } from "react-router";
 import { useAuth } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
-import { styled } from "@mui/material";
+import { Button, styled, Typography } from "@mui/material";
 import useTeardown from "../hooks/useTeardown";
 import { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
 import { playJoin } from "../../bridge/PlayerJoinLeaveSoundEffects";
 import state from "../../bridge/state";
+import ConnectionError from "@smiley-face-game/api/net/ConnectionError";
+import CreateRoomDialog from "../components/CreateRoomDialog";
 
 let isPlaying = false;
 let renderedOnce = false;
@@ -162,10 +164,29 @@ function GameArea() {
 
 export default function PlayPage() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary render={FriendlyErrorMessage}>
       <GameUI>
         <GameArea />
       </GameUI>
     </ErrorBoundary>
   );
+}
+
+function FriendlyErrorMessage({ error, callback }) {
+  const navigate = useNavigate();
+  const match = useMatch("/games/:id");
+
+  useEffect(
+    () =>
+      navigate("/lobby", {
+        state: {
+          error,
+          name: error.name,
+          id: match?.params.id,
+        },
+      }),
+    []
+  );
+
+  return null;
 }

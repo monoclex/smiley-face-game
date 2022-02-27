@@ -1,7 +1,7 @@
 import { Vector } from "../Vector";
 import { Config } from "../Config";
 
-const isSlow = (n: number) => Math.abs(n) < 1 / 256;
+const isSlow = (n: number) => n << 8 == 0; // Math.abs(n) < 1 / 256;
 const lowPull = (n: number) => Math.abs(n) < 0.1;
 const distance = (a: number, b: number) => Math.abs(a - b);
 
@@ -30,8 +30,8 @@ export function autoAlignValue(position: number, velocity: number, appliedForce:
 
   // nudge if not far from the block
   if (blockOffset < Config.physics.autoalign_range) {
-    const nudge = -blockOffset / (Config.blockSize - 1);
-    return position + nudge;
+    const nudge = blockOffset / (Config.blockSize - 1);
+    return position - nudge;
   }
 
   const oppositeBlockOffset = 16 - blockOffset;

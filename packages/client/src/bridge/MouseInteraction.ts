@@ -20,11 +20,12 @@ enum MouseState {
 
 export default class MouseInteraction {
   readonly selection: Sprite = new Sprite(textures.get("select"));
+  readonly blockChanged: Sprite = new Sprite(textures.get("empty"));
   private mousePos = Vector.Zero;
   private state: MouseState = MouseState.None;
   private lastPlacePos: Vector | undefined;
   private layerSample: TileLayer | undefined;
-  private mouseInGame = true;
+  mouseInGame = true;
 
   constructor(
     private readonly root: Container,
@@ -33,6 +34,8 @@ export default class MouseInteraction {
     private readonly editingPlayer: Player,
     gameElement: HTMLElement
   ) {
+    this.blockChanged.visible = false;
+
     document.addEventListener("mousemove", (event) => {
       this.mousePos = new Vector(event.clientX, event.clientY);
     });
@@ -42,6 +45,19 @@ export default class MouseInteraction {
 
     gameElement.addEventListener("mouseover", () => (this.mouseInGame = true));
     gameElement.addEventListener("mouseleave", () => (this.mouseInGame = false));
+  }
+
+  triggerBlockChange(texture: string) {
+    if (texture === "empty") {
+      this.blockChanged.visible = false;
+      return;
+    }
+
+    this.blockChanged.texture = textures.get(texture);
+    this.blockChanged.visible = true;
+    this.blockChanged.width = 32;
+    this.blockChanged.height = 32;
+    this.blockChanged.alpha = 0.4;
   }
 
   enable(shouldShow: boolean) {
@@ -192,6 +208,7 @@ export default class MouseInteraction {
 
     if (!inputEnabled() || !this.mouseInGame || !this.authoredBlockPlacer.canEdit) {
       this.selection.visible = false;
+      this.blockChanged.visible = false;
       return;
     }
 
@@ -208,6 +225,9 @@ export default class MouseInteraction {
 
     this.selection.position.x = blockX * TILE_WIDTH;
     this.selection.position.y = blockY * TILE_HEIGHT;
+
+    this.blockChanged.position.x = blockX * TILE_WIDTH;
+    this.blockChanged.position.y = blockY * TILE_HEIGHT;
 
     if (this.state === MouseState.None) {
       this.layerSample = undefined;

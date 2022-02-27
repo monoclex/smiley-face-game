@@ -81,7 +81,20 @@ export const zInputs = addParse(
 );
 export type ZInputs = SchemaInput<typeof zInputs>;
 
-export const zKeyKind = addParse(Schema.either("red" as const));
+export const zKeyKind = addParse(
+  Schema.either(
+    "white" as const,
+    "gray" as const,
+    "black" as const,
+    "red" as const,
+    "orange" as const,
+    "yellow" as const,
+    "green" as const,
+    "aqua" as const,
+    "blue" as const,
+    "purple" as const
+  )
+);
 export type ZKeyKind = SchemaInput<typeof zKeyKind>;
 
 export const zVelocity = addParse(

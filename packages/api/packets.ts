@@ -20,6 +20,7 @@ import {
   zMessage,
   zHeap,
   zHeaps,
+  zKeyKind,
 } from "./types";
 
 // TODO: server packets don't need to have `SERVER_X` in their packetId, that might make some things simpler if considered
@@ -113,7 +114,7 @@ export type ZBlockLine = SchemaInput<typeof zBlockLine>;
 export const zKeyTouch = addParse(
   Schema({
     packetId: "KEY_TOUCH" as const,
-    kind: "red" as const,
+    kind: zKeyKind,
   })
 );
 export type ZKeyTouch = SchemaInput<typeof zKeyTouch>;
@@ -125,6 +126,16 @@ export const zToggleGod = addParse(
   })
 );
 export type ZToggleGod = SchemaInput<typeof zToggleGod>;
+
+export const zTeleportPlayer = addParse(
+  Schema({
+    packetId: "TELEPORT_PLAYER" as const,
+    playerId: zUserId,
+    position: zPlayerPosition,
+    velocity: zVelocity.optional(),
+  })
+);
+export type ZTeleportPlayer = SchemaInput<typeof zTeleportPlayer>;
 
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = addParse(
@@ -279,10 +290,9 @@ export const zsEvent = addParse(
 export type ZSEvent = SchemaInput<typeof zsEvent>;
 
 export const zsKeyTouch = addParse(
-  Schema({
+  Schema.merge(zs, {
     packetId: "SERVER_KEY_TOUCH" as const,
-    playerId: zUserId,
-    kind: "red" as const,
+    kind: zKeyKind,
     // TODO: change to some kind of date?
     deactivateTime: number.integer(),
   })
@@ -290,13 +300,22 @@ export const zsKeyTouch = addParse(
 export type ZSKeyTouch = SchemaInput<typeof zsKeyTouch>;
 
 export const zsToggleGod = addParse(
-  Schema({
+  Schema.merge(zs, {
     packetId: "SERVER_TOGGLE_GOD" as const,
-    playerId: zUserId,
     god: boolean,
   })
 );
 export type ZSToggleGod = SchemaInput<typeof zsToggleGod>;
+
+export const zsTeleportPlayer = addParse(
+  Schema.merge(zs, {
+    packetId: "SERVER_TELEPORT_PLAYER" as const,
+    teleportedPlayerId: zUserId,
+    position: zPlayerPosition,
+    velocity: zVelocity.optional(),
+  })
+);
+export type ZSTeleportPlayer = SchemaInput<typeof zsTeleportPlayer>;
 
 /**
  * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
@@ -321,7 +340,7 @@ export const zPacket = (width: number, height: number) => {
         zPlayerListAction,
         blockSingle
       ),
-      Schema.either(zBlockLine, zKeyTouch, zToggleGod)
+      Schema.either(zBlockLine, zKeyTouch, zToggleGod, zTeleportPlayer)
     )
   );
 };
@@ -371,7 +390,8 @@ export const zsPacket = (width: number, height: number) => {
         sBlockSingle,
         zsEvent,
         zsKeyTouch,
-        zsToggleGod
+        zsToggleGod,
+        zsTeleportPlayer
       )
     )
   );

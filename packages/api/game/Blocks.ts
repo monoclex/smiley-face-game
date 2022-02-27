@@ -93,7 +93,7 @@ export class Blocks {
     for (let layer = TileLayer.Foreground; layer <= TileLayer.Background; layer++) {
       if (this.state.get(layer, x, y) !== 0) return layer;
     }
-    return TileLayer.Foreground;
+    return undefined;
   }
 
   private static emptyWorld(size: Vector): number[][][] {

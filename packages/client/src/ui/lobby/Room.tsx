@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import minimapImage from "./minimap.png";
 import type { ZGamePreview } from "@smiley-face-game/api/api";
 import { useNavigate } from "react-router";
+import { gameRunningState } from "../../bridge/state";
 
 const CardRoot = styled(Card)({
   display: "flex",
@@ -59,6 +60,7 @@ export const Room = (props: RoomProps) => {
   } = props;
 
   const play = (e) => {
+    gameRunningState.set(undefined);
     navigate(`/games/${id}`, { state: { type: "join", id } });
     e.cancelDefault();
   };

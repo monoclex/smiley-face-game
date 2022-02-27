@@ -14,7 +14,7 @@ export function addParse<T>(input: T): ParsableSchemaInput<T> {
   //@ts-expect-error this is hell to type properly
   input.parse = (thing) => {
     const [errors, body] = validator(thing);
-    if (errors !== null) throw new Error(errors.toString());
+    if (errors !== null) throw errors;
     return body;
   };
   //@ts-expect-error this is hell to type properly
@@ -29,3 +29,5 @@ export function addParse<T>(input: T): ParsableSchemaInput<T> {
 
 export { array, boolean, number, string } from "computed-types";
 export type { SchemaInput } from "computed-types";
+
+export { ValidationError } from "computed-types/lib/schema/errors";

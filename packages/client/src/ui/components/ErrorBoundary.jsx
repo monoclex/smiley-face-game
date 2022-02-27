@@ -60,8 +60,17 @@ export default function ErrorBoundary({ children, ...props }) {
   // so we use the simpler and more direct alternative
   useLayoutEffect(() => callback, [callback]);
 
+  let ourCallback = (recover) => setCallback(() => recover);
+
+  if (props.callback) {
+    ourCallback = (recover) => {
+      ourCallback(recover);
+      props.callback(recover);
+    };
+  }
+
   return (
-    <ErrorBoundaryImpl callback={(recover) => setCallback(() => recover)} {...props}>
+    <ErrorBoundaryImpl {...props} callback={ourCallback}>
       {children}
     </ErrorBoundaryImpl>
   );

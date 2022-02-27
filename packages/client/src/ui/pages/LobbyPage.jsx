@@ -1,7 +1,17 @@
 //@ts-check
 import React, { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { styled } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  styled,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import SvgIcon from "@mui/material/SvgIcon";
@@ -14,14 +24,18 @@ import { Room } from "../../ui/lobby/Room";
 import FullscreenBackdropLoading, { BigLoading } from "../components/FullscreenBackdropLoading";
 import Typography from "@mui/material/Typography";
 import { useSnackbar } from "notistack";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useNavigate, use, useMatch, useLocation } from "react-router";
 import { useAuth, usePlayer, useSetToken, useLobby, useRefresher } from "../hooks";
 import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
+import { gameRunningState } from "../../bridge/state";
+import ConnectionError from "@smiley-face-game/api/net/ConnectionError";
+import { ValidationError } from "@smiley-face-game/api/computed-types-wrapper";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
-  padding: /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
+  padding:
+    /* spacing */ (3 * /* 8 pixels */ 8) /* negative margin #2 '... apply at least half ...' */ / 2,
 });
 
 function MyRooms() {
@@ -95,10 +109,11 @@ const LobbyPage = () => {
   const logout = useLogout();
   const [createRoomDialogOpen, setCreateRoomDialogOpen] = useState(false);
   const refresh = useRefresher();
+  const { state } = useLocation();
 
   // TODO: bring in stuff from old lobby component to here
   useEffect(() => {
-    refresh();
+    refresh(location);
   }, []);
 
   return (
@@ -129,12 +144,136 @@ const LobbyPage = () => {
         onClose={() => setCreateRoomDialogOpen(false)}
         onCreateRoom={({ width, height, name }) => {
           setCreateRoomDialogOpen(false);
-          navigate(`/games/loading`, { state: { type: "create", name, width: parseInt(width), height: parseInt(height) } });
+          gameRunningState.set(undefined);
+          navigate(`/games/loading`, {
+            state: { type: "create", name, width: parseInt(width), height: parseInt(height) },
+          });
         }}
       />
+
+      <DisplayErrorAlert state={state} />
     </>
   );
 };
+
+function DisplayErrorAlert({ state }) {
+  const navigate = useNavigate();
+  const [openErr, setOpenErr] = useState(Boolean(state?.error));
+  console.log("Lobby page got state", state?.error?.name);
+
+  const closeError = () => {
+    setOpenErr(false);
+
+    // clear state
+    navigate(`/lobby`, {
+      replace: true,
+      state: undefined,
+    });
+  };
+
+  const snackbar = useSnackbar();
+
+  let doEnqueue = false;
+  useEffect(() => {
+    if (!doEnqueue) return;
+    snackbar.enqueueSnackbar("You have been disconnected!", {
+      variant: "error",
+    });
+    closeError();
+  }, []);
+
+  if (state?.name === "DisconnectError") {
+    doEnqueue = true;
+    return null;
+  }
+
+  if (!openErr) return null;
+
+  let body;
+
+  console.error("joining world error:", state.error.name, state.error);
+
+  if (state.name === "ConnectionError") {
+    if (state.id.startsWith("D")) {
+      body = (
+        <Typography variant="body1" component="p">
+          It appears the world you were trying to connect to was a <b>dynamic world</b>. It's very
+          likely that we couldn't connect you to the world because that{" "}
+          <b>world has already closed</b>. If you want to, you can create your own dynamic world by
+          hitting the plus at the top of the lobby.
+        </Typography>
+      );
+    } else if (state.id.startsWith("5")) {
+      body = (
+        <Typography variant="body1" component="p">
+          It appears the world you were trying to connect to was a <b>saved world</b>. It's very
+          likely that we couldn't connect you to the world because the ID is invalid. Check that the
+          URL is properly well formed, and that there are no missing. replaced, or extraneous
+          characters at the end of the URL.
+        </Typography>
+      );
+    } else {
+      body = (
+        <Typography variant="body1" component="p">
+          It appears the world you were trying to connect to a world, but <b>the ID is invalid</b>.
+          Typically world IDs start with a <b>5</b> or a <b>D</b>, but yours starts with neither.
+        </Typography>
+      );
+    }
+  } else if (state.name === "ValidationError") {
+    body = (
+      <Typography variant="body1" component="p">
+        It appears some piece of data was malformed while you were trying to connect to a world. It
+        could be:
+        <ul>
+          <li>
+            <b>The ID is malformed</b>: Check that the URL is properly well formed, and that there
+            are no missing. replaced, or extraneous characters at the end of the URL.
+          </li>
+          <li>
+            <b>The game has updated</b>: It is possible that your browser is caching old code, which
+            does not recognize the newer datastructures an updated version of the game is using. Try
+            press <b>CTRL + SHIFT + R</b> to perform a hard reload.
+          </li>
+        </ul>
+      </Typography>
+    );
+  } else {
+    body = (
+      <Typography variant="body1" component="p">
+        An unknown kind of error occurred. Report this to our development team in #bug-reports on
+        discord.
+        <br />
+        {state.error.message}
+        <br />
+        <span style={{ fontFamily: "monospace" }}>{state?.error?.stack}</span>
+      </Typography>
+    );
+  }
+
+  return (
+    <Dialog open={openErr} onClose={closeError}>
+      <Alert severity="error">
+        <AlertTitle>Connection Error</AlertTitle>
+        {body}
+        <br />
+        <Grid container justifyContent="flex-end">
+          <Grid item>
+            <Button
+              onClick={() => {
+                gameRunningState.set(undefined);
+                navigate(`/games/${state.id}`);
+              }}
+            >
+              Try Connect Again
+            </Button>
+            <Button onClick={closeError}>Ok</Button>
+          </Grid>
+        </Grid>
+      </Alert>
+    </Dialog>
+  );
+}
 
 function HandleError({ error }) {
   const setToken = useSetToken();
