@@ -21,10 +21,12 @@ export function loadWorldVersion2(loader: FormatLoader, blocks: Block[][][]) {
         if (typeof block === "number") loader.world.set(layerIdx, x, y, block);
         else if (block.length === 2) {
           const [id, heap] = block;
-
-          const heapData = zHeap.parse(heap);
           loader.world.set(layerIdx, x, y, id);
-          loader.heap.set(layerIdx, x, y, heapData);
+
+          if (heap !== 0) {
+            const heapData = zHeap.parse(heap);
+            loader.heap.set(layerIdx, x, y, heapData);
+          }
         }
       }
     }
