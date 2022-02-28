@@ -44,8 +44,9 @@ import TileRegistration from "../tiles/TileRegistration";
 import createRegistration from "../tiles/createRegistration";
 import ConnectionError from "./ConnectionError";
 
-const zEquipped = addParse(boolean);
-const zGodMode = addParse(boolean);
+const zBoolean = addParse(boolean);
+const zEquipped = zBoolean;
+const zGodMode = zBoolean;
 
 /** A very simple check just to make sure that a websocket is being passed in. */
 function parseWebsocket(payload: unknown): payload is Websocket {
@@ -66,18 +67,21 @@ export default class Connection {
   static establish(
     endpoint: Endpoint,
     token: string,
-    joinRequest: ZJoinRequest
+    joinRequest: ZJoinRequest,
+    extraChecks?: boolean
   ): Promise<Connection>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   static establish(
     argEndpoint: unknown,
     argToken: unknown,
-    argJoinRequest: unknown
+    argJoinRequest: unknown,
+    argExtraChecks?: unknown
   ): Promise<Connection> {
     const endpoint = zEndpoint.parse(argEndpoint);
     const token = zToken.parse(argToken);
     const joinRequest = zJoinRequest.parse(argJoinRequest);
+    const extraChecks = typeof argExtraChecks === "boolean" ? zBoolean.parse(argExtraChecks) : true;
 
     const url = toUrl(endpoint, true);
     url.searchParams.append("token", token);
@@ -89,7 +93,8 @@ export default class Connection {
       // we've created a websocket, but did we really join?
       // listen for either 'init' or an error
       websocket.onclose = (e) => reject(new ConnectionError(e.reason));
-      websocket.onmessage = (e) => resolve(new Connection(websocket, JSON.parse(e.data as string)));
+      websocket.onmessage = (e) =>
+        resolve(new Connection(websocket, JSON.parse(e.data as string), extraChecks));
     });
   }
 
@@ -138,18 +143,22 @@ export default class Connection {
     return this._connected;
   }
 
+  private readonly extraChecks: boolean;
+
   /**
    * Constructs a new `Connection`, given a `websocket` and an `init` message.
    * @param websocket The websocket that the connection is on.
    * @param init The payload of the `init` message.
+   * @param extraChecks Whether or not to perform extra checks to make sure incoming packets are validated.
    */
-  constructor(websocket: Websocket, init: ZSInit);
+  constructor(websocket: Websocket, init: ZSInit, extraChecks: boolean);
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  constructor(argWebsocket: unknown, argInit: unknown) {
+  constructor(argWebsocket: unknown, argInit: unknown, argExtraChecks: boolean) {
     if (parseWebsocket(argWebsocket)) this.websocket = argWebsocket;
     else throw new Error(`Failed to interpret argument as 'Websocket'.`);
     this.init = zsInit.parse(argInit);
+    this.extraChecks = zBoolean.parse(argExtraChecks);
     this.tileJson = createRegistration();
 
     this.messages = new AsyncQueue();
@@ -165,8 +174,15 @@ export default class Connection {
       (this._connected = false), this.messages.end(new Error(event.reason))
     );
     this.websocket.onerror = (event) => ((this._connected = false), this.messages.end(event.error));
-    this.websocket.onmessage = (event) =>
-      this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
+
+    if (this.extraChecks) {
+      console.log("extra checks enabled");
+      this.websocket.onmessage = (event) =>
+        this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
+    } else {
+      console.log("extra checks disabled");
+      this.websocket.onmessage = (event) => this.messages.push(JSON.parse(event.data as string));
+    }
   }
 
   /**
@@ -198,8 +214,13 @@ export default class Connection {
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
   send(argPacket: unknown) {
-    const packet = this.zPacket.parse(argPacket);
-    this._send(packet);
+    if (this.extraChecks) {
+      const packet = this.zPacket.parse(argPacket);
+      this._send(packet);
+    } else {
+      // @ts-expect-error we expect the user to confirm the validity of a packet
+      this._send(argPacket);
+    }
   }
 
   /**

@@ -14,7 +14,10 @@ import Connection from "./Connection";
 import { zToken, zAccountId } from "../types";
 import { endpoints, Endpoint, zEndpoint } from "./endpoints";
 import fetch from "../fetch";
-import type { SchemaInput } from "../computed-types-wrapper";
+import { addParse, SchemaInput } from "../computed-types-wrapper";
+import { boolean } from "computed-types";
+
+const zBoolean = addParse(boolean);
 
 /**
  * The `Authentication` class represents an authenticated user. It provides methods that query the game for
@@ -68,15 +71,25 @@ export default class Authentication {
    * Attempts to join a world, given the join request.
    * @param joinRequest The request for the world to join.
    * @param endpoint An optional custom endpoint to use for connecting.
+   * @param extraChecks Whether or not to perform additional checks on packets sent to/from the server.
    * @returns A promise that resolves to a `Connection`, which can be used to control your in game player.
    */
-  connect(joinRequest: SchemaInput<typeof zJoinRequest>, endpoint?: Endpoint): Promise<Connection>;
+  connect(
+    joinRequest: SchemaInput<typeof zJoinRequest>,
+    endpoint?: Endpoint,
+    extraChecks?: boolean
+  ): Promise<Connection>;
 
   /** @package Implementation method that manually sanitizes parameters to prevent callers from javascript passing invalid args. */
-  connect(argJoinRequest: unknown, argEndpoint?: unknown): Promise<Connection> {
+  connect(
+    argJoinRequest: unknown,
+    argEndpoint?: unknown,
+    argExtraChecks?: unknown
+  ): Promise<Connection> {
     const joinRequest = zJoinRequest.parse(argJoinRequest);
     const endpoint = zEndpoint.parse(argEndpoint || endpoints.ws);
-    return Connection.establish(endpoint, this.token, joinRequest);
+    const extraChecks = typeof argExtraChecks === "boolean" ? zBoolean.parse(argExtraChecks) : true;
+    return Connection.establish(endpoint, this.token, joinRequest, extraChecks);
   }
 
   /**

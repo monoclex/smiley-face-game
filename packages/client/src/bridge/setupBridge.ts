@@ -13,6 +13,7 @@ import ClientBlockBar from "./ClientBlockBar";
 import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
 import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
+import { enableExtraChecks } from "../isProduction";
 
 interface Bridge {
   game: Game;
@@ -32,7 +33,7 @@ export default async function setupBridge(
   joinRequest: ZJoinRequest,
   renderer: Renderer
 ): Promise<Bridge> {
-  const connection = await auth.connect(joinRequest);
+  const connection = await auth.connect(joinRequest, undefined, enableExtraChecks);
 
   // TODO: the block bar should primarily resisde within the react component,
   // we shouldn't own it
