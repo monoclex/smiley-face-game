@@ -4,11 +4,11 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        
+
         <OutputType>Exe</OutputType>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
-        <RuntimeIdentifier>linux-musl-x64</RuntimeIdentifier>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishTrimmed>true</PublishTrimmed>
     </PropertyGroup>
