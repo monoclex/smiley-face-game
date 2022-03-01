@@ -1,4 +1,5 @@
 import { ZKeyKind } from "../types";
+import { EEPhysics } from "./EEPhysics";
 import type { Player } from "./Player";
 import { Vector } from "./Vector";
 
@@ -21,4 +22,14 @@ export interface PhysicsEvents {
   checkpoint(player: Player, position: Vector): void;
 
   death(player: Player): void;
+
+  /**
+   * Event that gets fired before a physics tick is simulated.
+   */
+  beforeTick(physics: EEPhysics, players: Player[]): void;
+
+  /**
+   * Event that gets fired after a single physics tick has been simulated.
+   */
+  onTick(physics: EEPhysics, players: Player[]): void;
 }

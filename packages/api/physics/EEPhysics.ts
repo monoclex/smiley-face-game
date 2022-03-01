@@ -68,6 +68,8 @@ export class EEPhysics {
   }
 
   tick(players: Player[]) {
+    this.events.emit("beforeTick", this, players);
+
     for (const player of players) {
       this.tickPlayer(player);
       player.ticks++;
@@ -78,6 +80,7 @@ export class EEPhysics {
     }
 
     this.ticks += 1;
+    this.events.emit("onTick", this, players);
   }
 
   tickPlayer(player: Player) {
