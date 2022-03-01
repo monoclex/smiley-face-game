@@ -20,6 +20,7 @@ export default class PlayerRenderer {
       this.gamePlayers.set(player.id, gamePlayer);
 
       this.players.addChild(gamePlayer.container);
+      this.playersMinimap.addChild(gamePlayer.minimapContainer);
     }
 
     game.players.events.on("add", (player) => {
@@ -27,6 +28,7 @@ export default class PlayerRenderer {
       this.gamePlayers.set(player.id, gamePlayer);
 
       this.players.addChild(gamePlayer.container);
+      this.playersMinimap.addChild(gamePlayer.minimapContainer);
     });
 
     game.players.events.on("remove", (player) => {
@@ -35,6 +37,9 @@ export default class PlayerRenderer {
 
       const index = this.players.getChildIndex(gamePlayer.container);
       this.players.removeChildAt(index);
+
+      const index2 = this.players.getChildIndex(gamePlayer.minimapContainer);
+      this.playersMinimap.removeChildAt(index2);
     });
 
     game.physics.events.on("checkpoint", (player, pos) => {
@@ -44,6 +49,7 @@ export default class PlayerRenderer {
   }
 
   readonly players: Container = new Container();
+  readonly playersMinimap: Container = new Container();
 
   draw(): void {
     // update game containers and stuff from game data
@@ -53,6 +59,8 @@ export default class PlayerRenderer {
 
       gamePlayer.container.x = player.sfgPosition.x;
       gamePlayer.container.y = player.sfgPosition.y;
+      gamePlayer.minimapContainer.x = player.sfgPosition.x;
+      gamePlayer.minimapContainer.y = player.sfgPosition.y;
 
       gamePlayer.wings.visible = player.isInGodMode;
 

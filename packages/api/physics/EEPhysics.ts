@@ -531,7 +531,6 @@ export class EEPhysics {
       (key) => !playerKeysOn.includes(key) && !playerKeysOff.includes(key)
     );
 
-    console.log("getting all keys on", playerKeysOn, playerKeysOff, worldKeysOn);
     return [...playerKeysOn, ...unsetKeysInPlayerThatAreOn];
   }
 }

@@ -7,6 +7,7 @@ import GamePlayer from "../GamePlayer";
 import PlayerRenderer from "./PlayerRendering";
 import WorldRendering from "./WorldRendering";
 import SignRendering from "./SignRendering";
+import MinimapRenderer from "./MinimapRenderer";
 
 interface GameRendererEvents {
   draw(): void;
@@ -28,12 +29,15 @@ export default class GameRenderer {
   readonly playerRenderer: PlayerRenderer;
   readonly worldRenderer: WorldRendering;
   readonly signRenderer: SignRendering;
+  readonly minimapRenderer: MinimapRenderer;
   readonly events = createNanoEvents<GameRendererEvents>();
 
   constructor(readonly game: Game, readonly renderer: Renderer) {
     this.worldRenderer = new WorldRendering(game);
     this.signRenderer = new SignRendering(game);
     this.playerRenderer = new PlayerRenderer(game, this.root, renderer, this.worldRenderer);
+
+    this.stage.addChild(this.root);
 
     // <-- most behind
     this.root.addChild(this.worldRenderer.worldBehind);
@@ -44,8 +48,21 @@ export default class GameRenderer {
     // <-- closest to viewer
 
     this.root.addChild(this.signRenderer.sprite);
+
+    const minimap = new Container();
+    minimap.addChild(this.worldRenderer.worldMinimap);
+    minimap.addChild(this.playerRenderer.playersMinimap);
+
+    this.minimapRenderer = new MinimapRenderer(
+      this.stage,
+      this.root,
+      minimap,
+      game.blocks.size,
+      this.renderer
+    );
   }
 
+  readonly stage: Container = new Container();
   readonly root: Container = new Container();
   readonly bullets: Container = new Container();
   private mouse: Vector = Vector.Zero;
@@ -54,8 +71,9 @@ export default class GameRenderer {
     this.playerRenderer.draw();
     this.worldRenderer.draw();
     this.signRenderer.draw();
+    this.minimapRenderer.draw();
     this.events.emit("draw");
 
-    this.renderer.render(this.root);
+    this.renderer.render(this.stage);
   }
 }
