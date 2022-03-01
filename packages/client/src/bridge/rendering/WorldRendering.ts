@@ -20,6 +20,13 @@ export default class WorldRendering {
   private readonly foreground: CompositeRectTileLayer & DisplayObject;
   private readonly decoration: CompositeRectTileLayer & DisplayObject;
 
+  readonly worldMinimap: Container = new Container();
+  private readonly voidMinimap: TilingSprite;
+  private readonly backgroundMinimap: CompositeRectTileLayer & DisplayObject;
+  private readonly actionMinimap: CompositeRectTileLayer & DisplayObject;
+  private readonly foregroundMinimap: CompositeRectTileLayer & DisplayObject;
+  private readonly decorationMinimap: CompositeRectTileLayer & DisplayObject;
+
   constructor(readonly game: Game) {
     this.void = new TilingSprite(
       textures.block("empty"),
@@ -36,6 +43,22 @@ export default class WorldRendering {
     this.worldBehind.addChild(this.action);
     this.worldBehind.addChild(this.foreground);
     this.worldInfront.addChild(this.decoration);
+
+    this.voidMinimap = new TilingSprite(
+      textures.block("empty"),
+      game.blocks.size.x * 32,
+      game.blocks.size.y * 32
+    );
+
+    this.backgroundMinimap = new CompositeRectTileLayer();
+    this.actionMinimap = new CompositeRectTileLayer();
+    this.foregroundMinimap = new CompositeRectTileLayer();
+    this.decorationMinimap = new CompositeRectTileLayer();
+    this.worldMinimap.addChild(this.voidMinimap);
+    this.worldMinimap.addChild(this.backgroundMinimap);
+    this.worldMinimap.addChild(this.actionMinimap);
+    this.worldMinimap.addChild(this.foregroundMinimap);
+    this.worldMinimap.addChild(this.decorationMinimap);
 
     const dirty = this.flagDirty.bind(this);
     game.blocks.events.on("block", dirty);
@@ -73,12 +96,14 @@ export default class WorldRendering {
   load(blocks: number[][][]) {
     this.action.clear();
     this.foreground.clear();
+    this.actionMinimap.clear();
+    this.foregroundMinimap.clear();
 
     const map = {
-      [TileLayer.Foreground]: this.foreground,
-      [TileLayer.Action]: this.action,
-      [TileLayer.Background]: undefined,
-      [TileLayer.Decoration]: this.decoration,
+      [TileLayer.Foreground]: [this.foreground, this.foregroundMinimap] as const,
+      [TileLayer.Action]: [this.action, this.actionMinimap] as const,
+      [TileLayer.Background]: [undefined, undefined] as const,
+      [TileLayer.Decoration]: [this.decoration, this.decorationMinimap] as const,
     };
 
     const keysOn = this.game.physics.getAllKeysOn(this.self);
@@ -86,8 +111,8 @@ export default class WorldRendering {
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
       if (layer === undefined || layer === null) continue;
-      const tileLayer: (CompositeRectTileLayer & DisplayObject) | undefined = map[layerIdx];
-      if (!tileLayer) continue;
+      const [tileLayer, tileLayerMinimap] = map[layerIdx];
+      if (!tileLayer || !tileLayerMinimap) continue;
       for (let yIdx = 0; yIdx < this.game.blocks.size.y; yIdx++) {
         const y = layer[yIdx];
         if (y === undefined || y === null) continue;
@@ -99,7 +124,9 @@ export default class WorldRendering {
           const pos = new Vector(x, yIdx);
           const textureName = this.mapTextureName(keysOn, this.game.tiles.texture(y[x]), pos);
 
-          tileLayer.addFrame(textures.block(textureName), x * 32, yIdx * 32);
+          const texture = textures.block(textureName);
+          tileLayer.addFrame(texture, x * 32, yIdx * 32);
+          tileLayerMinimap.addFrame(texture, x * 32, yIdx * 32);
         }
       }
     }

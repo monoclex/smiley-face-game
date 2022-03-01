@@ -14,6 +14,8 @@ export default class GamePlayer {
   wings: Sprite;
   name: Text;
 
+  readonly minimapContainer = new Container();
+
   constructor(name: string) {
     this.container = new Container();
     this.cosmetic = new Sprite(textures.get("smile"));
@@ -28,6 +30,7 @@ export default class GamePlayer {
 
     this.name.y += 32;
 
+    this.minimapContainer.addChild(new Sprite(textures.get("player")));
     this.container.addChild(this.wings, this.sprite, this.cosmetic, this.gun, this.name);
   }
 
