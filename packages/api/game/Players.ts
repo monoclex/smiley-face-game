@@ -86,6 +86,11 @@ export class Players {
     const player = this.get(playerId);
     const before = player.canGod;
     player.canGod = newCanGod;
+
+    if (!newCanGod) {
+      player.isInGodMode = false;
+    }
+
     this.events.emit("updateCanGod", player, before);
   }
 }

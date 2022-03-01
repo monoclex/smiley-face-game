@@ -87,6 +87,7 @@ export default function handlePlayerlistAction(
         if (target.role === "owner") return;
 
         target.canGod = false;
+        target.inGod = false;
         logic.broadcast({
           packetId: "SERVER_ROLE_UPDATE",
           playerId: target.playerId,
