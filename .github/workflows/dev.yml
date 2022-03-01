@@ -21,8 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Trigger CI/CD
-        uses: fjogeleit/http-request-action@v1.4.1
+        uses: SirJosh3917/triggercd-action@v0.1
         with:
-          url: ${{ secrets.DEV }}
-          method: POST
-          timeout: 300000
+          url: ${{ secrets.TRIGGERCD_DEV_URL }}
+          nonce: ${{ secrets.TRIGGERCD_DEV_KEY }}
