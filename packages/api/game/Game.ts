@@ -1,4 +1,4 @@
-import { ZSPacket } from "..";
+import { Connection, ZSPacket } from "..";
 import type { ZSEvent, ZSInit, ZSWorldAction } from "../packets";
 import { Blocks } from "./Blocks";
 import { EEPhysics } from "../physics/EEPhysics";
@@ -21,27 +21,58 @@ export class Game {
 
   // static new(): Game {}
 
+  constructor(connection: Connection);
   constructor(tiles: TileRegistration, init: ZSInit);
   constructor(tiles: TileRegistration, players: Players, blocks: Blocks, physics: EEPhysics);
 
-  constructor(tiles: TileRegistration, a: Players | ZSInit, b?: Blocks, c?: EEPhysics) {
-    if (a instanceof Players && b != null && c != null) {
-      this.tiles = tiles;
+  constructor(
+    tilesOrConn: TileRegistration | Connection,
+    a?: Players | ZSInit,
+    b?: Blocks,
+    c?: EEPhysics
+  ) {
+    if (tilesOrConn instanceof Connection) {
+      // constructor(connection: Connection);
+      const connection = tilesOrConn;
+      const init = connection.init;
+      const size = new Vector(init.size.width, init.size.height);
+
+      this.tiles = connection.tileJson;
+      this.players = new Players(init);
+      this.blocks = new Blocks(this.tiles, init.blocks, init.heaps, size);
+      this.physics = new EEPhysics(this.tiles, this.blocks, EE_TPS);
+
+      this.handleEvent({
+        playerId: init.playerId,
+        packetId: "SERVER_PLAYER_JOIN",
+        username: init.username,
+        role: init.role,
+        isGuest: init.isGuest,
+        joinLocation: init.spawnPosition,
+        hasGun: false,
+        gunEquipped: false,
+        canGod: init.canGod,
+        inGod: false,
+      });
+    } else if (a instanceof Players && b != null && c != null) {
+      // constructor(tiles: TileRegistration, players: Players, blocks: Blocks, physics: EEPhysics);
+      this.tiles = tilesOrConn;
       this.players = a;
       this.blocks = b;
       this.physics = c;
-    } else if (!(a instanceof Players)) {
+    } else if (!(a instanceof Players) && a) {
+      // constructor(tiles: TileRegistration, init: ZSInit);
       const init = a;
 
-      this.tiles = tiles;
+      this.tiles = tilesOrConn;
       this.players = new Players(init);
       this.blocks = new Blocks(
-        tiles,
+        tilesOrConn,
         init.blocks,
         init.heaps,
         new Vector(init.size.width, init.size.height)
       );
-      this.physics = new EEPhysics(tiles, this.blocks, EE_TPS);
+      this.physics = new EEPhysics(tilesOrConn, this.blocks, EE_TPS);
     } else {
       throw new Error("Failed to construct game, given incorrect arguments");
     }
