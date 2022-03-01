@@ -17,7 +17,7 @@ export default class Connection {
 
   // room things
   // TODO: decouple 'lastPosition' default state
-  lastPosition: { x: number; y: number } = { x: 32, y: 32 };
+  lastPosition: { x: number; y: number } = { x: 16, y: 16 };
   hasGun = false;
   gunEquipped = false;
   lastMessage: Date = new Date();
