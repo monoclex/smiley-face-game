@@ -1,4 +1,4 @@
-import clamp from "./clamp";
+import clamp, { clampDid } from "./clamp";
 
 export class Vector<T = number> {
   static readonly Zero: Vector = new Vector(0, 0);
@@ -110,6 +110,16 @@ export class Vector<T = number> {
     return new Vector(clamp(value.x, min.x, max.x), clamp(value.y, min.y, max.y));
   }
 
+  static clampDid(value: Vector, min: Vector, max: Vector): [Vector, Vector<boolean>] {
+    const [x, xDid] = clampDid(value.x, min.x, max.x);
+    const [y, yDid] = clampDid(value.y, min.y, max.y);
+    return [{ x, y }, new Vector(xDid, yDid)];
+  }
+
+  static either(v: Vector<boolean>): boolean {
+    return v.x || v.y;
+  }
+
   static unique(vectors: Vector[]): Vector[] {
     if (vectors.length === 0) return [];
 
@@ -154,8 +164,8 @@ export class Vector<T = number> {
    * @returns A vector, such that any zeros present in the predicate vector are
    * replaced by values in the value vector, and any non-zeros are replaced by zeros.
    */
-  static filterOut(predicate: Vector, value: Vector): Vector {
-    return new Vector(predicate.x === 0 ? value.x : 0, predicate.y === 0 ? value.y : 0);
+  static filterOut(predicate: Vector<any>, value: Vector): Vector {
+    return new Vector(Boolean(predicate.x) ? 0 : value.x, Boolean(predicate.y) ? 0 : value.y);
   }
 
   /**

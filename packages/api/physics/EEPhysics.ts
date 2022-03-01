@@ -253,7 +253,14 @@ export class EEPhysics {
     const worldBounds = Vector.mults(Vector.subs(this.world.size, 1), Config.blockSize);
 
     position = Vector.add(position, velocity);
-    position = Vector.clamp(position, Vector.Zero, worldBounds);
+
+    let didClamp;
+    [position, didClamp] = Vector.clampDid(position, Vector.Zero, worldBounds);
+
+    if (Vector.either(didClamp)) {
+      velocity = Vector.filterOut(didClamp, velocity);
+    }
+
     position = autoAlignVector(position, velocity, appliedForce);
 
     self.position = position;
