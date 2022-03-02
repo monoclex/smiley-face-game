@@ -4,13 +4,10 @@ import { styled } from "@mui/material";
 import { format } from "date-fns/fp";
 
 const MessageContainer = styled("div")({
-  message: {
-    paddingTop: 2,
-    paddingLeft: 4,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2,
-  },
+  paddingTop: "0.5mm",
+  paddingLeft: "1mm",
+  paddingBottom: "0.5mm",
+  backgroundColor: "rgb(18, 18, 18)",
 });
 
 export const Message = ({ message }) => {
