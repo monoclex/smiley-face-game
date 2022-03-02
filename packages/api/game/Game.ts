@@ -19,7 +19,8 @@ export class Game {
   readonly blocks: Blocks;
   readonly physics: EEPhysics;
 
-  // static new(): Game {}
+  // TODO: have a `world` variable or something
+  worldTitle: string = "";
 
   constructor(connection: Connection);
   constructor(tiles: TileRegistration, init: ZSInit);
@@ -170,6 +171,9 @@ export class Game {
         return 0;
       case "save":
         // nothing needs to happen on save
+        return 0;
+      case "change title":
+        this.worldTitle = action.title;
         return 0;
     }
   }

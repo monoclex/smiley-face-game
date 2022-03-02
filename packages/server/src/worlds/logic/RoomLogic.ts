@@ -32,6 +32,15 @@ export default class RoomLogic {
   #players: Map<number, Connection>;
   #idCounter = 0;
   #details: ZWorldDetails;
+
+  get details(): ZWorldDetails {
+    return this.#details;
+  }
+
+  set details(value: ZWorldDetails) {
+    this.#details = value;
+  }
+
   #setStoppingStatus: () => void;
   #id: string;
   behaviour: Behaviour;
