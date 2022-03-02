@@ -71,31 +71,6 @@ export default function Chat() {
 
   return (
     <Grid container direction="column" style={{ height: "100%" }}>
-      <Grid item>
-        {isActive && (
-          <ChatField item>
-            <form
-              autoComplete="off"
-              onSubmit={async (e) => {
-                return await handleSubmit(onSubmit)(e);
-              }}
-            >
-              <ChatInput
-                disableUnderline
-                fullWidth
-                id="content"
-                {...register("content")}
-                name="content"
-                placeholder="Press Enter to chat"
-                onFocus={() => setActive(true)}
-                onBlur={closeChat}
-                inputRef={inputRef}
-              />
-            </form>
-          </ChatField>
-        )}
-      </Grid>
-
       <Grid item xs style={{ height: "100%" }}>
         <SpringScrollbars
           autoHide
@@ -109,6 +84,31 @@ export default function Chat() {
             <Message key={message.id} message={message} />
           ))}
         </SpringScrollbars>
+      </Grid>
+
+      <Grid item>
+        <ChatField item>
+          <form
+            autoComplete="off"
+            onSubmit={async (e) => {
+              return await handleSubmit(onSubmit)(e);
+            }}
+          >
+            <ChatInput
+              disableUnderline
+              fullWidth
+              id="content"
+              {...register("content")}
+              name="content"
+              placeholder="Press Enter to chat"
+              onFocus={() => setActive(true)}
+              onClick={() => setActive(true)}
+              onBlur={closeChat}
+              inputRef={inputRef}
+              disabled={!isActive}
+            />
+          </form>
+        </ChatField>
       </Grid>
     </Grid>
   );
