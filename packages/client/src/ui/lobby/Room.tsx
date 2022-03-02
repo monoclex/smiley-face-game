@@ -14,7 +14,7 @@ import {
 // import HeartOutlineIcon from "mdi-material-ui/HeartOutline";
 import PlayIcon from "mdi-material-ui/Play";
 import { motion } from "framer-motion";
-import minimapImage from "./minimap.png";
+import minimapImage from "../../assets/minimap.png";
 import type { ZGamePreview } from "@smiley-face-game/api/api";
 import { useNavigate } from "react-router";
 import { gameRunningState } from "../../bridge/state";

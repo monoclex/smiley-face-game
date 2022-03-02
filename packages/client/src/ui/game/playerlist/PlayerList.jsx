@@ -18,23 +18,19 @@ const PlayerList = () => {
   const players = useRecoilValue(playerListState);
 
   return (
-    <Grid container direction="column" justifyContent="flex-end" alignItems="center">
-      <SpringScrollbars
-        autoHide
-        autoHideTimeout={1000}
-        autoHideDuration={200}
-        autoHeight
-        autoHeightMin={0}
-        autoHeightMax={150}
-        renderThumbVertical={({ style, ...props }) => (
-          <div {...props} style={{ ...style, backgroundColor: "rgb(48,48,48)" }} />
-        )}
-      >
-        {players.map((player, i) => (
-          <Player key={i} {...player} />
-        ))}
-      </SpringScrollbars>
-    </Grid>
+    <SpringScrollbars
+      autoHide
+      autoHideTimeout={1000}
+      autoHideDuration={200}
+      height="auto"
+      renderThumbVertical={({ style, ...props }) => (
+        <div {...props} style={{ ...style, backgroundColor: "rgb(48,48,48)" }} />
+      )}
+    >
+      {players.map((player, i) => (
+        <Player key={i} {...player} />
+      ))}
+    </SpringScrollbars>
   );
 };
 

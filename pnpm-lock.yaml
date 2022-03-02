@@ -107,11 +107,14 @@ importers:
       react: ^17.0.2
       react-custom-scrollbars: ^4.2.1
       react-dom: ^17.0.2
+      react-grid-layout: ^1.3.4
       react-hook-form: ^7.26.0
       react-joystick-component: ^4.0.0
       react-router: ^6.2.1
       react-router-dom: ^6.2.1
       react-sizeme: ^3.0.2
+      react-split: ^2.0.14
+      react-split-grid: ^1.0.4
       react-use: ^17.3.2
       rebound: ^0.1.0
       recoil: ^0.6.1
@@ -157,11 +160,14 @@ importers:
       react: 17.0.2
       react-custom-scrollbars: 4.2.1_react-dom@17.0.2+react@17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-grid-layout: 1.3.4_react-dom@17.0.2+react@17.0.2
       react-hook-form: 7.26.0_react@17.0.2
       react-joystick-component: 4.0.0_react-dom@17.0.2+react@17.0.2
       react-router: 6.2.1_react@17.0.2
       react-router-dom: 6.2.1_react-dom@17.0.2+react@17.0.2
       react-sizeme: 3.0.2
+      react-split: 2.0.14_react@17.0.2
+      react-split-grid: 1.0.4_react@17.0.2
       react-use: 17.3.2_react-dom@17.0.2+react@17.0.2
       rebound: 0.1.0
       recoil: 0.6.1_react-dom@17.0.2+react@17.0.2
@@ -6984,6 +6990,10 @@ packages:
     resolution: {integrity: sha1-bC4XHbKiV82WgC/UOwGyDV9YcPY=}
     dev: false
 
+  /lodash.isequal/4.5.0:
+    resolution: {integrity: sha1-QVxEePK8wwEgwizhDtMib30+GOA=}
+    dev: false
+
   /lodash.isinteger/4.0.4:
     resolution: {integrity: sha1-YZwK89A/iwTDH1iChAt3sRzWg0M=}
     dev: false
@@ -7881,6 +7891,33 @@ packages:
       scheduler: 0.20.2
     dev: false
 
+  /react-draggable/4.4.4_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-6e0WdcNLwpBx/YIDpoyd2Xb04PB0elrDrulKUgdrIlwuYvxh5Ok9M+F8cljm8kPXXs43PmMzek9RrB1b7mLMqA==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
+    dependencies:
+      clsx: 1.1.1
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
+  /react-grid-layout/1.3.4_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-sB3rNhorW77HUdOjB4JkelZTdJGQKuXLl3gNg+BI8gJkTScspL1myfZzW/EM0dLEn+1eH+xW+wNqk0oIM9o7cw==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
+    dependencies:
+      clsx: 1.1.1
+      lodash.isequal: 4.5.0
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-draggable: 4.4.4_react-dom@17.0.2+react@17.0.2
+      react-resizable: 3.0.4_react-dom@17.0.2+react@17.0.2
+    dev: false
+
   /react-hook-form/7.26.0_react@17.0.2:
     resolution: {integrity: sha512-nSkCyJB5Ey5QUw3AGQp22JP7TNfPdyC4wqfmheH87NNsHhQwCZgGjexXdBfd7SRt4SHoVzbdPvu6kXG5sSs66Q==}
     engines: {node: '>=12.22.0'}
@@ -7904,6 +7941,18 @@ packages:
     dependencies:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+    dev: false
+
+  /react-resizable/3.0.4_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-StnwmiESiamNzdRHbSSvA65b0ZQJ7eVQpPusrSmcpyGKzC0gojhtO62xxH6YOBmepk9dQTBi9yxidL3W4s3EBA==}
+    peerDependencies:
+      react: '>= 16.3'
+    dependencies:
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-draggable: 4.4.4_react-dom@17.0.2+react@17.0.2
+    transitivePeerDependencies:
+      - react-dom
     dev: false
 
   /react-router-dom/6.2.1_react-dom@17.0.2+react@17.0.2:
@@ -7934,6 +7983,26 @@ packages:
       invariant: 2.2.4
       shallowequal: 1.1.0
       throttle-debounce: 3.0.1
+    dev: false
+
+  /react-split-grid/1.0.4_react@17.0.2:
+    resolution: {integrity: sha512-RMEzFFnntgn+u5GFq+ognmv30CsTgrR97zB4RkMx2VSX9Sw8A7fjzCUfw/Avj7m8GCEw19GIjoUQGOQUOOjlcA==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      prop-types: 15.8.1
+      react: 17.0.2
+      split-grid: 1.0.11
+    dev: false
+
+  /react-split/2.0.14_react@17.0.2:
+    resolution: {integrity: sha512-bKWydgMgaKTg/2JGQnaJPg51T6dmumTWZppFgEbbY0Fbme0F5TuatAScCLaqommbGQQf/ZT1zaejuPDriscISA==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      prop-types: 15.8.1
+      react: 17.0.2
+      split.js: 1.6.5
     dev: false
 
   /react-transition-group/4.4.2_react-dom@17.0.2+react@17.0.2:
@@ -8485,6 +8554,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /split-grid/1.0.11:
+    resolution: {integrity: sha512-ELtFtxc3r5we5GZfe6Fi0BFFxIi2M6BY1YEntBscKRDD3zx4JVHqx2VnTRSQu1BixCYSTH3MTjKd4esI2R7EgQ==}
+    dev: false
+
+  /split.js/1.6.5:
+    resolution: {integrity: sha512-mPTnGCiS/RiuTNsVhCm9De9cCAUsrNFFviRbADdKiiV+Kk8HKp/0fWu7Kr8pi3/yBmsqLFHuXGT9UUZ+CNLwFw==}
+    dev: false
 
   /split2/4.1.0:
     resolution: {integrity: sha512-VBiJxFkxiXRlUIeyMQi8s4hgvKCSjtknJv/LVYbrgALPwf5zSKmEwV9Lst25AkvMDnvxODugjdl6KZgwKM1WYQ==}
