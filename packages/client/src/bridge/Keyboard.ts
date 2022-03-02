@@ -1,6 +1,7 @@
 import { Connection } from "@smiley-face-game/api";
 import { Inputs } from "@smiley-face-game/api/game/Inputs";
 import { Player } from "@smiley-face-game/api/physics/Player";
+import { loadControls } from "../controls";
 import inputEnabled from "./inputEnabled";
 
 function toggle<M, K extends keyof M, V extends M[K]>(inputs: M, key: K, pressed: V): boolean {
@@ -10,6 +11,8 @@ function toggle<M, K extends keyof M, V extends M[K]>(inputs: M, key: K, pressed
 }
 
 export default class Keyboard {
+  readonly controls = loadControls();
+
   constructor(readonly player: Player, readonly connection: Connection) {
     const keyDown = (event: KeyboardEvent) => {
       if (!this.connection.connected) {
@@ -50,26 +53,26 @@ export default class Keyboard {
 
     switch (key) {
       case "arrowup":
-      case "w":
+      case this.controls.up.binding:
         didChange = this.toggle("up", pressed);
         break;
       case "arrowright":
-      case "d":
+      case this.controls.right.binding:
         didChange = this.toggle("right", pressed);
         break;
       case "arrowleft":
-      case "a":
+      case this.controls.left.binding:
         didChange = this.toggle("left", pressed);
         break;
       case "arrowdown":
-      case "s":
+      case this.controls.down.binding:
         didChange = this.toggle("down", pressed);
         break;
-      case " ": // space
+      case this.controls.jump.binding: // space
         didChange = this.toggle("jump", pressed);
         break;
-      case "f":
       case "g":
+      case this.controls.god.binding:
         if (pressed && this.player.canGod) {
           this.triggerGod();
         }

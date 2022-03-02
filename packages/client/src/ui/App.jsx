@@ -18,6 +18,7 @@ const LobbyPage = lazy(() => import("./pages/LobbyPage"));
 const PlayPage = lazy(() => import("./pages/PlayPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
+const ControlsPage = lazy(() => import("./pages/ControlsPage"));
 
 export default function App() {
   const prefersDarkMode = true;
@@ -55,6 +56,7 @@ export default function App() {
                     <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
                   </Route>
                   <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
+                  <Route path="controls" element={<AuthRoute element={<ControlsPage />} />} />
                 </Route>
               </Routes>
             </Suspense>

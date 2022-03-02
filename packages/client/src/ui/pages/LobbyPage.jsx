@@ -30,6 +30,7 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import LogoutIcon from "../icons/LogoutIcon";
 import { gameRunningState } from "../../bridge/state";
 import ConnectionError from "@smiley-face-game/api/net/ConnectionError";
+import { ControllerClassic } from "mdi-material-ui";
 
 const PaddedContainer = styled("div")({
   // https://material-ui.com/components/grid/#negative-margin
@@ -131,6 +132,9 @@ const LobbyPage = () => {
         </IconButton>
         <IconButton onClick={() => navigate("/shop")} size="large">
           <Cart />
+        </IconButton>
+        <IconButton onClick={() => navigate("/controls")} size="large">
+          <ControllerClassic />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
