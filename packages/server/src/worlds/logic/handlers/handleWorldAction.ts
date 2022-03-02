@@ -50,5 +50,15 @@ export default async function handlePlayerlistAction(
       });
       return;
     }
+    case "change title": {
+      await logic.behaviour.saveDetails({ ...logic.details, name: packet.action.title });
+
+      logic.broadcast({
+        packetId: "SERVER_WORLD_ACTION",
+        action: { action: "change title", title: packet.action.title },
+        playerId: sender.playerId,
+      });
+      return;
+    }
   }
 }

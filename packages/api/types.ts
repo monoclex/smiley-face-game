@@ -190,6 +190,10 @@ export const zWorldActionKind = addParse(
     },
     {
       action: "clear" as const,
+    },
+    {
+      action: "change title" as const,
+      title: zWorldName,
     }
   )
 );
@@ -211,6 +215,10 @@ export const zWorldActionKindReply = Schema.either(
   },
   {
     action: "clear" as const,
+  },
+  {
+    action: "change title" as const,
+    title: zWorldName,
   }
 );
 export type ZWorldActionKindReply = SchemaInput<typeof zWorldActionKindReply>;
