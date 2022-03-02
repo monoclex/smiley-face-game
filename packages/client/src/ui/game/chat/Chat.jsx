@@ -10,35 +10,15 @@ import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
 import state from "../../../bridge/state";
 
-const Container = styled(Grid)(({ theme }) => ({
-  ...commonUIStyles.uiOverlayElement,
-  paddingLeft: theme.spacing(3),
-}));
-
-const ChatListGrid = styled(Grid)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  borderTopLeftRadius: theme.shape.borderRadius,
-  borderTopRightRadius: theme.shape.borderRadius,
-}));
-
-const ChatList = styled(SpringScrollbars)({
-  overflow: "auto",
-  maxHeight: "100%",
-  pointerEvents: "all",
-});
-
 const ChatField = styled(Grid)(({ theme }) => ({
-  borderBottomLeftRadius: theme.shape.borderRadius,
-  borderBottomRightRadius: theme.shape.borderRadius,
+  // borderBottomLeftRadius: theme.shape.borderRadius,
+  // borderBottomRightRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
-  pointerEvents: "all",
-  padding: 5,
 }));
 
 const ChatInput = styled(Input)(({ theme }) => ({
-  padding: theme.spacing(1, 1, 1, 1),
-  borderRadius: theme.shape.borderRadius,
+  // padding: theme.spacing(1, 1, 1, 1),
+  // borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
 }));
 
@@ -90,25 +70,10 @@ export default function Chat() {
   };
 
   return (
-    <Container container direction="column" justifyContent="flex-end" alignItems="flex-start">
-      <ChatListGrid item>
-        <ChatList
-          autoHeight
-          autoHeightMin={0}
-          autoHeightMax={400}
-          autoHide
-          autoHideTimeout={1000}
-          autoHideDuration={200}
-        >
-          {messages.map((message) => (
-            <Message key={message.id} message={message} />
-          ))}
-        </ChatList>
-      </ChatListGrid>
-
-      {isActive && (
-        <ChatField item>
-          <div>
+    <Grid container direction="column" style={{ height: "100%" }}>
+      <Grid item>
+        {isActive && (
+          <ChatField item>
             <form
               autoComplete="off"
               onSubmit={async (e) => {
@@ -127,9 +92,24 @@ export default function Chat() {
                 inputRef={inputRef}
               />
             </form>
-          </div>
-        </ChatField>
-      )}
-    </Container>
+          </ChatField>
+        )}
+      </Grid>
+
+      <Grid item xs style={{ height: "100%" }}>
+        <SpringScrollbars
+          autoHide
+          autoHideTimeout={1000}
+          autoHideDuration={200}
+          renderThumbVertical={({ style, ...props }) => (
+            <div {...props} style={{ ...style, backgroundColor: "rgb(48,48,48)" }} />
+          )}
+        >
+          {messages.map((message) => (
+            <Message key={message.id} message={message} />
+          ))}
+        </SpringScrollbars>
+      </Grid>
+    </Grid>
   );
 }

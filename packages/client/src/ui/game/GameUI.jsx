@@ -24,13 +24,11 @@ const GrayFilled = styled(Grid)({
 });
 
 const BlackFilledScrollDiv = styled(Grid)({
-  overflowY: "scroll",
   maxHeight: "max-content",
   borderLeftStyle: "solid",
   borderColor: "rgb(123,123,123)",
   borderWidth: "1px",
   backgroundColor: "black",
-  padding: "1em",
 });
 
 const BlackFilled = styled(Grid)({
@@ -38,7 +36,6 @@ const BlackFilled = styled(Grid)({
   borderColor: "rgb(123,123,123)",
   borderWidth: "1px",
   backgroundColor: "black",
-  padding: "1em",
 });
 
 const PlayWindow = styled(Grid)({
