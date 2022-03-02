@@ -38,7 +38,7 @@ export default class PlayerRenderer {
       const index = this.players.getChildIndex(gamePlayer.container);
       this.players.removeChildAt(index);
 
-      const index2 = this.players.getChildIndex(gamePlayer.minimapContainer);
+      const index2 = this.playersMinimap.getChildIndex(gamePlayer.minimapContainer);
       this.playersMinimap.removeChildAt(index2);
     });
 
