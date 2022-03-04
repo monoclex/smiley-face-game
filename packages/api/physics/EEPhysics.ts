@@ -102,11 +102,6 @@ export class EEPhysics {
 
     const { current, delayed } = this.getPhysicsBlockOn(self);
 
-    if (this.ids.isZoost(current)) {
-      this.performZoosts(self, self.worldPosition, this.ids.zoostDirToVec(current));
-      return;
-    }
-
     if (this.ids.isHazard(current)) {
       self.kill();
       this.events.emit("death", self);
@@ -268,8 +263,7 @@ export class EEPhysics {
   }
 
   performZoosts(self: Player, position: Vector, direction: Vector) {
-    const checkCollision = (position: Vector) =>
-      this.blockOutsideBounds(position) || this.willCollide(self, solidHitbox, position);
+    const checkCollision = (position: Vector) => this.playerIsColliding(self, position);
 
     const interactionPositions = performZoosts(
       checkCollision,
@@ -283,12 +277,12 @@ export class EEPhysics {
     let next = interactionPositions.next();
 
     while (!next.done) {
-      self.worldPosition = next.value;
-      this.triggerBlockAction(self);
+      self.position = next.value;
+      this.triggerBlockAction(self, false);
       next = interactionPositions.next();
     }
 
-    self.worldPosition = next.value;
+    self.position = next.value;
   }
 
   playerIsColliding(self: Player, position: Vector): boolean {
@@ -414,11 +408,17 @@ export class EEPhysics {
     self.lastNear = nearAndBehaviors;
   }
 
-  triggerBlockAction(self: Player) {
+  triggerBlockAction(self: Player, activateZoost = true) {
+    const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
+
+    if (activateZoost && this.ids.isZoost(actionBlock)) {
+      this.performZoosts(self, self.position, this.ids.zoostDirToVec(actionBlock));
+      return;
+    }
+
     if (Vector.eq(self.worldPosition, self.lastBlockIn)) return;
 
     const decorationBlock = this.world.blockAt(self.worldPosition, TileLayer.Decoration);
-    const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
 
     this.handleActionSigns(self, decorationBlock, self.worldPosition);
     this.handleActionCheckpoints(self, actionBlock, self.worldPosition);

@@ -13,28 +13,50 @@ export function* performZoosts(
   position: Vector,
   direction: Vector
 ): Generator<Vector, Vector> {
-  let turns = 0;
-  while (turns < 1) {
+  // align ourselves to a pixel on the axis we're travelling in
+  const alignedPosition = Vector.round(position);
+  const alignedPositionInTravelAxis = Vector.substituteZeros(
+    Vector.filterOut(direction, alignedPosition),
+    position
+  );
+  if (willCollide(alignedPositionInTravelAxis)) return position;
+  position = alignedPositionInTravelAxis;
+
+  const largeDirectionJump = Vector.mults(direction, Config.blockSize);
+
+  while (true) {
     const originalPosition = position;
+
+    // are we aligned to a 16x16 grid in the direction we're travelling in?
+    const careAboutAxisWereGoingIn = Vector.filterIn(direction, originalPosition);
+    if (Vector.diviss(careAboutAxisWereGoingIn, Config.blockSize)) {
+      // awesome - let's try go one full 16x16 block
+      position = Vector.add(position, largeDirectionJump);
+
+      if (!willCollide(position)) {
+        // awesome, move there
+        yield position;
+
+        if (self.isDead) {
+          break;
+        }
+
+        continue;
+      } else {
+        // oh well
+        position = originalPosition;
+      }
+    }
+
+    // try move one pixel at a time
     position = Vector.add(position, direction);
 
-    // if we're colliding with a solid block, we need to not to that
+    // can't move anymore - stop
     if (willCollide(position)) {
-      // go back
       position = originalPosition;
-
-      // do we have any other directions we could go?
-      const actionBlockOn = world.blockAt(position, TileLayer.Action);
-      if (ids.isZoost(actionBlockOn)) {
-        direction = ids.zoostDirToVec(actionBlockOn);
-        turns++;
-        continue;
-      }
-
       break;
     }
 
-    // perform actions (trigger keys/etc)
     yield position;
 
     if (self.isDead) {
