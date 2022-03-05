@@ -98,6 +98,7 @@ function DisplayHeap({ heap }: DisplayHeapProps) {
   }
 }
 
+const initiallyHidden = { display: "none" };
 /**
  * Having react manage the lifecycle of a constantly changing div is a bad idea for performance.
  * Thus, we tell React to create a div, manage and fiddle with it ourselves (without React knowing)
@@ -126,7 +127,7 @@ export default React.memo(function BlockInspector() {
   }, [blockInspectorRef]);
 
   return (
-    <div ref={blockInspectorRef}>
+    <div ref={blockInspectorRef} style={initiallyHidden}>
       <CenteredDiv>
         <TriangleDiv />
         <InnerDiv>
