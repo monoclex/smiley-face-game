@@ -7,6 +7,8 @@ import { TileLayer, ZHeap, ZKeyKind } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
 import { slabHitbox, solidHitbox } from "./hitboxes";
 
+// next new id: 116
+
 // TODO: have a command developers can run to get a list of IDs used to then
 // know what the last ID available is
 
@@ -329,6 +331,17 @@ function makeSign(make: TilesMaker) {
     heap: HeapKind.Sign,
     ...decorationBlock,
   });
+
+  make.blocks(
+    zip(range(113, 116), ["sign-stone", "sign-metal", "sign-rusted"]),
+    ([id, textureId]) => ({
+      id,
+      textureId,
+      heap: HeapKind.Sign,
+      ...decorationBlock,
+    })
+  );
+
   make.pack({ name: "sign" });
 }
 
