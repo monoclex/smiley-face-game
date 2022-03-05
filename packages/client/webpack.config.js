@@ -42,6 +42,7 @@ function config({ serverMode }, { mode }) {
         },
         { test: /\.(png|mp3)$/, use: "file-loader" },
         { test: /\.svg$/, use: "@svgr/webpack" },
+        { test: /\.css$/, use: "css-loader" },
       ],
     },
     plugins: [

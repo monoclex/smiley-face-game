@@ -5,9 +5,10 @@ import { PackInfo } from "@smiley-face-game/api/tiles/register";
 import React, { useEffect, useMemo, useState } from "react";
 import GridLayout from "react-grid-layout";
 import { makeStyles } from "tss-react/mui";
-
 import { selectedBlockState } from "../../../state";
 import { useGameState } from "../../hooks";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 
 const useStyles = makeStyles()({
   draggableHandle: {
