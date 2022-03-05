@@ -16,7 +16,7 @@ import { performJumping } from "./algorithms/jumping";
 import { performZoosts } from "./algorithms/zoosts";
 import { Keys } from "./Keys";
 import { solidHitbox } from "../tiles/hitboxes";
-import { ComplexBlockBehavior } from "../tiles/register";
+import { ComplexBlockBehavior, HeapKind } from "../tiles/register";
 import { PhysicsEvents } from "./PhysicsEvents";
 
 // half a second until alive
@@ -469,7 +469,8 @@ export class EEPhysics {
 
   private handleActionSigns(self: Player, blockId: number, position: Vector) {
     let currentlyInSign: false | Vector = false;
-    if (blockId === this.ids.sign) {
+    const blockInfo = this.ids.tiles.forId(blockId);
+    if (blockInfo.heap === HeapKind.Sign) {
       currentlyInSign = position;
     }
 
