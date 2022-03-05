@@ -10,6 +10,7 @@ import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
 import { gameRunningState } from "../../bridge/state";
+import BlockInspector from "./BlockInspector";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -59,6 +60,7 @@ export default function GameUI({ children: gameCanvas }) {
   return (
     <>
       <Sign />
+      <BlockInspector />
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
           <PlayWindow item xs>

@@ -8,6 +8,7 @@ import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
 import { selectedBlockState } from "../state";
 import { Player } from "@smiley-face-game/api/physics/Player";
+import { blockInspectorGlobal } from "../state/blockInspector";
 
 enum MouseState {
   None,
@@ -49,11 +50,19 @@ export default class MouseInteraction {
 
   triggerBlockChange(texture: string) {
     if (texture === "empty") {
-      this.blockChanged.visible = false;
+      this.hideBlockChanged();
       return;
     }
 
     this.blockChanged.texture = textures.get(texture);
+    this.showBlockChanged();
+  }
+
+  hideBlockChanged() {
+    this.blockChanged.visible = false;
+  }
+
+  showBlockChanged() {
     this.blockChanged.visible = true;
     this.blockChanged.width = 32;
     this.blockChanged.height = 32;
@@ -205,10 +214,12 @@ export default class MouseInteraction {
 
   draw() {
     this.selection.visible = true;
+    this.showBlockChanged();
 
     if (!inputEnabled() || !this.mouseInGame || !this.authoredBlockPlacer.canEdit) {
       this.selection.visible = false;
-      this.blockChanged.visible = false;
+      this.hideBlockChanged();
+      blockInspectorGlobal.modify({ visible: false });
       return;
     }
 
@@ -222,6 +233,27 @@ export default class MouseInteraction {
 
     blockX = clamp(blockX, 0, this.game.blocks.size.x - 1);
     blockY = clamp(blockY, 0, this.game.blocks.size.y - 1);
+
+    if (blockInspectorGlobal.state.enabled) {
+      const blockToScreenPosX = Math.round(blockX * TILE_WIDTH + this.root.position.x);
+      const blockToScreenPosY = Math.round(blockY * TILE_HEIGHT + this.root.position.y);
+
+      if (
+        blockToScreenPosX !== blockInspectorGlobal.state.screenX ||
+        blockToScreenPosY !== blockInspectorGlobal.state.screenY ||
+        blockX !== blockInspectorGlobal.state.x ||
+        blockY !== blockInspectorGlobal.state.y ||
+        blockInspectorGlobal.state.visible !== true
+      ) {
+        blockInspectorGlobal.modify({
+          visible: true,
+          screenX: blockToScreenPosX,
+          screenY: blockToScreenPosY,
+          x: blockX,
+          y: blockY,
+        });
+      }
+    }
 
     this.selection.position.x = blockX * TILE_WIDTH;
     this.selection.position.y = blockY * TILE_HEIGHT;
