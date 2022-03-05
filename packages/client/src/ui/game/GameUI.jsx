@@ -14,38 +14,25 @@ import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
 import { gameRunningState } from "../../bridge/state";
 import minimapimage from "../../assets/minimap.png";
-
-const RootGrid = styled(Grid)({
-  width: "100vw",
-  height: "100vh",
-  backgroundColor: "black",
-});
+import BlockBarNew from "./blockbar/BlockBarNew";
 
 const GrayFilled = styled(Grid)({
-  borderStyle: "solid",
-  borderColor: "rgb(123,123,123)",
-  borderWidth: "1px",
   backgroundColor: "rgb(48,48,48)",
 });
 
 const BlackFilledScrollDiv = styled("div")({
   maxHeight: "max-content",
-  borderLeftStyle: "solid",
-  borderColor: "rgb(123,123,123)",
-  borderWidth: "1px",
   backgroundColor: "black",
 });
 
 const BlackFilled = styled("div")({
-  borderLeftStyle: "solid",
-  borderColor: "rgb(123,123,123)",
-  borderWidth: "1px",
   backgroundColor: "black",
 });
 
 const PlayWindow = styled(Grid)({
   backgroundColor: "black",
 });
+
 class DisconnectError extends Error {
   constructor() {
     super();
@@ -55,7 +42,15 @@ class DisconnectError extends Error {
 
 function MinimapHerePlease() {
   // TODO: returns a canvas that renders in-game minimap
-  return <img src={minimapimage} />;
+  return (
+    <img
+      src={minimapimage}
+      style={{
+        width: "100%",
+        height: "100%",
+      }}
+    />
+  );
 }
 
 export default function GameUI({ children: gameCanvas }) {
@@ -71,22 +66,28 @@ export default function GameUI({ children: gameCanvas }) {
       JSON.parse(localStorage.getItem("local_game_state")) || {
         ui: {
           layout: {
-            rightSidebar: {
-              sizes: [25, 60, 15],
+            split: {
+              game_sidebar: [80, 20],
+              game_blockbar: [50, 50],
+              sidebar: [25, 60, 15],
             },
           },
         },
       }
   );
 
-  const saveRightSidebarLayout = (sizes) => {
-    localStorage.setItem(
-      "local_game_state",
-      JSON.stringify({
-        ...localGameState,
-        ui: { layout: { rightSidebar: { sizes } } },
-      })
-    );
+  const saveLayout = () => localStorage.setItem("local_game_state", JSON.stringify(localGameState));
+  const saveGameSidebarLayout = (sizes) => {
+    localGameState.ui.layout.split.game_sidebar = sizes;
+    saveLayout();
+  };
+  const saveGameBlockbarLayout = (sizes) => {
+    localGameState.ui.layout.split.game_blockbar = sizes;
+    saveLayout();
+  };
+  const saveSidebarLayout = (sizes) => {
+    localGameState.ui.layout.split.sidebar = sizes;
+    saveLayout();
   };
 
   // if you're trying to do UI design, see "uncomment me" in packages/server/src/RoomManager.ts
@@ -95,63 +96,86 @@ export default function GameUI({ children: gameCanvas }) {
   return (
     <>
       <Sign />
-      <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
-        <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
-          <PlayWindow item xs>
-            {gameCanvas}
-          </PlayWindow>
-          <GrayFilled item xs="auto">
-            <Grid
-              container
-              item
-              direction="row"
-              justifyContent="space-between"
-              alignItems="stretch"
-              wrap="nowrap"
+
+      <Split
+        direction="horizontal"
+        style={{
+          height: "100vh",
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "nowrap",
+          transition: "height 0.25s ease-out",
+        }}
+        sizes={localGameState.ui.layout.split.game_sidebar}
+        onDragEnd={saveGameSidebarLayout}
+      >
+        <Split
+          direction="vertical"
+          style={{
+            height: "100vh",
+            width: "100vw",
+            display: "flex",
+            flexDirection: "column",
+            flexWrap: "nowrap",
+          }}
+          sizes={localGameState.ui.layout.split.game_blockbar}
+          onDragEnd={saveGameBlockbarLayout}
+        >
+          <PlayWindow>{gameCanvas}</PlayWindow>
+
+          <GrayFilled>
+            <Split
+              direction="horizontal"
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "nowrap",
+                transition: "height 0.25s ease-out",
+              }}
+              sizes={[25, 75]}
             >
-              <Grid container item justifyContent="center">
+              <div>
                 <MobileControls />
-              </Grid>
-              <Grid container item xs="auto">
-                <Suspense fallback={null}>
-                  <BlockBar />
-                </Suspense>
-              </Grid>
-              <Grid container item alignItems="flex-end">
+
                 <WorldSettingsButton />
                 <Suspense fallback={null}>
                   <GodModeButton />
                 </Suspense>
                 <SoundButton />
-              </Grid>
-            </Grid>
+              </div>
+
+              <BlockBarNew />
+            </Split>
           </GrayFilled>
-        </Grid>
-
-        <Split
-          direction="vertical"
-          sizes={localGameState.ui.layout.rightSidebar.sizes}
-          onDragEnd={saveRightSidebarLayout}
-        >
-          <BlackFilled>
-            <Suspense fallback={null}>
-              <PlayerList />
-            </Suspense>
-          </BlackFilled>
-
-          <BlackFilledScrollDiv>
-            <Chat />
-          </BlackFilledScrollDiv>
-
-          <BlackFilled>
-            {/* thinking of a toolbar here for the minimap too */}
-            {/* the toolbar would have options like reseting zoom/pan, popping it out, taking screenshots, etc */}
-            <MinimapHerePlease />
-            {/* maybe a second toolbar here for settings, go to lobby, etc, but might get a bit too cluttered? */}
-            {/* might keep it in blockbar, we'll see */}
-          </BlackFilled>
         </Split>
-      </RootGrid>
+        <div>
+          <Split
+            direction="vertical"
+            style={{ height: "100vh" }}
+            sizes={localGameState.ui.layout.split.sidebar}
+            onDragEnd={saveSidebarLayout}
+          >
+            <BlackFilled>
+              <Suspense fallback={null}>
+                <PlayerList />
+              </Suspense>
+            </BlackFilled>
+
+            <BlackFilledScrollDiv>
+              <Chat />
+            </BlackFilledScrollDiv>
+
+            <BlackFilled>
+              {/* thinking of a toolbar here for the minimap too the toolbar would have options like */}
+              {/* reseting zoom/pan, popping it out, taking screenshots, etc */}
+              <MinimapHerePlease />
+              {/* maybe a second toolbar here for settings, go to lobby, etc, but might get a bit too */}
+              {/* cluttered? might keep it in blockbar, we'll see */}
+            </BlackFilled>
+          </Split>
+        </div>
+      </Split>
     </>
   );
 }

@@ -1,8 +1,10 @@
-import type { BlockInfo } from "@smiley-face-game/api/tiles/TileRegistration";
-
-export type SelectedBlock = BlockInfo | undefined;
+type SelectedBlockState = {
+  id: number;
+};
 
 /**
  * read-only global state
  */
-export const selectedBlockState: { it: SelectedBlock } = { it: undefined };
+export const selectedBlockState: SelectedBlockState = {
+  id: 0,
+};

@@ -235,8 +235,8 @@ export default class MouseInteraction {
       return;
     }
 
-    const selected = selectedBlockState.it;
-    const erase = this.state === MouseState.Erase || selected?.id === 0;
+    const selected = selectedBlockState.id;
+    const erase = this.state === MouseState.Erase || selected === 0;
     const action: "place" | "erase" = erase ? "erase" : "place";
 
     // TODO: figure out layer to erase on

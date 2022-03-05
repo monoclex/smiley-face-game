@@ -1,7 +1,8 @@
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
+
+import { blockTextureToImage } from "../textures/BlockTextureToImage";
 import { selectedBlockState } from "../state";
 import textures from "./textures";
-import { blockTextureToImage } from "../textures/BlockTextureToImage";
 
 export default class ClientBlockBar {
   cache: Map<number, HTMLImageElement> = new Map();
@@ -20,6 +21,6 @@ export default class ClientBlockBar {
   }
 
   get selectedBlock(): number {
-    return selectedBlockState.it?.id ?? 0;
+    return selectedBlockState.id || 0;
   }
 }
