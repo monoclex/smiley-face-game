@@ -83,6 +83,10 @@ export class Game {
     this.physics.update(elapsedMs, this.players.list);
   }
 
+  tick() {
+    this.physics.tick(this.players.list);
+  }
+
   // this returns `0` to make sure all branches are fulfilled
   handleEvent(event: ZSPacket): 0 {
     // as a general rule of thumb, this method should be a *dispatching method*.
