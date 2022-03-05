@@ -1,4 +1,7 @@
-type RecoilEffects<T> = { setSelf: (value: T) => void; onSet: (callback: (value: T) => void) => void };
+type RecoilEffects<T> = {
+  setSelf: (value: T) => void;
+  onSet: (callback: (value: T) => void) => void;
+};
 
 export default class SharedGlobal<T> {
   private _setSelf?: (value: T) => void;
@@ -6,6 +9,7 @@ export default class SharedGlobal<T> {
   private _userOnValue?: (value: T) => void;
   private _value: T;
   private _valueSynchronized = false;
+  onValue?: (value: T) => void;
 
   constructor(value: T, onValue?: (value: T) => void) {
     this._value = value;
@@ -23,6 +27,7 @@ export default class SharedGlobal<T> {
     this._onSet((value: T) => {
       this._value = value;
       if (this._userOnValue) this._userOnValue(value);
+      if (this.onValue) this.onValue(value);
       this._valueSynchronized = true;
     });
   }
@@ -34,6 +39,7 @@ export default class SharedGlobal<T> {
   set(payload: T) {
     this._value = payload;
     if (this._userOnValue) this._userOnValue(payload);
+    if (this.onValue) this.onValue(payload);
     this._valueSynchronized = false;
 
     if (!this._setSelf) return;

@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 
-export type ControlKey = "left" | "up" | "right" | "down" | "jump" | "god";
+export type ControlKey = "left" | "up" | "right" | "down" | "jump" | "god" | "inspect";
 
 export const defaultControls: Controls<ControlKey> = {
   left: {
@@ -27,6 +27,10 @@ export const defaultControls: Controls<ControlKey> = {
   god: {
     name: "God Mode",
     binding: "f",
+  },
+  inspect: {
+    name: "Inspect Block",
+    binding: "i",
   },
 };
 
@@ -64,7 +68,17 @@ export function loadControls(): Controls<ControlKey> {
     const item = localStorage.getItem("controlBindings")!;
     const parsed = JSON.parse(item);
     if (!parsed) throw new Error();
-    return parsed as Controls<ControlKey>;
+    const controls = parsed as Controls<ControlKey>;
+
+    for (const [rawKey, value] of Object.entries(defaultControls)) {
+      const key = rawKey as ControlKey;
+
+      if (!controls[key]) {
+        controls[key] = value;
+      }
+    }
+
+    return controls;
   } catch {
     return defaultControls;
   }
