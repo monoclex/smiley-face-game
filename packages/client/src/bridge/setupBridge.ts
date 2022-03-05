@@ -1,4 +1,5 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
+import { PhysicsTicker } from "@smiley-face-game/api/physics/simulatePhysics";
 import type { Renderer } from "pixi.js";
 import textures from "./textures";
 import state, { waitPromise, gameRunningState } from "./state";
@@ -118,9 +119,10 @@ export default async function setupBridge(
     await playLeave();
   })();
 
+  const physicsTicker = new PhysicsTicker(game, 150);
   loopRequestAnimationFrame((elapsed) => {
     if (!connection.connected) return "halt";
-    game.update(elapsed);
+    physicsTicker.update(elapsed);
     gameRenderer.draw();
   });
 

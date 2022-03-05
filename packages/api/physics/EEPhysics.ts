@@ -61,6 +61,8 @@ export class EEPhysics {
 
   // --- physics below ---
 
+  // TODO: we should deprecate this method, and only allow usage of `PhysicsTicker`
+  // but im too lazy rn
   update(elapsedMs: number, players: Player[]) {
     while ((this.ticks + 1) * this.msPerTick <= elapsedMs) {
       this.tick(players);
