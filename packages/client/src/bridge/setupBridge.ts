@@ -54,6 +54,7 @@ export default async function setupBridge(
   const chat = new Chat(game, connection.init);
   const playerList = new PlayerList(game);
   const gameRenderer = new GameRenderer(game, renderer);
+  state.minimapRenderer = gameRenderer.minimapRenderer;
 
   // add ourselves
   const self = game.players.add({
@@ -137,6 +138,7 @@ export default async function setupBridge(
     blockBar,
     self,
     mouseInteraction,
+    minimapRenderer: gameRenderer.minimapRenderer,
   });
 
   registerPlayerJoinNLeaveSoundEffects(game);

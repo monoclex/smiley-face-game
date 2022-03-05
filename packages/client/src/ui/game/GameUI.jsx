@@ -1,5 +1,5 @@
 //@ts-check
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Grid, styled } from "@mui/material";
 //import Split from "react-split-grid";
 import Split from "react-split";
@@ -12,9 +12,10 @@ import WorldSettingsButton from "./WorldSettingsButton";
 import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
-import { gameRunningState } from "../../bridge/state";
+import state, { gameRunningState } from "../../bridge/state";
 import minimapimage from "../../assets/minimap.png";
 import BlockBarNew from "./blockbar/BlockBarNew";
+import { Renderer } from "pixi.js";
 
 const GrayFilled = styled(Grid)({
   backgroundColor: "rgb(48,48,48)",
@@ -41,10 +42,34 @@ class DisconnectError extends Error {
 }
 
 function MinimapHerePlease() {
-  // TODO: returns a canvas that renders in-game minimap
+  // somehow managed to implement the minimap without touching 1000 things woo
+  // might use pixi-viewport to make the minimap pan/zoomable
+  // but overall i need to seriously rewrite how the minimap works. i managed to get
+  // some kind of hacky implementation working and then called it a day lol
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const renderer = new Renderer({
+      view: canvas,
+      antialias: true,
+    });
+
+    state.wait.then(({ minimapRenderer }) => (minimapRenderer.minimapRenderer = renderer));
+
+    const resizeObserver = new ResizeObserver(([{ contentRect }]) => {
+      renderer.resize(contentRect.width, contentRect.height);
+    });
+
+    resizeObserver.observe(canvas);
+    return () => resizeObserver.disconnect();
+  }, [canvasRef]);
+
   return (
-    <img
-      src={minimapimage}
+    <canvas
+      ref={canvasRef}
       style={{
         width: "100%",
         height: "100%",

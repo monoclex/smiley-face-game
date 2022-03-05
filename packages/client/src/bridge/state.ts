@@ -6,6 +6,7 @@ import type ClientBlockBar from "./ClientBlockBar";
 import type Keyboard from "./Keyboard";
 import MouseInteraction from "./MouseInteraction";
 import type GameRenderer from "./rendering/GameRenderer";
+import MinimapRenderer from "./rendering/MinimapRenderer";
 
 export const gameRunningState = newRidgeState<boolean | undefined>(undefined);
 
@@ -19,6 +20,7 @@ export interface GameState {
   blockBar: ClientBlockBar;
   self: Player;
   mouseInteraction: MouseInteraction;
+  minimapRenderer: MinimapRenderer;
 }
 
 type StateOptional = Partial<GameState>;

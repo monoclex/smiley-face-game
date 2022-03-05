@@ -2,6 +2,8 @@ import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { Container, Renderer } from "pixi.js";
 
 export default class MinimapRenderer {
+  minimapRenderer?: Renderer;
+
   constructor(
     readonly stage: Container,
     readonly root: Container,
@@ -9,21 +11,16 @@ export default class MinimapRenderer {
     readonly worldSize: Vector,
     readonly renderer: Renderer
   ) {
-    this.stage.addChild(this.minimap);
-
     this.minimap.width = worldSize.x;
     this.minimap.height = worldSize.y;
   }
 
   draw() {
-    const padding = new Vector(5, 5);
-    const worldSize = this.worldSize;
-    const screenSize = new Vector(this.renderer.width, this.renderer.height);
+    this.minimap.position.x = 0;
+    this.minimap.position.y = 0;
 
-    const bottomRight = Vector.add(padding, worldSize);
-    const minimapPosition = Vector.sub(screenSize, bottomRight);
-
-    this.minimap.position.x = minimapPosition.x;
-    this.minimap.position.y = minimapPosition.y;
+    if (this.minimapRenderer) {
+      this.minimapRenderer.render(this.minimap);
+    }
   }
 }
