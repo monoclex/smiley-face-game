@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SFGServer.Contracts.Requests;
 using SFGServer.Contracts.Responses;
+using SFGServer.Mappers;
 using SFGServer.DAL;
-using SFGServer.Mappers.Player;
 
 namespace SFGServer.Endpoints;
 

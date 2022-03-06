@@ -1,10 +1,9 @@
 ﻿using SFGServer.Contracts.Requests;
 using SFGServer.Contracts.Responses;
 using SFGServer.DAL.Models;
-using SFGServer.Models.Energy;
-using SFGServer.Models.World;
+using SFGServer.Models;
 
-namespace SFGServer.Mappers.Player;
+namespace SFGServer.Mappers;
 
 public class PlayerMapper : Mapper<PlayerRequest, PlayerResponse, Account>
 {

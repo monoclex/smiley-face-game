@@ -1,9 +1,8 @@
+using SFGServer.Contracts.Requests;
 using SFGServer.Contracts.Responses;
 using SFGServer.Services;
 
 namespace SFGServer.Endpoints;
-
-public record struct GuestRequest(string Username);
 
 public class GuestEndpoint : Endpoint<GuestRequest, TokenResponse>
 {

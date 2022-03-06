@@ -1,5 +1,4 @@
-﻿using SFGServer.Models.Energy;
-using SFGServer.Models.World;
+﻿using SFGServer.Models;
 
 namespace SFGServer.Contracts.Responses;
 
