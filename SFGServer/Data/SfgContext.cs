@@ -156,12 +156,5 @@ public class SfgContext : DbContext
                 .HasForeignKey(d => d.OwnerId)
                 .HasConstraintName("FK_74411484c66ad301185b4dadab3");
         });
-
-        OnModelCreatingPartial(modelBuilder);
-    }
-
-    private void OnModelCreatingPartial(ModelBuilder modelBuilder)
-    {
-        throw new NotImplementedException();
     }
 }

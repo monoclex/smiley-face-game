@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SFGServer.Controllers;
 
-public record LoginRequest(string Email, string Password);
-public record TokenResponse(string Token);
-
 public record RegisterRequest(string Username, string Email, string Password);
 
 public record RegisterResponse(string Token, string Id);
@@ -15,12 +12,6 @@ public record GuestRequest(string Username);
 [Route("v1/[controller]")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("/login")]
-    public TokenResponse Login([FromBody] LoginRequest loginRequest)
-    {
-        throw new NotImplementedException();
-    }
-
     [HttpPost("/register")]
     public RegisterResponse Register([FromBody] RegisterRequest registerRequest)
     {
