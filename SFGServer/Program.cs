@@ -1,11 +1,12 @@
 global using FastEndpoints;
 global using FastEndpoints.Security;
 global using SFGServer.Data;
+using SFGServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<TokenSigner>();
 builder.Services.AddDbContext<SfgContext>();
-
 builder.Services.AddFastEndpoints();
 
 builder.Services.AddControllers();

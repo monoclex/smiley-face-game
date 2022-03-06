@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SFGServer.Services;
 
 namespace SFGServer.Controllers;
 
@@ -8,14 +9,12 @@ public record struct TokenResponse(string Token);
 public class LoginEndpoint : Endpoint<LoginRequest, TokenResponse>
 {
     private readonly SfgContext _sfgContext;
-    private readonly string _jwtSigningKey;
+    private readonly TokenSigner _tokenSigner;
 
-    public LoginEndpoint(SfgContext sfgContext, IConfiguration configuration)
+    public LoginEndpoint(SfgContext sfgContext, TokenSigner tokenSigner)
     {
         _sfgContext = sfgContext;
-        // TODO(review): what's the proper way to inject configuration to a class?
-        // TODO(warnings): tl;dr: 'GetValue' has 'RequiresUnreferencedCodeAttribute' which can break functionality when trimming application code.
-        _jwtSigningKey = configuration.GetRequiredSection("Secrets").GetValue<string>("JwtSigningKey");
+        _tokenSigner = tokenSigner;
     }
 
     public override void Configure()
@@ -43,11 +42,7 @@ public class LoginEndpoint : Endpoint<LoginRequest, TokenResponse>
             return;
         }
 
-        var token = JWTBearer.CreateToken(
-            signingKey: _jwtSigningKey,
-            expireAt: DateTime.UtcNow.AddHours(4),
-            roles: new [] { account.Id.ToString() }
-        );
+        var token = _tokenSigner.Sign(account.Id);
 
         await SendAsync(new TokenResponse(token), cancellation: ct);
     }
