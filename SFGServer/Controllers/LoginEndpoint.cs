@@ -3,6 +3,7 @@ using SFGServer.Services;
 
 namespace SFGServer.Controllers;
 
+// TODO(review): i'm putting the models right with the endpoints, but for some responses (e.g. TokenResponse) they're reused. where would be a good place to put them?
 public record struct LoginRequest(string Email, string Password);
 public record struct TokenResponse(string Token);
 
