@@ -25,6 +25,9 @@ public class SfgContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("uuid-ossp");
+
+        // TODO(string-equallity-checks-in-queries): look into index collations (specfically for string equality checks in queries)
+        // https://docs.microsoft.com/en-us/ef/core/miscellaneous/collations-and-case-sensitivity
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SfgContext).Assembly);
     }
 }

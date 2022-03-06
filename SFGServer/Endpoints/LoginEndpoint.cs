@@ -25,7 +25,6 @@ public class LoginEndpoint : Endpoint<LoginRequest, TokenResponse>
 
     public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
-        // TODO(review): what would be the proper way to compare strings here? OrdinalInvariantCulture or something?
         var account = await _sfgContext.Accounts.FirstOrDefaultAsync(account => account.Email == req.Email, cancellationToken: ct);
         if (account == null)
         {

@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using SFGServer.Contracts.Requests.Player;
-using SFGServer.Contracts.Responses.Energy;
 using SFGServer.Contracts.Responses.Player;
-using SFGServer.Contracts.Responses.World;
 using SFGServer.DAL;
+using SFGServer.Mappers.Register;
 
 namespace SFGServer.Controllers;
 
 
-public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse>
+public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse, PlayerMapper>
 {
     private readonly ILogger<PlayerEndpoint> _logger;
     private readonly SfgContext _sfgContext;
@@ -26,8 +25,7 @@ public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse>
 
     public override async Task HandleAsync(PlayerRequest req, CancellationToken ct)
     {
-        var account = await _sfgContext.Accounts
-            .Include(account => account.Worlds)
+        var account = await _sfgContext.Accounts.Include(account => account.Worlds)
             .FirstOrDefaultAsync(account => account.Id == req.UserId, ct);
 
         if (account == null)
@@ -38,24 +36,6 @@ public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse>
             return;
         }
 
-        await SendAsync(new PlayerResponse {
-            Name = account.Username,
-            Energy = new EnergyInfoResponse {
-                Energy = account.GetEnergyAt(DateTime.UtcNow),
-                MaxEnergy = account.MaxEnergy,
-                EnergyRegenerationRateMs = account.EnergyRegenerationRateMs,
-                LastEnergyAmount = account.LastEnergyAmount,
-                TimeEnergyWasAtAmount = account.TimeEnergyWasAtAmount
-            },
-            OwnedWorlds = account.Worlds.Select(world => new WorldResponse() {
-                // TODO(api-revision): remove `type: "saved"` from api
-                Type = "saved",
-                Id = world.Id,
-                Name = world.Name,
-
-                // TODO(javascript): get player count of world
-                PlayerCount = 0
-            }).ToArray()
-        }, cancellation: ct);
+        await SendAsync(Map.FromEntity(account), cancellation: ct);
     }
 }

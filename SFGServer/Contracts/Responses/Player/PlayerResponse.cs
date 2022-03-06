@@ -1,6 +1,6 @@
-﻿using SFGServer.Contracts.Responses.Energy;
-using SFGServer.Contracts.Responses.World;
+﻿using SFGServer.Models.Energy;
+using SFGServer.Models.World;
 
 namespace SFGServer.Contracts.Responses.Player;
 
-public record struct PlayerResponse(string Name, EnergyInfoResponse Energy, WorldResponse[] OwnedWorlds);
+public record struct PlayerResponse(string Name, EnergyInfoModel Energy, WorldModel[] OwnedWorlds);

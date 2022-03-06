@@ -8,8 +8,8 @@ using SFGServer.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 AddSettingsToServices();
+RegisterServices(builder);
 
-builder.Services.AddScoped<TokenSigner>();
 builder.Services.AddDbContext<SfgContext>();
 builder.Services.AddFastEndpoints();
 builder.Services.AddSwaggerDoc();
@@ -44,6 +44,14 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+
+void RegisterServices(WebApplicationBuilder builder)
+{
+    builder.Services.AddScoped<TokenSigner>();
+    builder.Services.AddScoped<RegisterAccountService>();
+    builder.Services.AddScoped<WorldCreatorService>();
+}
 
 void AddSettingsToServices()
 {

@@ -8,7 +8,7 @@ public class TokenSigner
     public const string UserIdClaimKey = "UserId";
     public const string GuestUsernameClaimKey = "GuestUsername";
 
-    public JwtSettings _jwtSettings { get; }
+    private readonly JwtSettings _jwtSettings;
 
     public TokenSigner(IOptions<JwtSettings> options)
     {
