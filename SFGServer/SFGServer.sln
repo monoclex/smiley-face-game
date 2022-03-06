@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFGServer", "SFGServer.csproj", "{60AD3740-283E-43D8-853C-0FE52DC5EB0B}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFGServer", "SFGServer.csproj", "{60AD3740-283E-43D8-853C-0FE52DC5EB0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFGServer.DAL", "..\SFGServer.DAL\SFGServer.DAL.csproj", "{9FAF9043-ADDA-41F8-8CAC-CC574AE2EFD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{60AD3740-283E-43D8-853C-0FE52DC5EB0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60AD3740-283E-43D8-853C-0FE52DC5EB0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60AD3740-283E-43D8-853C-0FE52DC5EB0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FAF9043-ADDA-41F8-8CAC-CC574AE2EFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FAF9043-ADDA-41F8-8CAC-CC574AE2EFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FAF9043-ADDA-41F8-8CAC-CC574AE2EFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FAF9043-ADDA-41F8-8CAC-CC574AE2EFD7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD97E920-1F86-4157-A3C0-09C658007E7F}
 	EndGlobalSection
 EndGlobal

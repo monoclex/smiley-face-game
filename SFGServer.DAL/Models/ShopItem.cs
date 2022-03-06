@@ -1,4 +1,4 @@
-﻿namespace SFGServer.Models;
+﻿namespace SFGServer.DAL.Models;
 
 public class ShopItem
 {

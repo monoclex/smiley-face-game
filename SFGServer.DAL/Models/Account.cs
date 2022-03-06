@@ -1,4 +1,4 @@
-﻿namespace SFGServer.Models;
+﻿namespace SFGServer.DAL.Models;
 
 public class Account
 {
@@ -11,8 +11,8 @@ public class Account
     public long TimeEnergyWasAtAmount { get; set; }
     public int EnergyRegenerationRateMs { get; set; }
 
-    public virtual ICollection<ShopItem> ShopItems { get; set; }
-    public virtual ICollection<World> Worlds { get; set; }
+    public virtual ICollection<ShopItem> ShopItems { get; set; } = null!;
+    public virtual ICollection<World> Worlds { get; set; } = null!;
 
     public int GetEnergyAt(DateTime time)
     {

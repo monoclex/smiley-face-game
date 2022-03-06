@@ -1,28 +1,21 @@
 using Microsoft.EntityFrameworkCore;
-using SFGServer.Services;
+using SFGServer.Contracts.Requests.Player;
+using SFGServer.Contracts.Responses.Energy;
+using SFGServer.Contracts.Responses.Player;
+using SFGServer.Contracts.Responses.World;
+using SFGServer.DAL;
 
 namespace SFGServer.Controllers;
 
-public record struct PlayerResponse(string Name, EnergyInfo Energy, World[] OwnedWorlds);
-
-// TODO: energy info + world stuff can be in 'models'
-public record struct EnergyInfo(int Energy, int MaxEnergy, int EnergyRegenerationRateMs, int LastEnergyAmount, long TimeEnergyWasAtAmount);
-// uhh i think havaing 'type' here is stupid
-public record struct World(string Type, Guid Id, string Name, int PlayerCount);
-
-// did not work as a record struct, probably because of CoW behavior of structs
-public class PlayerRequest
-{
-    [FromClaim(TokenSigner.UserIdClaimKey, IsRequired = true)]
-    public Guid UserId { get; set; }
-}
 
 public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse>
 {
+    private readonly ILogger<PlayerEndpoint> _logger;
     private readonly SfgContext _sfgContext;
 
-    public PlayerEndpoint(SfgContext sfgContext)
+    public PlayerEndpoint(ILogger<PlayerEndpoint> logger, SfgContext sfgContext)
     {
+        _logger = logger;
         _sfgContext = sfgContext;
     }
 
@@ -39,29 +32,27 @@ public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse>
 
         if (account == null)
         {
-            // TODO(logging): record extremely unusual error
+            _logger.LogError("Could not find account with userId '{UserId}'", req.UserId);
             AddError("Could not find account!");
             await SendErrorsAsync(ct);
             return;
         }
 
-        await SendAsync(new PlayerResponse
-        {
+        await SendAsync(new PlayerResponse {
             Name = account.Username,
-            Energy = new EnergyInfo
-            {
+            Energy = new EnergyInfoResponse {
                 Energy = account.GetEnergyAt(DateTime.UtcNow),
                 MaxEnergy = account.MaxEnergy,
                 EnergyRegenerationRateMs = account.EnergyRegenerationRateMs,
                 LastEnergyAmount = account.LastEnergyAmount,
                 TimeEnergyWasAtAmount = account.TimeEnergyWasAtAmount
             },
-            OwnedWorlds = account.Worlds.Select(world => new World()
-            {
+            OwnedWorlds = account.Worlds.Select(world => new WorldResponse() {
                 // TODO(api-revision): remove `type: "saved"` from api
                 Type = "saved",
                 Id = world.Id,
                 Name = world.Name,
+
                 // TODO(javascript): get player count of world
                 PlayerCount = 0
             }).ToArray()

@@ -1,4 +1,4 @@
-﻿namespace SFGServer.Models;
+﻿namespace SFGServer.DAL.Models;
 
 public class World
 {
@@ -7,8 +7,8 @@ public class World
     public int Width { get; set; }
     public int Height { get; set; }
     public string RawWorldData { get; set; } = null!;
-    public Guid? OwnerId { get; set; }
     public int WorldDataVersion { get; set; }
 
+    public Guid? OwnerId { get; set; }
     public virtual Account? Owner { get; set; }
 }

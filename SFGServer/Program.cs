@@ -1,16 +1,27 @@
 global using FastEndpoints;
 global using FastEndpoints.Security;
-global using SFGServer.Data;
+
 using FastEndpoints.Swagger;
+using SFGServer.DAL;
 using SFGServer.Services;
+using SFGServer.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+AddSettingsToServices();
 
 builder.Services.AddScoped<TokenSigner>();
 builder.Services.AddDbContext<SfgContext>();
 builder.Services.AddFastEndpoints();
 builder.Services.AddSwaggerDoc();
-builder.Services.AddAuthenticationJWTBearer(new TokenSigner(builder.Configuration).JwtSigningKey);
+
+{
+    // get settings manually for AddAuthenticationJWTBearer
+    var jwtSettings = new JwtSettings();
+    builder.Configuration.GetSection(nameof(JwtSettings))
+                     .Bind(jwtSettings);
+
+    builder.Services.AddAuthenticationJWTBearer(jwtSettings.SigningKey);
+}
 
 builder.Services.AddControllers();
 
@@ -19,8 +30,7 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseFastEndpoints(config =>
-{
+app.UseFastEndpoints(config => {
     config.RoutingOptions = options => options.Prefix = "v1";
 });
 
@@ -34,3 +44,10 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+void AddSettingsToServices()
+{
+    // TODO(improve): probably want something generic that scans the settings folder, but idc for now
+    builder.Services.AddOptions<JwtSettings>()
+        .BindConfiguration(nameof(JwtSettings));
+}

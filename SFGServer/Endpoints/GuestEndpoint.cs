@@ -1,3 +1,4 @@
+using SFGServer.Contracts.Responses.Login;
 using SFGServer.Services;
 
 namespace SFGServer.Controllers;
@@ -22,7 +23,6 @@ public class GuestEndpoint : Endpoint<GuestRequest, TokenResponse>
     public override Task HandleAsync(GuestRequest req, CancellationToken ct)
     {
         var token = _tokenSigner.SignGuest(req.Username);
-
         return SendAsync(new TokenResponse(token), cancellation: ct);
     }
 }
