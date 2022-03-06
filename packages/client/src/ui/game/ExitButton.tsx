@@ -2,7 +2,7 @@
 import React, { useRef } from "react";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material";
-import { ExitToApp } from "mdi-material-ui";
+import LogoutIcon from "../icons/LogoutIcon.jsx"
 import { useNavigate } from "react-router";
 
 const Clickable = styled(IconButton)({
@@ -29,7 +29,7 @@ const ExitButton = () => {
           // component="span"
           size="large"
         >
-          <ExitToApp />
+          <LogoutIcon />
         </Clickable>
       </>
     );
