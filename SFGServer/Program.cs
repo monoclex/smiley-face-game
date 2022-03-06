@@ -1,6 +1,7 @@
 global using FastEndpoints;
 global using FastEndpoints.Security;
 global using SFGServer.Data;
+using FastEndpoints.Swagger;
 using SFGServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,13 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<TokenSigner>();
 builder.Services.AddDbContext<SfgContext>();
 builder.Services.AddFastEndpoints();
+builder.Services.AddSwaggerDoc();
+builder.Services.AddAuthenticationJWTBearer(new TokenSigner(builder.Configuration).JwtSigningKey);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseFastEndpoints(config =>
 {
@@ -24,11 +27,9 @@ app.UseFastEndpoints(config =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseOpenApi();
+    app.UseSwaggerUi3(s => s.ConfigureDefaults());
 }
-
-app.UseAuthorization();
 
 app.MapControllers();
 

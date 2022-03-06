@@ -17,6 +17,7 @@
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="FastEndpoints" Version="3.9.1" />
         <PackageReference Include="FastEndpoints.Security" Version="3.9.1" />
+        <PackageReference Include="FastEndpoints.Swagger" Version="3.9.1" />
         <PackageReference Include="Microsoft.ClearScript.V8" Version="7.2.2" />
         <PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.2.2" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
@@ -25,7 +26,6 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
         <PackageReference Include="System.Threading.Tasks.Dataflow" Version="6.0.0" />
     </ItemGroup>
 
