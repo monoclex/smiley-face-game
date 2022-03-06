@@ -1,6 +1,6 @@
 ﻿using SFGServer.Services;
 
-namespace SFGServer.Contracts.Requests.Player;
+namespace SFGServer.Contracts.Requests;
 
 public class PlayerRequest
 {

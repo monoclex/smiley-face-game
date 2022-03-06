@@ -1,8 +1,8 @@
-using SFGServer.Contracts.Requests.Register;
-using SFGServer.Contracts.Responses.Register;
+using SFGServer.Contracts.Requests;
+using SFGServer.Contracts.Responses;
 using SFGServer.Services;
 
-namespace SFGServer.Controllers;
+namespace SFGServer.Endpoints;
 
 public class RegisterEndpoint : Endpoint<RegisterRequest, RegisterResponse>
 {

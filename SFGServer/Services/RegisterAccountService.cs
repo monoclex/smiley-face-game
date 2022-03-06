@@ -52,7 +52,7 @@ public class RegisterAccountService
         return (true, account.Entity);
     }
 
-    private string HashPassword(string password)
+    private static string HashPassword(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
     }

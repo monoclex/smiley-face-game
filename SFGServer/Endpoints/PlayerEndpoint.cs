@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using SFGServer.Contracts.Requests.Player;
-using SFGServer.Contracts.Responses.Player;
+using SFGServer.Contracts.Requests;
+using SFGServer.Contracts.Responses;
 using SFGServer.DAL;
-using SFGServer.Mappers.Register;
+using SFGServer.Mappers.Player;
 
-namespace SFGServer.Controllers;
+namespace SFGServer.Endpoints;
 
 
 public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse, PlayerMapper>

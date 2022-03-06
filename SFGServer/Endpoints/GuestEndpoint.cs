@@ -1,7 +1,7 @@
-using SFGServer.Contracts.Responses.Login;
+using SFGServer.Contracts.Responses;
 using SFGServer.Services;
 
-namespace SFGServer.Controllers;
+namespace SFGServer.Endpoints;
 
 public record struct GuestRequest(string Username);
 

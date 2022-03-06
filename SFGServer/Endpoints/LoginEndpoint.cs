@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using SFGServer.Contracts.Requests.Login;
-using SFGServer.Contracts.Responses.Login;
+using SFGServer.Contracts.Requests;
+using SFGServer.Contracts.Responses;
 using SFGServer.DAL;
 using SFGServer.Services;
 
-namespace SFGServer.Controllers;
+namespace SFGServer.Endpoints;
 
 public class LoginEndpoint : Endpoint<LoginRequest, TokenResponse>
 {
