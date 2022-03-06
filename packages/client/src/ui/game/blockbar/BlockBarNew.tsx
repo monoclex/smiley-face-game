@@ -101,7 +101,7 @@ function BlockPackWidget(
         <hr style={{ margin: 0, padding: 0 }} />
       </Grid>
 
-      <Grid item container justifyContent="space-evenly">
+      <Grid item container justifyContent="center">
         {pack.blocks.map((block) => {
           return (
             <Grid item key={block.id}>
@@ -118,7 +118,11 @@ function BlockPackWidget(
   );
 }
 
-export default function BlockBarNew() {
+type BlockBarNewProps = {
+  width: number;
+};
+
+export default function BlockBarNew({ width }: BlockBarNewProps) {
   const styles = useStyles();
   const state = useGameState();
 
@@ -138,24 +142,20 @@ export default function BlockBarNew() {
     }));
   }, []);
 
-  console.log("layout ", layout);
-
   return (
-    <>
-      <GridLayout
-        className="layout"
-        layout={layout}
-        cols={12}
-        rowHeight={32}
-        width={1112}
-        isBounded={true}
-        onLayoutChange={console.log}
-        draggableHandle={`.${styles.classes.draggableHandle}`}
-      >
-        {packs.map((pack: PackInfo) =>
-          BlockPackWidget(pack, styles.classes.draggableHandle, setSelectedBlock)
-        )}
-      </GridLayout>
-    </>
+    <GridLayout
+      className="layout"
+      layout={layout}
+      cols={12}
+      rowHeight={32}
+      width={width}
+      isBounded={true}
+      onLayoutChange={console.log}
+      draggableHandle={`.${styles.classes.draggableHandle}`}
+    >
+      {packs.map((pack: PackInfo) =>
+        BlockPackWidget(pack, styles.classes.draggableHandle, setSelectedBlock)
+      )}
+    </GridLayout>
   );
 }

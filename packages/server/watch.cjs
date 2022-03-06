@@ -44,7 +44,7 @@ function restart() {
     const pid = worker.pid;
 
     console.log("killing worker");
-    process.kill(pid, "SIGHUP");
+    process.kill(pid, "SIGINT");
   } else {
     console.log("spawning new worker");
     worker = child.spawn("node", ["dist/app.cjs"], {

@@ -1,7 +1,7 @@
 //@ts-check
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Grid, styled } from "@mui/material";
-//import Split from "react-split-grid";
+import { Renderer } from "pixi.js";
 import Split from "react-split";
 
 import Chat from "./chat/Chat";
@@ -15,7 +15,6 @@ import SoundButton from "./SoundButton";
 import state, { gameRunningState } from "../../bridge/state";
 import minimapimage from "../../assets/minimap.png";
 import BlockBarNew from "./blockbar/BlockBarNew";
-import { Renderer } from "pixi.js";
 
 const GrayFilled = styled(Grid)({
   backgroundColor: "rgb(48,48,48)",
@@ -68,13 +67,17 @@ function MinimapHerePlease() {
   }, [canvasRef]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        width: "100%",
-        height: "100%",
-      }}
-    />
+    <Grid container direction="row" justifyContent="center" alignItems="center">
+      <Grid item>
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      </Grid>
+    </Grid>
   );
 }
 
@@ -101,6 +104,9 @@ export default function GameUI({ children: gameCanvas }) {
       }
   );
 
+  const blockBarRef = useRef(null);
+  const [blockBarWidth, setBlockBarWidth] = useState(0);
+
   const saveLayout = () => localStorage.setItem("local_game_state", JSON.stringify(localGameState));
   const saveGameSidebarLayout = (sizes) => {
     localGameState.ui.layout.split.game_sidebar = sizes;
@@ -114,6 +120,19 @@ export default function GameUI({ children: gameCanvas }) {
     localGameState.ui.layout.split.sidebar = sizes;
     saveLayout();
   };
+
+  useEffect(() => {
+    if (!blockBarRef.current) {
+      return;
+    }
+
+    const observer = new ResizeObserver((event) => {
+      setBlockBarWidth(event[0].target.clientWidth);
+    });
+
+    observer.observe(blockBarRef.current);
+    return () => observer.disconnect();
+  }, [blockBarRef.current]);
 
   // if you're trying to do UI design, see "uncomment me" in packages/server/src/RoomManager.ts
   // that way you don't have to constanttly create a new room
@@ -170,7 +189,9 @@ export default function GameUI({ children: gameCanvas }) {
                 <SoundButton />
               </div>
 
-              <BlockBarNew />
+              <div ref={blockBarRef}>
+                <BlockBarNew width={blockBarWidth} />
+              </div>
             </Split>
           </GrayFilled>
         </Split>
