@@ -3,12 +3,14 @@ global using FastEndpoints.Security;
 
 using FastEndpoints.Swagger;
 using SFGServer.DAL;
+using SFGServer.Game;
+using SFGServer.Game.Services;
 using SFGServer.Services;
 using SFGServer.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 AddSettingsToServices();
-RegisterServices(builder);
+RegisterServices();
 
 builder.Services.AddDbContext<SfgContext>();
 builder.Services.AddFastEndpoints();
@@ -46,11 +48,16 @@ app.MapControllers();
 app.Run();
 
 
-void RegisterServices(WebApplicationBuilder builder)
+void RegisterServices()
 {
     builder.Services.AddScoped<TokenSigner>();
     builder.Services.AddScoped<RegisterAccountService>();
     builder.Services.AddScoped<WorldCreatorService>();
+    builder.Services.AddSingleton(typeof(IScopedServiceFactory<>), typeof(ScopedServiceFactory<>));
+    builder.Services.AddSingleton<RoomManager>();
+    builder.Services.AddSingleton<RoomStorage>();
+    builder.Services.AddScoped<LoadSavedRoomService>();
+    builder.Services.AddSingleton<CreateDynamicRoomService>();
 }
 
 void AddSettingsToServices()
