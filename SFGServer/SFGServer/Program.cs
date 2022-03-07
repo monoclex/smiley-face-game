@@ -29,6 +29,11 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.UseWebSockets(new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromMinutes(1),
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
