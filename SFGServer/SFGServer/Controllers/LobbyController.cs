@@ -1,16 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
+using SFGServer.Game;
+using SFGServer.Models;
 
 namespace SFGServer.Controllers;
-
-public record Room(string Id, string Name, int PlayerCount);
 
 [ApiController]
 [Route("v1/[controller]")]
 public class GameController : ControllerBase
 {
-    [HttpGet("/lobby")]
-    public Room[] Lobby()
+    private readonly RoomStorage _roomStorage;
+
+    public GameController(RoomStorage roomStorage)
     {
-        throw new NotImplementedException();
+        _roomStorage = roomStorage;
+    }
+
+    [HttpGet("/lobby")]
+    public IEnumerable<RoomModel> Lobby()
+    {
+        return _roomStorage.RoomList
+            .Select(room => new RoomModel(room.Id, room.Name, room.PlayerCount))
+            .OrderBy(room => room.PlayerCount);
     }
 }

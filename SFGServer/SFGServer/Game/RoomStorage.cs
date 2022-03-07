@@ -2,7 +2,7 @@ using SFGServer.Models;
 
 namespace SFGServer.Game;
 
-public class GuardedAccess : IDisposable
+public sealed class GuardedAccess : IDisposable
 {
     private readonly RoomStorage _roomStorage;
 
@@ -22,10 +22,12 @@ public class GuardedAccess : IDisposable
     }
 }
 
-public class RoomStorage
+public sealed class RoomStorage
 {
     private readonly SemaphoreSlim _semaphore = new(0, 1);
     private readonly Dictionary<RoomId, Room> _rooms = new();
+
+    public Room[] RoomList { get; private set; } = Array.Empty<Room>();
 
     public async Task<GuardedAccess> CreateToken(RoomId roomId, CancellationToken cancellationToken)
     {
@@ -45,6 +47,8 @@ public class RoomStorage
         {
             _rooms[guardedAccess.RoomId] = guardedAccess.Room;
         }
+
+        RoomList = _rooms.Values.ToArray();
 
         _semaphore.Release();
     }
