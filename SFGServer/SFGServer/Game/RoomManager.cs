@@ -61,4 +61,32 @@ public class RoomManager
 
         return token.Room;
     }
+
+    public async Task SignalKill(RoomId roomId, CancellationToken cancellationToken = default)
+    {
+        Room room;
+
+        using (var token = await _roomStorage.CreateToken(roomId, cancellationToken))
+        {
+            if (token.Room == null)
+            {
+                // this room id is already dead, that's ok
+                return;
+            }
+
+            room = token.Room;
+
+            if (room.PlayerCount != 0)
+            {
+                // there are players playing, don't kill this roo,
+                return;
+            }
+
+            // kill this room from room storage
+            token.Room = null;
+        }
+
+        // now perform cleanup on the room if necessary
+        room.Dispose();
+    }
 }
