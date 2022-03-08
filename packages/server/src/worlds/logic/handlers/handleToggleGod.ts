@@ -8,12 +8,7 @@ export default function handleToggleGod(
 ) {
   // ignore stupid packet
   if (packet.god === sender.inGod) {
-    console.warn(
-      "player sent a STUPID packet",
-      sender.username,
-      sender.authTokenPayload.aud,
-      sender.playerId
-    );
+    // TODO(logging): inform about weird packet
     return;
   }
 

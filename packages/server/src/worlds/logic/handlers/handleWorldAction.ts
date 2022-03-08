@@ -16,7 +16,7 @@ export default async function handlePlayerlistAction(
 
   switch (packet.action.action) {
     case "save": {
-      await logic.behaviour.saveBlocks(logic.blockHandler.ids.state, logic.blockHandler.heap.state);
+      await logic.saveBlocks(logic.blockHandler.ids.state, logic.blockHandler.heap.state);
 
       sender.send({
         packetId: "SERVER_WORLD_ACTION",
@@ -26,7 +26,7 @@ export default async function handlePlayerlistAction(
       return;
     }
     case "load": {
-      const [blocks, heaps] = await logic.behaviour.loadBlocks();
+      const [blocks, heaps] = await logic.loadBlocks();
       logic.blockHandler.ids.state = blocks.state;
       logic.blockHandler.heap.state = heaps.state;
 

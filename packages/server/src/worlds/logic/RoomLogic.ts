@@ -1,13 +1,14 @@
-import PromiseCompletionSource from "../../concurrency/PromiseCompletionSource";
 import Connection from "../../worlds/Connection";
 import { BlockHandler } from "../../worlds/blockhandling/BlockHandler";
 import packetLookup from "./packetLookup";
-import WebSocket from "ws";
-import Behaviour from "../../worlds/behaviour/Behavior";
 import type { ZPacket, ZSPacket } from "@smiley-face-game/api";
 import { useDev } from "@smiley-face-game/api";
-import type { ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
+import type { ZHeap, ZHeaps, ZWorldBlocks, ZWorldDetails } from "@smiley-face-game/api/types";
 import TileJson from "../TileJson";
+import loadWorldData from "../loadWorldData";
+import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
+import { saveWorldVersion2 } from "@smiley-face-game/api/tiles/format/WorldDataVersion2";
+import { FormatLoader } from "@smiley-face-game/api/tiles/format/FormatLoader";
 
 useDev();
 function ensureHasId(connection: Connection) {
@@ -27,14 +28,11 @@ function ensureNotDead(shouldBeDead: boolean) {
 export default class RoomLogic {
   readonly blockHandler: BlockHandler;
 
-  #onEmpty: PromiseCompletionSource<void>;
   #shouldBeDead = false;
   #players: Map<number, Connection>;
   #idCounter = 0;
   #details: ZWorldDetails;
-  #setStoppingStatus: () => void;
   #id: string;
-  behaviour: Behaviour;
 
   get playerCount(): number {
     return this.#players.size;
@@ -44,21 +42,16 @@ export default class RoomLogic {
   }
 
   constructor(
-    onEmpty: PromiseCompletionSource<void>,
     blocks: ZWorldBlocks,
     heaps: ZHeaps,
     details: ZWorldDetails,
-    setStopping: () => void,
     id: string,
-    roomBehaviour: Behaviour
+    readonly hostRoom: HostRoom
   ) {
     this.blockHandler = new BlockHandler(TileJson, blocks, heaps, details.width, details.height);
-    this.#onEmpty = onEmpty;
     this.#players = new Map();
     this.#details = details;
-    this.#setStoppingStatus = setStopping;
     this.#id = id;
-    this.behaviour = roomBehaviour;
   }
 
   handleJoin(connection: Connection): boolean {
@@ -68,12 +61,21 @@ export default class RoomLogic {
     // NOTE: code for the TODO above should primarily be in the code that generates tokens for connecting to worlds,
     // and before connecting the token should be checked if it should be invalidated.
 
-    this.behaviour.onPlayerJoin(connection);
+    const isOwner = connection.connection.userId === this.#details.ownerId;
 
     const id = this.#idCounter++;
     connection.playerId = id;
 
-    if (connection.authTokenPayload.aud === this.#details.ownerId) {
+    if (this.hostRoom.isSavedRoom) {
+      connection.hasEdit = isOwner;
+      connection.canGod = isOwner;
+      connection.isOwner = isOwner;
+    } else {
+      connection.hasEdit = true;
+      connection.canGod = false; // TODO(create-world-dialogue): allow configurability
+    }
+
+    if (isOwner) {
       connection.role = "owner";
     } else if (connection.hasEdit) {
       connection.role = "edit";
@@ -135,9 +137,7 @@ export default class RoomLogic {
 
     if (this.#players.size === 0) {
       this.#shouldBeDead = true;
-      this.#setStoppingStatus(); // TODO: figure out a better way to do this?
-      // the above is being done to deal with like async stuff i think
-      this.#onEmpty.resolve();
+      host.signalKill();
       return;
     }
 
@@ -155,27 +155,45 @@ export default class RoomLogic {
   }
 
   broadcast(packet: ZSPacket) {
-    // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 
     for (const player of this.#players.values()) {
-      if (player.webSocket.readyState === WebSocket.OPEN) {
-        player.webSocket.send(packetData);
-      }
+      player.connection.send(packetData);
     }
   }
 
   broadcastExcept(excludePlayerId: number, packet: ZSPacket) {
-    // TODO: use serialization stuff
     const packetData = JSON.stringify(packet);
 
     for (const player of this.#players.values()) {
       if (player.playerId === excludePlayerId) continue;
-      if (player.webSocket.readyState === WebSocket.OPEN) {
-        player.webSocket.send(packetData);
-      }
+      player.connection.send(packetData);
     }
   }
 
-  // TODO: handle block updates
+  async loadBlocks(): Promise<[WorldLayer<number>, WorldLayer<ZHeap | 0>]> {
+    // short-circuiting optimization: this should never actually happen tho
+    if (!this.hostRoom.isSavedRoom) throw new Error("Cannot load dynamic world!");
+
+    const worldSize = { x: this.hostRoom.width, y: this.hostRoom.height };
+    const worldData = await this.hostRoom.load();
+
+    const formatLoader = loadWorldData(worldSize, worldData);
+
+    return [formatLoader.world, formatLoader.heap];
+  }
+
+  async saveBlocks(blocks: ZWorldBlocks, heaps: ZHeaps): Promise<void> {
+    // short-circuiting optimization: this should never actually happen tho
+    if (!this.hostRoom.isSavedRoom) throw new Error("Cannot save saved world!");
+
+    const worldSize = { x: this.hostRoom.width, y: this.hostRoom.height };
+    const formatLoader = new FormatLoader(TileJson, worldSize);
+
+    formatLoader.world.state = blocks;
+    formatLoader.heap.state = heaps;
+
+    const serialized = saveWorldVersion2(formatLoader);
+    await this.hostRoom.save({ worldDataVersion: 2, worldData: JSON.stringify(serialized) });
+  }
 }
