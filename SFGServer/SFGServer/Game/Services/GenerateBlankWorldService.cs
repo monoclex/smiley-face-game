@@ -1,4 +1,5 @@
 using Microsoft.ClearScript.V8;
+using Microsoft.Extensions.Options;
 using SFGServer.Game.HostStructures;
 using SFGServer.Settings;
 
@@ -8,9 +9,9 @@ public class GenerateBlankWorldService
 {
     private readonly JavaScriptCodeSettings _javaScriptCodeSettings;
 
-    public GenerateBlankWorldService(JavaScriptCodeSettings javaScriptCodeSettings)
+    public GenerateBlankWorldService(IOptions<JavaScriptCodeSettings> javaScriptCodeSettings)
     {
-        _javaScriptCodeSettings = javaScriptCodeSettings;
+        _javaScriptCodeSettings = javaScriptCodeSettings.Value;
     }
 
     public async Task<HostWorldData> GenerateWorld(int width, int height, CancellationToken cancellationToken = default)
@@ -21,13 +22,9 @@ public class GenerateBlankWorldService
         var engine = new V8ScriptEngine();
         engine.Execute(code);
 
-        var function = engine.Evaluate("generateBlankWorld");
+        var unknown = engine.Script.generateBlankWorld(width, height);
+        var hostWorldData = new HostWorldData(unknown.worldDataVersion, unknown.worldData);
 
-        if (function is Func<int, int, HostWorldData> generateBlankWorld)
-        {
-            return generateBlankWorld(width, height);
-        }
-
-        throw new InvalidOperationException("Unable to evaluate `generateBlankWorld`!");
+        return hostWorldData;
     }
 }

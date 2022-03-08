@@ -9,6 +9,7 @@ public class SavedWorldSavingBehavior : ISavingBehavior
 {
     private readonly IScopedServiceFactory<WorldSaver> _serviceFactory;
     private readonly RoomId _roomId;
+    private Guid? _owner = null;
 
     public SavedWorldSavingBehavior(IScopedServiceFactory<WorldSaver> serviceFactory, RoomId roomId)
     {
@@ -26,5 +27,16 @@ public class SavedWorldSavingBehavior : ISavingBehavior
     {
         using var scope = _serviceFactory.CreateScopedService();
         await scope.Service.Save(_roomId, worldData);
+    }
+
+    public async Task<bool> IsOwner(Guid userId)
+    {
+        if (_owner == null)
+        {
+            using var scope = _serviceFactory.CreateScopedService();
+            _owner = await scope.Service.GetOwner(_roomId);
+        }
+
+        return userId == _owner.Value;
     }
 }

@@ -46,6 +46,6 @@ public class LoginEndpoint : Endpoint<LoginRequest, TokenResponse>
     private Task Fail(CancellationToken ct)
     {
         AddError("Login failed.");
-        return SendErrorsAsync(ct);
+        return SendErrorsAsync(cancellation: ct);
     }
 }

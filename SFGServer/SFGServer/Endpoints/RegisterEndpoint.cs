@@ -38,6 +38,6 @@ public class RegisterEndpoint : Endpoint<RegisterRequest, RegisterResponse>
     private Task Fail(CancellationToken ct)
     {
         AddError("Username or email taken.");
-        return SendErrorsAsync(ct);
+        return SendErrorsAsync(cancellation: ct);
     }
 }

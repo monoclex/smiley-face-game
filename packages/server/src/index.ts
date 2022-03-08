@@ -12,15 +12,15 @@ function initialize(hostRoom: HostRoom, initialWorldData: HostWorldData) {
 }
 
 function onConnect(hostConnection: HostConnection) {
-  server.onConnect(hostConnection.connectionId, hostConnection);
+  server.onConnect(hostConnection);
 }
 
 function onDisconnect(connectionId: number) {
   server.onDisconnect(connectionId);
 }
 
-async function onMessage(connectionId: number, message: string) {
-  server.onMessage(connectionId, message);
+function onMessage(connectionId: number, message: string) {
+  return server.onMessage(connectionId, message);
 }
 
 function healthCheck() {

@@ -35,7 +35,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
         if (shopItem == null || shopItem.Removed)
         {
             AddError(request => request.Id, "Shop item does not exist!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
@@ -51,7 +51,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
             // TODO(logging): very strange that token's account does not exist
             // TODO(clean): i swear this check is in like multiple different places, can we abstract this out?
             AddError("Your account does not exist!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
@@ -60,7 +60,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
         if (spendEnergy > currentEnergy)
         {
             AddError(request => request.SpendEnergy, $"You do not have {spendEnergy} energy! You have {currentEnergy} energy!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 

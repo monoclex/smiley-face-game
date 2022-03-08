@@ -1,4 +1,5 @@
 using Microsoft.ClearScript.V8;
+using Microsoft.Extensions.Options;
 using SFGServer.Contracts.Requests;
 using SFGServer.Game.HostStructures;
 using SFGServer.Game.SavingBehavior;
@@ -11,15 +12,15 @@ public class StartRoomService
 {
     private readonly JavaScriptCodeSettings _javaScriptCodeSettings;
     private readonly IScopedServiceFactory<WorldSaver> _worldSaverFactory;
-    private readonly RoomManager _roomManager;
+    private readonly RoomKillService _roomKillService;
 
-    public StartRoomService(JavaScriptCodeSettings javaScriptCodeSettings,
+    public StartRoomService(IOptions<JavaScriptCodeSettings> javaScriptCodeSettings,
         IScopedServiceFactory<WorldSaver> worldSaverFactory,
-        RoomManager roomManager)
+        RoomKillService roomKillService)
     {
-        _javaScriptCodeSettings = javaScriptCodeSettings;
+        _javaScriptCodeSettings = javaScriptCodeSettings.Value;
         _worldSaverFactory = worldSaverFactory;
-        _roomManager = roomManager;
+        _roomKillService = roomKillService;
     }
 
     public async Task<Room> Start(HostRoom hostRoom, CancellationToken cancellationToken)
@@ -28,12 +29,18 @@ public class StartRoomService
 
         var engine = new V8ScriptEngine();
         var room = new Room(engine, hostRoom);
-        var hostObject = new HostObject(_roomManager, room, _worldSaverFactory);
+        var hostObject = new HostObject(_roomKillService, room, _worldSaverFactory);
 
         engine.AddHostObject("host", hostObject);
+        engine.AddHostType(nameof(HostConnection), typeof(HostConnection));
+        engine.AddHostType(nameof(HostObject), typeof(HostObject));
+        engine.AddHostType(nameof(Console), typeof(Console));
         engine.Execute(code);
 
         room.RoomLogic.Start();
+
+        var initialWorldData = await room.HostRoom.SavingBehavior.Load();
+        room.RoomLogic.Engine.Script.initialize(room.HostRoom, initialWorldData);
 
         return room;
     }

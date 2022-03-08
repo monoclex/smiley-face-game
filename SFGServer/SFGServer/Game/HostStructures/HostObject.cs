@@ -12,13 +12,13 @@ namespace SFGServer.Game.HostStructures;
 
 public class HostObject
 {
-    private readonly RoomManager _roomManager;
+    private readonly RoomKillService _roomKillService;
     private readonly Room _room;
     private readonly IScopedServiceFactory<WorldSaver> _worldSaverFactory;
 
-    public HostObject(RoomManager roomManager, Room room, IScopedServiceFactory<WorldSaver> worldSaverFactory)
+    public HostObject(RoomKillService roomKillService, Room room, IScopedServiceFactory<WorldSaver> worldSaverFactory)
     {
-        _roomManager = roomManager;
+        _roomKillService = roomKillService;
         _room = room;
         _worldSaverFactory = worldSaverFactory;
     }
@@ -44,8 +44,10 @@ public class HostObject
     }
 
     [UsedImplicitly]
-    public async Task saveWorld(HostWorldData worldData)
+    public async Task saveWorld(dynamic unknown)
     {
+        var worldData = new HostWorldData(unknown.worldDataVersion, unknown.worldData);
+
         using var scope = _worldSaverFactory.CreateScopedService();
 
         await scope.Service.Save(_room.Id, worldData);
@@ -56,7 +58,7 @@ public class HostObject
     {
         Task.Run(async () =>
         {
-            await _roomManager.SignalKill(_room.Id);
+            await _roomKillService.SignalKill(_room.Id);
         });
     }
 }

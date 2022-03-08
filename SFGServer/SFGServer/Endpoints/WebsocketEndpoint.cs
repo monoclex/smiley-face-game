@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using SFGServer.Contracts.Requests;
 using SFGServer.Game;
+using SFGServer.Models;
 using SFGServer.Services;
 
 namespace SFGServer.Endpoints;
@@ -36,7 +37,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
             AddError("You must begin a websocket connection on this endpoint!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
@@ -45,7 +46,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         if (user == null)
         {
             AddError("Invalid Token!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
@@ -59,14 +60,14 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         {
             // TODO(clean): perhaps we should set the room name/owner after we create the dynamic room instead of pass `username` thru here
             WebsocketJoin.Create create => await _roomManager.CreateDynamicRoom(username, create, ct),
-            WebsocketJoin.Join join => await _roomManager.JoinRoom(join.Id, ct),
+            WebsocketJoin.Join join => await _roomManager.JoinRoom(new RoomId(join.Id), ct),
             _ => throw new InvalidOperationException("Invalid world request!"),
         };
 
         if (room == null)
         {
             AddError("Room does not exist!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 

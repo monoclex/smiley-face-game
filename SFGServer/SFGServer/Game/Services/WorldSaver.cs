@@ -30,4 +30,17 @@ public class WorldSaver
 
         return new HostWorldData(world.WorldDataVersion, world.RawWorldData);
     }
+
+    public async Task<Guid> GetOwner(RoomId roomId)
+    {
+        var world = await _sfgContext.Worlds.FirstAsync(world => world.Id == roomId.Id);
+        var owner = world.OwnerId;
+
+        if (owner == null)
+        {
+            throw new InvalidOperationException("Saved worlds must always have an owner!");
+        }
+
+        return owner.Value;
+    }
 }

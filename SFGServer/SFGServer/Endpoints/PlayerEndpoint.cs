@@ -3,6 +3,7 @@ using SFGServer.Contracts.Requests;
 using SFGServer.Contracts.Responses;
 using SFGServer.Mappers;
 using SFGServer.DAL;
+using SFGServer.Services;
 
 namespace SFGServer.Endpoints;
 
@@ -20,6 +21,7 @@ public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse, PlayerMapp
     public override void Configure()
     {
         Get("/player");
+        Claims(TokenSigner.UserIdClaimKey);
     }
 
     public override async Task HandleAsync(PlayerRequest req, CancellationToken ct)
@@ -31,7 +33,7 @@ public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse, PlayerMapp
         {
             _logger.LogError("Could not find account with userId '{UserId}'", req.UserId);
             AddError("Could not find account!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 

@@ -14,7 +14,7 @@ function build() {
         { resourceRegExp: /isomorphic-ws/, contextRegExp: /.?/ },
       ]),
     ],
-    entryPoints: ["./src/index.ts", "./src/generateBlankWorld.ts"],
+    entryPoints: ["./src/index.ts", "./src/generateBlankWorld.entrypoint.ts"],
     logLevel: "error",
     treeShaking: true,
   });

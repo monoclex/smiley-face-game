@@ -24,7 +24,7 @@ public sealed class GuardedAccess : IDisposable
 
 public sealed class RoomStorage
 {
-    private readonly SemaphoreSlim _semaphore = new(0, 1);
+    private readonly SemaphoreSlim _semaphore = new(1);
     private readonly Dictionary<RoomId, Room> _rooms = new();
 
     public Room[] RoomList { get; private set; } = Array.Empty<Room>();

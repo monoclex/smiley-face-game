@@ -31,7 +31,7 @@ public class ShopItemsEndpoint : Endpoint<ShopItemsRequest, ShopItemsResponse>
         {
             // TODO(logging): it's very odd that they have a valid token for an account that does not exist
             AddError("There is no account associated with your token!");
-            await SendErrorsAsync(ct);
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 

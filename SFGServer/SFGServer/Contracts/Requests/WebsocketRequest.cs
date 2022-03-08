@@ -20,7 +20,7 @@ public record WebsocketJoin
 
     public record Join : WebsocketJoin
     {
-        public RoomId Id { get; set; }
+        public Guid Id { get; set; }
     }
 
     public record Create : WebsocketJoin

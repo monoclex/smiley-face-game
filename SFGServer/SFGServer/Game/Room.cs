@@ -15,7 +15,7 @@ public class Room : IDisposable
 
     public string Name => HostRoom.name;
 
-    public int PlayerCount { get; private set;  } = 0;
+    public int PlayerCount => RoomLogic.Connections.Count;
 
     public HostRoom HostRoom { get; }
 
@@ -34,10 +34,20 @@ public class Room : IDisposable
         RoomLogic.Dispose();
     }
 
-    public async Task<HostConnection> AcceptConnection(WebSocket connection, Guid? userId, string username, CancellationToken cancellationToken)
+    public async Task<HostConnection> AcceptConnection(WebSocket connection, Guid? userId, string username,
+        CancellationToken cancellationToken)
     {
+        var isOwner = false;
+
+        if (userId != null)
+        {
+            isOwner = await HostRoom.SavingBehavior.IsOwner(userId.Value);
+        }
+
         var tcs = new TaskCompletionSource<HostConnection>();
-        await RoomLogic.WorkQueue.Writer.WriteAsync(new WorkMessage.AcceptConnection(tcs, connection, userId, username), cancellationToken);
+        var queueItem = new WorkMessage.AcceptConnection(tcs, connection, userId, username, isOwner);
+
+        await RoomLogic.WorkQueue.Writer.WriteAsync(queueItem, cancellationToken);
         return await tcs.Task;
     }
 
@@ -59,10 +69,7 @@ public class Room : IDisposable
 
         foreach (var connection in connections)
         {
-#pragma warning disable CA2012
-            // we want to just send these packets and let the task runtime handle sending out all the data
-            _ = connection.send(send);
-#pragma warning restore CA2012
+            connection.send(send);
         }
     }
 
@@ -77,10 +84,7 @@ public class Room : IDisposable
                 continue;
             }
 
-#pragma warning disable CA2012
-            // we want to just send these packets and let the task runtime handle sending out all the data
-            _ = connection.send(send);
-#pragma warning restore CA2012
+            connection.send(send);
         }
     }
 }
@@ -94,7 +98,8 @@ public record WorkMessage
     public record AcceptConnection(TaskCompletionSource<HostConnection> HostConnection,
         WebSocket WebSocket,
         Guid? UserId,
-        string Username) : WorkMessage;
+        string Username,
+        bool IsOwner) : WorkMessage;
 
     public record FireMessage(int ConnectionId, Memory<byte> Payload) : WorkMessage;
 
@@ -134,11 +139,14 @@ public class RoomLogic : IDisposable
         var hostConnection = new HostConnection(acceptConnection.WebSocket,
             connectionId,
             acceptConnection.UserId,
-            acceptConnection.Username);
+            acceptConnection.Username,
+            acceptConnection.IsOwner);
 
         _onConnect(connectionId, hostConnection);
 
         Connections = Connections.Append(hostConnection).ToArray();
+
+        acceptConnection.HostConnection.SetResult(hostConnection);
     }
 
     private void HandleDisconnect(WorkMessage.Disconnect disconnect)
@@ -157,15 +165,26 @@ public class RoomLogic : IDisposable
         if (!success)
         {
             var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
-            await connection.close("Invalid packet (maybe you don't have permissions for this?)");
+            connection.close("Invalid packet (maybe you don't have permissions for this?)");
         }
     }
 
     public void Start()
     {
-        _onConnect = Engine.Global.GetProperty("onConnect") as OnConnect ?? throw new InvalidOperationException("Couldn't get OnConnect");
-        _onDisconnect = Engine.Global.GetProperty("onDisconnect") as OnDisconnect ?? throw new InvalidOperationException("Couldn't get OnDisconnect");
-        _onMessage = Engine.Global.GetProperty("onMessage") as OnMessage ?? throw new InvalidOperationException("Couldn't get OnDisconnect");
+        _onConnect = (id, connection) => Engine.Script.onConnect(connection);
+        _onDisconnect = id => Engine.Script.onDisconnect(id);
+        _onMessage = (id, message) =>
+        {
+            // https://github.com/microsoft/ClearScript/issues/182#issuecomment-627365386
+            var completionSource = new TaskCompletionSource<bool>();
+
+            Action<bool> onResolved = completionSource.SetResult;
+            Action<dynamic> onRejected = error => completionSource.SetException(new Exception(error.toString()));
+
+            Engine.Script.onMessage(id, message).then(onResolved, onRejected);
+
+            return completionSource.Task;
+        };
 
         Task.Run(async () =>
         {

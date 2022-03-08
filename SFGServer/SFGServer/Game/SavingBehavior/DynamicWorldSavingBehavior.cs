@@ -25,4 +25,9 @@ public class DynamicWorldSavingBehavior : ISavingBehavior
     {
         return Task.CompletedTask;
     }
+
+    public Task<bool> IsOwner(Guid userId)
+    {
+        return Task.FromResult(false);
+    }
 }

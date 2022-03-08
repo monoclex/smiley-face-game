@@ -16,6 +16,7 @@ RegisterServices();
 builder.Services.AddDbContext<SfgContext>();
 builder.Services.AddFastEndpoints();
 builder.Services.AddSwaggerDoc();
+builder.Services.AddCors();
 
 {
     // get settings manually for AddAuthenticationJWTBearer
@@ -35,6 +36,13 @@ using (var scope = app.Services.CreateScope())
     var sfgContext = scope.ServiceProvider.GetRequiredService<SfgContext>();
     await sfgContext.Database.MigrateAsync();
 }
+
+app.UseCors(config =>
+{
+    config.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+});
 
 app.UseWebSockets(new WebSocketOptions
 {
@@ -76,6 +84,8 @@ void RegisterServices()
     builder.Services.AddSingleton<GenerateBlankWorldService>();
     builder.Services.AddSingleton<GenerateWorldIdService>();
     builder.Services.AddScoped<UsernameRetrievalService>();
+    builder.Services.AddSingleton<StartRoomService>();
+    builder.Services.AddSingleton<RoomKillService>();
 }
 
 void AddSettingsToServices()

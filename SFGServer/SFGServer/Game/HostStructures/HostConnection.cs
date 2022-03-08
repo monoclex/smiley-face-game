@@ -22,13 +22,17 @@ public class HostConnection
     [UsedImplicitly]
     public string username { get; }
 
-    public HostConnection(WebSocket webSocket, int connectionId, Guid? userId, string username)
+    [UsedImplicitly]
+    public bool isOwner { get; }
+
+    public HostConnection(WebSocket webSocket, int connectionId, Guid? userId, string username, bool isOwner)
     {
         WebSocket = webSocket;
         this.connectionId = connectionId;
         UserId = userId;
         this.userId = userId?.ToString();
         this.username = username;
+        this.isOwner = isOwner;
     }
 
     // TODO(correctness): we should be wrapping around the websocket properly, and implement a queue of things to do.
@@ -36,44 +40,50 @@ public class HostConnection
     //   as every disconnect will result in ~200ms of server stall.
 
     [UsedImplicitly]
-    public async ValueTask send(string data)
+    public void send(string data)
     {
-        if (WebSocket.State != WebSocketState.Open)
+        Task.Run(async () =>
         {
-            return;
-        }
+            if (WebSocket.State != WebSocketState.Open)
+            {
+                return;
+            }
 
-        var encoding = Encoding.UTF8;
-        var pool = ArrayPool<byte>.Shared;
+            var encoding = Encoding.UTF8;
+            var pool = ArrayPool<byte>.Shared;
 
-        var bytes = pool.Rent(encoding.GetByteCount(data));
+            var bytes = pool.Rent(encoding.GetByteCount(data));
 
-        try
-        {
-            encoding.GetBytes(data, bytes.AsSpan());
+            try
+            {
+                var bytesWritten = encoding.GetBytes(data, bytes.AsSpan());
 
-            await WebSocket.SendAsync(bytes.AsMemory(), WebSocketMessageType.Text, endOfMessage: true, cancellationToken: default);
-        }
-        finally
-        {
-            pool.Return(bytes);
-        }
+                await WebSocket.SendAsync(bytes.AsMemory()[..bytesWritten], WebSocketMessageType.Text, endOfMessage: true, cancellationToken: default);
+            }
+            finally
+            {
+                pool.Return(bytes);
+            }
+        });
     }
 
     [UsedImplicitly]
-    public async ValueTask close(string reason)
+    public void close(string reason)
     {
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(TimeSpan.FromMilliseconds(200));
+        Task.Run(async () =>
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromMilliseconds(200));
 
-        try
-        {
-            await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, cts.Token);
-        }
-        catch (TaskCanceledException)
-        {
-            WebSocket.Abort();
-        }
+            try
+            {
+                await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, cts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                WebSocket.Abort();
+            }
+        });
     }
 }
 

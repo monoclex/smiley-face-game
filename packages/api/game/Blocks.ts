@@ -63,7 +63,7 @@ export class Blocks {
 
   handleLine(packet: ZBlockLine | ZSBlockLine, playerId?: number): boolean {
     playerId = "playerId" in packet ? packet.playerId : playerId;
-    if (!playerId) throw new Error("Unknown player id");
+    if (playerId == null) throw new Error("Unknown player id");
 
     return this.placeLine(
       packet.layer,
@@ -99,7 +99,7 @@ export class Blocks {
 
   handleSingle(packet: ZBlockSingle | ZSBlockSingle, playerId?: number): boolean {
     playerId = "playerId" in packet ? packet.playerId : playerId;
-    if (!playerId) throw new Error("Unknown player id");
+    if (playerId == null) throw new Error("Unknown player id");
 
     return this.placeSingle(packet.layer, packet.position, packet.block, playerId, packet.heap);
   }

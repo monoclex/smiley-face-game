@@ -15,7 +15,7 @@ public class GameController : ControllerBase
         _roomStorage = roomStorage;
     }
 
-    [HttpGet("/lobby")]
+    [HttpGet("lobby")]
     public IEnumerable<RoomModel> Lobby()
     {
         return _roomStorage.RoomList
