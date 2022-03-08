@@ -2,6 +2,7 @@ global using FastEndpoints;
 global using FastEndpoints.Security;
 
 using FastEndpoints.Swagger;
+using Microsoft.EntityFrameworkCore;
 using SFGServer.DAL;
 using SFGServer.Game;
 using SFGServer.Game.Services;
@@ -28,6 +29,12 @@ builder.Services.AddSwaggerDoc();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var sfgContext = scope.ServiceProvider.GetRequiredService<SfgContext>();
+    await sfgContext.Database.MigrateAsync();
+}
 
 app.UseWebSockets(new WebSocketOptions
 {

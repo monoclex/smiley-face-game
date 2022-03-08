@@ -19,7 +19,7 @@ public class SfgContext : DbContext
         if (optionsBuilder.IsConfigured)
             return;
 
-        optionsBuilder.UseNpgsql("Name=SfgDatabase");
+        optionsBuilder.UseNpgsql("Name=SfgDatabase", options => options.MigrationsAssembly("SFGServer.DAL"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
