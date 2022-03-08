@@ -6,7 +6,6 @@ using SFGServer.DAL;
 
 namespace SFGServer.Endpoints;
 
-
 public class PlayerEndpoint : Endpoint<PlayerRequest, PlayerResponse, PlayerMapper>
 {
     private readonly ILogger<PlayerEndpoint> _logger;
