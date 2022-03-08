@@ -27,7 +27,7 @@ public class RoomKillService
 
             if (room.PlayerCount != 0)
             {
-                // there are players playing, don't kill this roo,
+                // there are players playing, don't kill this room
                 return;
             }
 

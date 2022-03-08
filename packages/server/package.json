@@ -18,7 +18,6 @@
     "tsc": "tsc",
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --ext .ts --fix .",
-    "serve": "node watch.cjs",
     "build": "node build.cjs",
     "build:dev": "node build.cjs",
     "build:prod": "node build.cjs"

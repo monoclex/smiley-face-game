@@ -19,7 +19,7 @@ public class GameController : ControllerBase
     public IEnumerable<RoomModel> Lobby()
     {
         return _roomStorage.RoomList
-            .Select(room => new RoomModel(room.Id, room.Name, room.PlayerCount))
+            .Select(room => new RoomModel(room.Id.Id, room.Name, room.PlayerCount))
             .OrderBy(room => room.PlayerCount);
     }
 }

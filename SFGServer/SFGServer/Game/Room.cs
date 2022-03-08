@@ -106,7 +106,7 @@ public record WorkMessage
     public record Disconnect(int ConnectionId) : WorkMessage;
 }
 
-public delegate void OnConnect(int connectionId, HostConnection hostConnection);
+public delegate void OnConnect(HostConnection hostConnection);
 
 public delegate void OnDisconnect(int connectionId);
 
@@ -142,7 +142,7 @@ public class RoomLogic : IDisposable
             acceptConnection.Username,
             acceptConnection.IsOwner);
 
-        _onConnect(connectionId, hostConnection);
+        _onConnect(hostConnection);
 
         Connections = Connections.Append(hostConnection).ToArray();
 
@@ -171,7 +171,7 @@ public class RoomLogic : IDisposable
 
     public void Start()
     {
-        _onConnect = (id, connection) => Engine.Script.onConnect(connection);
+        _onConnect = (connection) => Engine.Script.onConnect(connection);
         _onDisconnect = id => Engine.Script.onDisconnect(id);
         _onMessage = (id, message) =>
         {
@@ -202,8 +202,10 @@ public class RoomLogic : IDisposable
     {
         while (true)
         {
+            // TODO(logging): log if behind on work (check WorkQueue.Reader.Count and see how many messages we have to handle)
             var message = await WorkQueue.Reader.ReadAsync();
 
+            // TODO(logging): log if a single message handle takes > 100ms or so
             try
             {
                 switch (message)

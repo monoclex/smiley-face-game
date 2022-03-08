@@ -1,3 +1,3 @@
 namespace SFGServer.Models;
 
-public record RoomModel(RoomId Id, string Name, int PlayerCount);
+public record RoomModel(Guid Id, string Name, int PlayerCount);
