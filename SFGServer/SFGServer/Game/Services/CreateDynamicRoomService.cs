@@ -1,19 +1,45 @@
 using Microsoft.ClearScript.V8;
+using SFGServer.Contracts.Requests;
+using SFGServer.DAL;
+using SFGServer.Game.HostStructures;
+using SFGServer.Game.SavingBehavior;
+using SFGServer.Services;
+using SFGServer.Settings;
 
 namespace SFGServer.Game.Services;
 
 public class CreateDynamicRoomService
 {
-    public async Task<Room> Create(CancellationToken cancellationToken)
+    private readonly StartRoomService _startRoomService;
+    private readonly GenerateBlankWorldService _generateBlankWorldService;
+    private readonly GenerateWorldIdService _generateWorldIdService;
+
+    public CreateDynamicRoomService(StartRoomService startRoomService,
+        GenerateBlankWorldService generateBlankWorldService,
+        GenerateWorldIdService generateWorldIdService)
     {
-        var engine = new V8ScriptEngine();
-        engine.AddHostObject("host", new HostObject());
+        _startRoomService = startRoomService;
+        _generateBlankWorldService = generateBlankWorldService;
+        _generateWorldIdService = generateWorldIdService;
+    }
 
-        var script = engine.Compile(await File.ReadAllTextAsync("../../packages/server/dist/app.cjs", cancellationToken));
-        engine.Execute(script);
+    public async Task<Room> Create(string ownerUsername, WebsocketJoin.Create create, CancellationToken cancellationToken)
+    {
+        var savingBehavior = new DynamicWorldSavingBehavior(_generateBlankWorldService, create.Width, create.Height);
 
-        var world = engine.Evaluate("helloWorld()") as string;
-        Console.WriteLine("got world " + world);
-        return null;
+        var id = _generateWorldIdService.GenerateDynamicWorldId();
+
+        var hostRoom = new HostRoom(
+            roomId: id,
+            name: create.Name,
+            ownerId: null,
+            ownerUsername: ownerUsername,
+            width: create.Width,
+            height: create.Height,
+            savingBehavior: savingBehavior
+        );
+
+        var room = await _startRoomService.Start(hostRoom, cancellationToken);
+        return room;
     }
 }

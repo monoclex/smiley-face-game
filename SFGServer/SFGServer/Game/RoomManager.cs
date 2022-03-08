@@ -1,3 +1,4 @@
+using SFGServer.Contracts.Requests;
 using SFGServer.Models;
 using SFGServer.Game.Services;
 using SFGServer.Services;
@@ -45,9 +46,9 @@ public class RoomManager
         throw new ArgumentException("ID is not a saved or dynamic ID!");
     }
 
-    public async Task<Room?> CreateDynamicRoom(CancellationToken cancellationToken)
+    public async Task<Room> CreateDynamicRoom(string ownerUsername, WebsocketJoin.Create create, CancellationToken cancellationToken)
     {
-        var room = await _createDynamicRoomFactory.Create(cancellationToken);
+        var room = await _createDynamicRoomFactory.Create(ownerUsername, create, cancellationToken);
 
         using var token = await _roomStorage.CreateToken(room.Id, cancellationToken);
 
@@ -59,7 +60,7 @@ public class RoomManager
 
         token.Room = room;
 
-        return token.Room;
+        return room;
     }
 
     public async Task SignalKill(RoomId roomId, CancellationToken cancellationToken = default)
@@ -82,11 +83,12 @@ public class RoomManager
                 return;
             }
 
-            // kill this room from room storage
+            // remove this room from room storage immediately so players can't join it
             token.Room = null;
         }
 
-        // now perform cleanup on the room if necessary
+        // lock on room storage is freed,
+        // now perform cleanup on the room
         room.Dispose();
     }
 }

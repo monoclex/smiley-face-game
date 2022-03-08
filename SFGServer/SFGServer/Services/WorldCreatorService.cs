@@ -6,10 +6,12 @@ namespace SFGServer.Services
     public class WorldCreatorService
     {
         private readonly SfgContext _sfgContext;
+        private readonly GenerateWorldIdService _generateWorldIdService;
 
-        public WorldCreatorService(SfgContext sfgContext)
+        public WorldCreatorService(SfgContext sfgContext, GenerateWorldIdService generateWorldIdService)
         {
             _sfgContext = sfgContext;
+            _generateWorldIdService = generateWorldIdService;
         }
 
         public World CreateDefaultWorld(Account account) => CreateWorld(account, 50, 50);
@@ -17,6 +19,7 @@ namespace SFGServer.Services
         public World CreateWorld(Account owner, int width, int height)
         {
             var world = new World {
+                Id = _generateWorldIdService.GenerateSavedWorld().Id,
                 Owner = owner,
                 Name = $"{owner.Username}'s World",
                 Width = width,

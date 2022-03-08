@@ -72,6 +72,10 @@ void RegisterServices()
     builder.Services.AddSingleton<RoomStorage>();
     builder.Services.AddScoped<LoadSavedRoomService>();
     builder.Services.AddSingleton<CreateDynamicRoomService>();
+    builder.Services.AddScoped<WorldSaver>();
+    builder.Services.AddSingleton<GenerateBlankWorldService>();
+    builder.Services.AddSingleton<GenerateWorldIdService>();
+    builder.Services.AddScoped<UsernameRetrievalService>();
 }
 
 void AddSettingsToServices()
@@ -79,4 +83,7 @@ void AddSettingsToServices()
     // TODO(improve): probably want something generic that scans the settings folder, but idc for now
     builder.Services.AddOptions<JwtSettings>()
         .BindConfiguration(nameof(JwtSettings));
+
+    builder.Services.AddOptions<JavaScriptCodeSettings>()
+        .BindConfiguration(nameof(JavaScriptCodeSettings));
 }
