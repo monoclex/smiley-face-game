@@ -1,6 +1,6 @@
 import Tiles from "./register";
 
 export { Tiles as TileRegistration };
-export default Tiles;
+export default TileRegistration;
 
 export { HeapKind } from "./register";

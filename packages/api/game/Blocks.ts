@@ -6,6 +6,7 @@ import { createNanoEvents } from "../nanoevents";
 import { WorldLayer } from "./WorldLayer";
 import equal from "fast-deep-equal";
 import { Rectangle } from "../physics/Rectangle";
+import { ZBlockLine, ZBlockSingle, ZSBlockLine, ZSBlockSingle } from "../packets";
 
 interface BlockEvents {
   load(blocks: ZWorldBlocks, heaps: ZHeaps): void;
@@ -15,6 +16,19 @@ interface BlockEvents {
 export class Blocks {
   state: WorldLayer<number> = new WorldLayer(0);
   heap: WorldLayer<ZHeap | 0> = new WorldLayer(0);
+
+  /** @deprecated Use `this.state` */
+  get ids(): WorldLayer<number> {
+    return this.state;
+  }
+  /** @deprecated Use `this.size.x` */
+  get width(): number {
+    return this.size.x;
+  }
+  /** @deprecated Use `this.size.y` */
+  get height(): number {
+    return this.size.y;
+  }
 
   readonly events = createNanoEvents<BlockEvents>();
   readonly bounds: Rectangle;
@@ -32,6 +46,9 @@ export class Blocks {
   load(blocks: ZWorldBlocks, heaps: ZHeaps) {
     this.state.state = blocks;
     this.heap.state = heaps;
+  }
+
+  emitLoad() {
     this.events.emit("load", this.state.state, this.heap.state);
   }
 
@@ -39,6 +56,23 @@ export class Blocks {
     const state = Blocks.emptyWorld(this.size);
     Blocks.placeBorder(state, this.tiles, this.size);
     this.load(state, []);
+  }
+
+  handleLine(packet: ZBlockLine, playerId: number): boolean;
+  handleLine(packet: ZSBlockLine): boolean;
+
+  handleLine(packet: ZBlockLine | ZSBlockLine, playerId?: number): boolean {
+    playerId = "playerId" in packet ? packet.playerId : playerId;
+    if (!playerId) throw new Error("Unknown player id");
+
+    return this.placeLine(
+      packet.layer,
+      packet.start,
+      packet.end,
+      packet.block,
+      playerId,
+      packet.heap
+    );
   }
 
   placeLine(
@@ -58,6 +92,16 @@ export class Blocks {
     });
 
     return didModify;
+  }
+
+  handleSingle(packet: ZSBlockSingle): boolean;
+  handleSingle(packet: ZBlockSingle, playerId: number): boolean;
+
+  handleSingle(packet: ZBlockSingle | ZSBlockSingle, playerId?: number): boolean {
+    playerId = "playerId" in packet ? packet.playerId : playerId;
+    if (!playerId) throw new Error("Unknown player id");
+
+    return this.placeSingle(packet.layer, packet.position, packet.block, playerId, packet.heap);
   }
 
   placeSingle(

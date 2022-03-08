@@ -1,51 +1,26 @@
-import { TileLayer } from "@smiley-face-game/api";
-import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
-import createRegistration from "@smiley-face-game/api/tiles/createRegistration";
-import Connection from "./worlds/Connection";
-import Room from "./worlds/Room";
+import markUsed from "./markUsed";
+import Server from "./Server";
 
-// prevent es-build from screwing us over
-const markUsed = (..._: any[]) => {};
-markUsed(generateBlankWorld, initialize, onConnect, onDisconnect, onMessage, healthCheck);
-
-const tiles = createRegistration();
-
-function generateBlankWorld(width: number, height: number): string {
-  const world = new WorldLayer(0);
-  world.putBorder(width, height, TileLayer.Foreground, tiles.id("basic-white"));
-  return JSON.stringify(world.state);
-}
+markUsed(initialize, onConnect, onDisconnect, onMessage, healthCheck);
 
 // server logic
 
-let room!: Room;
+let server!: Server;
 
 function initialize(hostRoom: HostRoom, initialWorldData: HostWorldData) {
-  room = new Room(hostRoom);
-  room.run(initialWorldData);
+  server = new Server(hostRoom, initialWorldData);
 }
-
-const clients = new Map<HostConnection, Connection>();
 
 function onConnect(hostConnection: HostConnection) {
-  const connection = new Connection(hostConnection);
-  clients.set(hostConnection, connection);
-  room.join(connection);
+  server.onConnect(hostConnection.connectionId, hostConnection);
 }
 
-function onDisconnect(hostConnection: HostConnection) {
-  const client = clients.get(hostConnection);
-  if (!client) throw new Error("Could not find client for host connection!");
-  room.leave(client);
+function onDisconnect(connectionId: number) {
+  server.onDisconnect(connectionId);
 }
 
-async function onMessage(connection: HostConnection, message: string) {
-  const client = clients.get(connection);
-  if (!client) throw new Error("Could not find client!");
-
-  const payload = JSON.parse(message);
-  const packet = room.validateWorldPacket.parse(payload);
-  await room.onMessage(client, packet);
+async function onMessage(connectionId: number, message: string) {
+  server.onMessage(connectionId, message);
 }
 
 function healthCheck() {

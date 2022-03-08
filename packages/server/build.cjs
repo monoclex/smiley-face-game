@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const esbuild = require("esbuild");
 const ignorePlugin = require("esbuild-plugin-ignore");
 
 function build() {
   return esbuild.build({
     bundle: true,
-    outfile: "dist/app.cjs",
+    outdir: "./dist/",
     platform: "neutral",
     plugins: [
       ignorePlugin([
@@ -12,8 +14,7 @@ function build() {
         { resourceRegExp: /isomorphic-ws/, contextRegExp: /.?/ },
       ]),
     ],
-    entryPoints: ["./src/index.ts"],
-    keepNames: true,
+    entryPoints: ["./src/index.ts", "./src/generateBlankWorld.ts"],
     logLevel: "error",
     treeShaking: true,
   });
