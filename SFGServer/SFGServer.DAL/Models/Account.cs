@@ -14,17 +14,23 @@ public class Account
     public virtual ICollection<ShopItem> ShopItems { get; set; } = null!;
     public virtual ICollection<World> Worlds { get; set; } = null!;
 
-    public int GetEnergyAt(DateTime time)
+    public uint GetEnergyAt(DateTime time)
     {
         var millisecondsSinceUnixEpoch = (long)time.Subtract(DateTime.UnixEpoch).TotalMilliseconds;
         var millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - TimeEnergyWasAtAmount;
         var amountOfRegeneratedEnergyPrecise = (double)millisecondsEnergyHasBeenRegenerating / EnergyRegenerationRateMs;
         var amountOfRegeneratedEnergy = (int)Math.Floor(amountOfRegeneratedEnergyPrecise);
+        var energyAtTime = Math.Min(amountOfRegeneratedEnergy, MaxEnergy);
 
-        return Math.Min(amountOfRegeneratedEnergy, MaxEnergy);
+        if (energyAtTime < 0)
+        {
+            throw new InvalidOperationException("The current energy of the player is negative somehow!");
+        }
+
+        return (uint)energyAtTime;
     }
 
-    public void SetEnergyAt(DateTime time, int energyAmount)
+    public void SetEnergyAt(DateTime time, uint energyAmount)
     {
         var millisecondsSinceUnixEpoch = (long)time.Subtract(DateTime.UnixEpoch).TotalMilliseconds;
         var millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - TimeEnergyWasAtAmount;
@@ -34,7 +40,12 @@ public class Account
 
         var nowWithRemains = millisecondsSinceUnixEpoch - timeSpentGeneratingPartialEnergy;
 
-        LastEnergyAmount = energyAmount;
+        if (energyAmount > int.MaxValue)
+        {
+            throw new InvalidOperationException("Cannot have more than int.MaxValue energy!");
+        }
+
+        LastEnergyAmount = (int)energyAmount;
         TimeEnergyWasAtAmount = (long)nowWithRemains;
     }
 }

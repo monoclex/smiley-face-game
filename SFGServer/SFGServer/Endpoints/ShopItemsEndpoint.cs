@@ -49,7 +49,7 @@ public class ShopItemsEndpoint : Endpoint<ShopItemsRequest, ShopItemsResponse>
                         CategoryType: shopItem.CategoryType,
                         Category: shopItem.Category,
                         Limit: shopItem.Limited ? 1 : 0,
-                        Quantity: accountItem?.Purchased ?? 0,
+                        Owned: accountItem?.Purchased ?? 0,
                         EnergySpent: accountItem?.SpentEnergy ?? 0,
                         EnergyCost: shopItem.EnergyCost,
                         ColumnSpan: shopItem.ColumnSpan

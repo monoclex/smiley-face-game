@@ -45,8 +45,7 @@ public class RegisterAccountService
             EnergyRegenerationRateMs = (int)TimeSpan.FromMinutes(5).TotalMilliseconds,
         });
 
-        var world = _worldCreatorService.CreateDefaultWorld(account.Entity);
-        _sfgContext.Worlds.Add(world);
+        _worldCreatorService.CreateDefaultWorld(account.Entity);
 
         await _sfgContext.SaveChangesAsync(ct);
         return (true, account.Entity);

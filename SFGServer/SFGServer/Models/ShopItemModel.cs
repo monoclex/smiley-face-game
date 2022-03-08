@@ -8,7 +8,8 @@ public record ShopItemModel(int Id,
     ShopItemStatus CategoryType,
     ShopCategory Category,
     int Limit,
-    int Quantity,
+    // TODO(api-revision): rename Owned to QuantityOwned
+    int Owned,
     int EnergySpent,
     int EnergyCost,
     int? ColumnSpan);

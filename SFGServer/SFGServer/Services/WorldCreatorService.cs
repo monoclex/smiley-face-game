@@ -12,18 +12,24 @@ namespace SFGServer.Services
             _sfgContext = sfgContext;
         }
 
-        public World CreateDefaultWorld(Account account)
+        public World CreateDefaultWorld(Account account) => CreateWorld(account, 50, 50);
+
+        public World CreateWorld(Account owner, int width, int height)
         {
-            return new World {
-                Owner = account,
-                Name = $"{account.Username}'s World",
-                Width = 50,
-                Height = 50,
+            var world = new World {
+                Owner = owner,
+                Name = $"{owner.Username}'s World",
+                Width = width,
+                Height = height,
 
                 // TODO(javascript): generate world data
                 RawWorldData = "[]",
                 WorldDataVersion = 2,
             };
+
+            _sfgContext.Worlds.Add(world);
+
+            return world;
         }
     }
 }
