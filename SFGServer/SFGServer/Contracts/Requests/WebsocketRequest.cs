@@ -18,13 +18,19 @@ public record WebsocketJoin
 {
     public PayloadType Type { get; set; }
 
-    public string? Name { get; set; }
+    public record Join : WebsocketJoin
+    {
+        public RoomId Id { get; set; }
+    }
 
-    public int? Width { get; set; }
+    public record Create : WebsocketJoin
+    {
+        public string Name { get; set; }
 
-    public int? Height { get; set; }
+        public int Width { get; set; }
 
-    public RoomId? Id { get; set; }
+        public int Height { get; set; }
+    }
 
     // https://fast-endpoints.com/wiki/Model-Binding.html#form-fieldsroutequeryclaimsheaders
     private static JsonSerializerOptions _options = new()
@@ -44,6 +50,14 @@ public record WebsocketJoin
         }
 
         output = JsonSerializer.Deserialize<WebsocketJoin>(input, _options);
+
+        output = output?.Type switch
+        {
+            PayloadType.Create => output = JsonSerializer.Deserialize<Create>(input, _options),
+            PayloadType.Join => output = JsonSerializer.Deserialize<Join>(input, _options),
+            _ => null,
+        };
+
         return output != null;
     }
 }

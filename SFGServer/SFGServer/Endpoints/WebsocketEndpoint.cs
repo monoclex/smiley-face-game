@@ -45,8 +45,15 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
             return;
         }
 
+        var room = req.World switch
+        {
+            WebsocketJoin.Create create => await _roomManager.CreateDynamicRoom(ct),
+            WebsocketJoin.Join join => await _roomManager.JoinRoom(join.Id, ct),
+            _ => throw new InvalidOperationException("Invalid world request!"),
+        };
+
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        using var rent = _arrayPool.UseRent(4096);
+        using var rent = _arrayPool.UseRent(16 * 1024);
 
         var memory = new Memory<byte>(rent.Buffer);
 

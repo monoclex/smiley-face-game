@@ -1,41 +1,20 @@
-import "reflect-metadata";
-import cors from "cors";
-import { app } from "./expressapp";
-import routes from "./routes";
-import Dependencies from "./dependencies";
-import dotenv from "dotenv";
-import express from "express";
-import type { ErrorRequestHandler } from "express-serve-static-core";
-import createTypeORMConnection from "./database/createConnection";
+import { TileLayer } from "@smiley-face-game/api";
+import { WorldLayer } from "@smiley-face-game/api/game/WorldLayer";
+import createRegistration from "@smiley-face-game/api/tiles/createRegistration";
 
-dotenv.config();
+host.greet("me :)");
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-const PORT = process.env.PORT;
-if (typeof ACCESS_TOKEN_SECRET !== "string") throw new Error("ACCESS_TOKEN_SECRET undefined");
-if (typeof PORT !== "string") throw new Error("PORT undefined");
+const tiles = createRegistration();
 
-createTypeORMConnection()
-  .then(async (connection) => {
-    const dependencies = new Dependencies(connection, ACCESS_TOKEN_SECRET);
+function generateBlankWorld(width: number, height: number): string {
+  const world = new WorldLayer(0);
+  world.putBorder(width, height, TileLayer.Foreground, tiles.id("basic-white"));
+  return JSON.stringify(world.state);
+}
 
-    app.use(cors());
-    app.use(express.json());
-    app.use("/", routes(dependencies));
+function helloWorld(): string {
+  return "Hello, World!";
+}
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const errorRoute: ErrorRequestHandler = (err, req, res, next) => {
-      if (err instanceof Error) {
-        const { message, name, stack } = err;
-
-        // TODO: only show stack trace in debug mode maybe
-        res.status(500).json({ name, error: message, stack });
-      } else {
-        res.status(500).json(err);
-      }
-    };
-    app.use(errorRoute);
-
-    app.listen(PORT, () => console.log("listening on", PORT));
-  })
-  .catch(console.error);
+const markUsed = (..._: any[]) => {};
+markUsed(generateBlankWorld, helloWorld);
