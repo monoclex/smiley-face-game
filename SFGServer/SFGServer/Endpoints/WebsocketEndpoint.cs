@@ -1,7 +1,10 @@
 using System.Buffers;
 using System.Net.WebSockets;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SFGServer.Contracts.Requests;
 using SFGServer.Game;
+using SFGServer.Services;
 
 namespace SFGServer.Endpoints;
 
@@ -9,17 +12,18 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
 {
     private readonly RoomManager _roomManager;
     private readonly ArrayPool<byte> _arrayPool;
+    private readonly SfgTokenValidator _sfgTokenValidator;
 
-    public WebsocketEndpoint(RoomManager roomManager, ArrayPool<byte> arrayPool)
+    public WebsocketEndpoint(RoomManager roomManager, ArrayPool<byte> arrayPool, SfgTokenValidator sfgTokenValidator)
     {
         _roomManager = roomManager;
         _arrayPool = arrayPool;
+        _sfgTokenValidator = sfgTokenValidator;
     }
 
     public override void Configure()
     {
         Get("/game/ws");
-        // Permissions("play");
         AllowAnonymous();
     }
 
@@ -27,7 +31,17 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            AddError("You must begin a websocket connection on this endpoint!");
+            await SendErrorsAsync(ct);
+            return;
+        }
+
+        var user = _sfgTokenValidator.Validate(req.Token);
+
+        if (user == null)
+        {
+            AddError("Invalid Token!");
+            await SendErrorsAsync(ct);
             return;
         }
 

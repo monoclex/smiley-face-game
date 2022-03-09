@@ -1,3 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using SFGServer.Models;
 using SFGServer.Services;
@@ -10,26 +14,45 @@ public enum PayloadType
     Join
 }
 
-public record WebsocketRequest
+public record WebsocketJoin
 {
-    [FromClaim(TokenSigner.UserIdClaimKey, IsRequired = false)]
-    public Guid? UserId { get; set; }
-
-    [FromClaim(TokenSigner.GuestUsername, IsRequired = false)]
-    public string? GuestUsername { get; set; }
-
-    [FromQuery]
     public PayloadType Type { get; set; }
 
-    [FromQuery]
     public string? Name { get; set; }
 
-    [FromQuery]
     public int? Width { get; set; }
 
-    [FromQuery]
     public int? Height { get; set; }
 
-    [FromQuery]
     public RoomId? Id { get; set; }
+
+    // https://fast-endpoints.com/wiki/Model-Binding.html#form-fieldsroutequeryclaimsheaders
+    private static JsonSerializerOptions _options = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    public static bool TryParse(string? input, [NotNullWhen(returnValue: true)] out WebsocketJoin? output)
+    {
+        output = null;
+
+        if (input == null)
+        {
+            return false;
+        }
+
+        output = JsonSerializer.Deserialize<WebsocketJoin>(input, _options);
+        return output != null;
+    }
+}
+
+public record WebsocketRequest
+{
+    [FromQuery]
+    public string Token { get; set; }
+
+    [FromQuery]
+    public WebsocketJoin World { get; set; }
 }

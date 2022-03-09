@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using SFGServer.Settings;
 
@@ -6,7 +7,7 @@ namespace SFGServer.Services;
 public class TokenSigner
 {
     public const string UserIdClaimKey = "aud";
-    public const string GuestUsername = "name";
+    public const string GuestUsername = ClaimTypes.Name;
 
     private readonly JwtSettings _jwtSettings;
 

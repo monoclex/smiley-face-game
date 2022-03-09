@@ -56,6 +56,8 @@ app.Run();
 void RegisterServices()
 {
     builder.Services.AddScoped<TokenSigner>();
+    builder.Services.AddTransient<JwtTokenValidator>();
+    builder.Services.AddTransient<SfgTokenValidator>();
     builder.Services.AddScoped<RegisterAccountService>();
     builder.Services.AddScoped<WorldCreatorService>();
     builder.Services.AddSingleton(typeof(IScopedServiceFactory<>), typeof(ScopedServiceFactory<>));
