@@ -46,7 +46,7 @@ app.UseCors(config =>
 
 app.UseWebSockets(new WebSocketOptions
 {
-    KeepAliveInterval = TimeSpan.FromMinutes(1),
+    KeepAliveInterval = TimeSpan.FromSeconds(30),
 });
 
 app.UseAuthentication();
@@ -66,7 +66,6 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
-
 
 void RegisterServices()
 {

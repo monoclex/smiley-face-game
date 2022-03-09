@@ -1,3 +1,4 @@
+using Microsoft.ClearScript.JavaScript;
 using Microsoft.ClearScript.V8;
 using Microsoft.Extensions.Options;
 using SFGServer.Contracts.Requests;
@@ -32,9 +33,10 @@ public class StartRoomService
         var hostObject = new HostObject(_roomKillService, room, _worldSaverFactory);
 
         engine.AddHostObject("host", hostObject);
-        engine.AddHostType(nameof(HostConnection), typeof(HostConnection));
-        engine.AddHostType(nameof(HostObject), typeof(HostObject));
-        engine.AddHostType(nameof(Console), typeof(Console));
+        engine.AddHostType(typeof(HostConnection));
+        engine.AddHostType(typeof(HostObject));
+        engine.AddHostType(typeof(Console));
+        engine.AddHostType(typeof(JavaScriptExtensions)); // for .ToPromise()
         engine.Execute(code);
 
         room.RoomLogic.Start();

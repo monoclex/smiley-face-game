@@ -1,8 +1,6 @@
 -- must be done before release --
 
-- **Need to validate  input data structures**
-- Configure WebSocket timeout so that the connection doesn't die after a minute
-- Fix host.saveWorld and host.loadWorld not having a .ToPromise method (look into clearscript things)
+- **Need to validate input data structures**
 
 -- may be done later --
 
