@@ -65,7 +65,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
         }
 
         // sanity check that there's 1 db entry per shop item wanting to be purchased
-        if (account.ShopItems.Count <= 1)
+        if (account.ShopItems.Count > 1)
         {
             throw new InvalidOperationException("There should only be 1 shop item db entry per shop item");
         }
@@ -130,6 +130,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
             HandlePurchaseAction(account, shopItem.Purchase);
         }
 
+        await _sfgContext.SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
 
         // TODO(automapper): we should use auto mapper to map DTOs, FastEndpoint's mapping stuff is weak

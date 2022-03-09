@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Net.WebSockets;
+using System.Text;
 using SFGServer.Contracts.Requests;
 using SFGServer.Game;
 using SFGServer.Models;
@@ -97,9 +98,11 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
                     return;
                 }
 
-                var readBytes = memory[0..read.Count];
+                // copy the packet to a buffer, otherwise if we send a ton of packets at once we'll override the `memory` buffer
+                var packet = _arrayPool.UseRent(read.Count);
+                memory[..read.Count].CopyTo(packet.Buffer);
 
-                await room.FireMessage(connectionId, readBytes, ct).ConfigureAwait(false);
+                await room.FireMessage(connectionId, packet, ct).ConfigureAwait(false);
             }
         }
         finally

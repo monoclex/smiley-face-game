@@ -37,9 +37,10 @@ public class ShopItemsEndpoint : Endpoint<ShopItemsRequest, ShopItemsResponse>
 
         await SendAsync(new ShopItemsResponse(
             ShopItemConfiguration.ShopItems
+                .Where(shopItem => !shopItem.Removed)
                 .Select(shopItem =>
                 {
-                    var accountItem = account.ShopItems.FirstOrDefault(accountItem => accountItem.Id == shopItem.Id);
+                    var accountItem = account.ShopItems.FirstOrDefault(accountItem => accountItem.ShopItemId == shopItem.Id);
 
                     return new ShopItemModel(
                         Id: shopItem.Id,

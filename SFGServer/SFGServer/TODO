@@ -1,0 +1,15 @@
+-- must be done before release --
+
+- **Need to validate  input data structures**
+- Configure WebSocket timeout so that the connection doesn't die after a minute
+- Fix host.saveWorld and host.loadWorld not having a .ToPromise method (look into clearscript things)
+
+-- may be done later --
+
+- Better exception handling for rooms. For example, throwing an exception in host.saveWorld throws an exception and causes the room to be lost as a zombie
+- Ways to cure zombie worlds (basically, we must assume that it is always possible for a world to become a zombie - so we need some way to stop/restart worlds that become zombies)
+- Make FastEndpoints for websockets not emit an error message on closing (should probably switch to MVC controller)
+- Resolve TODOs
+- In addition to logging, make sure to retrieve profiling metrics for live health information
+- Hook up server to prometheus
+- The logs for every EFCore SQL queries is annoying, can we get rid of them?

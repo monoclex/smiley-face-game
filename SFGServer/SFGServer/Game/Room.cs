@@ -51,7 +51,7 @@ public class Room : IDisposable
         return await tcs.Task;
     }
 
-    public ValueTask FireMessage(int connectionId, Memory<byte> readBytes, CancellationToken cancellationToken)
+    public ValueTask FireMessage(int connectionId, RentedArray<byte> readBytes, CancellationToken cancellationToken)
     {
         return RoomLogic.WorkQueue.Writer.WriteAsync(new WorkMessage.FireMessage(connectionId, readBytes), cancellationToken);
     }
@@ -101,7 +101,7 @@ public record WorkMessage
         string Username,
         bool IsOwner) : WorkMessage;
 
-    public record FireMessage(int ConnectionId, Memory<byte> Payload) : WorkMessage;
+    public record FireMessage(int ConnectionId, RentedArray<byte> Payload) : WorkMessage;
 
     public record Disconnect(int ConnectionId) : WorkMessage;
 }
@@ -158,7 +158,9 @@ public class RoomLogic : IDisposable
 
     private async Task HandleFireMessage(WorkMessage.FireMessage fireMessage)
     {
-        var message = Encoding.UTF8.GetString(fireMessage.Payload.Span);
+        using var payload = fireMessage.Payload;
+
+        var message = Encoding.UTF8.GetString(payload.Buffer[..payload.RentedLength]);
 
         var success = await _onMessage(fireMessage.ConnectionId, message);
 

@@ -16,11 +16,17 @@ public class Account
 
     public uint GetEnergyAt(DateTime time)
     {
+        // allow us to give rewards to players and have it go over their max energy
+        if (LastEnergyAmount >= MaxEnergy)
+        {
+            return (uint)LastEnergyAmount;
+        }
+
         var millisecondsSinceUnixEpoch = (long)time.Subtract(DateTime.UnixEpoch).TotalMilliseconds;
         var millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - TimeEnergyWasAtAmount;
         var amountOfRegeneratedEnergyPrecise = (double)millisecondsEnergyHasBeenRegenerating / EnergyRegenerationRateMs;
         var amountOfRegeneratedEnergy = (int)Math.Floor(amountOfRegeneratedEnergyPrecise);
-        var energyAtTime = Math.Min(amountOfRegeneratedEnergy, MaxEnergy);
+        var energyAtTime = Math.Min(LastEnergyAmount + amountOfRegeneratedEnergy, MaxEnergy);
 
         if (energyAtTime < 0)
         {
@@ -32,6 +38,11 @@ public class Account
 
     public void SetEnergyAt(DateTime time, uint energyAmount)
     {
+        if (energyAmount > int.MaxValue)
+        {
+            throw new InvalidOperationException("Cannot have more than int.MaxValue energy!");
+        }
+
         var millisecondsSinceUnixEpoch = (long)time.Subtract(DateTime.UnixEpoch).TotalMilliseconds;
         var millisecondsEnergyHasBeenRegenerating = millisecondsSinceUnixEpoch - TimeEnergyWasAtAmount;
         var amountOfRegeneratedEnergyPrecise = Math.Min(MaxEnergy, (double)millisecondsEnergyHasBeenRegenerating / EnergyRegenerationRateMs);
@@ -39,11 +50,6 @@ public class Account
         var timeSpentGeneratingPartialEnergy = exactRemains * EnergyRegenerationRateMs;
 
         var nowWithRemains = millisecondsSinceUnixEpoch - timeSpentGeneratingPartialEnergy;
-
-        if (energyAmount > int.MaxValue)
-        {
-            throw new InvalidOperationException("Cannot have more than int.MaxValue energy!");
-        }
 
         LastEnergyAmount = (int)energyAmount;
         TimeEnergyWasAtAmount = (long)nowWithRemains;

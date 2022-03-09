@@ -51,7 +51,7 @@ public static class ShopItemConfiguration
             Id: 2,
             Title: "6 x 9",
             Description: "a really tiny world just as a test for development (will be deleted later)",
-            DateIntroduced: DateTime.Parse("Sun, 18 Oct 2021 00:04:20 GMT"),
+            DateIntroduced: DateTime.Parse("Sun, 17 Oct 2021 00:04:20 GMT"),
             Category: ShopCategory.World,
             CategoryType: ShopItemStatus.None,
             Limited: false,
