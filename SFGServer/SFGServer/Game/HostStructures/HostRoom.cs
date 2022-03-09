@@ -30,17 +30,17 @@ public class HostRoom
     public string ownerUsername { get; }
 
     [UsedImplicitly]
-    public int width { get; }
+    public uint width { get; }
 
     [UsedImplicitly]
-    public int height { get; }
+    public uint height { get; }
 
     public HostRoom(RoomId roomId,
         string name,
         string? ownerId,
         string ownerUsername,
-        int width,
-        int height,
+        uint width,
+        uint height,
         ISavingBehavior savingBehavior)
     {
         SavingBehavior = savingBehavior;

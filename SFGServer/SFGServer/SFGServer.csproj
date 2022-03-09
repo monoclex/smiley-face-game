@@ -11,6 +11,7 @@
         <PackageReference Include="FastEndpoints" Version="3.10.0-beta7" />
         <PackageReference Include="FastEndpoints.Security" Version="3.10.0-beta7" />
         <PackageReference Include="FastEndpoints.Swagger" Version="3.10.0-beta7" />
+        <PackageReference Include="FastEndpoints.Validation" Version="3.10.0-beta7" />
         <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
         <PackageReference Include="Microsoft.ClearScript.V8" Version="7.2.2" />
         <PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.2.2" />

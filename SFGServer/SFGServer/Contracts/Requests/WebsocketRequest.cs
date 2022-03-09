@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FastEndpoints.Validation;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using SFGServer.Models;
 using SFGServer.Services;
@@ -27,9 +29,9 @@ public record WebsocketJoin
     {
         public string Name { get; set; }
 
-        public int Width { get; set; }
+        public uint Width { get; set; }
 
-        public int Height { get; set; }
+        public uint Height { get; set; }
     }
 
     // https://fast-endpoints.com/wiki/Model-Binding.html#form-fieldsroutequeryclaimsheaders
@@ -69,4 +71,20 @@ public record WebsocketRequest
 
     [FromQuery]
     public WebsocketJoin World { get; set; }
+}
+
+[UsedImplicitly]
+public class WebsocketRequestValidator : Validator<WebsocketRequest>
+{
+    public WebsocketRequestValidator()
+    {
+        // i'm tired i want to go to sleep
+        RuleFor(x => x.World)
+            .Must(x => x switch
+            {
+                WebsocketJoin.Create create => create.Name != null && create.Width is >= 3 and <= 50 && create.Height is >= 3 and <= 50,
+                WebsocketJoin.Join @join => true,
+                _ => false
+            });
+    }
 }

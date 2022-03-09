@@ -1,13 +1,25 @@
--- must be done before release --
+logging/profiling
+===
 
-- **Need to validate input data structures**
-
--- may be done later --
-
-- Better exception handling for rooms. For example, throwing an exception in host.saveWorld throws an exception and causes the room to be lost as a zombie
-- Ways to cure zombie worlds (basically, we must assume that it is always possible for a world to become a zombie - so we need some way to stop/restart worlds that become zombies)
-- Make FastEndpoints for websockets not emit an error message on closing (should probably switch to MVC controller)
-- Resolve TODOs
-- In addition to logging, make sure to retrieve profiling metrics for live health information
+- Resolve TODO(logging)s
 - Hook up server to prometheus
+- In addition to logging, make sure to retrieve profiling metrics for live health information
+- Insert tons of profiling code and hook it up to Prometheus (need to see how well the SFG server performs)
+
 - The logs for every EFCore SQL queries is annoying, can we get rid of them?
+- Make FastEndpoints for websockets not emit an error message on closing (should probably switch to MVC controller)
+
+more robust
+===
+
+- Better exception handling for rooms.
+  For example, throwing an exception in host.saveWorld throws an exception and causes the room to be lost as a zombie
+
+- Ways to cure zombie worlds
+  (basically, we must assume that it is always possible for a world to become a zombie,
+  so we need some way to stop/restart worlds that become zombies)
+
+api niceness
+===
+
+- Generate API code from Swagger, and include it directly in to the SFG Client API rather than duplicating the API endpoints

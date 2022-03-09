@@ -1,3 +1,4 @@
+using FastEndpoints.Validation;
 using SFGServer.Services;
 
 namespace SFGServer.Contracts.Requests;

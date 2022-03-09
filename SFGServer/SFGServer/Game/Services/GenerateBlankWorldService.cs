@@ -14,7 +14,7 @@ public class GenerateBlankWorldService
         _javaScriptCodeSettings = javaScriptCodeSettings.Value;
     }
 
-    public async Task<HostWorldData> GenerateWorld(int width, int height, CancellationToken cancellationToken = default)
+    public async Task<HostWorldData> GenerateWorld(uint width, uint height, CancellationToken cancellationToken = default)
     {
         // re-read the code from disk so that hot reloading works
         var code = await File.ReadAllTextAsync(_javaScriptCodeSettings.WorldGenerationCodePath, cancellationToken);

@@ -42,8 +42,8 @@ public class LoadSavedRoomService
             name: world.Name,
             ownerId: owner.Id.ToString(),
             ownerUsername: owner.Username,
-            width: world.Width,
-            height: world.Height,
+            width: (uint)world.Width,
+            height: (uint)world.Height,
             savingBehavior: new SavedWorldSavingBehavior(_serviceFactory, roomId)
         );
 

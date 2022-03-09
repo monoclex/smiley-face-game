@@ -6,10 +6,10 @@ namespace SFGServer.Game.SavingBehavior;
 public class DynamicWorldSavingBehavior : ISavingBehavior
 {
     private readonly GenerateBlankWorldService _generateBlankWorldService;
-    private readonly int _width;
-    private readonly int _height;
+    private readonly uint _width;
+    private readonly uint _height;
 
-    public DynamicWorldSavingBehavior(GenerateBlankWorldService generateBlankWorldService, int width, int height)
+    public DynamicWorldSavingBehavior(GenerateBlankWorldService generateBlankWorldService, uint width, uint height)
     {
         _generateBlankWorldService = generateBlankWorldService;
         _width = width;
