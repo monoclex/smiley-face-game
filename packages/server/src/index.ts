@@ -1,41 +1,29 @@
-import "reflect-metadata";
-import cors from "cors";
-import { app } from "./expressapp";
-import routes from "./routes";
-import Dependencies from "./dependencies";
-import dotenv from "dotenv";
-import express from "express";
-import type { ErrorRequestHandler } from "express-serve-static-core";
-import createTypeORMConnection from "./database/createConnection";
+import markUsed from "./markUsed";
+import Server from "./Server";
 
-dotenv.config();
+markUsed(initialize, onConnect, onDisconnect, onMessage, healthCheck);
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-const PORT = process.env.PORT;
-if (typeof ACCESS_TOKEN_SECRET !== "string") throw new Error("ACCESS_TOKEN_SECRET undefined");
-if (typeof PORT !== "string") throw new Error("PORT undefined");
+// server logic
 
-createTypeORMConnection()
-  .then(async (connection) => {
-    const dependencies = new Dependencies(connection, ACCESS_TOKEN_SECRET);
+let server!: Server;
 
-    app.use(cors());
-    app.use(express.json());
-    app.use("/", routes(dependencies));
+function initialize(hostRoom: HostRoom, initialWorldData: HostWorldData) {
+  server = new Server(hostRoom, initialWorldData);
+}
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const errorRoute: ErrorRequestHandler = (err, req, res, next) => {
-      if (err instanceof Error) {
-        const { message, name, stack } = err;
+function onConnect(hostConnection: HostConnection) {
+  server.onConnect(hostConnection);
+}
 
-        // TODO: only show stack trace in debug mode maybe
-        res.status(500).json({ name, error: message, stack });
-      } else {
-        res.status(500).json(err);
-      }
-    };
-    app.use(errorRoute);
+function onDisconnect(connectionId: number) {
+  server.onDisconnect(connectionId);
+}
 
-    app.listen(PORT, () => console.log("listening on", PORT));
-  })
-  .catch(console.error);
+function onMessage(connectionId: number, message: string) {
+  return server.onMessage(connectionId, message);
+}
+
+function healthCheck() {
+  // TODO(host-api): compare information that the host knows to what we know, so things
+  //   like how many clients are connected, etc.
+}

@@ -9,6 +9,7 @@ import WorldSettingsButton from "./WorldSettingsButton";
 import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
+import ExitButton from "./ExitButton";
 import { gameRunningState } from "../../bridge/state";
 import BlockInspector from "./BlockInspector";
 
@@ -89,6 +90,7 @@ export default function GameUI({ children: gameCanvas }) {
                   <GodModeButton />
                 </Suspense>
                 <SoundButton />
+                <ExitButton />
               </Grid>
             </Grid>
           </GrayFilled>

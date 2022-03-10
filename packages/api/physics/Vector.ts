@@ -114,6 +114,10 @@ export class Vector<T = number> {
     return new Vector<T>(v.y, v.x);
   }
 
+  static fromSize<T>({ width, height }: { width: T; height: T }): Vector<T> {
+    return new Vector<T>(width, height);
+  }
+
   static and(left: Vector<boolean>, right: Vector<boolean>): Vector<boolean> {
     return new Vector(left.x && right.x, left.y && right.y);
   }

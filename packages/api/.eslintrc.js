@@ -43,7 +43,7 @@ const config = {
     "no-undef": "error",
     // https://stackoverflow.com/a/64024916
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
   },
 };
 

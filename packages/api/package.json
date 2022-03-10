@@ -6,6 +6,7 @@
     "lint:fix": "eslint --ext .ts --fix .",
     "build": "node --experimental-json-modules build.mjs"
   },
+  "sideEffects": false,
   "type": "module",
   "dependencies": {
     "computed-types": "^1.11.1",

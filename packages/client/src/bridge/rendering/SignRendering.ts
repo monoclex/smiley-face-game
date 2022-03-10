@@ -37,22 +37,22 @@ export default class SignRendering {
   draw() {
     const didDraw = this.tryDraw();
 
-    if (didDraw !== true) {
+    if (!didDraw) {
       this.sprite.visible = false;
       this.x = -1;
       this.y = -1;
     }
   }
 
-  tryDraw(): true | void {
-    if (this.x == -1 || this.y == -1) return;
+  tryDraw(): boolean {
+    if (this.x == -1 || this.y == -1) return false;
 
     const block = this.game.blocks.blockAt({ x: this.x, y: this.y }, this.layer);
     const blockInfo = this.game.tiles.forId(block);
-    if (blockInfo.heap !== HeapKind.Sign) return;
+    if (blockInfo.heap !== HeapKind.Sign) return false;
 
     const heap = this.game.blocks.heap.get(this.layer, this.x, this.y);
-    if (heap === 0 || heap.kind !== "sign") return;
+    if (heap === 0 || heap.kind !== "sign") return false;
 
     this.sprite.text = heap.text;
     this.sprite.updateText(true);

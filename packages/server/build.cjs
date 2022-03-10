@@ -1,28 +1,29 @@
-const fs = require("fs/promises");
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 const esbuild = require("esbuild");
-const { esbuildDecorators } = require("@anatine/esbuild-decorators");
-const { default: ImportGlobPlugin } = require("esbuild-plugin-import-glob");
+const ignorePlugin = require("esbuild-plugin-ignore");
 
 function build() {
-  return esbuild
-    .build({
-      bundle: true,
-      outfile: "dist/app.cjs",
-      platform: "node",
-      external: ["nock", "aws-sdk", "mock-aws-s3", "pg-native"],
-      plugins: [esbuildDecorators({}), ImportGlobPlugin()],
-      entryPoints: ["./src/index.ts"],
-      keepNames: true,
-      logLevel: "error",
-    })
-    .then(() => fs.copyFile("connection.json", "dist/connection.json"));
+  return esbuild.build({
+    bundle: true,
+    outdir: "./dist/",
+    platform: "neutral",
+    plugins: [
+      ignorePlugin([
+        { resourceRegExp: /cross-fetch/, contextRegExp: /.?/ },
+        { resourceRegExp: /isomorphic-ws/, contextRegExp: /.?/ },
+      ]),
+    ],
+    entryPoints: ["./src/index.ts", "./src/generateBlankWorld.entrypoint.ts"],
+    logLevel: "error",
+    treeShaking: true,
+  });
 }
 
 module.exports = build;
 
 if (require.main === module) {
   build()
-    .then(({ errors }) => console.log("errors:", errors))
+    .then(({ errors }) => errors && console.log("errors:", errors))
     .catch(console.error);
 }
