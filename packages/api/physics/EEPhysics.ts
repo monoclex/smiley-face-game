@@ -2,7 +2,7 @@ import { createNanoEvents } from "../nanoevents";
 import { Blocks } from "../game/Blocks";
 import { ZSMovement } from "../packets";
 import TileRegistration from "../tiles/TileRegistration";
-import { TileLayer, ZHeap, ZKeyKind } from "../types";
+import { TileLayer, ZHeap, ZKeyKind, ZSwitchId } from "../types";
 import { Player } from "./Player";
 import { Vector } from "./Vector";
 import { BlockIdCache } from "./BlockIdCache";
@@ -431,7 +431,7 @@ export class EEPhysics {
       complex.in(this, self, id, heap);
 
     const performOut = (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) =>
-      complex.in(this, self, id, heap);
+      complex.out(this, self, id, heap);
 
     this.triggerComplex(TileLayer.Foreground, self.worldPosition, performIn);
     this.triggerComplex(TileLayer.Action, self.worldPosition, performIn);

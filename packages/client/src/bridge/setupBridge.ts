@@ -87,6 +87,12 @@ export default async function setupBridge(
     }
   });
 
+  game.physics.events.on("switchStateChanged", (player) => {
+    if (player === self) {
+      gameRenderer.worldRenderer.flagDirty();
+    }
+  });
+
   gameRenderer.focus = self;
   // TODO: we need to update gameGlobal whenever `self` roles/etc gets updated
   gameGlobal.modify({ self: self.cheap() });

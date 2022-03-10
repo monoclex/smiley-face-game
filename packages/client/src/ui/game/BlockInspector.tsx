@@ -95,6 +95,9 @@ function DisplayHeap({ heap }: DisplayHeapProps) {
 
       return <span>Sign Information : {text}</span>;
     }
+    case "switch": {
+      return <span>Switch Id : {heap.id}</span>;
+    }
   }
 }
 

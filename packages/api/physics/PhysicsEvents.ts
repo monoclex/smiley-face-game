@@ -1,4 +1,4 @@
-import { ZKeyKind } from "../types";
+import { ZKeyKind, ZSwitchId } from "../types";
 import { EEPhysics } from "./EEPhysics";
 import type { Player } from "./Player";
 import { Vector } from "./Vector";
@@ -15,6 +15,9 @@ export interface PhysicsEvents {
    * keys look like.
    */
   playerKeyState(kind: ZKeyKind, player: Player, state: boolean): void;
+
+  touchSwitch(player: Player, switchId: ZSwitchId, previousState: boolean): void;
+  switchStateChanged(player: Player, switchId: ZSwitchId, state: boolean): void;
 
   signOn(player: Player, x: number, y: number): void;
   signOff(player: Player): void;
