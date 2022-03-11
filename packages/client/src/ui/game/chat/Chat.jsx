@@ -1,14 +1,15 @@
 //@ts-check
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Grid, Input, styled } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
-import { messagesState, chatOpenState } from "../../../state";
-import commonUIStyles from "../commonUIStyles";
+import { chatOpen, chatOpenState } from "../../../state";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
 import state from "../../../bridge/state";
+import { useGameEvent } from "@/hooks";
+import { useGameState } from "@/ui/hooks";
 
 const ChatField = styled(Grid)(({ theme }) => ({
   // borderBottomLeftRadius: theme.shape.borderRadius,
@@ -27,7 +28,8 @@ export default function Chat() {
 
   const inputRef = useRef(null);
 
-  const [isActive, setActive] = useRecoilState(chatOpenState);
+  const [isActive, setActive] = useState(false);
+  chatOpen.value = isActive;
 
   const closeChat = () => {
     setActive(false);
@@ -59,7 +61,31 @@ export default function Chat() {
     }
   }, [isActive]);
 
-  const messages = useRecoilValue(messagesState);
+  const { game } = useGameState();
+  const [messages, setMessages] = useState([]);
+  const [topMessageId, setTopMessageId] = useState(0);
+
+  useGameEvent(
+    "onMessageSent",
+    (packet) => {
+      const time = new Date();
+      const sender = game.players.get(packet.playerId);
+      const content = packet.message;
+
+      setMessages((messages) => [
+        ...messages,
+        {
+          id: topMessageId,
+          time,
+          sender: sender.cheap(),
+          content,
+        },
+      ]);
+
+      setTopMessageId((id) => id + 1);
+    },
+    [game, topMessageId, setMessages, setTopMessageId]
+  );
 
   const onSubmit = (values) => {
     if (values.content !== "") {

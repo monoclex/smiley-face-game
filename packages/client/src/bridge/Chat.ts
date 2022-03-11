@@ -1,7 +1,7 @@
 import { Game } from "@smiley-face-game/api";
 import type { ZSChat, ZSInit, ZSPacket } from "@smiley-face-game/api/packets";
 import Message from "../state/Message";
-import { gameGlobal } from "../state";
+import { gameEventEmitter } from "./Events";
 
 export default class Chat {
   private _atTimeCanSend: Date = new Date();
@@ -27,21 +27,6 @@ export default class Chat {
   }
 
   handleChat(event: ZSChat) {
-    const time = new Date();
-    const sender = this.game.players.get(event.playerId);
-    const content = event.message;
-    const message: Message = {
-      id: this._topId++,
-      time,
-      sender: sender.cheap(),
-      content,
-    };
-
-    this.messages.push(message);
-    this.updateMessages();
-  }
-
-  updateMessages() {
-    gameGlobal.modify({ messages: [...this.messages] });
+    gameEventEmitter.emit("onMessageSent", event);
   }
 }
