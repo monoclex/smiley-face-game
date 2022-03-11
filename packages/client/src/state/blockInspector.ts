@@ -1,5 +1,4 @@
-import { MutableVariable } from "@/util/MutableVariable";
-import { ReactMutableVariable } from "@/util/ReactMutableVariable";
+import { MutableVariable, ReactMutableVariable } from "@/util";
 
 export const blockInspectorEnabled = new MutableVariable(false);
 export const blockInspectorVisible = new ReactMutableVariable(false);

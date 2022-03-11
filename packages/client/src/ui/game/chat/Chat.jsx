@@ -7,7 +7,7 @@ import { chatOpen } from "../../../state";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
 import state from "../../../bridge/state";
-import { useGameEvent } from "@/hooks";
+import { useGameEvent, useMutableVariable } from "@/hooks";
 import { useGameState } from "@/ui/hooks";
 
 const ChatField = styled(Grid)(({ theme }) => ({
@@ -27,8 +27,7 @@ export default function Chat() {
 
   const inputRef = useRef(null);
 
-  const [isActive, setActive] = useState(false);
-  chatOpen.value = isActive;
+  const [isActive, setActive] = useMutableVariable(chatOpen, false);
 
   const closeChat = () => {
     setActive(false);

@@ -5,7 +5,7 @@ import { styled } from "@mui/material";
 import WorldSettingsDialog from "./WorldSettingsDialog";
 import { settingsOpen } from "../../state";
 import { Cog } from "mdi-material-ui";
-import { useSelf } from "@/hooks";
+import { useMutableVariable, useSelf } from "@/hooks";
 
 const CogIconButton = styled(IconButton)({
   pointerEvents: "all",
@@ -15,8 +15,7 @@ const WorldSettingsButton = () => {
   const mainPlayer = useSelf();
   const ref = useRef<HTMLButtonElement>(null);
 
-  const [open, setOpen] = useState(false);
-  settingsOpen.value = open;
+  const [open, setOpen] = useMutableVariable(settingsOpen, false);
 
   const onClose = () => setOpen(false);
   const doOpen = () => {

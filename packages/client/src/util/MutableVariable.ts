@@ -4,6 +4,6 @@
  * container that React code writes into, and a read-only container that the Game code
  * reads from.
  */
-export class MutableVariable<T> {
+export default class MutableVariable<T> {
   constructor(public value: T) {}
 }

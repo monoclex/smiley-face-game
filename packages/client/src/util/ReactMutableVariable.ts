@@ -1,4 +1,4 @@
-export class ReactMutableVariable<T> {
+export default class ReactMutableVariable<T> {
   private setter: (update: T) => void;
   private _value: T;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { styled } from "@mui/system";
 import { useGameState } from "../hooks";
 import { TileLayer } from "@smiley-face-game/api";
@@ -6,7 +6,7 @@ import { Grid } from "@mui/material";
 import BlockPreview from "./blockbar/BlockPreview";
 import { GameState } from "../../bridge/state";
 import { ZHeap } from "@smiley-face-game/api/types";
-import { useGameEvent, useObjectState } from "@/hooks";
+import { useGameEvent, useMutableVariable, useObjectState, useReactMutableVariable } from "@/hooks";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { loadControls } from "@/controls";
 import { blockInspectorEnabled, blockInspectorVisible } from "@/state/blockInspector";
@@ -113,10 +113,8 @@ export default function BlockInspector() {
   const HALF_A_TILE = 16;
   const TILE_HEIGHT = 32;
 
-  const [enabled, setEnabled] = useState(false);
-  const [visible, setVisible] = useState(true);
-  blockInspectorEnabled.value = enabled;
-  blockInspectorVisible.bind(setVisible);
+  const [enabled, setEnabled] = useMutableVariable(blockInspectorEnabled, false);
+  const [visible] = useReactMutableVariable(blockInspectorVisible, true);
 
   if (!enabled || !visible) {
     const div = blockInspectorRef.current;

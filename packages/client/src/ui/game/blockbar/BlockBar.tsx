@@ -8,7 +8,7 @@ import inputEnabled from "../../../bridge/inputEnabled";
 import { useGameState } from "../../hooks";
 
 import { selectedBlock as selectedBlockGlobal } from "../../../state/";
-import { useSelf } from "@/hooks";
+import { useSelf, useMutableVariable } from "@/hooks";
 
 // prettier-ignore
 const map = {
@@ -28,8 +28,7 @@ MemoizedBlock.whyDidYouRender = false;
 const BlockBar = () => {
   const self = useSelf();
   const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
-  const [selectedBlock, setSelectedBlock] = useState<typeof selectedBlockGlobal.value>(undefined);
-  selectedBlockGlobal.value = selectedBlock;
+  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal);
   const state = useGameState();
 
   const tiles = state.game.tiles;

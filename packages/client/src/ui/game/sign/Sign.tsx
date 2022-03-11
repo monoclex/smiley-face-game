@@ -11,9 +11,8 @@ import {
 
 import PromiseCompletionSource from "@/PromiseCompletionSource";
 import { MAX_SIGN_LENGTH } from "@smiley-face-game/api/types";
-import { signOpen } from "@/bridge/inputEnabled";
-import { useGameAnswerer } from "@/hooks";
-import useUncachedState from "@/hooks/useUncachedState";
+import { signOpen } from "@/state";
+import { useGameAnswerer, useUncachedState } from "@/hooks";
 
 type SignReply = PromiseCompletionSource<string | undefined>;
 const promiseCompletionSourceFactory: () => SignReply = () =>

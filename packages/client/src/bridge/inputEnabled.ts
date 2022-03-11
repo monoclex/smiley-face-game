@@ -1,7 +1,4 @@
-import { MutableVariable } from "@/util/MutableVariable";
-import { chatOpen, settingsOpen } from "../state";
-
-export const signOpen = new MutableVariable(false);
+import { chatOpen, settingsOpen, signOpen } from "@/state";
 
 export default function inputEnabled() {
   return !(chatOpen.value || settingsOpen.value || signOpen.value);

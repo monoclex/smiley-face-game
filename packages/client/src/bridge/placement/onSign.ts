@@ -2,7 +2,7 @@ import { Game } from "@smiley-face-game/api";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { TileLayer } from "@smiley-face-game/api/types";
 import AuthoredBlockPlacer from "../AuthoredBlockPlacer";
-import { signOpen } from "../inputEnabled";
+import { signOpen } from "@/state";
 import { gameQuestioner } from "../Questions";
 
 export default function onSign(
