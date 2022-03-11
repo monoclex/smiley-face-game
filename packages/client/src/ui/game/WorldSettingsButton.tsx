@@ -1,10 +1,10 @@
 //@ts-check
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useRecoilValue, useRecoilState } from "recoil";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material";
 import WorldSettingsDialog from "./WorldSettingsDialog";
-import { settingsOpenState, currentPlayerState } from "../../state";
+import { currentPlayerState, settingsOpen } from "../../state";
 import { Cog } from "mdi-material-ui";
 
 const CogIconButton = styled(IconButton)({
@@ -15,7 +15,9 @@ const WorldSettingsButton = () => {
   const mainPlayer = useRecoilValue(currentPlayerState);
   const ref = useRef<HTMLButtonElement>(null);
 
-  const [open, setOpen] = useRecoilState(settingsOpenState);
+  const [open, setOpen] = useState(false);
+  settingsOpen.value = open;
+
   const onClose = () => setOpen(false);
   const doOpen = () => {
     if (ref.current !== null) ref.current.blur();

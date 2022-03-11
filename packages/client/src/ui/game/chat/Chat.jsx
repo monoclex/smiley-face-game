@@ -2,9 +2,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Grid, Input, styled } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { useRecoilState } from "recoil";
 import { useForm } from "react-hook-form";
-import { chatOpen, chatOpenState } from "../../../state";
+import { chatOpen } from "../../../state";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Message } from "./Message";
 import state from "../../../bridge/state";
