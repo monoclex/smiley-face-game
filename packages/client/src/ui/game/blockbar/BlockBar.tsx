@@ -10,6 +10,9 @@ import { useGameState } from "../../hooks";
 import { selectedBlock as selectedBlockGlobal } from "../../../state/";
 import { useSelf, useMutableVariable } from "@/hooks";
 
+import { HeapKind } from "@smiley-face-game/api/tiles/register";
+import { reactEventEmitter } from "@/ui/ReactEvents";
+
 // prettier-ignore
 const map = {
   "`": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "0": 10, "-": 11, "=": 12, "[": 13,
@@ -28,7 +31,7 @@ MemoizedBlock.whyDidYouRender = false;
 const BlockBar = () => {
   const self = useSelf();
   const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
-  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal);
+  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal, undefined);
   const state = useGameState();
 
   const tiles = state.game.tiles;
@@ -64,6 +67,7 @@ const BlockBar = () => {
     // switch to new block
     setCurrentSlot(slotIdx);
     setSelectedBlock(block);
+    reactEventEmitter.emit("toggleSwitchWindow", block.heap === HeapKind.Switch);
     state.mouseInteraction.triggerBlockChange(block.textureId);
   }, []);
 

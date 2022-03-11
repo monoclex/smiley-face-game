@@ -1,10 +1,11 @@
 import type { Questioner, AllQuestions } from "@smiley-face-game/api/questions";
-import { useEffectOnce } from "react-use";
+import { useEffect, DependencyList } from "react";
 
 export default function useAnswerer<K extends keyof Qs, Qs extends AllQuestions>(
   questioner: Questioner<Qs>,
   question: K,
-  answerer: Qs[K]
+  answerer: Qs[K],
+  deps?: DependencyList | undefined
 ) {
-  return useEffectOnce(() => questioner.bind(question, answerer));
+  return useEffect(() => questioner.bind(question, answerer), deps ?? []);
 }
