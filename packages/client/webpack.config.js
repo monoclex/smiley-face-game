@@ -23,6 +23,7 @@ function config({ serverMode }, { mode }) {
       alias: {
         "@material-ui/core/utils": "@mui/material/utils",
         "@material-ui/core/SvgIcon": "@mui/material/SvgIcon",
+        "@": path.join(__dirname, "src"),
       },
     },
     devServer: {
