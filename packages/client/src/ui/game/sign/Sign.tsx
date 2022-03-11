@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { useRecoilState } from "recoil";
 
 import {
   Button,
@@ -10,39 +9,48 @@ import {
   TextField,
 } from "@mui/material";
 
-import PromiseCompletionSource from "../../../PromiseCompletionSource";
-import { signStateAtom, text } from "../../../state/signDialog";
+import PromiseCompletionSource from "@/PromiseCompletionSource";
 import { MAX_SIGN_LENGTH } from "@smiley-face-game/api/types";
+import { signOpen } from "@/bridge/inputEnabled";
+import { useGameAnswerer } from "@/hooks";
+import useUncachedState from "@/hooks/useUncachedState";
+
+type SignReply = PromiseCompletionSource<string | undefined>;
+const promiseCompletionSourceFactory: () => SignReply = () =>
+  new PromiseCompletionSource<string | undefined>();
 
 export default function Sign() {
-  const [signState, setSign] = useRecoilState(signStateAtom);
+  const [signTextCompletion, setSignTextCompletion] = useState(promiseCompletionSourceFactory);
+
+  useGameAnswerer("signText", () => {
+    const promiseCompletionSource = promiseCompletionSourceFactory();
+    setSignTextCompletion(promiseCompletionSource);
+    return promiseCompletionSource.handle;
+  });
+
+  const [input, setInput] = useUncachedState("");
+
+  const resolveSignTextCompletion = (response: string | undefined) => {
+    signTextCompletion.resolve(response);
+    signOpen.value = false;
+    setInput("");
+  };
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [input, setInput] = useState("");
 
-  const handleClose = () => {
-    text.it.reject("dialog closed");
-    setSign({ open: false });
-    text.it = new PromiseCompletionSource();
-    setInput("");
-  };
-
-  const onSubmit = () => {
-    const message = input;
-    text.it.resolve(message);
-    setSign({ open: false });
-    text.it = new PromiseCompletionSource();
-    setInput("");
-  };
+  const handleClose = () => resolveSignTextCompletion(undefined);
+  const onSubmit = () => resolveSignTextCompletion(input);
 
   const onUpdate = () => {
-    console.log("onupdate called");
     if (!inputRef.current) return;
     setInput((inputRef.current.value ?? "").substring(0, MAX_SIGN_LENGTH));
   };
 
   return (
-    <Dialog open={signState.open} onClose={handleClose} maxWidth="sm" fullWidth>
+    // NOTE: `signOpen` isn't controlled by any fancy react things. so changing it
+    // directly won't induce the dialogue to open/close, but the calls to setState
+    // will trigger a re-render (of which the signOpen value would change)
+    <Dialog open={signOpen.value} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Sign Text</DialogTitle>
 
       <DialogContent>

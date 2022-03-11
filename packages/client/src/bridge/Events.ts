@@ -1,6 +1,6 @@
-import { Emitter } from "@smiley-face-game/api/nanoevents";
+import { createNanoEvents } from "@smiley-face-game/api/nanoevents";
 
-export const gameEventEmitter = new Emitter<GameEvents>();
+export const gameEventEmitter = createNanoEvents<GameEvents>();
 
 export interface GameEvents {
   onSignPlace(): void;

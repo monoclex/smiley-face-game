@@ -1,8 +1,8 @@
+import { MutableVariable } from "@/util/MutableVariable";
 import { gameFocusGlobal } from "../state";
-import { signGlobal } from "../state/signDialog";
+
+export const signOpen = new MutableVariable(false);
 
 export default function inputEnabled() {
-  return (
-    !gameFocusGlobal.state.chatOpen && !gameFocusGlobal.state.settingsOpen && !signGlobal.state.open
-  );
+  return !(gameFocusGlobal.state.chatOpen || gameFocusGlobal.state.settingsOpen || signOpen.value);
 }
