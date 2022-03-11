@@ -2,7 +2,6 @@ import { Connection } from "@smiley-face-game/api";
 import { Inputs } from "@smiley-face-game/api/game/Inputs";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { loadControls } from "../controls";
-import { blockInspectorGlobal } from "../state/blockInspector";
 import inputEnabled from "./inputEnabled";
 
 function toggle<M, K extends keyof M, V extends M[K]>(inputs: M, key: K, pressed: V): boolean {
@@ -76,11 +75,6 @@ export default class Keyboard {
       case this.controls.god.binding:
         if (pressed && this.player.canGod) {
           this.triggerGod();
-        }
-        break;
-      case this.controls.inspect.binding:
-        if (pressed) {
-          blockInspectorGlobal.modify({ enabled: !blockInspectorGlobal.state.enabled });
         }
         break;
       // case "e":

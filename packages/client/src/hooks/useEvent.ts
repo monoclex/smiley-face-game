@@ -1,10 +1,11 @@
+import { DependencyList, useEffect } from "react";
 import type { Emitter, EventsMap, DefaultEvents } from "@smiley-face-game/api/nanoevents";
-import { useEffectOnce } from "react-use";
 
 export default function useEvent<K extends keyof Events, Events extends EventsMap = DefaultEvents>(
   events: Emitter<Events>,
   event: K,
-  callback: Events[K]
+  callback: Events[K],
+  deps?: DependencyList | undefined
 ) {
-  return useEffectOnce(() => events.on(event, callback));
+  return useEffect(() => events.on(event, callback), deps ?? []);
 }
