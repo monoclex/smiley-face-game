@@ -1,8 +1,9 @@
-import type { BlockInfo } from "@smiley-face-game/api/tiles/TileRegistration";
-
-export type SelectedBlock = BlockInfo | undefined;
+import { MutableVariable } from "@/util/MutableVariable";
+import { BlockInfo } from "@smiley-face-game/api/tiles/register";
 
 /**
- * read-only global state
+ * A variable that has currently selected block stored in it. This is only
+ * written to by the React UI code, and read once every animation frame by
+ * the game.
  */
-export const selectedBlockState: { it: SelectedBlock } = { it: undefined };
+export const selectedBlock = new MutableVariable<BlockInfo | undefined>(undefined);

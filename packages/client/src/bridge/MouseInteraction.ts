@@ -6,7 +6,7 @@ import textures from "./textures";
 import { Game } from "@smiley-face-game/api";
 import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
-import { selectedBlockState } from "../state";
+import { selectedBlock } from "../state";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { blockInspectorGlobal } from "../state/blockInspector";
 
@@ -267,7 +267,7 @@ export default class MouseInteraction {
       return;
     }
 
-    const selected = selectedBlockState.it;
+    const selected = selectedBlock.value;
     const erase = this.state === MouseState.Erase || selected?.id === 0;
     const action: "place" | "erase" = erase ? "erase" : "place";
 

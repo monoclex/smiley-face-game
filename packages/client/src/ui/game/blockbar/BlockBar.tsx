@@ -5,9 +5,11 @@ import { Grid } from "@mui/material";
 import { useRecoilValue } from "recoil";
 
 import Block from "./Block";
-import { currentPlayerState, selectedBlockState, SelectedBlock } from "../../../state/";
+import { currentPlayerState } from "../../../state/";
 import inputEnabled from "../../../bridge/inputEnabled";
 import { useGameState } from "../../hooks";
+
+import { selectedBlock as selectedBlockGlobal } from "../../../state/";
 
 // prettier-ignore
 const map = {
@@ -27,8 +29,8 @@ MemoizedBlock.whyDidYouRender = false;
 const BlockBar = () => {
   const self = useRecoilValue(currentPlayerState);
   const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
-  const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(undefined);
-  selectedBlockState.it = selectedBlock;
+  const [selectedBlock, setSelectedBlock] = useState<typeof selectedBlockGlobal.value>(undefined);
+  selectedBlockGlobal.value = selectedBlock;
   const state = useGameState();
 
   const tiles = state.game.tiles;
@@ -45,7 +47,7 @@ const BlockBar = () => {
     let block = slot.pack.blocks[slot.entry];
 
     // if we're selecting the same slot, rotate the block
-    if (block === selectedBlockState.it) {
+    if (block === selectedBlockGlobal.value) {
       slot.entry += moveDir;
       if (slot.entry >= slot.pack.blocks.length) {
         slot.entry = 0;
