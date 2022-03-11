@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test": "jest",
     "check": "package-check",
     "tsc": "tsc",
     "lint": "eslint --ext .ts .",
@@ -32,6 +33,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.5.1",
     "prettier": "^2.5.1",
+    "regenerator-runtime": "^0.13.9",
     "typescript": "^4.5.5"
   },
   "name": "@smiley-face-game/api",

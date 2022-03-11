@@ -6,6 +6,7 @@
     "scripts"
   ],
   "scripts": {
+    "test": "pnpm run --recursive --parallel test",
     "tsc": "pnpm run --recursive --parallel tsc",
     "build:dev": "pnpm run --recursive --parallel build:dev",
     "build:prod": "pnpm run --recursive --parallel build:prod",

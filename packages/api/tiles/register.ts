@@ -313,6 +313,7 @@ function makeSwitches(make: TilesMaker) {
     id: 116,
     textureId: `switches-switch-button`,
     complex: new SwitchButtonBehavior(),
+    heap: HeapKind.Switch,
     ...actionBlock,
   });
 
@@ -320,12 +321,14 @@ function makeSwitches(make: TilesMaker) {
     id: 117,
     textureId: `switches-switch-door`,
     complex: new SwitchDoorGateBehavior(false),
+    heap: HeapKind.Switch,
   });
 
   make.block({
     id: 118,
     textureId: `switches-switch-gate`,
     complex: new SwitchDoorGateBehavior(true),
+    heap: HeapKind.Switch,
   });
 
   make.pack({ name: "switches" });

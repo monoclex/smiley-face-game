@@ -5,6 +5,7 @@ import { HeapKind } from "@smiley-face-game/api/tiles/TileRegistration";
 import { TileLayer } from "@smiley-face-game/api/types";
 import AuthoredBlockPlacer from "../AuthoredBlockPlacer";
 import onSign from "./onSign";
+import onSwitch from "./onSwitch";
 
 interface PlacementFunction {
   (
@@ -19,6 +20,7 @@ interface PlacementFunction {
 
 const placements: { [K in Exclude<HeapKind, HeapKind.None>]: PlacementFunction } = {
   [HeapKind.Sign]: onSign,
+  [HeapKind.Switch]: onSwitch,
 };
 
 export default placements;

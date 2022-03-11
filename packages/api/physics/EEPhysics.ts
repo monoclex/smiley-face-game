@@ -281,6 +281,7 @@ export class EEPhysics {
     while (!next.done) {
       self.position = next.value;
       this.triggerBlockAction(self, false);
+      this.handleSurroundingBlocks(self);
       next = interactionPositions.next();
     }
 
