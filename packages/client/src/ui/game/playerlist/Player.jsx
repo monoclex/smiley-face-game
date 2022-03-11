@@ -1,17 +1,16 @@
 //@ts-check
 import React, { useState } from "react";
 import { Grid, MenuItem, styled, ToggleButton } from "@mui/material";
-import { useRecoilValue } from "recoil";
 import Menu from "@mui/material/Menu/Menu";
 import Pencil from "mdi-material-ui/Pencil";
 import ShoeCleat from "mdi-material-ui/ShoeCleat";
-import { currentPlayerState } from "../../../state";
 import { useSnackbar } from "notistack";
 import { useGameState } from "../../hooks";
 import AccountCowboyHat from "mdi-material-ui/AccountCowboyHat";
 import AccountTie from "mdi-material-ui/AccountTie";
 import AccountEdit from "mdi-material-ui/AccountEdit";
 import Helicopter from "mdi-material-ui/Helicopter";
+import { useSelf } from "@/hooks";
 
 const PlayerDisplay = styled("div")(({ theme }) => ({
   // clsx(classes.hoverable
@@ -49,7 +48,7 @@ export const Player = ({ username, id: playerId, role: roleParam, canGod }) => {
   // https://material-ui.com/components/menus/#SimpleMenu.js
   const [anchorElement, setAnchorElement] = useState(null);
 
-  const mainPlayer = useRecoilValue(currentPlayerState);
+  const mainPlayer = useSelf();
 
   /** @type {JSX.Element[]} */
   const actions = [];

@@ -2,14 +2,13 @@
 import React, { useEffect, useState } from "react";
 
 import { Grid } from "@mui/material";
-import { useRecoilValue } from "recoil";
 
 import Block from "./Block";
-import { currentPlayerState } from "../../../state/";
 import inputEnabled from "../../../bridge/inputEnabled";
 import { useGameState } from "../../hooks";
 
 import { selectedBlock as selectedBlockGlobal } from "../../../state/";
+import { useSelf } from "@/hooks";
 
 // prettier-ignore
 const map = {
@@ -27,7 +26,7 @@ const MemoizedBlock = React.memo(Block);
 MemoizedBlock.whyDidYouRender = false;
 
 const BlockBar = () => {
-  const self = useRecoilValue(currentPlayerState);
+  const self = useSelf();
   const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
   const [selectedBlock, setSelectedBlock] = useState<typeof selectedBlockGlobal.value>(undefined);
   selectedBlockGlobal.value = selectedBlock;
