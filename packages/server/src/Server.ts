@@ -14,7 +14,6 @@ export default class Server {
 
   onConnect(hostConnection: HostConnection) {
     const connection = new Connection(hostConnection);
-    this.connections.set(connection.id, connection);
 
     if (connection.isOwner) {
       connection.permissions.give(...defaultOwnerPermissions);
@@ -67,6 +66,7 @@ export default class Server {
       })),
     };
 
+    this.connections.set(connection.id, connection);
     connection.send(initPacket);
   }
 
