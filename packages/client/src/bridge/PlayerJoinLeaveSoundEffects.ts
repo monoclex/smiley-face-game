@@ -6,6 +6,8 @@ import deathUrl from "../assets/sounds/death.mp3";
 import checkpointUrl from "../assets/sounds/checkpoint.mp3";
 import doorOpenUrl from "../assets/sounds/door_open.mp3";
 import doorCloseUrl from "../assets/sounds/door_close.mp3";
+import switchOnUrl from "../assets/sounds/switch_on.mp3";
+import switchOffUrl from "../assets/sounds/switch_off.mp3";
 
 export const audio = new AudioContext();
 
@@ -25,6 +27,8 @@ const deathAudio = loadAudio(deathUrl);
 const checkpointAudio = loadAudio(checkpointUrl);
 const doorOpenAudio = loadAudio(doorOpenUrl);
 const doorCloseAudio = loadAudio(doorCloseUrl);
+const switchOnAudio = loadAudio(switchOnUrl);
+const switchOffAudio = loadAudio(switchOffUrl);
 
 const makePlayer = (audioPromise: Promise<IAudioBuffer>) => async () => {
   const audioData = await audioPromise;
@@ -41,6 +45,8 @@ export const playDeath = makePlayer(deathAudio);
 export const playCheckpoint = makePlayer(checkpointAudio);
 export const playDoorOpen = makePlayer(doorOpenAudio);
 export const playDoorClose = makePlayer(doorCloseAudio);
+export const playSwitchOn = makePlayer(switchOnAudio);
+export const playSwitchOff = makePlayer(switchOffAudio);
 
 export async function registerPlayerJoinNLeaveSoundEffects(game: Game) {
   game.players.events.on("add", playJoin);
@@ -48,4 +54,5 @@ export async function registerPlayerJoinNLeaveSoundEffects(game: Game) {
   game.physics.events.on("checkpoint", playCheckpoint);
   game.physics.events.on("death", playDeath);
   game.physics.events.on("keyState", (_, state) => (state ? playDoorOpen() : playDoorClose()));
+  game.physics.events.on("touchSwitch", (_1, _2, on) => (on ? playSwitchOn() : playSwitchOff()));
 }
