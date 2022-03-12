@@ -46,6 +46,7 @@ export class Blocks {
   load(blocks: ZWorldBlocks, heaps: ZHeaps) {
     this.state.state = blocks;
     this.heap.state = heaps;
+    this.emitLoad();
   }
 
   emitLoad() {
