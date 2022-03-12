@@ -9,3 +9,4 @@ export { default as useRerender } from "./useRerender";
 export { default as useSelf } from "./useSelf";
 export { default as useMutableVariable } from "./useMutableVariable";
 export { default as useReactMutableVariable } from "./useReactMutableVariable";
+export { default as useControls } from "./useControls";

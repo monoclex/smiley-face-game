@@ -1,7 +1,16 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 
-export type ControlKey = "left" | "up" | "right" | "down" | "jump" | "god" | "inspect";
+export type ControlKey =
+  | "left"
+  | "up"
+  | "right"
+  | "down"
+  | "jump"
+  | "god"
+  | "inspect"
+  | "increment"
+  | "decrement";
 
 export const defaultControls: Controls<ControlKey> = {
   left: {
@@ -32,6 +41,14 @@ export const defaultControls: Controls<ControlKey> = {
     name: "Inspect Block",
     binding: "i",
   },
+  increment: {
+    name: "Increment Switch Id",
+    binding: "e",
+  },
+  decrement: {
+    name: "Decrement SwitchId",
+    binding: "q",
+  },
 };
 
 export type Controls<K extends string> = Record<K, Control>;
@@ -39,6 +56,13 @@ export type Controls<K extends string> = Record<K, Control>;
 export interface Control {
   name: string;
   binding: string;
+}
+
+export function formatKeyBindingName(binding: string): string {
+  const upper = binding.toUpperCase();
+
+  if (upper === " ") return "SPACE";
+  return upper;
 }
 
 export function updateBinding<K extends string>(

@@ -6,7 +6,7 @@ import textures from "./textures";
 import { Game } from "@smiley-face-game/api";
 import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
-import { selectedBlock } from "../state";
+import { draggingSwitchWindow, selectedBlock } from "../state";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { blockInspectorEnabled, blockInspectorVisible } from "../state/blockInspector";
 import { gameEventEmitter } from "./Events";
@@ -217,7 +217,12 @@ export default class MouseInteraction {
     this.selection.visible = true;
     this.showBlockChanged();
 
-    if (!inputEnabled() || !this.mouseInGame || !this.authoredBlockPlacer.canEdit) {
+    if (
+      !inputEnabled() ||
+      !this.mouseInGame ||
+      !this.authoredBlockPlacer.canEdit ||
+      draggingSwitchWindow.value
+    ) {
       this.selection.visible = false;
       this.hideBlockChanged();
       blockInspectorVisible.value = false;
