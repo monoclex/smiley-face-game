@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./ui/App";
 import { useDev } from "@smiley-face-game/api";
-import { rewriteHost } from "@smiley-face-game/api/net/endpoints";
+import { rewriteHost, useTest } from "@smiley-face-game/api/net/endpoints";
 import { serverMode } from "./isProduction";
 import { routesRewritten } from "./rewritten";
 import whyDidYouRender from "@welldone-software/why-did-you-render";
@@ -15,9 +15,10 @@ if (serverMode === "localhost") {
     logOwnerReasons: true,
     logOnDifferentValues: true,
   });
-  rewriteHost((endpoint) => ({ ...endpoint, host: window.location.hostname + ":8080/v1" }));
+  rewriteHost((endpoint) => ({ ...endpoint, host: window.location.hostname + ":5265/v1" }));
 } else if (serverMode === "development") {
-  useDev();
+  // useDev();
+  useTest();
 } else if (serverMode === "production") {
   // production servers are the default
 }

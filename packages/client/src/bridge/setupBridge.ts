@@ -1,4 +1,5 @@
 import { Authentication, Connection, Game, ZJoinRequest } from "@smiley-face-game/api";
+import { PhysicsTicker } from "@smiley-face-game/api/physics/simulatePhysics";
 import type { Renderer } from "pixi.js";
 import textures from "./textures";
 import state, { waitPromise, gameRunningState } from "./state";
@@ -10,7 +11,6 @@ import Keyboard from "./Keyboard";
 import MouseInteraction from "./MouseInteraction";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
-import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
 import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
 import { enableExtraChecks } from "../isProduction";
@@ -87,9 +87,13 @@ export default async function setupBridge(
     }
   });
 
+  game.physics.events.on("switchStateChanged", (player) => {
+    if (player === self) {
+      gameRenderer.worldRenderer.flagDirty();
+    }
+  });
+
   gameRenderer.focus = self;
-  // TODO: we need to update gameGlobal whenever `self` roles/etc gets updated
-  gameGlobal.modify({ self: self.cheap() });
 
   const keyboard = new Keyboard(self, connection);
 
@@ -119,9 +123,10 @@ export default async function setupBridge(
     await playLeave();
   })();
 
+  const physicsTicker = new PhysicsTicker(game, 150);
   loopRequestAnimationFrame((elapsed) => {
     if (!connection.connected) return "halt";
-    game.update(elapsed);
+    physicsTicker.update(elapsed);
     gameRenderer.draw();
   });
 

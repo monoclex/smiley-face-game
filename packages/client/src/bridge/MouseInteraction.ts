@@ -6,8 +6,10 @@ import textures from "./textures";
 import { Game } from "@smiley-face-game/api";
 import inputEnabled from "./inputEnabled";
 import clamp from "@smiley-face-game/api/physics/clamp";
-import { selectedBlockState } from "../state";
+import { draggingSwitchWindow, selectedBlock } from "../state";
 import { Player } from "@smiley-face-game/api/physics/Player";
+import { blockInspectorEnabled, blockInspectorVisible } from "../state/blockInspector";
+import { gameEventEmitter } from "./Events";
 
 enum MouseState {
   None,
@@ -49,11 +51,19 @@ export default class MouseInteraction {
 
   triggerBlockChange(texture: string) {
     if (texture === "empty") {
-      this.blockChanged.visible = false;
+      this.hideBlockChanged();
       return;
     }
 
     this.blockChanged.texture = textures.get(texture);
+    this.showBlockChanged();
+  }
+
+  hideBlockChanged() {
+    this.blockChanged.visible = false;
+  }
+
+  showBlockChanged() {
     this.blockChanged.visible = true;
     this.blockChanged.width = 32;
     this.blockChanged.height = 32;
@@ -205,10 +215,17 @@ export default class MouseInteraction {
 
   draw() {
     this.selection.visible = true;
+    this.showBlockChanged();
 
-    if (!inputEnabled() || !this.mouseInGame || !this.authoredBlockPlacer.canEdit) {
+    if (
+      !inputEnabled() ||
+      !this.mouseInGame ||
+      !this.authoredBlockPlacer.canEdit ||
+      draggingSwitchWindow.value
+    ) {
       this.selection.visible = false;
-      this.blockChanged.visible = false;
+      this.hideBlockChanged();
+      blockInspectorVisible.value = false;
       return;
     }
 
@@ -223,6 +240,16 @@ export default class MouseInteraction {
     blockX = clamp(blockX, 0, this.game.blocks.size.x - 1);
     blockY = clamp(blockY, 0, this.game.blocks.size.y - 1);
 
+    if (blockInspectorEnabled.value) {
+      const blockToScreenPosX = Math.round(blockX * TILE_WIDTH + this.root.position.x);
+      const blockToScreenPosY = Math.round(blockY * TILE_HEIGHT + this.root.position.y);
+
+      const blockPosition = { x: blockX, y: blockY };
+      const screenPosition = { x: blockToScreenPosX, y: blockToScreenPosY };
+      blockInspectorVisible.value = true;
+      gameEventEmitter.emit("onBlockSelectionUpdate", blockPosition, screenPosition);
+    }
+
     this.selection.position.x = blockX * TILE_WIDTH;
     this.selection.position.y = blockY * TILE_HEIGHT;
 
@@ -235,8 +262,8 @@ export default class MouseInteraction {
       return;
     }
 
-    const selected = selectedBlockState.id;
-    const erase = this.state === MouseState.Erase || selected === 0;
+    const selected = selectedBlock.value;
+    const erase = this.state === MouseState.Erase || selected?.id === 0;
     const action: "place" | "erase" = erase ? "erase" : "place";
 
     // TODO: figure out layer to erase on

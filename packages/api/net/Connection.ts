@@ -43,10 +43,14 @@ import { boolean, addParse } from "../computed-types-wrapper";
 import TileRegistration from "../tiles/TileRegistration";
 import createRegistration from "../tiles/createRegistration";
 import ConnectionError from "./ConnectionError";
+import { string } from "computed-types";
 
 const zBoolean = addParse(boolean);
 const zEquipped = zBoolean;
 const zGodMode = zBoolean;
+
+const zString = addParse(string);
+const zTitle = zString;
 
 /** A very simple check just to make sure that a websocket is being passed in. */
 function parseWebsocket(payload: unknown): payload is Websocket {
@@ -543,6 +547,24 @@ export default class Connection {
     this._send({
       packetId: "WORLD_ACTION",
       action: { action: "load" },
+    });
+  }
+
+  /**
+   * Changes the title of the room.
+   * @param title The new title
+   */
+  changeWorldTitle(title: string): void;
+
+  changeWorldTitle(argTitle: unknown) {
+    const title = zTitle.parse(argTitle);
+
+    this._send({
+      packetId: "WORLD_ACTION",
+      action: {
+        action: "change title",
+        title,
+      },
     });
   }
 

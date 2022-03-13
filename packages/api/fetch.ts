@@ -12,7 +12,7 @@ export default function <D>(
   const headers: Record<string, string> = { "Content-Type": "application/json" };
 
   if (token) {
-    headers.Authorization = token;
+    headers.Authorization = "Bearer " + token;
   }
 
   // JSON.stringify(undefined) -> undefined, so essentially no body would be passed

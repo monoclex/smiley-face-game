@@ -5,7 +5,6 @@ import { Renderer } from "pixi.js";
 import Split from "react-split";
 
 import Chat from "./chat/Chat";
-import BlockBar from "./blockbar/BlockBar";
 import PlayerList from "./playerlist/PlayerList";
 import MobileControls from "./MobileControls";
 import WorldSettingsButton from "./WorldSettingsButton";
@@ -13,8 +12,10 @@ import GodModeButton from "./GodModeButton";
 import Sign from "./sign/Sign";
 import SoundButton from "./SoundButton";
 import state, { gameRunningState } from "../../bridge/state";
-import minimapimage from "../../assets/minimap.png";
 import BlockBarNew from "./blockbar/BlockBarNew";
+import ExitButton from "./ExitButton";
+import BlockInspector from "./BlockInspector";
+import SwitchIdWindow from "./SwitchIdWindow";
 
 const GrayFilled = styled(Grid)({
   backgroundColor: "rgb(48,48,48)",
@@ -140,6 +141,8 @@ export default function GameUI({ children: gameCanvas }) {
   return (
     <>
       <Sign />
+      <SwitchIdWindow />
+      <BlockInspector />
 
       <Split
         direction="horizontal"
@@ -187,6 +190,7 @@ export default function GameUI({ children: gameCanvas }) {
                   <GodModeButton />
                 </Suspense>
                 <SoundButton />
+                <ExitButton />
               </div>
 
               <div ref={blockBarRef}>

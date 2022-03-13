@@ -6,19 +6,21 @@ Join our [discord server](https://discord.gg/c68KMCs) to get notified of updates
 
 # Contributing
 
+_NOTE: these instructions are the bare minimum needed. At a future point, these instructions will be more comprehensive._
+
 Make sure you have the following setup:
 
 - pnpm
-- eslint (VSCode Extension)
-- prettier (VSCode Extension)
-- postgres database at port `5432` with a user `sfg` with password `dev` _(There is a helper script! Check [./scripts/run-postgres-db.js](./scripts/run-postgres-db.js) **Requires `docker`**)_
+- docker
+- docker compose
 
-Overall, you should end up running the following:
+Then, run the following to start the project:
 
 ```shell
-# in a separate terminal
-node scripts/run-postgres-db.js
+pnpm i
 
-# to start
-pnpm run dev
+docker-compose up -d
+
+cd packages/client
+pnpm serve
 ```

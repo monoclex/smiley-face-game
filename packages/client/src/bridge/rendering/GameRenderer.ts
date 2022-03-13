@@ -8,6 +8,7 @@ import PlayerRenderer from "./PlayerRendering";
 import WorldRendering from "./WorldRendering";
 import SignRendering from "./SignRendering";
 import MinimapRenderer from "./MinimapRenderer";
+import SwitchTextRendering from "./SwitchTextRendering";
 
 interface GameRendererEvents {
   draw(): void;
@@ -30,12 +31,14 @@ export default class GameRenderer {
   readonly worldRenderer: WorldRendering;
   readonly signRenderer: SignRendering;
   readonly minimapRenderer: MinimapRenderer;
+  readonly switchTextRenderer: SwitchTextRendering;
   readonly events = createNanoEvents<GameRendererEvents>();
 
   constructor(readonly game: Game, readonly renderer: Renderer) {
     this.worldRenderer = new WorldRendering(game);
     this.signRenderer = new SignRendering(game);
     this.playerRenderer = new PlayerRenderer(game, this.root, renderer, this.worldRenderer);
+    this.switchTextRenderer = new SwitchTextRendering(game);
 
     this.stage.addChild(this.root);
 
@@ -46,6 +49,8 @@ export default class GameRenderer {
     this.root.addChild(this.worldRenderer.worldInfront);
     // selection gets added here too (in `ClientSelector`)
     // <-- closest to viewer
+
+    this.root.addChild(this.switchTextRenderer.switchTextLayer);
 
     this.root.addChild(this.signRenderer.sprite);
 

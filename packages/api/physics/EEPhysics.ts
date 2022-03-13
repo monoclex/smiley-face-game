@@ -2,7 +2,7 @@ import { createNanoEvents } from "../nanoevents";
 import { Blocks } from "../game/Blocks";
 import { ZSMovement } from "../packets";
 import TileRegistration from "../tiles/TileRegistration";
-import { TileLayer, ZHeap, ZKeyKind } from "../types";
+import { TileLayer, ZHeap, ZKeyKind, ZSwitchId } from "../types";
 import { Player } from "./Player";
 import { Vector } from "./Vector";
 import { BlockIdCache } from "./BlockIdCache";
@@ -16,7 +16,7 @@ import { performJumping } from "./algorithms/jumping";
 import { performZoosts } from "./algorithms/zoosts";
 import { Keys } from "./Keys";
 import { solidHitbox } from "../tiles/hitboxes";
-import { ComplexBlockBehavior } from "../tiles/register";
+import { ComplexBlockBehavior, HeapKind } from "../tiles/register";
 import { PhysicsEvents } from "./PhysicsEvents";
 
 // half a second until alive
@@ -61,6 +61,8 @@ export class EEPhysics {
 
   // --- physics below ---
 
+  // TODO: we should deprecate this method, and only allow usage of `PhysicsTicker`
+  // but im too lazy rn
   update(elapsedMs: number, players: Player[]) {
     while ((this.ticks + 1) * this.msPerTick <= elapsedMs) {
       this.tick(players);
@@ -101,11 +103,6 @@ export class EEPhysics {
     }
 
     const { current, delayed } = this.getPhysicsBlockOn(self);
-
-    if (this.ids.isZoost(current)) {
-      this.performZoosts(self, self.worldPosition, this.ids.zoostDirToVec(current));
-      return;
-    }
 
     if (this.ids.isHazard(current)) {
       self.kill();
@@ -268,8 +265,7 @@ export class EEPhysics {
   }
 
   performZoosts(self: Player, position: Vector, direction: Vector) {
-    const checkCollision = (position: Vector) =>
-      this.blockOutsideBounds(position) || this.willCollide(self, solidHitbox, position);
+    const checkCollision = (position: Vector) => this.playerIsColliding(self, position);
 
     const interactionPositions = performZoosts(
       checkCollision,
@@ -283,12 +279,13 @@ export class EEPhysics {
     let next = interactionPositions.next();
 
     while (!next.done) {
-      self.worldPosition = next.value;
-      this.triggerBlockAction(self);
+      self.position = next.value;
+      this.triggerBlockAction(self, false);
+      this.handleSurroundingBlocks(self);
       next = interactionPositions.next();
     }
 
-    self.worldPosition = next.value;
+    self.position = next.value;
   }
 
   playerIsColliding(self: Player, position: Vector): boolean {
@@ -414,11 +411,17 @@ export class EEPhysics {
     self.lastNear = nearAndBehaviors;
   }
 
-  triggerBlockAction(self: Player) {
+  triggerBlockAction(self: Player, activateZoost = true) {
+    const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
+
+    if (activateZoost && this.ids.isZoost(actionBlock)) {
+      this.performZoosts(self, self.position, this.ids.zoostDirToVec(actionBlock));
+      return;
+    }
+
     if (Vector.eq(self.worldPosition, self.lastBlockIn)) return;
 
     const decorationBlock = this.world.blockAt(self.worldPosition, TileLayer.Decoration);
-    const actionBlock = this.world.blockAt(self.worldPosition, TileLayer.Action);
 
     this.handleActionSigns(self, decorationBlock, self.worldPosition);
     this.handleActionCheckpoints(self, actionBlock, self.worldPosition);
@@ -429,7 +432,7 @@ export class EEPhysics {
       complex.in(this, self, id, heap);
 
     const performOut = (complex: ComplexBlockBehavior, id: number, heap: ZHeap | 0) =>
-      complex.in(this, self, id, heap);
+      complex.out(this, self, id, heap);
 
     this.triggerComplex(TileLayer.Foreground, self.worldPosition, performIn);
     this.triggerComplex(TileLayer.Action, self.worldPosition, performIn);
@@ -467,7 +470,8 @@ export class EEPhysics {
 
   private handleActionSigns(self: Player, blockId: number, position: Vector) {
     let currentlyInSign: false | Vector = false;
-    if (blockId === this.ids.sign) {
+    const blockInfo = this.ids.tiles.forId(blockId);
+    if (blockInfo.heap === HeapKind.Sign) {
       currentlyInSign = position;
     }
 

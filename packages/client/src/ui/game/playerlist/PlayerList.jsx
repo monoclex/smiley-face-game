@@ -1,21 +1,24 @@
 //@ts-check
-import React from "react";
+import React, { useState } from "react";
 import { Grid } from "@mui/material";
-import { playerListState } from "../../../state/";
-import { useRecoilValue } from "recoil";
 import SpringScrollbars from "../../../ui/components/SpringScrollbars";
 import { Player } from "./Player";
 
 // so much stupid boilerplate
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUserAstronaut, faUserEdit, faUserTie } from "@fortawesome/free-solid-svg-icons";
+import { useGameEvent } from "@/hooks";
 
 library.add(faUserAstronaut);
 library.add(faUserEdit);
 library.add(faUserTie);
 
 const PlayerList = () => {
-  const players = useRecoilValue(playerListState);
+  const [players, setPlayers] = useState([]);
+
+  useGameEvent("onPlayerListUpdate", (game) => {
+    setPlayers(game.players.list.map((player) => player.cheap()));
+  });
 
   return (
     <SpringScrollbars

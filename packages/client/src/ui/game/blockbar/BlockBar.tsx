@@ -2,12 +2,16 @@
 import React, { useEffect, useState } from "react";
 
 import { Grid } from "@mui/material";
-import { useRecoilValue } from "recoil";
 
 import Block from "./Block";
-import { currentPlayerState, selectedBlockState, SelectedBlock } from "../../../state/";
 import inputEnabled from "../../../bridge/inputEnabled";
 import { useGameState } from "../../hooks";
+
+import { selectedBlock as selectedBlockGlobal } from "../../../state/";
+import { useSelf, useMutableVariable } from "@/hooks";
+
+import { HeapKind } from "@smiley-face-game/api/tiles/register";
+import { reactEventEmitter } from "@/ui/ReactEvents";
 
 // prettier-ignore
 const map = {
@@ -25,10 +29,9 @@ const MemoizedBlock = React.memo(Block);
 MemoizedBlock.whyDidYouRender = false;
 
 const BlockBar = () => {
-  const self = useRecoilValue(currentPlayerState);
+  const self = useSelf();
   const [currentSlot, setCurrentSlot] = useState<undefined | number>(undefined);
-  const [selectedBlock, setSelectedBlock] = useState<SelectedBlock>(undefined);
-  selectedBlockState.it = selectedBlock;
+  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal, undefined);
   const state = useGameState();
 
   const tiles = state.game.tiles;
@@ -45,7 +48,7 @@ const BlockBar = () => {
     let block = slot.pack.blocks[slot.entry];
 
     // if we're selecting the same slot, rotate the block
-    if (block === selectedBlockState.it) {
+    if (block === selectedBlockGlobal.value) {
       slot.entry += moveDir;
       if (slot.entry >= slot.pack.blocks.length) {
         slot.entry = 0;
@@ -64,6 +67,7 @@ const BlockBar = () => {
     // switch to new block
     setCurrentSlot(slotIdx);
     setSelectedBlock(block);
+    reactEventEmitter.emit("toggleSwitchWindow", block.heap === HeapKind.Switch);
     state.mouseInteraction.triggerBlockChange(block.textureId);
   }, []);
 

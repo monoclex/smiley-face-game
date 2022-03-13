@@ -97,6 +97,11 @@ export const zKeyKind = addParse(
 );
 export type ZKeyKind = SchemaInput<typeof zKeyKind>;
 
+export const SWITCH_ID_MIN = 0;
+export const SWITCH_ID_MAX = 999;
+export const zSwitchId = addParse(number.integer().min(SWITCH_ID_MIN).max(SWITCH_ID_MAX));
+export type ZSwitchId = SchemaInput<typeof zSwitchId>;
+
 export const zVelocity = addParse(
   Schema({
     x: number,
@@ -143,7 +148,7 @@ export enum Rotation {
 export const zBlock = addParse(Schema.either(number));
 export type ZBlock = SchemaInput<typeof zBlock>;
 
-export const MAX_SIGN_LENGTH = 200;
+export const MAX_SIGN_LENGTH = 2000;
 export const zSignHeap = addParse(
   Schema({
     kind: "sign" as const,
@@ -152,7 +157,15 @@ export const zSignHeap = addParse(
 );
 export type ZSignHeap = SchemaInput<typeof zSignHeap>;
 
-export const zHeap = addParse(Schema.either(zSignHeap));
+export const zSwitchHeap = addParse(
+  Schema({
+    kind: "switch" as const,
+    id: zSwitchId,
+  })
+);
+export type ZSwitchHeap = SchemaInput<typeof zSwitchHeap>;
+
+export const zHeap = addParse(Schema.either(zSignHeap, zSwitchHeap));
 export type ZHeap = SchemaInput<typeof zHeap>;
 
 export const zPlayerListActionKind = addParse(
@@ -190,6 +203,10 @@ export const zWorldActionKind = addParse(
     },
     {
       action: "clear" as const,
+    },
+    {
+      action: "change title" as const,
+      title: zWorldName,
     }
   )
 );
@@ -211,6 +228,10 @@ export const zWorldActionKindReply = Schema.either(
   },
   {
     action: "clear" as const,
+  },
+  {
+    action: "change title" as const,
+    title: zWorldName,
   }
 );
 export type ZWorldActionKindReply = SchemaInput<typeof zWorldActionKindReply>;

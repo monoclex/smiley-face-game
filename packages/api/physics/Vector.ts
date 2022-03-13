@@ -62,6 +62,22 @@ export class Vector<T = number> {
     return new Vector(self.x / scalar, self.y / scalar);
   }
 
+  static rem(self: Vector, other: Vector): Vector {
+    return new Vector(self.x % other.x, self.y % other.y);
+  }
+
+  static rems(self: Vector, scalar: number): Vector {
+    return new Vector(self.x % scalar, self.y % scalar);
+  }
+
+  static divis(self: Vector, other: Vector): boolean {
+    return Vector.eq(Vector.rem(self, other), Vector.Zero);
+  }
+
+  static diviss(self: Vector, scalar: number): boolean {
+    return Vector.eq(Vector.rems(self, scalar), Vector.Zero);
+  }
+
   static eq<T = number>(self: Vector<T>, other: Vector<T>): boolean {
     return self.x === other.x && self.y === other.y;
   }
@@ -96,6 +112,10 @@ export class Vector<T = number> {
 
   static swap<T = number>(v: Vector<T>): Vector<T> {
     return new Vector<T>(v.y, v.x);
+  }
+
+  static fromSize<T>({ width, height }: { width: T; height: T }): Vector<T> {
+    return new Vector<T>(width, height);
   }
 
   static and(left: Vector<boolean>, right: Vector<boolean>): Vector<boolean> {
