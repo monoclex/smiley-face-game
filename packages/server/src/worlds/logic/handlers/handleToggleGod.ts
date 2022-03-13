@@ -28,7 +28,6 @@ export default function handleToggleGod(
     return;
   }
 
-  console.assert(sender.canGod && packet.god !== sender.inGod);
   sender.inGod = packet.god;
 
   // toggle their god (we don't need to tell them)
