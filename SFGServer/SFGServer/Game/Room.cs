@@ -164,18 +164,24 @@ public class RoomLogic : IDisposable
 
         var msg = JsonSerializer.Deserialize<MessagePacketId>(message)!;
 
-        // todo(security): unbounded label dataset potential (msg.PacketId isn't being validated. thus, users could technically create any kind of label)
+        using var timer = SfgMetrics.OnMessageDurationSummary.NewCustomTimer();
+        var success = await _onMessage(fireMessage.ConnectionId, message);
 
-        SfgMetrics.PacketsHandledTotal.WithLabels(msg.PacketId).Inc();
-        using (SfgMetrics.OnMessageDurationSummary.WithLabels(msg.PacketId).NewTimer())
+        if (success)
         {
-            var success = await _onMessage(fireMessage.ConnectionId, message);
+            // SECURITY: Unbounded labels for Prometheus
+            //   This is OK because we have validated the PacketId at this point.
+            SfgMetrics.PacketsHandledTotal.WithLabels(msg.PacketId).Inc();
+            timer.Observer = SfgMetrics.OnMessageDurationSummary.WithLabels(msg.PacketId);
+        }
+        else
+        {
+            SfgMetrics.PacketsHandledTotal.Inc();
 
-            if (!success)
-            {
-                var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
-                connection.close("Invalid packet (maybe you don't have permissions for this?)");
-            }
+            // TODO(metrics): record error packet?
+
+            var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
+            connection.close("Invalid packet (maybe you don't have permissions for this?)");
         }
     }
 

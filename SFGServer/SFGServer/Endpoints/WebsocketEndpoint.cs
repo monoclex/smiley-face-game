@@ -93,7 +93,8 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
             using var rent = _arrayPool.UseRent(16 * 1024);
             var memory = new Memory<byte>(rent.Buffer);
 
-            SfgMetrics.PlayersConnected.WithLabels(room.Id.ToString()).Inc();
+            // removed `.WithLabels(room.Id.ToString())`: no unbounded labels for Prometheus (that would be for InfluxDB)
+            SfgMetrics.PlayersConnected.Inc();
             while (true)
             {
                 var read = await webSocket.ReceiveAsync(memory, ct).ConfigureAwait(false);
@@ -116,7 +117,8 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         }
         finally
         {
-            SfgMetrics.PlayersConnected.WithLabels(room.Id.ToString()).Dec();
+            // removed `.WithLabels(room.Id.ToString())`: no unbounded labels for Prometheus (that would be for InfluxDB)
+            SfgMetrics.PlayersConnected.Dec();
 
             await room.Disconnect(connectionId, ct).ConfigureAwait(false);
         }
