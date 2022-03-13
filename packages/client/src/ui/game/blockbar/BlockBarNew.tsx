@@ -1,14 +1,15 @@
 // @ts-check
 import { Grid, Typography } from "@mui/material";
 import { styled } from "@mui/system";
-import { PackInfo } from "@smiley-face-game/api/tiles/register";
+import { BlockInfo, PackInfo } from "@smiley-face-game/api/tiles/register";
 import React, { useEffect, useMemo, useState } from "react";
 import GridLayout from "react-grid-layout";
 import { makeStyles } from "tss-react/mui";
-import { selectedBlockState } from "../../../state";
+import { selectedBlock as selectedBlockGlobal } from "../../../state";
 import { useGameState } from "../../hooks";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import { useMutableVariable } from "@/hooks";
 
 const useStyles = makeStyles()({
   draggableHandle: {
@@ -80,6 +81,7 @@ function BlockImage({ id, onSelect, selected }: BlockImageProps) {
 function BlockPackWidget(
   pack: Readonly<PackInfo>,
   draggableHandleClassName: string,
+  selectedBlockId: number,
   setSelectedBlock: (id: number) => void
 ) {
   return (
@@ -107,7 +109,7 @@ function BlockPackWidget(
             <Grid item key={block.id}>
               <BlockImage
                 onSelect={setSelectedBlock}
-                selected={selectedBlockState.id === block.id}
+                selected={selectedBlockId === block.id}
                 id={block.id}
               />
             </Grid>
@@ -127,8 +129,7 @@ export default function BlockBarNew({ width }: BlockBarNewProps) {
   const state = useGameState();
 
   const packs = state.game.tiles.packs.filter((x) => x.visible);
-  const [selectedBlock, setSelectedBlock] = useState(0);
-  selectedBlockState.id = selectedBlock;
+  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal, undefined);
 
   const layout = useMemo(() => {
     return packs.map((x, i) => ({
@@ -154,7 +155,7 @@ export default function BlockBarNew({ width }: BlockBarNewProps) {
       draggableHandle={`.${styles.classes.draggableHandle}`}
     >
       {packs.map((pack: PackInfo) =>
-        BlockPackWidget(pack, styles.classes.draggableHandle, setSelectedBlock)
+        BlockPackWidget(pack, styles.classes.draggableHandle, selectedBlock || 0, setSelectedBlock)
       )}
     </GridLayout>
   );
