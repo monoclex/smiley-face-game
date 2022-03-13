@@ -2,7 +2,7 @@ import { CompositeRectTileLayer } from "@pixi/tilemap";
 import { Game } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
-import { TileLayer, ZKeyKind } from "@smiley-face-game/api/types";
+import { TileLayer, ZHeap, ZKeyKind } from "@smiley-face-game/api/types";
 import { Container, DisplayObject, TilingSprite } from "pixi.js";
 import textures from "../textures";
 
@@ -108,21 +108,32 @@ export default class WorldRendering {
 
     const keysOn = this.game.physics.getAllKeysOn(this.self);
 
+    const heap = this.game.blocks.heap.state;
+
     for (let layerIdx = TileLayer.Foreground; layerIdx <= TileLayer.Decoration; layerIdx++) {
       const layer = blocks[layerIdx];
+      const heapLayer = heap[layerIdx];
       if (layer === undefined || layer === null) continue;
       const [tileLayer, tileLayerMinimap] = map[layerIdx];
       if (!tileLayer || !tileLayerMinimap) continue;
       for (let yIdx = 0; yIdx < this.game.blocks.size.y; yIdx++) {
         const y = layer[yIdx];
+        const yHeap = heapLayer?.[yIdx];
         if (y === undefined || y === null) continue;
         for (let x = 0; x < this.game.blocks.size.x; x++) {
           // because we've cleared the world, we don't want to place an empty tile
           // when we already have an *actual* empty tile
           if (y[x] === 0 || y[x] === null || y[x] === undefined) continue;
+          const xHeap = yHeap?.[x];
 
           const pos = new Vector(x, yIdx);
-          const textureName = this.mapTextureName(keysOn, this.game.tiles.texture(y[x]), pos);
+
+          const textureName = this.mapTextureName(
+            keysOn,
+            this.game.tiles.texture(y[x]),
+            pos,
+            xHeap ?? 0
+          );
 
           const texture = textures.block(textureName);
           tileLayer.addFrame(texture, x * 32, yIdx * 32);
@@ -132,7 +143,7 @@ export default class WorldRendering {
     }
   }
 
-  mapTextureName(keysOn: ZKeyKind[], name: string, pos: Vector): string {
+  mapTextureName(keysOn: ZKeyKind[], name: string, pos: Vector, heap: ZHeap | 0): string {
     // TODO: there's got to be a better way to render different tiles depending
     //   on if the key is pressed or not
 
@@ -140,6 +151,21 @@ export default class WorldRendering {
       if (name === `keys-${keyOn}-door`) return `keys-${keyOn}-gate`;
       if (name === `keys-${keyOn}-gate`) return `keys-${keyOn}-door`;
       if (name === `keys-${keyOn}-key`) return `keys-${keyOn}-key-on`;
+    }
+
+    if (heap !== 0 && heap.kind === "switch") {
+      const isOn = this.self.switches.isOn(heap.id);
+
+      if (name === `switches-switch-button`) {
+        return `switches-switch-button${isOn ? "-on" : ""}`;
+      }
+
+      const hasCollision = this.self.switches.getCollision(heap.id) ?? isOn;
+
+      if (hasCollision) {
+        if (name === `switches-switch-door`) return `switches-switch-gate`;
+        if (name === `switches-switch-gate`) return `switches-switch-door`;
+      }
     }
 
     if (this.onCheckpoint) {

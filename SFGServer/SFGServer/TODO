@@ -1,5 +1,4 @@
-logging/profiling
-===
+# logging/profiling
 
 - Resolve TODO(logging)s
 - Hook up server to prometheus
@@ -9,8 +8,7 @@ logging/profiling
 - The logs for every EFCore SQL queries is annoying, can we get rid of them?
 - Make FastEndpoints for websockets not emit an error message on closing (should probably switch to MVC controller)
 
-more robust
-===
+# more robust
 
 - Better exception handling for rooms.
   For example, throwing an exception in host.saveWorld throws an exception and causes the room to be lost as a zombie
@@ -19,7 +17,14 @@ more robust
   (basically, we must assume that it is always possible for a world to become a zombie,
   so we need some way to stop/restart worlds that become zombies)
 
-api niceness
-===
+# api niceness
 
 - Generate API code from Swagger, and include it directly in to the SFG Client API rather than duplicating the API endpoints
+
+# misc things (i am abusing this file to note down things that need to be done in the client too):
+
+- Support changing world name
+- Generate world data for registered accounts
+- Capatcha to prevent duplicate accounts
+- Remove random 2nd player in upper left
+- API errors need to be friendlier (not just "undefined")

@@ -5,9 +5,10 @@ import { Rectangle } from "../physics/Rectangle";
 import { Vector } from "../physics/Vector";
 import { TileLayer, ZHeap, ZKeyKind } from "../types";
 import { KeyBehavior, KeyDoorGateBehavior } from "./complexBehaviors/KeysBehavior";
+import { SwitchButtonBehavior, SwitchDoorGateBehavior } from "./complexBehaviors/SwitchBehavior";
 import { slabHitbox, solidHitbox } from "./hitboxes";
 
-// next new id: 116
+// next new id: 119
 
 // TODO: have a command developers can run to get a list of IDs used to then
 // know what the last ID available is
@@ -91,6 +92,7 @@ export default class Tiles {
 export enum HeapKind {
   None,
   Sign,
+  Switch,
 }
 
 export enum Behavior {
@@ -301,8 +303,35 @@ function makeTiles() {
   makeZoost(make);
   makeSign(make);
   makeSpike(make);
+  makeSwitches(make);
 
   return make;
+}
+
+function makeSwitches(make: TilesMaker) {
+  make.block({
+    id: 116,
+    textureId: `switches-switch-button`,
+    complex: new SwitchButtonBehavior(),
+    heap: HeapKind.Switch,
+    ...actionBlock,
+  });
+
+  make.block({
+    id: 117,
+    textureId: `switches-switch-door`,
+    complex: new SwitchDoorGateBehavior(false),
+    heap: HeapKind.Switch,
+  });
+
+  make.block({
+    id: 118,
+    textureId: `switches-switch-gate`,
+    complex: new SwitchDoorGateBehavior(true),
+    heap: HeapKind.Switch,
+  });
+
+  make.pack({ name: "switches" });
 }
 
 function makeSpike(make: TilesMaker) {

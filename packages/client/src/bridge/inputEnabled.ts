@@ -1,8 +1,5 @@
-import { gameFocusGlobal } from "../state";
-import { signGlobal } from "../state/signDialog";
+import { chatOpen, settingsOpen, signOpen } from "@/state";
 
 export default function inputEnabled() {
-  return (
-    !gameFocusGlobal.state.chatOpen && !gameFocusGlobal.state.settingsOpen && !signGlobal.state.open
-  );
+  return !(chatOpen.value || settingsOpen.value || signOpen.value);
 }

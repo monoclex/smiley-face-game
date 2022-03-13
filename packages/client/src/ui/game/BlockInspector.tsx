@@ -1,13 +1,15 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { styled } from "@mui/system";
-import { blockInspectorGlobal, blockPositionSelector } from "../../state/blockInspector";
-import { useRecoilValue } from "recoil";
 import { useGameState } from "../hooks";
 import { TileLayer } from "@smiley-face-game/api";
 import { Grid } from "@mui/material";
 import BlockPreview from "./blockbar/BlockPreview";
 import { GameState } from "../../bridge/state";
 import { ZHeap } from "@smiley-face-game/api/types";
+import { useGameEvent, useMutableVariable, useObjectState, useReactMutableVariable } from "@/hooks";
+import { Vector } from "@smiley-face-game/api/physics/Vector";
+import { loadControls } from "@/controls";
+import { blockInspectorEnabled, blockInspectorVisible } from "@/state/blockInspector";
 
 const CenteredTextGrid = styled(Grid)({
   textAlign: "center",
@@ -50,8 +52,11 @@ const getBlockInfo = (
   layer: TileLayer
 ) => [tiles.forId(blocks.blockAt({ x, y }, layer)), blocks.heap.get(layer, x, y)] as const;
 
-const BlockInspectorInner = React.memo(function BlockInspectorInner() {
-  const { x, y } = useRecoilValue(blockPositionSelector);
+function BlockInspectorInner() {
+  const [{ x, y }, setBlockPosition] = useObjectState(Vector.Zero);
+
+  useGameEvent("onBlockSelectionUpdate", (blockPosition) => setBlockPosition(blockPosition));
+
   const game = useGameState();
   const loader = React.useCallback((id: number) => game.blockBar.load(id), []);
 
@@ -76,7 +81,7 @@ const BlockInspectorInner = React.memo(function BlockInspectorInner() {
       </Grid>
     </Grid>
   );
-});
+}
 
 interface DisplayHeapProps {
   heap: 0 | ZHeap;
@@ -95,36 +100,54 @@ function DisplayHeap({ heap }: DisplayHeapProps) {
 
       return <span>Sign Information : {text}</span>;
     }
+    case "switch": {
+      return <span>Switch Id : {heap.id}</span>;
+    }
   }
 }
 
 const initiallyHidden = { display: "none" };
-/**
- * Having react manage the lifecycle of a constantly changing div is a bad idea for performance.
- * Thus, we tell React to create a div, manage and fiddle with it ourselves (without React knowing)
- * and then let react render the inside of the div via another component.
- */
-export default React.memo(function BlockInspector() {
+
+export default function BlockInspector() {
   const blockInspectorRef = useRef<HTMLDivElement>(null);
   const HALF_A_TILE = 16;
   const TILE_HEIGHT = 32;
 
-  useLayoutEffect(() => {
+  const [enabled, setEnabled] = useMutableVariable(blockInspectorEnabled, false);
+  const [visible] = useReactMutableVariable(blockInspectorVisible, true);
+
+  if (!enabled || !visible) {
     const div = blockInspectorRef.current;
+    if (div) div.style.display = "none";
+  }
 
-    blockInspectorGlobal.onValue = ({ enabled, visible, screenX, screenY }) => {
-      if (!div) return;
-
-      if (!enabled || !visible) {
-        div.style.display = "none";
-      } else {
-        div.style.display = "flex";
-        div.style.position = "absolute";
-        div.style.left = `${screenX + HALF_A_TILE}px`;
-        div.style.top = `${screenY + TILE_HEIGHT}px`;
+  useEffect(() => {
+    const controls = loadControls();
+    const handler = (event: KeyboardEvent) => {
+      if (controls.inspect.binding === event.key) {
+        setEnabled((enabled) => !enabled);
       }
     };
-  }, [blockInspectorRef]);
+
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [setEnabled]);
+
+  useGameEvent(
+    "onBlockSelectionUpdate",
+    (_, { x, y }) => {
+      const div = blockInspectorRef.current;
+      if (!div) return;
+
+      // by modifying the div like this, we don't actually rerender anything
+      // le performance!
+      div.style.display = "flex";
+      div.style.position = "absolute";
+      div.style.left = `${x + HALF_A_TILE}px`;
+      div.style.top = `${y + TILE_HEIGHT}px`;
+    },
+    [blockInspectorRef, enabled, visible]
+  );
 
   return (
     <div ref={blockInspectorRef} style={initiallyHidden}>
@@ -136,4 +159,4 @@ export default React.memo(function BlockInspector() {
       </CenteredDiv>
     </div>
   );
-});
+}

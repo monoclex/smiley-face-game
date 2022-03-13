@@ -25,6 +25,7 @@ importers:
       isomorphic-ws: ^4.0.1
       jest: ^27.5.1
       prettier: ^2.5.1
+      regenerator-runtime: ^0.13.9
       typescript: ^4.5.5
       ws: ^8.4.2
     dependencies:
@@ -49,6 +50,7 @@ importers:
       eslint-plugin-prettier: 4.0.0_43197c8d12d1d439034cfcf65e1c48c2
       jest: 27.5.1
       prettier: 2.5.1
+      regenerator-runtime: 0.13.9
       typescript: 4.5.5
 
   packages/client:

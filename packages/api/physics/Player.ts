@@ -1,7 +1,7 @@
 import { Inputs } from "../game/Inputs";
 import { ZSTeleportPlayer } from "../packets";
 import { ComplexBlockBehavior } from "../tiles/register";
-import { ZHeap, ZKeyKind, ZRole } from "../types";
+import { ZHeap, ZKeyKind, ZRole, ZSwitchId } from "../types";
 import { Config } from "./Config";
 import { Vector } from "./Vector";
 
@@ -208,6 +208,9 @@ export class Player {
 
   /** @version eephysics This may be removed when the physics engine changes */
   keys = new PlayerKeys();
+
+  /** @version eephysics This may be removed when the physics engine changes */
+  switches = new Switches();
 }
 
 // overrides for key collision, cuz when we're in a key gate but the key turns off
@@ -239,5 +242,45 @@ class PlayerKeys {
 
   getCountIn(key: ZKeyKind): number {
     return this.numIn[key] ?? 0;
+  }
+}
+
+class Switches {
+  activated: Set<ZSwitchId> = new Set();
+  state: Map<ZSwitchId, boolean> = new Map();
+  near: Map<ZSwitchId, number> = new Map();
+
+  clear() {
+    this.state = new Map();
+    this.near = new Map();
+  }
+
+  removeCollision(key: ZSwitchId) {
+    this.state.delete(key);
+  }
+
+  setCollision(key: ZSwitchId, on: boolean) {
+    this.state.set(key, on);
+  }
+
+  getCollision(key: ZSwitchId): boolean | undefined {
+    return this.state.get(key);
+  }
+
+  setCountIn(key: ZSwitchId, countIn: number) {
+    this.near.set(key, countIn);
+  }
+
+  getCountIn(key: ZSwitchId): number {
+    return this.near.get(key) ?? 0;
+  }
+
+  isOn(switchId: ZSwitchId): boolean {
+    return this.activated.has(switchId);
+  }
+
+  toggle(switchId: ZSwitchId, state: boolean) {
+    if (state) this.activated.add(switchId);
+    else this.activated.delete(switchId);
   }
 }

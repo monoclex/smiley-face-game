@@ -97,6 +97,11 @@ export const zKeyKind = addParse(
 );
 export type ZKeyKind = SchemaInput<typeof zKeyKind>;
 
+export const SWITCH_ID_MIN = 0;
+export const SWITCH_ID_MAX = 999;
+export const zSwitchId = addParse(number.integer().min(SWITCH_ID_MIN).max(SWITCH_ID_MAX));
+export type ZSwitchId = SchemaInput<typeof zSwitchId>;
+
 export const zVelocity = addParse(
   Schema({
     x: number,
@@ -152,7 +157,15 @@ export const zSignHeap = addParse(
 );
 export type ZSignHeap = SchemaInput<typeof zSignHeap>;
 
-export const zHeap = addParse(Schema.either(zSignHeap));
+export const zSwitchHeap = addParse(
+  Schema({
+    kind: "switch" as const,
+    id: zSwitchId,
+  })
+);
+export type ZSwitchHeap = SchemaInput<typeof zSwitchHeap>;
+
+export const zHeap = addParse(Schema.either(zSignHeap, zSwitchHeap));
 export type ZHeap = SchemaInput<typeof zHeap>;
 
 export const zPlayerListActionKind = addParse(

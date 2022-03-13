@@ -1,8 +1,4 @@
-import type { BlockInfo } from "@smiley-face-game/api/tiles/TileRegistration";
+import { MutableVariable } from "@/util";
+import { BlockInfo } from "@smiley-face-game/api/tiles/register";
 
-export type SelectedBlock = BlockInfo | undefined;
-
-/**
- * read-only global state
- */
-export const selectedBlockState: { it: SelectedBlock } = { it: undefined };
+export const selectedBlock = new MutableVariable<BlockInfo | undefined>(undefined);

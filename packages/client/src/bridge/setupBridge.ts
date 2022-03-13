@@ -11,7 +11,6 @@ import Keyboard from "./Keyboard";
 import MouseInteraction from "./MouseInteraction";
 import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
-import { gameGlobal } from "../state";
 import PromiseCompletionSource from "../PromiseCompletionSource";
 import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
 import { enableExtraChecks } from "../isProduction";
@@ -87,9 +86,13 @@ export default async function setupBridge(
     }
   });
 
+  game.physics.events.on("switchStateChanged", (player) => {
+    if (player === self) {
+      gameRenderer.worldRenderer.flagDirty();
+    }
+  });
+
   gameRenderer.focus = self;
-  // TODO: we need to update gameGlobal whenever `self` roles/etc gets updated
-  gameGlobal.modify({ self: self.cheap() });
 
   const keyboard = new Keyboard(self, connection);
 

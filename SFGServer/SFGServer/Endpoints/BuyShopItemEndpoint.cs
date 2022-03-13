@@ -127,7 +127,7 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
             // enough energy to purchase it!
             accountShopItem.SpentEnergy = 0;
             accountShopItem.Purchased += 1;
-            HandlePurchaseAction(account, shopItem.Purchase);
+            await HandlePurchaseAction(account, shopItem.Purchase, ct);
         }
 
         await _sfgContext.SaveChangesAsync(ct);
@@ -163,10 +163,10 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
         }, cancellation: ct);
     }
 
-    private void HandlePurchaseAction(Account owner, PurchaseWorld purchaseAction)
+    private async Task HandlePurchaseAction(Account owner, PurchaseWorld purchaseAction, CancellationToken cancellationToken)
     {
         var (width, height) = purchaseAction;
 
-        _worldCreatorService.CreateWorld(owner, width, height);
+        await _worldCreatorService.CreateWorld(owner, width, height, cancellationToken);
     }
 }

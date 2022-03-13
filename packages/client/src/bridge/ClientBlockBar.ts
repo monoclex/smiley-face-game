@@ -1,5 +1,5 @@
 import TileRegistration from "@smiley-face-game/api/tiles/TileRegistration";
-import { selectedBlockState } from "../state";
+import { selectedBlock } from "../state";
 import textures from "./textures";
 import { blockTextureToImage } from "../textures/BlockTextureToImage";
 
@@ -20,6 +20,6 @@ export default class ClientBlockBar {
   }
 
   get selectedBlock(): number {
-    return selectedBlockState.it?.id ?? 0;
+    return selectedBlock.value?.id ?? 0;
   }
 }

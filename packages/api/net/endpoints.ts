@@ -42,6 +42,15 @@ export function useDev() {
   );
 }
 
+// TODO: we have a dev server for this, im just too lazy to migrate stuff over weee
+export function useTest() {
+  rewriteHost((endpoint) =>
+    endpoint.host.startsWith("ws")
+      ? { ...endpoint, host: "test-ws-api.sirjosh3917.com/smiley-face-game/v1" }
+      : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/test/v1" }
+  );
+}
+
 const zWebsocket = addParse(boolean);
 
 /**

@@ -1,6 +1,6 @@
 import { Game, ZSPacket } from "@smiley-face-game/api";
 import { Player } from "@smiley-face-game/api/physics/Player";
-import { gameGlobal } from "../state";
+import { gameEventEmitter } from "./Events";
 
 export class PlayerList {
   self?: Player;
@@ -19,6 +19,10 @@ export class PlayerList {
     switch (event.packetId) {
       case "SERVER_ROLE_UPDATE":
         this.updatePlayerList();
+
+        if (event.playerId === this.self?.id) {
+          this.updateSelf();
+        }
         break;
       default:
         break;
@@ -26,9 +30,10 @@ export class PlayerList {
   }
 
   updatePlayerList() {
-    gameGlobal.modify({
-      players: this.game.players.list.map((x) => x.cheap()),
-      self: this.self?.cheap(),
-    });
+    gameEventEmitter.emit("onPlayerListUpdate", this.game);
+  }
+
+  updateSelf() {
+    gameEventEmitter.emit("onSelfUpdated");
   }
 }

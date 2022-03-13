@@ -13,7 +13,14 @@ import {
 } from "@mui/material";
 import LogoutIcon from "../icons/LogoutIcon";
 import { useNavigate } from "react-router";
-import { useControlBindings, ControlKey, updateBinding, Controls, Control } from "../../controls";
+import {
+  useControlBindings,
+  ControlKey,
+  updateBinding,
+  Controls,
+  Control,
+  formatKeyBindingName,
+} from "@/controls";
 
 export default function ControlsPage() {
   return (
@@ -135,13 +142,6 @@ function FilledControlEntry<K extends string>({
       </ControlEntryBinding>
     </ControlEntry>
   );
-}
-
-function formatKeyBindingName(binding: string): string {
-  const upper = binding.toUpperCase();
-
-  if (upper === " ") return "SPACE";
-  return upper;
 }
 
 function iterateRecord<K extends string | number | symbol, V>(record: Record<K, V>): [K, V][] {

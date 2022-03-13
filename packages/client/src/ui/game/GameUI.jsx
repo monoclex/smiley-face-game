@@ -12,6 +12,7 @@ import SoundButton from "./SoundButton";
 import ExitButton from "./ExitButton";
 import { gameRunningState } from "../../bridge/state";
 import BlockInspector from "./BlockInspector";
+import SwitchIdWindow from "./SwitchIdWindow";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -61,6 +62,7 @@ export default function GameUI({ children: gameCanvas }) {
   return (
     <>
       <Sign />
+      <SwitchIdWindow />
       <BlockInspector />
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>

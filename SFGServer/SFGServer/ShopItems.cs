@@ -17,7 +17,7 @@ public record ServerShopItemInfo
     bool Removed = false
 );
 
-public record PurchaseWorld(int Width, int Height);
+public record PurchaseWorld(uint Width, uint Height);
 
 // TODO(clean): change this to a json configuration file
 public static class ShopItemConfiguration

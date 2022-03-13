@@ -1,13 +1,9 @@
 import { Game } from "@smiley-face-game/api";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { TileLayer } from "@smiley-face-game/api/types";
-import { signGlobal, text } from "../../state/signDialog";
 import AuthoredBlockPlacer from "../AuthoredBlockPlacer";
-
-function openDialog(): Promise<string> {
-  signGlobal.modify({ open: true });
-  return text.it.handle;
-}
+import { signOpen } from "@/state";
+import { gameQuestioner } from "../Questions";
 
 export default function onSign(
   game: Game,
@@ -16,9 +12,12 @@ export default function onSign(
   position: Vector,
   id: number
 ) {
-  openDialog()
-    .then((text) => {
-      placer.place(layer, undefined, position, id, { kind: "sign", text });
-    })
-    .catch(console.warn);
+  signOpen.value = true;
+
+  gameQuestioner.ask("signText").then((text) => {
+    signOpen.value = false;
+
+    if (!text) return;
+    placer.place(layer, undefined, position, id, { kind: "sign", text });
+  });
 }
