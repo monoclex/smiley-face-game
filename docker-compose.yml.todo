@@ -1,0 +1,11 @@
+setup docker-compose.yml
+
+containers for: grafana/grafana-oss, prom/prometheus, sfg-server(C# code)
+network should be setup so that: grafana can query prometheus and prometheus can query sfg-server
+volumes should only be necessary for prometheus (one for config/prometheus.yml, and for the actual metrics data)
+
+example prometheus docker command:
+docker run \
+-p 9090:9090 \
+-v path/to/smiley-face-game/prometheus.yml:/etc/prometheus/prometheus.yml \
+prom/prometheus

@@ -1,11 +1,12 @@
-using System.Collections.Immutable;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading.Channels;
 using Microsoft.ClearScript.V8;
-using Namotion.Reflection;
+using Prometheus;
 using SFGServer.Game.HostStructures;
 using SFGServer.Models;
+using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Channels;
 
 namespace SFGServer.Game;
 
@@ -34,8 +35,7 @@ public class Room : IDisposable
         RoomLogic.Dispose();
     }
 
-    public async Task<HostConnection> AcceptConnection(WebSocket connection, Guid? userId, string username,
-        CancellationToken cancellationToken)
+    public async Task<HostConnection> AcceptConnection(WebSocket connection, Guid? userId, string username, CancellationToken cancellationToken)
     {
         var isOwner = false;
 
@@ -162,12 +162,20 @@ public class RoomLogic : IDisposable
 
         var message = Encoding.UTF8.GetString(payload.Buffer[..payload.RentedLength]);
 
-        var success = await _onMessage(fireMessage.ConnectionId, message);
+        var msg = JsonSerializer.Deserialize<MessagePacketId>(message)!;
 
-        if (!success)
+        // todo(security): unbounded label dataset potential (msg.PacketId isn't being validated. thus, users could technically create any kind of label)
+
+        SfgMetrics.PacketsHandledTotal.WithLabels(msg.PacketId).Inc();
+        using (SfgMetrics.OnMessageDurationSummary.WithLabels(msg.PacketId).NewTimer())
         {
-            var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
-            connection.close("Invalid packet (maybe you don't have permissions for this?)");
+            var success = await _onMessage(fireMessage.ConnectionId, message);
+
+            if (!success)
+            {
+                var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
+                connection.close("Invalid packet (maybe you don't have permissions for this?)");
+            }
         }
     }
 
@@ -175,8 +183,7 @@ public class RoomLogic : IDisposable
     {
         _onConnect = (connection) => Engine.Script.onConnect(connection);
         _onDisconnect = id => Engine.Script.onDisconnect(id);
-        _onMessage = (id, message) =>
-        {
+        _onMessage = (id, message) => {
             // https://github.com/microsoft/ClearScript/issues/182#issuecomment-627365386
             var completionSource = new TaskCompletionSource<bool>();
 
@@ -188,14 +195,14 @@ public class RoomLogic : IDisposable
             return completionSource.Task;
         };
 
-        Task.Run(async () =>
-        {
+        Task.Run(async () => {
             try
             {
                 await HandleMessages();
             }
             catch (TaskCanceledException)
             {
+
             }
         });
     }
@@ -215,12 +222,15 @@ public class RoomLogic : IDisposable
                     case WorkMessage.AcceptConnection acceptConnection:
                         HandleAcceptConnection(acceptConnection);
                         break;
+
                     case WorkMessage.Disconnect disconnect:
                         HandleDisconnect(disconnect);
                         break;
+
                     case WorkMessage.FireMessage fireMessage:
                         await HandleFireMessage(fireMessage);
                         break;
+
                     default:
                         throw new ArgumentOutOfRangeException(nameof(message));
                 }
@@ -239,5 +249,11 @@ public class RoomLogic : IDisposable
     {
         // TODO(correctness): will we still be able to iterate over items in the channel? don't think we'd need to but it'd be nice to know
         WorkQueue.Writer.Complete();
+    }
+
+    private class MessagePacketId
+    {
+        [JsonPropertyName("packetId")]
+        public string PacketId { get; set; } = null!;
     }
 }

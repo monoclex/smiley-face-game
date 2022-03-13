@@ -1,10 +1,9 @@
-using System.Buffers;
-using System.Net.WebSockets;
-using System.Text;
 using SFGServer.Contracts.Requests;
 using SFGServer.Game;
 using SFGServer.Models;
 using SFGServer.Services;
+using System.Buffers;
+using System.Net.WebSockets;
 
 namespace SFGServer.Endpoints;
 
@@ -57,8 +56,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
             username = await scope.Service.GetUsername(user, ct);
         }
 
-        var room = req.World switch
-        {
+        var room = req.World switch {
             // TODO(clean): perhaps we should set the room name/owner after we create the dynamic room instead of pass `username` thru here
             WebsocketJoin.Create create => await _roomManager.CreateDynamicRoom(username, create, ct),
             WebsocketJoin.Join join => await _roomManager.JoinRoom(new RoomId(join.Id), ct),
@@ -73,24 +71,35 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         }
 
         using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+        SfgMetrics.WebsocketConnectionsConnected.Inc();
 
+        try
+        {
+            await HandleConnection(user, username, room, webSocket, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            SfgMetrics.WebsocketConnectionsConnected.Dec();
+        }
+    }
+
+    private async Task HandleConnection(UserPlayModel user, string username, Room room, WebSocket webSocket, CancellationToken ct)
+    {
         var hostConnection = await room.AcceptConnection(webSocket, user.GetUserId(), username, ct);
         var connectionId = hostConnection.connectionId;
 
         try
         {
             using var rent = _arrayPool.UseRent(16 * 1024);
-
             var memory = new Memory<byte>(rent.Buffer);
 
+            SfgMetrics.PlayersConnected.WithLabels(room.Id.ToString()).Inc();
             while (true)
             {
                 var read = await webSocket.ReceiveAsync(memory, ct).ConfigureAwait(false);
 
                 if (read.MessageType == WebSocketMessageType.Close)
-                {
                     return;
-                }
 
                 if (!read.EndOfMessage)
                 {
@@ -107,6 +116,8 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
         }
         finally
         {
+            SfgMetrics.PlayersConnected.WithLabels(room.Id.ToString()).Dec();
+
             await room.Disconnect(connectionId, ct).ConfigureAwait(false);
         }
     }
