@@ -3,11 +3,15 @@ global using FastEndpoints.Security;
 
 using FastEndpoints.Swagger;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
+using SFGServer;
 using SFGServer.DAL;
 using SFGServer.Game;
 using SFGServer.Game.Services;
 using SFGServer.Services;
 using SFGServer.Settings;
+
+SfgMetrics.Init();
 
 var builder = WebApplication.CreateBuilder(args);
 AddSettingsToServices();
@@ -37,17 +41,17 @@ using (var scope = app.Services.CreateScope())
     await sfgContext.Database.MigrateAsync();
 }
 
-app.UseCors(config =>
-{
+app.UseCors(config => {
     config.AllowAnyOrigin()
         .AllowAnyHeader()
         .AllowAnyMethod();
 });
 
-app.UseWebSockets(new WebSocketOptions
-{
+app.UseWebSockets(new WebSocketOptions {
     KeepAliveInterval = TimeSpan.FromSeconds(30),
 });
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -55,6 +59,11 @@ app.UseAuthorization();
 app.UseFastEndpoints(config => {
     config.RoutingOptions = options => options.Prefix = "v1";
 });
+
+// todo(metrics): prometheus-net doesn't seem to be able to discover endpoints made by fast-endpoints
+app.UseHttpMetrics();
+app.UseEndpoints(x => x.MapMetrics());
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -64,7 +73,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-
 app.Run();
 
 void RegisterServices()

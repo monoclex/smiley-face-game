@@ -49,6 +49,7 @@ public sealed class RoomStorage
         }
 
         RoomList = _rooms.Values.ToArray();
+        SfgMetrics.RoomsOnlineTotal.Set(RoomList.Length);
 
         _semaphore.Release();
     }

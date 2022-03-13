@@ -1,0 +1,6 @@
+**/
+**/bin/
+**/obj/
+!SFGServer/
+!SFGServer.DAL/
+!SFGServer.sln
