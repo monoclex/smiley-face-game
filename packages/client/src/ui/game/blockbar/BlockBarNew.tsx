@@ -78,6 +78,12 @@ function BlockImage({ id, onSelect, selected }: BlockImageProps) {
   );
 }
 
+const Separator = styled("hr")(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+  marginRight: theme.spacing(1),
+  padding: 0,
+}));
+
 function BlockPackWidget(
   pack: Readonly<PackInfo>,
   draggableHandleClassName: string,
@@ -85,38 +91,40 @@ function BlockPackWidget(
   setSelectedBlock: (id: number) => void
 ) {
   return (
-    <Grid
-      container
-      direction="column"
-      justifyContent="flex-start"
-      alignItems="stretch"
+    <div
       key={pack.name}
       style={{
         backgroundColor: "#242424",
         margin: 0,
+        overflow: "hidden",
       }}
     >
-      <Grid item className={draggableHandleClassName}>
-        <Typography gutterBottom variant="subtitle1" component="div">
-          {pack.name}
-        </Typography>
-        <hr style={{ margin: 0, padding: 0 }} />
-      </Grid>
+      <Grid container direction="column" justifyContent="flex-start" alignItems="stretch">
+        <Grid item className={draggableHandleClassName}>
+          <Typography gutterBottom variant="subtitle1" component="div">
+            {pack.name}
+          </Typography>
+        </Grid>
 
-      <Grid item container justifyContent="center">
-        {pack.blocks.map((block) => {
-          return (
-            <Grid item key={block.id}>
-              <BlockImage
-                onSelect={setSelectedBlock}
-                selected={selectedBlockId === block.id}
-                id={block.id}
-              />
-            </Grid>
-          );
-        })}
+        <Grid item>
+          <Separator />
+        </Grid>
+
+        <Grid item container justifyContent="center" flexWrap="wrap">
+          {pack.blocks.map((block) => {
+            return (
+              <Grid item key={block.id}>
+                <BlockImage
+                  onSelect={setSelectedBlock}
+                  selected={selectedBlockId === block.id}
+                  id={block.id}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
       </Grid>
-    </Grid>
+    </div>
   );
 }
 
