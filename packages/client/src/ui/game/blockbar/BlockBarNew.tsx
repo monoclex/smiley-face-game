@@ -9,8 +9,9 @@ import { selectedBlock as selectedBlockGlobal } from "../../../state";
 import { useGameState } from "../../hooks";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { useMutableVariable } from "@/hooks";
+import { useMutableVariable, useReactEvent, useRerender } from "@/hooks";
 import SpringScrollbars from "@/ui/components/SpringScrollbars";
+import { reactEventEmitter } from "@/ui/ReactEvents";
 
 const useStyles = makeStyles()({
   draggableHandle: {
@@ -49,17 +50,41 @@ const SelectableBlockImage = styled("div")(({ selected }: VisualCuedProps) => ({
   },
 }));
 
+interface BlockTileProps {
+  block: BlockInfo;
+}
+
+function BlockTile({ block }: BlockTileProps) {
+  const [selected, setSelected] = useState(false);
+
+  useReactEvent("selectedBlockChanged", (id) => {
+    setSelected(id === block.id);
+  });
+
+  const handleClick = () => {
+    selectedBlockGlobal.value = block;
+    reactEventEmitter.emit("selectedBlockChanged", block.id);
+  };
+
+  return <BlockImage id={block.id} onSelect={handleClick} selected={selected} />;
+}
+
 type BlockImageProps = {
   id: number;
   onSelect: (id: number) => void;
   selected: boolean;
 };
 
+const BlockImagePlaceholder = styled("div")({
+  width: "32px",
+  height: "32px",
+});
+
 function BlockImage({ id, onSelect, selected }: BlockImageProps) {
   const state = useGameState();
 
   const [body, setBody] = useState<HTMLImageElement | null>(null);
-  const [, doRerender] = useState(false);
+  const rerender = useRerender();
 
   useEffect(() => {
     state.blockBar.load(id).then(setBody);
@@ -67,16 +92,16 @@ function BlockImage({ id, onSelect, selected }: BlockImageProps) {
 
   const handleClick = () => {
     onSelect(id);
-    doRerender(true);
+    rerender();
   };
-
-  if (body === null) {
-    return null;
-  }
 
   return (
     <SelectableBlockImage selected={selected} onClick={handleClick}>
-      <StyledBlockImage src={body.src} draggable={false} />
+      {body === null ? (
+        <BlockImagePlaceholder />
+      ) : (
+        <StyledBlockImage src={body.src} draggable={false} />
+      )}
     </SelectableBlockImage>
   );
 }
@@ -91,23 +116,9 @@ const Separator = styled("hr")(({ theme }) => ({
 interface BlockPackWidgetProps {
   pack: Readonly<PackInfo>;
   draggableHandleClassName: string;
-  selectedBlockId: number;
-  setSelectedBlock: (block: BlockInfo) => void;
 }
 
-function BlockPackWidget({
-  pack,
-  draggableHandleClassName,
-  selectedBlockId,
-  setSelectedBlock,
-}: BlockPackWidgetProps) {
-  const onBlockSelected = (id: number) => {
-    const block = pack.blocks.find((block) => block.id === id);
-    if (!block) throw new Error("Unknown block selected " + id);
-
-    setSelectedBlock(block);
-  };
-
+function BlockPackWidget({ pack, draggableHandleClassName }: BlockPackWidgetProps) {
   return (
     <Grid
       key={pack.name}
@@ -142,11 +153,7 @@ function BlockPackWidget({
           {pack.blocks.map((block) => {
             return (
               <Grid item key={block.id}>
-                <BlockImage
-                  onSelect={onBlockSelected}
-                  selected={selectedBlockId === block.id}
-                  id={block.id}
-                />
+                <BlockTile block={block} />
               </Grid>
             );
           })}
@@ -165,7 +172,6 @@ export default function BlockBarNew({ width }: BlockBarNewProps) {
   const state = useGameState();
 
   const packs = state.game.tiles.packs.filter((x) => x.visible);
-  const [selectedBlock, setSelectedBlock] = useMutableVariable(selectedBlockGlobal, undefined);
 
   const COLUMNS = 32;
 
@@ -203,8 +209,6 @@ export default function BlockBarNew({ width }: BlockBarNewProps) {
               // key: pack.name,
               pack: pack,
               draggableHandleClassName: styles.classes.draggableHandle,
-              selectedBlockId: selectedBlock?.id ?? 0,
-              setSelectedBlock: setSelectedBlock,
             })
           // <BlockPackWidget
           //   key={pack.name}
