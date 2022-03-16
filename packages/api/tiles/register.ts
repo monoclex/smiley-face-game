@@ -10,8 +10,8 @@ import { slabHitbox, solidHitbox } from "./hitboxes";
 
 // next new id: 119
 
-// TODO: have a command developers can run to get a list of IDs used to then
-// know what the last ID available is
+// TODO(automation): have a command developers can run to get a list of IDs
+//   used to then know what the last ID available is
 
 export default class Tiles {
   readonly emptyPack: PackInfo;
@@ -269,6 +269,94 @@ export class TilesMaker {
       this.pack({ name });
     }
   }
+}
+
+// TODO(automation): make this stuff really easy to auto generate from the client,
+//   or just more sophisticated somehow
+// TODO(performance): make the keys the numeric ID of the block
+export function minimapColors() {
+  return {
+    empty: 0x0e0e0e,
+    "basic-white": 0xa4a4a4,
+    "basic-brown": 0x8b6543,
+    "basic-black": 0x4d4d4d,
+    "basic-red": 0xa42222,
+    "basic-orange": 0xa45822,
+    "basic-yellow": 0xa49022,
+    "basic-green": 0x22a433,
+    "basic-aqua": 0x22a4a4,
+    "basic-blue": 0x2235a4,
+    "basic-purple": 0x7d22a4,
+    "prismarine-basic": 0x225379,
+    "prismarine-anchor": 0x204c76,
+    "prismarine-brick": 0x255382,
+    "prismarine-slab": 0x255581,
+    "prismarine-crystal": 0x254678,
+    "prismarine-hollow": 0x25568d,
+    "prismarine-slab-up": 0x23537e,
+    "prismarine-slab-right": 0x265886,
+    "prismarine-slab-down": 0x265885,
+    "prismarine-slab-left": 0x24547f,
+    "gemstone-red": 0xa00300,
+    "gemstone-orange": 0xa06000,
+    "gemstone-yellow": 0xa08900,
+    "gemstone-green": 0x25a000,
+    "gemstone-aqua": 0x00a096,
+    "gemstone-blue": 0x1000a0,
+    "gemstone-purple": 0x6e00a0,
+    "gemstone-pink": 0xa00075,
+    "tshell-white": 0xb7b7b7,
+    "tshell-gray": 0x7c7c7c,
+    "tshell-black": 0x404040,
+    "tshell-red": 0xbc5e6c,
+    "tshell-orange": 0xbc875e,
+    "tshell-yellow": 0xbabb5e,
+    "tshell-green": 0x83bc5e,
+    "tshell-aqua": 0x5ebca6,
+    "tshell-light-blue": 0x5e9abc,
+    "tshell-blue": 0x5e64bc,
+    "tshell-purple": 0x8f5ebc,
+    "tshell-pink": 0xbb5eb2,
+    "pyramid-white": 0xc2c2c2,
+    "pyramid-gray": 0x818181,
+    "pyramid-black": 0x595959,
+    "pyramid-red": 0xb95270,
+    "pyramid-orange": 0xc56b4a,
+    "pyramid-yellow": 0xa9ba52,
+    "pyramid-green": 0x5eba51,
+    "pyramid-cyan": 0x53b6bb,
+    "pyramid-blue": 0x526eba,
+    "pyramid-purple": 0xa952ba,
+    "chocolate-l0": 0xe3e3e3,
+    "chocolate-l0mint": 0xcbcac9,
+    "chocolate-l1": 0xfde887,
+    "chocolate-l2": 0xeea75a,
+    "chocolate-l3": 0xc36d33,
+    "chocolate-l4": 0x713617,
+    "chocolate-l5": 0x311809,
+    "keys-white-door": 0x858585,
+    "keys-white-gate": 0x828282,
+    "keys-gray-door": 0x606060,
+    "keys-gray-gate": 0x707070,
+    "keys-black-door": 0x424242,
+    "keys-black-gate": 0x616161,
+    "keys-red-door": 0x804053,
+    "keys-red-gate": 0x806069,
+    "keys-orange-door": 0x864e39,
+    "keys-orange-gate": 0x83675d,
+    "keys-yellow-door": 0x768040,
+    "keys-yellow-gate": 0x7b8060,
+    "keys-green-door": 0x488040,
+    "keys-green-gate": 0x648060,
+    "keys-aqua-door": 0x407d80,
+    "keys-aqua-gate": 0x607e80,
+    "keys-blue-door": 0x405180,
+    "keys-blue-gate": 0x606980,
+    "keys-purple-door": 0x754080,
+    "keys-purple-gate": 0x7b6080,
+    "switches-switch-door": 0x41047c,
+    "switches-switch-gate": 0x7612e4,
+  };
 }
 
 export const directions = ["up", "right", "down", "left"] as const;

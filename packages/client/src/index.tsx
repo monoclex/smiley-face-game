@@ -6,6 +6,10 @@ import { rewriteHost, useTest } from "@smiley-face-game/api/net/endpoints";
 import { serverMode } from "./isProduction";
 import { routesRewritten } from "./rewritten";
 import whyDidYouRender from "@welldone-software/why-did-you-render";
+import { computeColors } from "./textures/computeColors";
+
+//@ts-expect-error lol lazy
+globalThis["downloadAllBlocks"] = computeColors;
 
 if (serverMode === "localhost") {
   whyDidYouRender(React, {
