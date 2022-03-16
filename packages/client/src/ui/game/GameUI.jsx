@@ -57,7 +57,7 @@ function MinimapHerePlease() {
       antialias: true,
     });
 
-    state.wait.then(({ minimapRenderer }) => (minimapRenderer.minimapRenderer = renderer));
+    state.wait.then(({ minimapRenderer }) => minimapRenderer.setRenderer(renderer));
 
     const resizeObserver = new ResizeObserver(([{ contentRect }]) => {
       renderer.resize(contentRect.width, contentRect.height);
@@ -68,17 +68,13 @@ function MinimapHerePlease() {
   }, [canvasRef]);
 
   return (
-    <Grid container direction="row" justifyContent="center" alignItems="center">
-      <Grid item>
-        <canvas
-          ref={canvasRef}
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      </Grid>
-    </Grid>
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: "100%",
+        height: "100%",
+      }}
+    />
   );
 }
 

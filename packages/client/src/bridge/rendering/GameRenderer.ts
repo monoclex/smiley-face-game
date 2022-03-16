@@ -55,16 +55,8 @@ export default class GameRenderer {
     this.root.addChild(this.signRenderer.sprite);
 
     const minimap = new Container();
-    minimap.addChild(this.worldRenderer.worldMinimap);
-    minimap.addChild(this.playerRenderer.playersMinimap);
 
-    this.minimapRenderer = new MinimapRenderer(
-      this.stage,
-      this.root,
-      minimap,
-      game.blocks.size,
-      this.renderer
-    );
+    this.minimapRenderer = new MinimapRenderer(game, minimap);
   }
 
   readonly stage: Container = new Container();
