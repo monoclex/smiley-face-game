@@ -18,6 +18,11 @@ function config({ serverMode }, { mode }) {
     mode,
     devtool: mode === "development" ? "eval-source-map" : false,
     entry: "./src/index.tsx",
+    output: {
+      path: path.join(__dirname, "dist"),
+      filename: "[name].[chunkhash].js",
+      chunkFilename: "chunk.[name].[chunkhash].js",
+    },
     resolve: {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
