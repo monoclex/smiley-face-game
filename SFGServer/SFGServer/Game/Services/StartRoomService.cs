@@ -14,14 +14,17 @@ public class StartRoomService
     private readonly JavaScriptCodeSettings _javaScriptCodeSettings;
     private readonly IScopedServiceFactory<WorldSaver> _worldSaverFactory;
     private readonly RoomKillService _roomKillService;
+    private readonly RoomStorage _roomStorage;
 
     public StartRoomService(IOptions<JavaScriptCodeSettings> javaScriptCodeSettings,
         IScopedServiceFactory<WorldSaver> worldSaverFactory,
-        RoomKillService roomKillService)
+        RoomKillService roomKillService,
+        RoomStorage roomStorage)
     {
         _javaScriptCodeSettings = javaScriptCodeSettings.Value;
         _worldSaverFactory = worldSaverFactory;
         _roomKillService = roomKillService;
+        _roomStorage = roomStorage;
     }
 
     public async Task<Room> Start(HostRoom hostRoom, CancellationToken cancellationToken)
@@ -30,6 +33,7 @@ public class StartRoomService
 
         var engine = new V8ScriptEngine();
         var room = new Room(engine, hostRoom);
+        room.RoomLogic.RoomStorage = _roomStorage;
         var hostObject = new HostObject(_roomKillService, room, _worldSaverFactory);
 
         engine.AddHostObject("host", hostObject);

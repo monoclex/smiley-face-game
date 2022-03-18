@@ -37,6 +37,7 @@ public class RoomKillService
 
         // lock on room storage is freed,
         // now perform cleanup on the room
-        room.Dispose();
+        room.RoomLogic.InRoomStorage = false;
+        room.RoomLogic.EventLoopCancellationToken.Cancel();
     }
 }
