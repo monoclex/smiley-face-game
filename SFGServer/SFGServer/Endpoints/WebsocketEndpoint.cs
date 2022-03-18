@@ -120,7 +120,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
             // removed `.WithLabels(room.Id.ToString())`: no unbounded labels for Prometheus (that would be for InfluxDB)
             SfgMetrics.PlayersConnected.Dec();
 
-            await room.Disconnect(connectionId, ct).ConfigureAwait(false);
+            await room.Disconnect(connectionId, default).ConfigureAwait(false);
         }
     }
 }
