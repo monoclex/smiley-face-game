@@ -3,11 +3,9 @@ import ReactDOM from "react-dom";
 import App from "./ui/App";
 import { useDev } from "@smiley-face-game/api";
 import { rewriteHost, useTest } from "@smiley-face-game/api/net/endpoints";
-import { serverMode } from "./isProduction";
 import { routesRewritten } from "./rewritten";
 import whyDidYouRender from "@welldone-software/why-did-you-render";
 
-if (serverMode === "localhost") {
   whyDidYouRender(React, {
     trackAllPureComponents: true,
     titleColor: "red",
@@ -15,11 +13,12 @@ if (serverMode === "localhost") {
     logOwnerReasons: true,
     logOnDifferentValues: true,
   });
+if (import.meta.env.SERVER_MODE === "localhost") {
   rewriteHost((endpoint) => ({ ...endpoint, host: window.location.hostname + ":5265/v1" }));
-} else if (serverMode === "development") {
+} else if (import.meta.env.SERVER_MODE === "development") {
   // useDev();
   useTest();
-} else if (serverMode === "production") {
+} else if (import.meta.env.SERVER_MODE === "production") {
   // production servers are the default
 }
 
