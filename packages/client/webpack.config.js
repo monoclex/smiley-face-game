@@ -42,7 +42,10 @@ function config({ serverMode }, { mode }) {
           test: /\.(ts|tsx|jsx)$/,
           use: {
             loader: "@sucrase/webpack-loader",
-            options: { transforms: ["typescript", "jsx"] },
+            options: {
+              transforms: ["typescript", "jsx"],
+              production: mode === "production",
+            },
           },
           exclude: /node_modules/,
         },
