@@ -29,12 +29,12 @@ public class SavedWorldSavingBehavior : ISavingBehavior
         await scope.Service.Save(_roomId, worldData);
     }
 
-    public async Task<bool> IsOwner(Guid userId)
+    public async Task<bool> IsOwner(Guid userId, CancellationToken cancellationToken)
     {
         if (_owner == null)
         {
             using var scope = _serviceFactory.CreateScopedService();
-            _owner = await scope.Service.GetOwner(_roomId);
+            _owner = await scope.Service.GetOwner(_roomId, cancellationToken);
         }
 
         return userId == _owner.Value;

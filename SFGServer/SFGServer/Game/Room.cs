@@ -41,10 +41,12 @@ public class Room : IDisposable
 
         if (userId != null)
         {
-            isOwner = await HostRoom.SavingBehavior.IsOwner(userId.Value);
+            isOwner = await HostRoom.SavingBehavior.IsOwner(userId.Value, cancellationToken);
         }
 
         var tcs = new TaskCompletionSource<HostConnection>();
+        tcs.SetCanceled(cancellationToken);
+
         var queueItem = new WorkMessage.AcceptConnection(tcs, connection, userId, username, isOwner);
 
         await RoomLogic.WorkQueue.Writer.WriteAsync(queueItem, cancellationToken);
@@ -134,6 +136,11 @@ public class RoomLogic : IDisposable
 
     private void HandleAcceptConnection(WorkMessage.AcceptConnection acceptConnection)
     {
+        if (acceptConnection.HostConnection.Task.IsCanceled)
+        {
+            return;
+        }
+
         var connectionId = _nextConnectionId++;
 
         var hostConnection = new HostConnection(acceptConnection.WebSocket,

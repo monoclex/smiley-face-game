@@ -31,9 +31,9 @@ public class WorldSaver
         return new HostWorldData(world.WorldDataVersion, world.RawWorldData);
     }
 
-    public async Task<Guid> GetOwner(RoomId roomId)
+    public async Task<Guid> GetOwner(RoomId roomId, CancellationToken cancellationToken)
     {
-        var world = await _sfgContext.Worlds.FirstAsync(world => world.Id == roomId.Id);
+        var world = await _sfgContext.Worlds.FirstAsync(world => world.Id == roomId.Id, cancellationToken);
         var owner = world.OwnerId;
 
         if (owner == null)

@@ -6,5 +6,5 @@ public interface ISavingBehavior
 {
     Task<HostWorldData> Load();
     Task Save(HostWorldData worldData);
-    Task<bool> IsOwner(Guid userId);
+    Task<bool> IsOwner(Guid userId, CancellationToken cancellationToken);
 }
