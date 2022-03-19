@@ -20,6 +20,7 @@ services:
     image: prom/prometheus
     depends_on:
       - sfg-server
+      - s3
     ports:
       - "9090:9090"
     volumes:
@@ -55,10 +56,11 @@ services:
   s3:
     image: minio/minio
     entrypoint: sh
-    command: -c 'mkdir -p /data/postgresql-backups-s3-sirjosh3917-com && /usr/bin/minio server /data --console-address ":9001"'
+    command: -c 'mkdir -p /data/postgresql-backups-s3-sirjosh3917-com && /usr/bin/docker-entrypoint.sh server /data --console-address ":9001"'
     environment:
       - MINIO_ROOT_USER=root
       - MINIO_ROOT_PASSWORD=password
+      - MINIO_PROMETHEUS_AUTH_TYPE=public
     ports:
       - "9000:9000"
       - "9001:9001"
