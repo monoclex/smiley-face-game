@@ -1,6 +1,6 @@
-FROM alpine
+FROM postgres:14.2-alpine
 
-RUN apk add --no-cache postgresql-client gzip aws-cli
+RUN apk add --no-cache gzip aws-cli
 
 ENV PGHOST localhost
 ENV PGPORT 5432
