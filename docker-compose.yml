@@ -3,7 +3,7 @@
 # In production, a slight variation of this is used (closed source)     #
 #########################################################################
 
-version: "3.9"
+version: "3.6"
 services:
   sfg-server:
     build: SFGServer/
@@ -52,7 +52,34 @@ services:
       - "3010:80"
     volumes:
       - ${PWD}/config/pgadmin4.servers.json:/pgadmin4/servers.json
+  s3:
+    image: minio/minio
+    entrypoint: sh
+    command: -c 'mkdir -p /data/postgresql-backups-s3-sirjosh3917-com && /usr/bin/minio server /data --console-address ":9001"'
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - dev-object-storage:/data
+  postgresql-backup-routine:
+    build: scripts/postgresql-backup-routine
+    depends_on:
+      - postgresql
+      - s3
+    environment:
+      - PGHOST=postgresql
+      - PGDATABASE=sfg
+      - PGUSER=sfg
+      - PGPASSWORD=dev
+      - S3_BUCKET_NAME=postgresql-backups-s3-sirjosh3917-com
+      - S3_ENDPOINT_URL=http://s3:9000
+      - AWS_ACCESS_KEY_ID=root
+      - AWS_SECRET_ACCESS_KEY=password
 
 volumes:
   grafana-storage:
   postgresql-storage:
+  dev-object-storage:
