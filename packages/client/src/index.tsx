@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./ui/App";
 import { useDev } from "@smiley-face-game/api";
-import { rewriteHost, useTest } from "@smiley-face-game/api/net/endpoints";
+import { rewriteHost } from "@smiley-face-game/api/net/endpoints";
 import { routesRewritten } from "./rewritten";
 
 if (import.meta.env.SERVER_MODE === "localhost") {
@@ -20,8 +20,7 @@ if (import.meta.env.SERVER_MODE === "localhost") {
     render();
   });
 } else if (import.meta.env.SERVER_MODE === "development") {
-  // useDev();
-  useTest();
+  useDev();
   render();
 } else if (import.meta.env.SERVER_MODE === "production") {
   // production servers are the default
