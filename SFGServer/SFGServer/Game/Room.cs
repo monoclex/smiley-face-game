@@ -220,11 +220,6 @@ public class RoomLogic : IDisposable
             return;
         }
 
-        if (msg.PacketId == "CHAT")
-        {
-            throw new Exception("Simulating fatal exception");
-        }
-
         if (success)
         {
             // SECURITY: Unbounded labels for Prometheus
