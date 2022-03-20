@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Channels;
+using Microsoft.AspNetCore.Connections;
 
 namespace SFGServer.Game;
 
@@ -27,12 +28,12 @@ public class Room : IDisposable
     public Room(V8ScriptEngine engine, HostRoom hostRoom)
     {
         HostRoom = hostRoom;
-        RoomLogic = new RoomLogic(engine);
+        RoomLogic = new RoomLogic(this, engine);
     }
 
     public void Dispose()
     {
-        RoomLogic.Dispose();
+        RoomLogic.EventLoopCancellationToken.Cancel();
     }
 
     public async Task<HostConnection> AcceptConnection(WebSocket connection, Guid? userId, string username, CancellationToken cancellationToken)
@@ -116,18 +117,27 @@ public delegate Task<bool> OnMessage(int connectionId, string message);
 
 public class RoomLogic : IDisposable
 {
+    private readonly Room _handle;
     public V8ScriptEngine Engine { get; }
 
     public Channel<WorkMessage> WorkQueue { get; }
 
     public IReadOnlyCollection<HostConnection> Connections { get; private set; } = Array.Empty<HostConnection>();
 
+    // TODO(clean): we should change the architecture of how rooms are managed to not have this complicated
+    //   and hard-to-follow graph-like dependency chain
+    public RoomStorage RoomStorage { get; set; } = null!;
+
     private OnConnect _onConnect = null!;
     private OnDisconnect _onDisconnect = null!;
     private OnMessage _onMessage = null!;
 
-    public RoomLogic(V8ScriptEngine engine)
+    public bool InRoomStorage = true;
+    public CancellationTokenSource EventLoopCancellationToken { get; } = new();
+
+    public RoomLogic(Room handle, V8ScriptEngine engine)
     {
+        _handle = handle;
         Engine = engine;
         WorkQueue = Channel.CreateUnbounded<WorkMessage>();
     }
@@ -149,7 +159,16 @@ public class RoomLogic : IDisposable
             acceptConnection.Username,
             acceptConnection.IsOwner);
 
-        _onConnect(hostConnection);
+        try
+        {
+            _onConnect(hostConnection);
+        }
+        catch (Exception ex)
+        {
+            hostConnection.close(ex.Message);
+            acceptConnection.HostConnection.SetException(ex);
+            return;
+        }
 
         Connections = Connections.Append(hostConnection).ToArray();
 
@@ -169,10 +188,44 @@ public class RoomLogic : IDisposable
 
         var message = Encoding.UTF8.GetString(payload.Buffer[..payload.RentedLength]);
 
-        var msg = JsonSerializer.Deserialize<MessagePacketId>(message)!;
+        MessagePacketId msg;
+
+        try
+        {
+            msg = JsonSerializer.Deserialize<MessagePacketId>(message)!;
+        }
+        catch (JsonException)
+        {
+            // TODO(logging, metrics): record invalid payload and who it was from
+            var connection = Connections.First(connection => connection.connectionId == fireMessage.ConnectionId);
+            connection.close("Invalid packet (maybe you don't have permissions for this?)");
+            return;
+        }
 
         using var timer = SfgMetrics.OnMessageDurationSummary.NewCustomTimer();
-        var success = await _onMessage(fireMessage.ConnectionId, message);
+
+        bool success;
+        try
+        {
+            success = await _onMessage(fireMessage.ConnectionId, message);
+        }
+        catch (Exception ex)
+        {
+            // TODO(logging): log exception that happened while handling packet
+            // TODO(metrics): record exception?
+
+            // what do we do when we get an exception?
+            // an exception from our onMessage handler signifies some sort of fatally flawed logic
+            //
+            // BUT, if it's something like making a call to save the world but the database is offline,
+            // we don't want to crash the world and potentially lose progress
+            // (n.b.: you could say "oh just handle that edgecase then", but what if there are more like it?)
+            //
+            // so, if a packet fails, we should notify the user ASAP and NOT take down the server
+            // TODO(error-handling): notify user about exception
+
+            return;
+        }
 
         if (success)
         {
@@ -211,49 +264,86 @@ public class RoomLogic : IDisposable
         Task.Run(async () => {
             try
             {
-                await HandleMessages();
+                await HandleMessages(EventLoopCancellationToken.Token);
             }
             catch (TaskCanceledException)
             {
+                // OK: this is expected
+            }
+            catch (Exception ex)
+            {
+                // TODO(logging): inform about failure conditoin
+                // TODO(metrics): record failure
+            }
+            finally
+            {
+                // something happened to stop the event loop
+                // we want to cleanup the room
 
+                // make sure no new connections can access this world
+                await RemoveRoomFromRoomStorage();
+
+                // make sure to close outstanding websocket connections
+                HandleBacklogOfMessages();
+
+                // cleanup resources
+                Dispose();
             }
         });
     }
 
-    private async Task HandleMessages()
+    private async Task RemoveRoomFromRoomStorage()
+    {
+        // we may have been called from `RoomKillService`, which makes
+        // sure that there are no players before killing the room. if it already
+        // removed this room from storage, we don't want acquire another lock and
+        // accidentally kill a different room
+        if (!InRoomStorage) return;
+
+        using var accessToken = await RoomStorage.CreateToken(_handle.Id, default);
+        accessToken.Room = null;
+    }
+
+    private void HandleBacklogOfMessages()
+    {
+        while (WorkQueue.Reader.TryRead(out var message))
+        {
+            switch (message)
+            {
+                case WorkMessage.AcceptConnection acceptConnection:
+                    acceptConnection.HostConnection.SetException(new ConnectionAbortedException("The room is closing!"));
+                    break;
+
+                case WorkMessage.Disconnect: continue;
+                case WorkMessage.FireMessage: continue;
+                default: throw new ArgumentOutOfRangeException(nameof(message));
+            }
+        }
+    }
+
+    private async Task HandleMessages(CancellationToken cancellationToken)
     {
         while (true)
         {
             // TODO(logging): log if behind on work (check WorkQueue.Reader.Count and see how many messages we have to handle)
-            var message = await WorkQueue.Reader.ReadAsync();
+            var message = await WorkQueue.Reader.ReadAsync(cancellationToken);
 
             // TODO(logging): log if a single message handle takes > 100ms or so
-            try
+            switch (message)
             {
-                switch (message)
-                {
-                    case WorkMessage.AcceptConnection acceptConnection:
-                        HandleAcceptConnection(acceptConnection);
-                        break;
+                case WorkMessage.AcceptConnection acceptConnection:
+                    HandleAcceptConnection(acceptConnection);
+                    break;
 
-                    case WorkMessage.Disconnect disconnect:
-                        HandleDisconnect(disconnect);
-                        break;
+                case WorkMessage.Disconnect disconnect:
+                    HandleDisconnect(disconnect);
+                    break;
 
-                    case WorkMessage.FireMessage fireMessage:
-                        await HandleFireMessage(fireMessage);
-                        break;
+                case WorkMessage.FireMessage fireMessage:
+                    await HandleFireMessage(fireMessage);
+                    break;
 
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(message));
-                }
-            }
-            catch (Exception exception)
-            {
-                // TODO(logging): log this fatal exception - errors should not occur when handling event
-                //   for now, take down the entire handler
-                Console.WriteLine("HandleMessage taken down: " + exception);
-                throw;
+                default: throw new ArgumentOutOfRangeException(nameof(message));
             }
         }
     }
@@ -262,6 +352,7 @@ public class RoomLogic : IDisposable
     {
         // TODO(correctness): will we still be able to iterate over items in the channel? don't think we'd need to but it'd be nice to know
         WorkQueue.Writer.Complete();
+        Engine.Dispose();
     }
 
     private class MessagePacketId

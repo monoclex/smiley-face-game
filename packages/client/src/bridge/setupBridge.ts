@@ -13,7 +13,7 @@ import AuthoredBlockPlacer from "./AuthoredBlockPlacer";
 import ClientBlockBar from "./ClientBlockBar";
 import PromiseCompletionSource from "../PromiseCompletionSource";
 import { playLeave, registerPlayerJoinNLeaveSoundEffects } from "./PlayerJoinLeaveSoundEffects";
-import { enableExtraChecks } from "../isProduction";
+const enableExtraChecks = import.meta.env.SERVER_MODE === "localhost";
 
 interface Bridge {
   game: Game;

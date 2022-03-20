@@ -1,0 +1,11 @@
+version: "3.6"
+services:
+  s3:
+    image: minio/minio
+    entrypoint: sh
+    command: -c '/usr/bin/docker-entrypoint.sh gateway s3 "$${S3_ENDPOINT_URL}" --console-address ":9001"'
+    env_file:
+      - ./config/prod/minio.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"

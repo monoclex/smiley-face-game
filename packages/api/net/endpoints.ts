@@ -26,7 +26,16 @@ const shopItems: Endpoint = { host, path: "/shop/items" };
 const shopBuy: Endpoint = { host, path: "/shop/buy" };
 export const endpoints = { auth, guestAuth, ws, lobby, player, register, shopItems, shopBuy };
 // work around TS crud: https://fettblog.eu/typescript-better-object-keys/
-const endpointKeys: (keyof typeof endpoints)[] = ["auth", "guestAuth", "ws", "lobby", "player", "register", "shopItems", "shopBuy"];
+const endpointKeys: (keyof typeof endpoints)[] = [
+  "auth",
+  "guestAuth",
+  "ws",
+  "lobby",
+  "player",
+  "register",
+  "shopItems",
+  "shopBuy",
+];
 
 export function rewriteHost(rewriter: (endpoint: Endpoint) => Endpoint) {
   for (const endpointId of endpointKeys) {
@@ -39,15 +48,6 @@ export function useDev() {
     endpoint.host.startsWith("ws")
       ? { ...endpoint, host: "dev-ws-api.sirjosh3917.com/smiley-face-game/v1" }
       : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/dev/v1" }
-  );
-}
-
-// TODO: we have a dev server for this, im just too lazy to migrate stuff over weee
-export function useTest() {
-  rewriteHost((endpoint) =>
-    endpoint.host.startsWith("ws")
-      ? { ...endpoint, host: "test-ws-api.sirjosh3917.com/smiley-face-game/v1" }
-      : { ...endpoint, host: "api.sirjosh3917.com/smiley-face-game/test/v1" }
   );
 }
 
