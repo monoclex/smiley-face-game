@@ -10,6 +10,7 @@ import { useGameEvent, useMutableVariable, useObjectState, useReactMutableVariab
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { loadControls } from "@/controls";
 import { blockInspectorEnabled, blockInspectorVisible } from "@/state/blockInspector";
+import inputEnabled from "@/bridge/inputEnabled";
 
 const CenteredTextGrid = styled(Grid)({
   textAlign: "center",
@@ -124,6 +125,8 @@ export default function BlockInspector() {
   useEffect(() => {
     const controls = loadControls();
     const handler = (event: KeyboardEvent) => {
+      if (!inputEnabled()) return;
+
       if (controls.inspect.binding === event.key) {
         setEnabled((enabled) => !enabled);
       }
