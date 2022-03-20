@@ -112,7 +112,9 @@ public class BuyShopItemEndpoint : Endpoint<BuyShopItemRequest, BuyShopItemRespo
             throw new NotImplementedException("Refunding energy to users is not implemented yet!");
         }
 
-        account.SetEnergyAt(DateTime.UtcNow, currentEnergy - spendEnergy);
+        Debug.Assert(currentEnergy >= energyToSpend);
+
+        account.SetEnergyAt(DateTime.UtcNow, (uint)(currentEnergy - energyToSpend));
         accountShopItem.SpentEnergy += energyToSpend;
 
         if (accountShopItem.SpentEnergy > shopItem.EnergyCost)
