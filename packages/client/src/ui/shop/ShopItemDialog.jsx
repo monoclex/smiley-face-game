@@ -1,12 +1,12 @@
 //@ts-check
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useSnackbar } from "notistack";
 import { styled, LinearProgress, Typography, Grid, Slider, Button } from "@mui/material";
 
 import { BasicDialog } from "../components/BasicDialog";
 import EnergyIcon from "../icons/EnergyIcon";
-import { useAuth, useShopItem, useRefresher } from "../hooks";
+import { useAuth, useShopItem, useRefresher, useEnergy } from "../hooks";
 import { useRecoilState } from "recoil";
 import { shopItemQuery, playerInfoSelector } from "../../state";
 import { mapImageUrl } from "../../assets/shop/mapImageUrl";
@@ -24,15 +24,22 @@ export const ShopItemDialog = ({ id, open, onClose }) => {
   const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoSelector);
   const [_, setShopItem] = useRecoilState(shopItemQuery(id));
 
-  const min = 0;
-  const max = playerInfo.energy.maxEnergy;
-  // we want to aim for 25 ticks
-  const step = Math.floor((max - min) / 25);
+  const { energy } = useEnergy();
 
-  const [spendingEnergy, setSpendingEnergy] = useState(playerInfo.energy.energy);
+  const min = 0;
+  const max = energy;
+  const step = 5;
+
+  const [spendingEnergy, setSpendingEnergy] = useState(energy);
   const snackbar = useSnackbar();
   const auth = useAuth();
   const refresher = useRefresher();
+
+  useEffect(() => {
+    if (spendingEnergy > max) {
+      setSpendingEnergy(max);
+    }
+  }, [spendingEnergy, max, setSpendingEnergy]);
 
   const handleClick = () => {
     // TODO: loading animation

@@ -54,5 +54,7 @@ export async function registerPlayerJoinNLeaveSoundEffects(game: Game) {
   game.physics.events.on("checkpoint", playCheckpoint);
   game.physics.events.on("death", playDeath);
   game.physics.events.on("keyState", (_, state) => (state ? playDoorOpen() : playDoorClose()));
-  game.physics.events.on("touchSwitch", (_1, _2, on) => (on ? playSwitchOn() : playSwitchOff()));
+  game.physics.events.on("switchStateChanged", (_1, _2, on) =>
+    on ? playSwitchOn() : playSwitchOff()
+  );
 }
