@@ -18,6 +18,11 @@ function config({ serverMode }, { mode }) {
     mode,
     devtool: mode === "development" ? "eval-source-map" : false,
     entry: "./src/index.tsx",
+    output: {
+      path: path.join(__dirname, "dist"),
+      filename: "[name].[chunkhash].js",
+      chunkFilename: "chunk.[name].[chunkhash].js",
+    },
     resolve: {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
@@ -37,7 +42,10 @@ function config({ serverMode }, { mode }) {
           test: /\.(ts|tsx|jsx)$/,
           use: {
             loader: "@sucrase/webpack-loader",
-            options: { transforms: ["typescript", "jsx"] },
+            options: {
+              transforms: ["typescript", "jsx"],
+              production: mode === "production",
+            },
           },
           exclude: /node_modules/,
         },

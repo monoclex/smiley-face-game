@@ -1,6 +1,6 @@
 // "stolen" from myself :) https://stackoverflow.com/a/69931123/3780113
 import React, { useLayoutEffect } from "react";
-import { isDebugMode } from "../../isProduction";
+const isDebugMode = import.meta.env.SERVER_MODE === "localhost";
 
 const teardowns: (() => void)[] = [];
 
