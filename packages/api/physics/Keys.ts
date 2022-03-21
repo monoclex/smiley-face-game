@@ -7,15 +7,14 @@ export class Keys {
 
   constructor(private readonly physics: EEPhysics) {}
 
-  trigger(key: ZKeyKind, onUntil: number, by: Player) {
+  trigger(key: ZKeyKind, onUntilTick: number, by: Player) {
     const isOff = !this.isOn(key);
 
     if (isOff) {
       this.physics.events.emit("keyState", key, true);
     }
 
-    const msOnUntil = onUntil - this.physics.localStart;
-    this.toggleOnUntil(key, msOnUntil / this.physics.msPerTick);
+    this.toggleOnUntil(key, onUntilTick);
   }
 
   isOn(key: ZKeyKind) {

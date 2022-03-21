@@ -11,7 +11,10 @@ export default class Room {
   readonly validator: ZPacketValidator;
   readonly blocks: Blocks;
   readonly worldSize: Vector;
+
+  // TODO: instead of duplicating tick logic, this should just be the same as the client Game
   ticks = 0;
+  msPerTick = 1000 / EE_TPS;
 
   constructor(readonly hostRoom: HostRoom, initialWorldData: HostWorldData) {
     this.worldSize = Vector.fromSize(hostRoom);
@@ -20,11 +23,10 @@ export default class Room {
     this.blocks = new Blocks(tiles, [], [], this.worldSize);
     this.deserialize(initialWorldData);
 
-    const msPerTick = 1000 / EE_TPS;
     const start = Date.now();
     setInterval(() => {
-      this.ticks = Math.floor((Date.now() - start) / msPerTick);
-    }, msPerTick);
+      this.ticks = Math.floor((Date.now() - start) / this.msPerTick);
+    }, this.msPerTick);
   }
 
   deserialize(worldData: HostWorldData): void {

@@ -129,7 +129,7 @@ export class Game {
       case "SERVER_KEY_TOUCH":
         this.physics.keys.trigger(
           event.kind,
-          event.deactivateTime,
+          event.deactivateTick,
           this.players.get(event.playerId)
         );
         return 0;

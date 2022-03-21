@@ -6,13 +6,15 @@ export default async function handleKeyTouch(
   packet: ZKeyTouch,
   [sender, server]: [Connection, Server]
 ) {
-  const now = new Date();
-  now.setSeconds(now.getSeconds() + 7);
+  const TIME_KEY_DISABLES_IN_MILLISECONDS = 7000;
+
+  const deactivateTick =
+    server.room.ticks + TIME_KEY_DISABLES_IN_MILLISECONDS / server.room.msPerTick;
 
   server.broadcast({
     packetId: "SERVER_KEY_TOUCH",
     playerId: sender.id,
     kind: packet.kind,
-    deactivateTime: now.getTime(),
+    deactivateTick,
   });
 }

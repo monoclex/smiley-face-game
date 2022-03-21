@@ -60,7 +60,7 @@ export class KeyBehavior implements ComplexBlockBehavior {
 
   in(world: EEPhysics, player: Player): void {
     world.events.emit("keyTouch", this.kind, player);
-    world.keys.trigger(this.kind, Date.now() + 7000, player);
+    world.keys.trigger(this.kind, world.ticks + 7000, player);
   }
 
   out(): void {}

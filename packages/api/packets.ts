@@ -301,8 +301,7 @@ export const zsKeyTouch = addParse(
   Schema.merge(zs, {
     packetId: "SERVER_KEY_TOUCH" as const,
     kind: zKeyKind,
-    // TODO: change to some kind of date?
-    deactivateTime: number.integer(),
+    deactivateTick: number.integer(),
   })
 );
 export type ZSKeyTouch = SchemaInput<typeof zsKeyTouch>;
