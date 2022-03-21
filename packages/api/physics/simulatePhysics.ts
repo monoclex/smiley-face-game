@@ -59,7 +59,7 @@ export class PhysicsTicker {
   constructor(private readonly game: Game, private readonly cap: number = -1) {}
 
   update(elapsedMs: number) {
-    const timeSince = elapsedMs - this.game.physics.ticks * this.game.physics.msPerTick;
+    const timeSince = elapsedMs - this.game.physics.localTicks * this.game.physics.msPerTick;
     const ticksToSimulate = Math.floor(timeSince / this.game.physics.msPerTick);
 
     if (this.cap !== -1 && ticksToSimulate >= this.cap) {
