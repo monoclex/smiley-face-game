@@ -137,6 +137,14 @@ export const zTeleportPlayer = addParse(
 );
 export type ZTeleportPlayer = SchemaInput<typeof zTeleportPlayer>;
 
+export const zTime = addParse(
+  Schema({
+    packetId: "TIME" as const,
+    stamp: number.integer(),
+  })
+);
+export type ZTime = SchemaInput<typeof zTime>;
+
 /** Z Server packets (they're so frequent it's worth it to abbreviate) */
 export const zs = addParse(
   Schema({
@@ -317,6 +325,16 @@ export const zsTeleportPlayer = addParse(
 );
 export type ZSTeleportPlayer = SchemaInput<typeof zsTeleportPlayer>;
 
+export const zsTime = addParse(
+  Schema.merge(zs, {
+    packetId: "SERVER_TIME" as const,
+    stamp: number.integer(),
+    delay: number.integer(),
+    ticks: number.integer(),
+  })
+);
+export type ZSTime = SchemaInput<typeof zsTime>;
+
 /**
  * Constructs a `zod` validator that will validate any packet that a client would send. When developers are adding new
  * client packets, they are expected to add them to this union. At that point, typescript type checking will take over
@@ -340,7 +358,7 @@ export const zPacket = (width: number, height: number) => {
         zPlayerListAction,
         blockSingle
       ),
-      Schema.either(zBlockLine, zKeyTouch, zToggleGod, zTeleportPlayer)
+      Schema.either(zBlockLine, zKeyTouch, zToggleGod, zTeleportPlayer, zTime)
     )
   );
 };
@@ -357,7 +375,7 @@ type PickZPacket<K extends ZPacket["packetId"]> = Extract<ZPacket, { packetId: K
  * A type which maps every possible key of Packet to a function that accepts the packet whose packetId matches the lookup key.
  */
 export type ZPacketLookup<TArgs, TResult> = {
-  [K in ZPacket["packetId"]]: (packet: PickZPacket<K>, args: TArgs) => TResult;
+  [K in ZPacket["packetId"]]: (packet: PickZPacket<K>, args: TArgs, sent: number) => TResult;
 };
 
 /**
@@ -392,7 +410,8 @@ export const zsPacket = (width: number, height: number) => {
         zsKeyTouch,
         zsToggleGod,
         zsTeleportPlayer
-      )
+      ),
+      Schema.either(zsTime)
     )
   );
 };

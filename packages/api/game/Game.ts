@@ -158,6 +158,9 @@ export class Game {
         return this.handleWorldAction(event);
       case "SERVER_EVENT":
         return this.handleServerEvent(event);
+      case "SERVER_TIME":
+        this.physics.handleTime(event);
+        return 0;
     }
   }
 

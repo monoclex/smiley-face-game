@@ -180,11 +180,9 @@ export default class Connection {
     this.websocket.onerror = (event) => ((this._connected = false), this.messages.end(event.error));
 
     if (this.extraChecks) {
-      console.log("extra checks enabled");
       this.websocket.onmessage = (event) =>
         this.messages.push(this.zsPacket.parse(JSON.parse(event.data as string)));
     } else {
-      console.log("extra checks disabled");
       this.websocket.onmessage = (event) => this.messages.push(JSON.parse(event.data as string));
     }
   }
@@ -606,5 +604,16 @@ export default class Connection {
     }
 
     this._send(teleportPacket);
+  }
+
+  /**
+   * Sends a `time` packet to the server with the current time. When this packet
+   * is received, it's used to sync the current physics tick the server is on.
+   */
+  syncTime() {
+    this._send({
+      packetId: "TIME",
+      stamp: Date.now(),
+    });
   }
 }

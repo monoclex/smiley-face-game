@@ -86,7 +86,7 @@ export default class Server {
     }
   }
 
-  async onMessage(connectionId: number, message: string) {
+  async onMessage(connectionId: number, message: string, sent: number) {
     const connection = this.connections.get(connectionId);
     if (!connection) throw new Error(`Unknown connection id ${connectionId}`);
 
@@ -103,7 +103,7 @@ export default class Server {
     const handler = packetLookup[packet.packetId];
     //@ts-expect-error typescript isn't smart enough to narrow `handler` properly.
     // to make up for this, `packetLookup` is very well typed
-    const result = await handler(packet, [connection, this]);
+    const result = await handler(packet, [connection, this], sent);
 
     if (typeof result === "boolean") return result;
     return true;

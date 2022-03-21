@@ -108,6 +108,12 @@ export default async function setupBridge(
   gameRenderer.root.addChild(mouseInteraction.blockChanged);
 
   (async () => {
+    connection.syncTime();
+
+    const timeSync = setInterval(() => {
+      connection.syncTime();
+    }, 60 * 1000);
+
     for await (const message of connection) {
       game.handleEvent(message);
       chat.handleEvent(message);
@@ -115,6 +121,7 @@ export default async function setupBridge(
     }
 
     // connection died, cleanup
+    clearInterval(timeSync);
     gameRunningState.set(false);
     waitPromise.it = new PromiseCompletionSource();
     state.wait = waitPromise.it.handle;

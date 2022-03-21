@@ -1,5 +1,6 @@
 import { zPacket, ZPacketValidator } from "@smiley-face-game/api";
 import { Blocks } from "@smiley-face-game/api/game/Blocks";
+import { EE_TPS } from "@smiley-face-game/api/game/Game";
 import { Vector } from "@smiley-face-game/api/physics/Vector";
 import { FormatLoader } from "@smiley-face-game/api/tiles/format/FormatLoader";
 import { saveWorldVersion2 } from "@smiley-face-game/api/tiles/format/WorldDataVersion2";
@@ -10,6 +11,7 @@ export default class Room {
   readonly validator: ZPacketValidator;
   readonly blocks: Blocks;
   readonly worldSize: Vector;
+  ticks = 0;
 
   constructor(readonly hostRoom: HostRoom, initialWorldData: HostWorldData) {
     this.worldSize = Vector.fromSize(hostRoom);
@@ -17,6 +19,12 @@ export default class Room {
 
     this.blocks = new Blocks(tiles, [], [], this.worldSize);
     this.deserialize(initialWorldData);
+
+    const msPerTick = 1000 / EE_TPS;
+    const start = Date.now();
+    setInterval(() => {
+      this.ticks = Math.floor((Date.now() - start) / msPerTick);
+    }, msPerTick);
   }
 
   deserialize(worldData: HostWorldData): void {

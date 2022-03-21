@@ -13,6 +13,7 @@ import handleWorldAction from "./handlers/handleWorldAction";
 import handleKeyTouch from "./handlers/handleKeyTouch";
 import handleToggleGod from "./handlers/handleToggleGod";
 import handleTeleportPlayer from "./handlers/handleTeleportPlayer";
+import handleTime from "./handlers/handleTime";
 
 type MaybeAsync<T> = T | Promise<T>;
 
@@ -29,6 +30,7 @@ const packetLookup: ZPacketLookup<[Connection, Server], MaybeAsync<void | boolea
   KEY_TOUCH: handleKeyTouch,
   TOGGLE_GOD: handleToggleGod,
   TELEPORT_PLAYER: handleTeleportPlayer,
+  TIME: handleTime,
 };
 
 export default packetLookup;

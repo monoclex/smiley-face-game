@@ -98,6 +98,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
             while (true)
             {
                 var read = await webSocket.ReceiveAsync(memory, ct).ConfigureAwait(false);
+                var timeRead = DateTime.UtcNow;
 
                 if (read.MessageType == WebSocketMessageType.Close)
                     return;
@@ -112,7 +113,7 @@ public class WebsocketEndpoint : Endpoint<WebsocketRequest>
                 var packet = _arrayPool.UseRent(read.Count);
                 memory[..read.Count].CopyTo(packet.Buffer);
 
-                await room.FireMessage(connectionId, packet, ct).ConfigureAwait(false);
+                await room.FireMessage(connectionId, packet, timeRead, ct).ConfigureAwait(false);
             }
         }
         finally

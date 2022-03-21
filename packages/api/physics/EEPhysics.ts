@@ -1,6 +1,6 @@
 import { createNanoEvents } from "../nanoevents";
 import { Blocks } from "../game/Blocks";
-import { ZSMovement } from "../packets";
+import { ZSMovement, ZSTime } from "../packets";
 import TileRegistration from "../tiles/TileRegistration";
 import { TileLayer, ZHeap, ZKeyKind, ZSwitchId } from "../types";
 import { Player } from "./Player";
@@ -34,8 +34,18 @@ export class EEPhysics {
   readonly ids: BlockIdCache;
   readonly keys: Keys = new Keys(this);
 
-  ticks = 0;
-  start = Date.now();
+  get ticks() {
+    return this.localTicks + this.tickSyncOffset;
+  }
+
+  set ticks(v: number) {
+    this.localTicks = v - this.tickSyncOffset;
+  }
+
+  tickSyncOffset = 0;
+
+  localTicks = 0;
+  localStart = Date.now();
 
   private readonly ticksUntilAlive: number;
   private readonly ticksUntilFirstJump: number;
@@ -536,5 +546,22 @@ export class EEPhysics {
     );
 
     return [...playerKeysOn, ...unsetKeysInPlayerThatAreOn];
+  }
+
+  handleTime(packet: ZSTime) {
+    const now = Date.now();
+
+    const totalDuration = now - packet.stamp;
+    const transitDuration = totalDuration - packet.delay;
+
+    const latency = transitDuration / 2;
+
+    const ticksOccurredDuringLatency = Math.floor(latency / this.msPerTick);
+
+    // TODO: handle ticks with decimal precision (currently server doesn't send that)
+    const synchronizedTicks = Math.floor(packet.ticks) + ticksOccurredDuringLatency;
+
+    const difference = Math.abs(this.localTicks - synchronizedTicks);
+    this.tickSyncOffset = difference;
   }
 }

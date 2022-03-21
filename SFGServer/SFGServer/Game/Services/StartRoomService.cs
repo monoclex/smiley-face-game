@@ -1,3 +1,4 @@
+using Microsoft.ClearScript;
 using Microsoft.ClearScript.JavaScript;
 using Microsoft.ClearScript.V8;
 using Microsoft.Extensions.Options;
@@ -41,6 +42,19 @@ public class StartRoomService
         engine.AddHostType(typeof(HostObject));
         engine.AddHostType(typeof(Console));
         engine.AddHostType(typeof(JavaScriptExtensions)); // for .ToPromise()
+
+        // https://github.com/microsoft/ClearScript/issues/205
+        var timers = new List<Timer>();
+        void SetInterval(ScriptObject func, int delay)
+        {
+            var timer = new Timer(_ => func.Invoke(false));
+            timers.Add(timer);
+
+            timer.Change(TimeSpan.FromMilliseconds(delay), TimeSpan.FromMilliseconds(delay));
+        }
+        engine.Script.setInterval = (Action<ScriptObject, int>)SetInterval;
+        room.RoomLogic.Timers = timers;
+
         engine.Execute(code);
 
         room.RoomLogic.Start();

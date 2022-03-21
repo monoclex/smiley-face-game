@@ -14,7 +14,7 @@ export class Keys {
       this.physics.events.emit("keyState", key, true);
     }
 
-    const msOnUntil = onUntil - this.physics.start;
+    const msOnUntil = onUntil - this.physics.localStart;
     this.toggleOnUntil(key, msOnUntil / this.physics.msPerTick);
   }
 

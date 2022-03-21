@@ -19,8 +19,8 @@ function onDisconnect(connectionId: number) {
   server.onDisconnect(connectionId);
 }
 
-function onMessage(connectionId: number, message: string) {
-  return server.onMessage(connectionId, message);
+function onMessage(connectionId: number, message: string, sent: number) {
+  return server.onMessage(connectionId, message, sent);
 }
 
 function healthCheck() {

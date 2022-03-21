@@ -52,9 +52,9 @@ public class Room : IDisposable
         return await tcs.Task;
     }
 
-    public ValueTask FireMessage(int connectionId, RentedArray<byte> readBytes, CancellationToken cancellationToken)
+    public ValueTask FireMessage(int connectionId, RentedArray<byte> readBytes, DateTime timeRead, CancellationToken cancellationToken)
     {
-        return RoomLogic.WorkQueue.Writer.WriteAsync(new WorkMessage.FireMessage(connectionId, readBytes), cancellationToken);
+        return RoomLogic.WorkQueue.Writer.WriteAsync(new WorkMessage.FireMessage(connectionId, readBytes, timeRead), cancellationToken);
     }
 
     public ValueTask Disconnect(int connectionId, CancellationToken cancellationToken)
@@ -102,7 +102,7 @@ public record WorkMessage
         string Username,
         bool IsOwner) : WorkMessage;
 
-    public record FireMessage(int ConnectionId, RentedArray<byte> Payload) : WorkMessage;
+    public record FireMessage(int ConnectionId, RentedArray<byte> Payload, DateTime TimeRead) : WorkMessage;
 
     public record Disconnect(int ConnectionId) : WorkMessage;
 }
@@ -111,7 +111,7 @@ public delegate void OnConnect(HostConnection hostConnection);
 
 public delegate void OnDisconnect(int connectionId);
 
-public delegate Task<bool> OnMessage(int connectionId, string message);
+public delegate Task<bool> OnMessage(int connectionId, string message, long timeSent);
 
 public class RoomLogic : IDisposable
 {
@@ -119,6 +119,8 @@ public class RoomLogic : IDisposable
     public V8ScriptEngine Engine { get; }
 
     public Channel<WorkMessage> WorkQueue { get; }
+
+    public List<Timer> Timers { get; set;  }
 
     public IReadOnlyCollection<HostConnection> Connections { get; private set; } = Array.Empty<HostConnection>();
 
@@ -200,7 +202,8 @@ public class RoomLogic : IDisposable
         bool success;
         try
         {
-            success = await _onMessage(fireMessage.ConnectionId, message);
+            var timeRead = (long)Math.Floor((fireMessage.TimeRead - DateTime.UnixEpoch).TotalMilliseconds);
+            success = await _onMessage(fireMessage.ConnectionId, message, timeRead);
         }
         catch (Exception ex)
         {
@@ -242,14 +245,14 @@ public class RoomLogic : IDisposable
     {
         _onConnect = (connection) => Engine.Script.onConnect(connection);
         _onDisconnect = id => Engine.Script.onDisconnect(id);
-        _onMessage = (id, message) => {
+        _onMessage = (id, message, timeSent) => {
             // https://github.com/microsoft/ClearScript/issues/182#issuecomment-627365386
             var completionSource = new TaskCompletionSource<bool>();
 
             Action<bool> onResolved = completionSource.SetResult;
             Action<dynamic> onRejected = error => completionSource.SetException(new Exception(error.toString()));
 
-            Engine.Script.onMessage(id, message).then(onResolved, onRejected);
+            Engine.Script.onMessage(id, message, timeSent).then(onResolved, onRejected);
 
             return completionSource.Task;
         };
@@ -344,6 +347,13 @@ public class RoomLogic : IDisposable
     public void Dispose()
     {
         // TODO(correctness): will we still be able to iterate over items in the channel? don't think we'd need to but it'd be nice to know
+        foreach (var timer in Timers)
+        {
+            timer.Dispose();
+        }
+
+        Timers.Clear();
+
         WorkQueue.Writer.Complete();
         Engine.Dispose();
     }
