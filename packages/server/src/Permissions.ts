@@ -7,6 +7,7 @@ export enum Permission {
   SaveWorld,
   LoadWorld,
   ClearWorld,
+  ChangeTitle,
   Edit,
   God,
 }
@@ -19,6 +20,7 @@ export const defaultOwnerPermissions = [
   Permission.SaveWorld,
   Permission.LoadWorld,
   Permission.ClearWorld,
+  Permission.ChangeTitle,
   Permission.Edit,
   Permission.God,
 ];

@@ -51,5 +51,19 @@ export default async function handlePlayerlistAction(
       });
       return;
     }
+    case "change title": {
+      if (!sender.permissions.has(Permission.ChangeTitle)) return false;
+
+      const title = packet.action.title;
+
+      host.changeName(title);
+
+      server.broadcast({
+        packetId: "SERVER_WORLD_ACTION",
+        action: { action: "change title", title },
+        playerId: sender.id,
+      });
+      return;
+    }
   }
 }

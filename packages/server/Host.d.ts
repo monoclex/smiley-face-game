@@ -10,6 +10,7 @@ declare class HostObject {
   loadWorld(): HostPromise<HostWorldData>;
   saveWorld(worldData: HostWorldData): HostPromise<void>;
   signalKill(): void;
+  changeName(title: string): void;
 }
 
 declare class HostWorldData {

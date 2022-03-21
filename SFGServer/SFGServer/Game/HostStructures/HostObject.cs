@@ -15,12 +15,14 @@ public class HostObject
     private readonly RoomKillService _roomKillService;
     private readonly Room _room;
     private readonly IScopedServiceFactory<WorldSaver> _worldSaverFactory;
+    private readonly IScopedServiceFactory<RoomNameChanger> _roomNameChangerFactory;
 
-    public HostObject(RoomKillService roomKillService, Room room, IScopedServiceFactory<WorldSaver> worldSaverFactory)
+    public HostObject(RoomKillService roomKillService, Room room, IScopedServiceFactory<WorldSaver> worldSaverFactory, IScopedServiceFactory<RoomNameChanger> roomNameChangerFactory)
     {
         _roomKillService = roomKillService;
         _room = room;
         _worldSaverFactory = worldSaverFactory;
+        _roomNameChangerFactory = roomNameChangerFactory;
     }
 
     [UsedImplicitly]
@@ -59,6 +61,18 @@ public class HostObject
         Task.Run(async () =>
         {
             await _roomKillService.SignalKill(_room.Id);
+        });
+    }
+
+    [UsedImplicitly]
+    public void changeName(string title)
+    {
+        _room.Name = title;
+
+        Task.Run(async () =>
+        {
+            using var scope = _roomNameChangerFactory.CreateScopedService();
+            await scope.Service.ChangeName(_room.Id, title);
         });
     }
 }

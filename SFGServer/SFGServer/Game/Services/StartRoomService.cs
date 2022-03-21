@@ -14,16 +14,19 @@ public class StartRoomService
 {
     private readonly JavaScriptCodeSettings _javaScriptCodeSettings;
     private readonly IScopedServiceFactory<WorldSaver> _worldSaverFactory;
+    private readonly IScopedServiceFactory<RoomNameChanger> _nameChangerFactory;
     private readonly RoomKillService _roomKillService;
     private readonly RoomStorage _roomStorage;
 
     public StartRoomService(IOptions<JavaScriptCodeSettings> javaScriptCodeSettings,
         IScopedServiceFactory<WorldSaver> worldSaverFactory,
+        IScopedServiceFactory<RoomNameChanger> nameChangerFactory,
         RoomKillService roomKillService,
         RoomStorage roomStorage)
     {
         _javaScriptCodeSettings = javaScriptCodeSettings.Value;
         _worldSaverFactory = worldSaverFactory;
+        _nameChangerFactory = nameChangerFactory;
         _roomKillService = roomKillService;
         _roomStorage = roomStorage;
     }
@@ -35,7 +38,7 @@ public class StartRoomService
         var engine = new V8ScriptEngine();
         var room = new Room(engine, hostRoom);
         room.RoomLogic.RoomStorage = _roomStorage;
-        var hostObject = new HostObject(_roomKillService, room, _worldSaverFactory);
+        var hostObject = new HostObject(_roomKillService, room, _worldSaverFactory, _nameChangerFactory);
 
         engine.AddHostObject("host", hostObject);
         engine.AddHostType(typeof(HostConnection));

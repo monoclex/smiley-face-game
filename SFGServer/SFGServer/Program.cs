@@ -93,6 +93,7 @@ void RegisterServices()
     builder.Services.AddScoped<UsernameRetrievalService>();
     builder.Services.AddSingleton<StartRoomService>();
     builder.Services.AddSingleton<RoomKillService>();
+    builder.Services.AddScoped<RoomNameChanger>();
 }
 
 void AddSettingsToServices()

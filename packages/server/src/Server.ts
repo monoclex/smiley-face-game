@@ -126,8 +126,7 @@ export default class Server {
     this.room.deserialize(hostWorldData);
   }
 
-  // TODO(host-api): implement this
   changeTitle(title: string) {
-    throw new Error("Method not implemented.");
+    host.changeName(title);
   }
 }

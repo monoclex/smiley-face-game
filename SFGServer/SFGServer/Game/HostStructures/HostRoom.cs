@@ -21,7 +21,7 @@ public class HostRoom
     public bool isDynamicRoom => SavingBehavior is DynamicWorldSavingBehavior;
 
     [UsedImplicitly]
-    public string name { get; }
+    public string name { get; set; }
 
     [UsedImplicitly]
     public string? ownerId { get; }

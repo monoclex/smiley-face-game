@@ -15,7 +15,7 @@ public class Room : IDisposable
 {
     public RoomId Id => HostRoom.RoomId;
 
-    public string Name => HostRoom.name;
+    public string Name { get => HostRoom.name; set => HostRoom.name = value; }
 
     public int PlayerCount => RoomLogic.Connections.Count;
 
