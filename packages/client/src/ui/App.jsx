@@ -19,6 +19,7 @@ const PlayPage = lazy(() => import("./pages/PlayPage"));
 const TermsAndConditionsPage = lazy(() => import("./pages/TermsAndConditions"));
 const ShopPage = lazy(() => import("./pages/ShopPage"));
 const ControlsPage = lazy(() => import("./pages/ControlsPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   const prefersDarkMode = true;
@@ -45,6 +46,8 @@ export default function App() {
             <CssBaseline />
             <Suspense fallback={<FullscreenBackdropLoading />}>
               <Routes>
+                <Route path="*" element={<NotFound />} />
+
                 <Route path="/">
                   <Route index element={<HomePage />} />
                   <Route path="terms" element={<TermsAndConditionsPage />} />
