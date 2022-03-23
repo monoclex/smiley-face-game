@@ -1,19 +1,34 @@
 //@ts-check
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
-import { styled } from "@mui/material";
+import { Card, Paper, styled, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
+import { useClickAway } from "react-use";
+import { Navigate, useNavigate } from "react-router";
+import { ChoiceText } from "@/brand/TitleScreen";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { rollyBoi } from "@/brand/RollyBoi";
+
+// TODO(clean): have this the same as `@/brand/titleScreen.scss`'s text shadow mixin
+const textShadow = "0px 0px 0.25em black, 0px 0px 0.25em black, 0px 0px 0.5em black";
+
+const AwesomeGrid = styled(Grid)({
+  height: "100vh",
+});
+
+const AwesomeTypography = styled(Typography)({ textShadow, color: "white", marginLeft: "0.25em" });
 
 const BigSmileyFace = styled("img")({
   // make it large
-  width: "512px",
-  height: "512px",
+  width: "64px",
+  height: "64px",
   // center it
   display: "block",
   marginLeft: "auto",
@@ -76,37 +91,53 @@ const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
       });
   };
 
-  return (
-    <Container component="main" maxWidth="sm">
-      <BigSmileyFace src={smileyUrl} />
-      {isWorking && (
-        <Grid container direction="row" justifyContent="center" alignItems="center">
-          <Grid item>
-            <CircularProgress />
-          </Grid>
-        </Grid>
-      )}
+  const navigate = useNavigate();
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {inputs.map((input, index) => (
-          <TextField
-            disabled={isWorking}
-            key={index}
-            type={input?.type}
-            fullWidth
-            id={input.name}
-            name={input.name}
-            label={typeof input.text === "function" ? input.text(watch(input.name)) : input.text}
-            error={!!(errors && errors[input.name])}
-            helperText={errors && errors[input.name]?.message}
-            {...register(input.name, { required: true, validate: validators[input.name] })}
-          />
-        ))}
-        <Button disabled={isWorking} fullWidth type="submit">
-          Go!
-        </Button>
-      </form>
-    </Container>
+  const ref = useRef(null);
+  useClickAway(ref, () => navigate("/"));
+
+  return (
+    <AwesomeGrid container flexDirection="column" justifyContent="center">
+      <Grid item>
+        <Container ref={ref} component="main" maxWidth="sm">
+          <BigSmileyFace className={rollyBoi} src={smileyUrl} />
+          {isWorking && (
+            <Grid container direction="row" justifyContent="center" alignItems="center">
+              <Grid item>
+                <CircularProgress />
+              </Grid>
+            </Grid>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {inputs.map((input, index) => (
+              <TextField
+                variant="standard"
+                disabled={isWorking}
+                key={index}
+                type={input?.type}
+                fullWidth
+                id={input.name}
+                name={input.name}
+                label={
+                  <AwesomeTypography variant="body1">
+                    {typeof input.text === "function" ? input.text(watch(input.name)) : input.text}
+                  </AwesomeTypography>
+                }
+                error={!!(errors && errors[input.name])}
+                helperText={errors && errors[input.name]?.message}
+                {...register(input.name, { required: true, validate: validators[input.name] })}
+              />
+            ))}
+            <ChoiceText>
+              <Button type="submit">
+                <Typography variant="h3">go!</Typography>
+              </Button>
+            </ChoiceText>
+          </form>
+        </Container>
+      </Grid>
+    </AwesomeGrid>
   );
 };
 

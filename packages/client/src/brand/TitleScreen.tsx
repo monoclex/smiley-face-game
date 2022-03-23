@@ -52,11 +52,19 @@ export default function TitleScreen({ title, children }: TitleScreenProps) {
       </div>
       <div className={styles.choices}>
         {React.Children.map(children, (child) => (
-          <div className={styles.choice}>{child}</div>
+          <ChoiceText>{child}</ChoiceText>
         ))}
       </div>
     </div>
   );
+}
+
+interface ChoiceTextProps {
+  children: React.ReactNode;
+}
+
+export function ChoiceText({ children }: ChoiceTextProps) {
+  return <div className={styles.choice}>{children}</div>;
 }
 
 // doing this in CSS is too hard

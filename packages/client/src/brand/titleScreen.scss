@@ -43,16 +43,18 @@ div {
   cursor: default;
 }
 
+$fade-in-curve: cubic-bezier(0.2, 1, 0.2, 1);
+
 .choice {
   margin-bottom: 0.5em;
 
   @include text-shadow();
 }
 
-$fade-in-curve: cubic-bezier(0.2, 1, 0.2, 1);
-
-.choice > a {
+.choice > * {
   text-decoration: none;
+
+  cursor: pointer;
   color: white;
   transition: 0.5s linear;
 
