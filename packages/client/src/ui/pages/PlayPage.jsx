@@ -9,7 +9,7 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import useSuspenseForPromise from "../hooks/useSuspenseForPromise";
 import { Button, styled, Typography } from "@mui/material";
 import useTeardown from "../hooks/useTeardown";
-import { BigLoading } from "../components/FullscreenBackdropLoading";
+import FullscreenBackdropLoading, { BigLoading } from "../components/FullscreenBackdropLoading";
 import GameUI from "../game/GameUI";
 import { loopRequestAnimationFrame } from "../../bridge/RegisterTickLoop";
 import { playJoin } from "../../bridge/PlayerJoinLeaveSoundEffects";
@@ -155,9 +155,7 @@ function GameArea() {
 
   return (
     <EntireDiv ref={divRef}>
-      <Suspense fallback={<BigLoading />}>
-        <ConnectToGame gameElement={gameElement} size={size} />
-      </Suspense>
+      <ConnectToGame gameElement={gameElement} size={size} />
     </EntireDiv>
   );
 }
