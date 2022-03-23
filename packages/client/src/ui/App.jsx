@@ -1,7 +1,7 @@
 //@ts-check
 import React, { Suspense, lazy, useMemo } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { CssBaseline, ThemeProvider, createTheme, responsiveFontSizes } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
 import { SnackbarProvider } from "notistack";
 import { RecoilRoot } from "recoil";
@@ -21,19 +21,28 @@ const ShopPage = lazy(() => import("./pages/ShopPage"));
 const ControlsPage = lazy(() => import("./pages/ControlsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+import "@/assets/fonts/dpcomic.scss";
+
 export default function App() {
   const prefersDarkMode = true;
 
   const theme = useMemo(
     () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: indigo,
-          secondary: deepPurple,
-        },
-        spacing: 8,
-      }),
+      responsiveFontSizes(
+        createTheme({
+          typography: {
+            fontFamily: "DPComic",
+            fontSize: 20,
+          },
+          palette: {
+            mode: prefersDarkMode ? "dark" : "light",
+            primary: indigo,
+            secondary: deepPurple,
+          },
+          spacing: 8,
+        }),
+        { factor: 3 }
+      ),
     [prefersDarkMode]
   );
 
