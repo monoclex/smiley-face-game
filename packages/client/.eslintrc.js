@@ -29,7 +29,7 @@ const config = {
   },
   plugins: ["react", "@typescript-eslint", "prettier", "import"],
   settings: {
-    "import/extensions": [".js", ".jsx", ".ts", ".tsx", ".svg", ".json"],
+    "import/extensions": [".js", ".jsx", ".ts", ".tsx", ".svg", ".json", ".png", ".scss"],
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"],
     },

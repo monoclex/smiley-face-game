@@ -19,6 +19,11 @@ declare module "*.svg" {
   export = SvgComponent;
 }
 
+declare module "*.scss" {
+  const styles: Record<string, string>;
+  export = styles;
+}
+
 interface ImportMeta {
   env: {
     NODE_ENV: string;
