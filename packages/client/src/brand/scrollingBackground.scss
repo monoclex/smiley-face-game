@@ -1,0 +1,32 @@
+@keyframes bg-scrolling-reverse {
+  100% {
+    background-position: calc(200px * 32) calc(100px * 32);
+  }
+}
+
+@mixin consume-whole-page {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+@mixin background-scroll-animation {
+  box-shadow: 0px 0px 32px 16px black inset;
+
+  background: repeat 0 0;
+  background-size: calc(100px * 16);
+  backdrop-filter: blur(16px);
+  image-rendering: pixelated;
+
+  animation: bg-scrolling-reverse calc(1.84s * 32) infinite linear;
+}
+
+.backgroundScrollAnimation {
+  @include consume-whole-page();
+  @include background-scroll-animation();
+}
+
+body {
+  // working around material ui stuff
+  margin-top: 0em;
+}

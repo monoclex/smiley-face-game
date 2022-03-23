@@ -13,6 +13,10 @@ const TermsAndConditions = () => {
   // TODO: can we bind users to a terms and conditions upon using a discord server?
   return (
     <Container component="main" maxWidth="sm">
+      <p>
+        somewhere i'm suppose to include that the font name is DPComic and that codeman38 made the
+        `.ttf` file
+      </p>
       <Typography variant="h3" component="h1">
         Terms and Conditions
       </Typography>
