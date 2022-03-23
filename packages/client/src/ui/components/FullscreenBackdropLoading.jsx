@@ -1,6 +1,7 @@
 import React from "react";
 import { CircularProgress, Typography, styled } from "@mui/material";
 import Loading from "@/brand/Loading";
+import ScrollingBackground from "@/brand/ScrollingBackground";
 
 const Centered = styled("div")({
   height: "100vh",
@@ -19,6 +20,16 @@ export function BigLoading({ message = "Loading..." }) {
 }
 
 export default function FullscreenBackdropLoading(props) {
+  return (
+    <ScrollingBackground>
+      <Centered>
+        <Loading />
+      </Centered>
+    </ScrollingBackground>
+  );
+}
+
+export function FullscreenBackdropLoadingWithoutScrollingBg() {
   return (
     <Centered>
       <Loading />

@@ -3,7 +3,7 @@ import styles from "./scrollingBackground.scss";
 import backgroundUrl from "@/assets/background/background.png";
 
 interface ScrollingBackgroundProps {
-  children: React.ReactChild;
+  children: React.ReactNode;
 }
 
 const scssBackgroundUrlDoesntWorkWee = { backgroundImage: `url(${backgroundUrl})` };

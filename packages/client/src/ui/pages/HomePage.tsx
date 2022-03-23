@@ -27,14 +27,12 @@ const HomePage = () => {
   }
 
   return (
-    <ScrollingBackground>
-      <TitleScreen title="smiley face game">
-        <BigLink to="/guest">play as guest</BigLink>
-        <BigLink to="/login">login</BigLink>
-        <BigLink to="/register">register</BigLink>
-        <Link to="/terms">legal</Link>
-      </TitleScreen>
-    </ScrollingBackground>
+    <TitleScreen title="smiley face game">
+      <BigLink to="/guest">play as guest</BigLink>
+      <BigLink to="/login">login</BigLink>
+      <BigLink to="/register">register</BigLink>
+      <Link to="/terms">legal</Link>
+    </TitleScreen>
   );
 };
 
