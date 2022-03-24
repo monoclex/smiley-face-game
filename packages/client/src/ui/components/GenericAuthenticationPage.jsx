@@ -10,11 +10,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import { zUsername, zPassword, zEmail } from "@smiley-face-game/api/types";
 import { useClickAway } from "react-use";
-import { Navigate, useNavigate } from "react-router";
 import { ChoiceText } from "@/brand/TitleScreen";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { rollyBoi } from "@/brand/RollyBoi";
+import { useNavigateTo as useNavigate } from "@/hooks";
 
 // TODO(clean): have this the same as `@/brand/titleScreen.scss`'s text shadow mixin
 const textShadow = "0px 0px 0.25em black, 0px 0px 0.25em black, 0px 0px 0.5em black";
@@ -24,6 +22,10 @@ const AwesomeGrid = styled(Grid)({
 });
 
 const AwesomeTypography = styled(Typography)({ textShadow, color: "white", marginLeft: "0.25em" });
+
+const Invisible = styled(Grid)(({ isInvisible }) => ({
+  opacity: isInvisible ? 0 : 1,
+}));
 
 const BigSmileyFace = styled("img")({
   // make it large
@@ -101,13 +103,6 @@ const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
       <Grid item>
         <Container ref={ref} component="main" maxWidth="sm">
           <BigSmileyFace className={rollyBoi} src={smileyUrl} />
-          {isWorking && (
-            <Grid container direction="row" justifyContent="center" alignItems="center">
-              <Grid item>
-                <CircularProgress />
-              </Grid>
-            </Grid>
-          )}
 
           <form onSubmit={handleSubmit(onSubmit)}>
             {inputs.map((input, index) => (
@@ -135,6 +130,18 @@ const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
               </Button>
             </ChoiceText>
           </form>
+
+          <Invisible
+            isInvisible={!isWorking}
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Grid item>
+              <CircularProgress />
+            </Grid>
+          </Invisible>
         </Container>
       </Grid>
     </AwesomeGrid>

@@ -26,64 +26,44 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 import "@/assets/fonts/dpcomic.scss";
 import ScrollingBackground from "@/brand/ScrollingBackground";
+import FadeInOut from "@/brand/FadeInOut";
 
 function MyRoutes() {
-  const location = useLocation();
-
   return (
     <Suspense fallback={<FullscreenBackdropLoading />}>
-      <AnimatePresence exitBeforeEnter>
-        <Routes location={location}>
-          <Route path="*" element={<NotFound />} />
+      <Routes>
+        <Route path="*" element={<NotFound />} />
 
-          <Route
-            path="/"
-            element={
-              <>
-                <ScrollingBackground>
-                  <Suspense fallback={<FullscreenBackdropLoadingWithoutScrollingBg />}>
-                    <motion.div
-                      key={location.pathname}
-                      initial="hidden"
-                      animate="shown"
-                      exit="hidden"
-                      variants={{
-                        hidden: {
-                          opacity: 0,
-                        },
-                        shown: {
-                          opacity: 1,
-                        },
-                      }}
-                      transition={{
-                        type: "spring",
-                      }}
-                    >
-                      <Outlet />
-                    </motion.div>
-                  </Suspense>
-                </ScrollingBackground>
-              </>
-            }
-          >
-            <Route index element={<HomePage />} />
-            <Route path="terms" element={<TermsAndConditionsPage />} />
-            <Route path="guest" element={<GuestPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="login" element={<LoginPage />} />
-          </Route>
+        <Route path="/" element={<SfgTransitionOutlet />}>
+          <Route index element={<HomePage />} />
+          <Route path="terms" element={<TermsAndConditionsPage />} />
+          <Route path="guest" element={<GuestPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="login" element={<LoginPage />} />
+        </Route>
 
-          <Route path="/">
-            <Route path="lobby" element={<AuthRoute element={<LobbyPage />} />} />
-            <Route path="games">
-              <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
-            </Route>
-            <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
-            <Route path="controls" element={<AuthRoute element={<ControlsPage />} />} />
+        <Route path="/">
+          <Route path="lobby" element={<AuthRoute element={<LobbyPage />} />} />
+          <Route path="games">
+            <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
           </Route>
-        </Routes>
-      </AnimatePresence>
+          <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
+          <Route path="controls" element={<AuthRoute element={<ControlsPage />} />} />
+        </Route>
+      </Routes>
     </Suspense>
+  );
+}
+
+function SfgTransitionOutlet() {
+  return (
+    <ScrollingBackground>
+      <Suspense fallback={<FullscreenBackdropLoadingWithoutScrollingBg />}>
+        <FadeInOut>
+          <Outlet />
+        </FadeInOut>
+      </Suspense>
+    </ScrollingBackground>
   );
 }
 

@@ -7,15 +7,16 @@ import { Grid, Typography, Container, styled } from "@mui/material";
 import { useToken } from "../hooks";
 import ScrollingBackground from "@/brand/ScrollingBackground";
 import TitleScreen from "@/brand/TitleScreen";
+import LinkTo from "@/brand/LinkTo";
 
 interface BigLinkProps {
   to: string;
   children: React.ReactChild;
 }
 const BigLink = ({ to, children }: BigLinkProps) => (
-  <Link to={to}>
+  <LinkTo to={to}>
     <Typography variant="h3">{children}</Typography>
-  </Link>
+  </LinkTo>
 );
 
 const HomePage = () => {

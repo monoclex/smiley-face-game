@@ -2,7 +2,7 @@
 import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmnop.png";
-import { useNavigate } from "react-router";
+import { useNavigateTo as useNavigate } from "@/hooks";
 import SnackbarUtils from "../../SnackbarUtils";
 import { auth } from "@smiley-face-game/api";
 import { tokenGlobal } from "../../state";
