@@ -5,7 +5,7 @@ type Callback = () => Promise<void>;
 
 // TODO: i could try to get fancy and check "will this component unregister"
 // but this is only needed for the scrolling lobby thing atm
-const callbacks: Callback[] = [];
+const callbacks: Record<number, Callback> = {};
 
 export default function useNavigateTo(): NavigateFunction {
   const navigate = useNavigate();
@@ -20,17 +20,18 @@ export default function useNavigateTo(): NavigateFunction {
 export function runCallbacks(): Promise<void> {
   let callback = Promise.resolve();
 
-  for (const nextCallback of callbacks) {
+  for (const nextCallback of Object.values(callbacks)) {
     callback = callback.then(nextCallback);
   }
 
   return callback;
 }
 
+let stableIndex = 0;
 export function useBeforeNavigateTo(callback: Callback, deps?: React.DependencyList) {
   useEffect(() => {
-    const index = callbacks.length;
-    callbacks.push(callback);
-    return () => void callbacks.splice(index, 1);
+    const index = stableIndex++;
+    callbacks[index] = callback;
+    return () => void delete callbacks[index];
   }, deps);
 }

@@ -1,11 +1,12 @@
 //@ts-check
-import React, { Suspense, lazy, useMemo } from "react";
+import React, { Suspense, lazy, useMemo, useState, useRef } from "react";
 import { BrowserRouter, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme, responsiveFontSizes } from "@mui/material";
 import { deepPurple, indigo } from "@mui/material/colors";
 import { SnackbarProvider } from "notistack";
 import { RecoilRoot } from "recoil";
 import { AnimatePresence, motion } from "framer-motion";
+import NewsPage from "./pages/News";
 
 import { SnackbarUtilsConfigurator } from "../SnackbarUtils";
 import FullscreenBackdropLoading, {
@@ -26,7 +27,9 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 import "@/assets/fonts/dpcomic.scss";
 import ScrollingBackground from "@/brand/ScrollingBackground";
-import FadeInOut from "@/brand/FadeInOut";
+import FadeInOut, { promisfyEvent } from "@/brand/FadeInOut";
+import Navbar from "../brand/Navbar";
+import { useBeforeNavigateTo, useRerender } from "@/hooks";
 
 function MyRoutes() {
   return (
@@ -34,7 +37,7 @@ function MyRoutes() {
       <Routes>
         <Route path="*" element={<NotFound />} />
 
-        <Route path="/" element={<SfgTransitionOutlet />}>
+        <Route path="/" element={<SfgTransitionOutlet fullscreen />}>
           <Route index element={<HomePage />} />
           <Route path="terms" element={<TermsAndConditionsPage />} />
           <Route path="guest" element={<GuestPage />} />
@@ -42,28 +45,64 @@ function MyRoutes() {
           <Route path="login" element={<LoginPage />} />
         </Route>
 
-        <Route path="/">
+        <Route path="/" element={<SfgTransitionOutlet showNavbar />}>
           <Route path="lobby" element={<AuthRoute element={<LobbyPage />} />} />
+          <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
+          <Route path="controls" element={<AuthRoute element={<ControlsPage />} />} />
+          <Route path="news" element={<NewsPage />} />
+        </Route>
+
+        <Route path="/" element={<SfgTransitionOutlet hide />}>
           <Route path="games">
             <Route path=":id" element={<AuthRoute element={<PlayPage />} />} />
           </Route>
-          <Route path="shop" element={<AccountRoute element={<ShopPage />} />} />
-          <Route path="controls" element={<AuthRoute element={<ControlsPage />} />} />
         </Route>
       </Routes>
     </Suspense>
   );
 }
 
-function SfgTransitionOutlet() {
+function SfgTransitionOutlet({ fullscreen, showNavbar, hide }) {
+  if (!fullscreen && !showNavbar && !hide) throw new Error("pass a prop");
+
+  const shouldShrink = showNavbar || hide;
+
+  const [grow, setGrow] = useState(false);
+  const ref = useRef(null);
+  useBeforeNavigateTo(async () => {
+    const node = ref.current;
+    if (!node) return;
+
+    if (shouldShrink) {
+      const grew = promisfyEvent(node, "transitionend");
+      setGrow(true);
+      await grew;
+      requestAnimationFrame(() => setGrow(false));
+    }
+  });
+
   return (
-    <ScrollingBackground>
-      <Suspense fallback={<FullscreenBackdropLoadingWithoutScrollingBg />}>
-        <FadeInOut>
-          <Outlet />
-        </FadeInOut>
-      </Suspense>
-    </ScrollingBackground>
+    <>
+      <ScrollingBackground ref={ref} shrink={grow ? false : shouldShrink} grow={grow} hide={hide}>
+        <Suspense fallback={<FullscreenBackdropLoadingWithoutScrollingBg />}>
+          {fullscreen && !grow && (
+            <FadeInOut>
+              <Outlet />
+            </FadeInOut>
+          )}
+
+          {showNavbar && (
+            <FadeInOut dontFadeBackIn>
+              <Navbar />
+            </FadeInOut>
+          )}
+
+          {hide && <></>}
+        </Suspense>
+      </ScrollingBackground>
+
+      {!fullscreen && !grow && <Outlet />}
+    </>
   );
 }
 

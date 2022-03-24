@@ -6,9 +6,10 @@ import styles from "./fadeInOut.scss";
 
 interface FadeInOutProps {
   children: React.ReactNode;
+  dontFadeBackIn?: boolean;
 }
 
-const promisfyEvent = <K extends keyof HTMLElementEventMap>(
+export const promisfyEvent = <K extends keyof HTMLElementEventMap>(
   element: HTMLElement,
   type: K,
   options?: boolean | AddEventListenerOptions
@@ -24,7 +25,7 @@ const promisfyEvent = <K extends keyof HTMLElementEventMap>(
   return completionSource.handle;
 };
 
-export default function FadeInOut({ children }: FadeInOutProps) {
+export default function FadeInOut({ children, dontFadeBackIn }: FadeInOutProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [style, setStyle] = useState(styles.fadeIn);
 
@@ -35,7 +36,7 @@ export default function FadeInOut({ children }: FadeInOutProps) {
     const onFadeOut = promisfyEvent(node, "animationend");
     setStyle(styles.fadeOut);
     await onFadeOut;
-    setStyle(styles.fadeIn);
+    if (!dontFadeBackIn) setStyle(styles.fadeIn);
   }, []);
 
   return (

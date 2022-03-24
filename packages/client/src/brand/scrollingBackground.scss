@@ -26,6 +26,15 @@
   @include background-scroll-animation();
 }
 
+.shrink {
+  transition: height 0.5s cubic-bezier(0.4, 1, 0.7, 1);
+  height: 1.25em;
+}
+
+.grow {
+  transition: height 0.5s cubic-bezier(0.4, 1, 0.7, 1);
+}
+
 body {
   // working around material ui stuff
   margin-top: 0em;

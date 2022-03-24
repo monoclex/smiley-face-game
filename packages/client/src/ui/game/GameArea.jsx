@@ -77,9 +77,10 @@ export default function GameArea() {
     });
   }, []);
 
+  // freaking lol
   useEffect(async () => {
     await state.wait;
-    updateSize();
+    requestAnimationFrame(() => updateSize());
   }, []);
 
   return (

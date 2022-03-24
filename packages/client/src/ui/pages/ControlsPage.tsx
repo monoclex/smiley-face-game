@@ -25,10 +25,6 @@ import {
 export default function ControlsPage() {
   return (
     <>
-      <TitleBar>
-        <BackButton />
-        <Title>Controls</Title>
-      </TitleBar>
       <ConnectedControlsTable />
     </>
   );
