@@ -1,4 +1,4 @@
-import { Application, Sprite, Texture } from "pixi.js";
+import { Container, InteractionManager, Renderer, Sprite, Texture, Ticker } from "pixi.js";
 
 const TILE_WIDTH = 32;
 const TILE_HEIGHT = 32;
@@ -6,20 +6,27 @@ const TILE_HEIGHT = 32;
 class TextureToImageifier {
   cache: Map<number, HTMLImageElement> = new Map();
 
-  readonly app: Application = new Application({
+  readonly app: Renderer = new Renderer({
     width: TILE_WIDTH,
     height: TILE_HEIGHT,
     backgroundAlpha: 0,
   });
 
   readonly sprite: Sprite = new Sprite();
+  readonly stage: Container = new Container();
 
   constructor() {
-    this.app.stage.addChild(this.sprite);
+    this.stage.addChild(this.sprite);
+
+    const interactionManager = this.app.plugins["interaction"] as InteractionManager;
+    interactionManager.destroy();
+    //@ts-expect-error we want it gone
+    interactionManager.removeTickerListener();
+    Ticker.system.stop();
   }
 
   async render(): Promise<HTMLImageElement> {
-    this.app.render();
+    this.app.render(this.stage);
 
     const renderImageCanvas = this.app.view;
 

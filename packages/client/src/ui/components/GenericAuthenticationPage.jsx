@@ -121,6 +121,12 @@ const GenericAuthenticationPage = ({ smileyUrl, inputs, submit }) => {
                 }
                 error={!!(errors && errors[input.name])}
                 helperText={errors && errors[input.name]?.message}
+                inputProps={{
+                  style: {
+                    // https://stackoverflow.com/a/68240841/3780113
+                    transition: "background-color 600000s 0s, color 600000s 0s",
+                  },
+                }}
                 {...register(input.name, { required: true, validate: validators[input.name] })}
               />
             ))}

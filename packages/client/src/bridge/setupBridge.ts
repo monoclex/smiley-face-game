@@ -127,6 +127,8 @@ export default async function setupBridge(
     state.wait = waitPromise.it.handle;
 
     await playLeave();
+
+    renderer.destroy();
   })();
 
   const physicsTicker = new PhysicsTicker(game, 150);

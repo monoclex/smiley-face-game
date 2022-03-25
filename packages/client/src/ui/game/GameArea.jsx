@@ -68,6 +68,7 @@ export default function GameArea() {
     // here we detect any changes in height, and then re-set our height
     let heightOld = document.body.scrollHeight;
     loopRequestAnimationFrame(() => {
+      if (!state.connection?.connected) return "halt";
       let heightNow = document.body.scrollHeight;
 
       if (heightOld != heightNow) {

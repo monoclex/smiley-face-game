@@ -15,7 +15,7 @@
 
   background: repeat 0 0;
   background-size: calc(100px * 16);
-  backdrop-filter: blur(16px);
+  image-rendering: crisp-edges;
   image-rendering: pixelated;
 
   animation: bg-scrolling-reverse calc(1.84s * 32) infinite linear;
