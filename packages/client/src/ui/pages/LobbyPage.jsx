@@ -119,9 +119,6 @@ const LobbyPage = () => {
   return (
     <>
       <Grid container item justifyContent="center" alignItems="center">
-        <IconButton onClick={logout} size="large">
-          <LogoutIcon />
-        </IconButton>
         <motion.div whileTap={{ rotate: 360, transition: { duration: 0.25 } }}>
           <IconButton onClick={() => refresh()} size="large">
             <Refresh />
@@ -129,12 +126,6 @@ const LobbyPage = () => {
         </motion.div>
         <IconButton onClick={() => setCreateRoomDialogOpen(true)} size="large">
           <Plus />
-        </IconButton>
-        <IconButton onClick={() => navigate("/shop")} size="large">
-          <Cart />
-        </IconButton>
-        <IconButton onClick={() => navigate("/controls")} size="large">
-          <ControllerClassic />
         </IconButton>
         <IconButton onClick={() => window.open("https://discord.gg/c68KMCs")} size="large">
           <SvgIcon component={DiscordLogo} viewBox="0 0 256 256" />
@@ -295,9 +286,7 @@ function HandleError({ error }) {
 const LobbyPageWrapper = () => {
   return (
     <ErrorBoundary render={HandleError}>
-      <Suspense fallback={<FullscreenBackdropLoading />}>
-        <LobbyPage />
-      </Suspense>
+      <LobbyPage />
     </ErrorBoundary>
   );
 };

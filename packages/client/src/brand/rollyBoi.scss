@@ -1,0 +1,10 @@
+.rollyBoi {
+  animation: roller 3s ease-in-out infinite;
+  transform: translateX(-300%);
+}
+
+@keyframes roller {
+  50% {
+    transform: translateX(300%) rotate(360deg);
+  }
+}

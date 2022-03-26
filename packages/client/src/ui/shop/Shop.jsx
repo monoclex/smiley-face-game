@@ -60,38 +60,4 @@ const Shop = () => {
   );
 };
 
-const ShopWrapper = () => {
-  const navigate = useNavigate();
-  const { energy, maxEnergy, timeLeft } = useEnergy();
-
-  return (
-    <>
-      <Box sx={{ flexGrow: 1, paddingBottom: "4em" }}>
-        <AppBar position="fixed">
-          <Toolbar>
-            <IconButton size="large" edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => navigate("/lobby")}>
-              <LogoutIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Shop
-            </Typography>
-            <Typography variant="subtitle1" style={{ paddingRight: "1em" }}>
-              {energy}/{maxEnergy}
-            </Typography>
-            <EnergyIcon />
-            <Typography variant="caption" style={{ paddingLeft: "1em" }}>
-              {timeLeft}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </Box>
-      <Suspense fallback={<FullscreenBackdropLoading />}>
-        <ErrorBoundary>
-          <Shop />
-        </ErrorBoundary>
-      </Suspense>
-    </>
-  );
-};
-
-export default ShopWrapper;
+export default Shop;

@@ -1,0 +1,44 @@
+.navbar {
+  // TODO: dont duplicate text-shadow with title screen
+  text-shadow: 0px 0px 0.5em black, 0px 0px 0.5em black, 0px 0px 1em black;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25em;
+}
+
+$total-primary-padding: 0.5em;
+.primaryItem {
+  padding-left: calc($total-primary-padding / 2);
+  padding-right: calc($total-primary-padding / 2);
+}
+
+$fade-in-curve: cubic-bezier(0.2, 1, 0.2, 1);
+.item {
+  // TODO: don't duplicate `.item` with title screen `.choice`
+  text-decoration: none;
+
+  cursor: pointer;
+  color: white;
+  transition: 0.5s linear;
+
+  &:hover {
+    color: red;
+    transition: 0.5s $fade-in-curve;
+  }
+
+  display: flex;
+  gap: 0.1em;
+  align-items: baseline;
+}
+
+.rightmostItem {
+  margin-left: auto;
+}
+
+.energyContainer {
+  display: flex;
+  flex-direction: column;
+  margin-right: 0.25em;
+  align-items: center;
+  align-self: center;
+}

@@ -1,5 +1,5 @@
 //@ts-check
-import React, { Suspense } from "react";
+import React from "react";
 import { Grid, styled } from "@mui/material";
 import Chat from "./chat/Chat";
 import BlockBar from "./blockbar/BlockBar";
@@ -13,6 +13,7 @@ import ExitButton from "./ExitButton";
 import { gameRunningState } from "../../bridge/state";
 import BlockInspector from "./BlockInspector";
 import SwitchIdWindow from "./SwitchIdWindow";
+import GameArea from "./GameArea";
 
 const RootGrid = styled(Grid)({
   width: "100vw",
@@ -52,7 +53,7 @@ class DisconnectError extends Error {
   }
 }
 
-export default function GameUI({ children: gameCanvas }) {
+export default function GameUI() {
   const gameRunning = gameRunningState.useValue();
   if (gameRunning === false) throw new DisconnectError();
 
@@ -67,7 +68,7 @@ export default function GameUI({ children: gameCanvas }) {
       <RootGrid container direction="row" alignItems="stretch" justifyContent="flex-end">
         <Grid item container direction="column" alignItems="stretch" justifyContent="flex-end" xs>
           <PlayWindow item xs>
-            {gameCanvas}
+            <GameArea />
           </PlayWindow>
           <GrayFilled item xs="auto">
             <Grid
@@ -82,15 +83,11 @@ export default function GameUI({ children: gameCanvas }) {
                 <MobileControls />
               </Grid>
               <Grid container item xs="auto">
-                <Suspense fallback={null}>
-                  <BlockBar />
-                </Suspense>
+                <BlockBar />
               </Grid>
               <Grid container item alignItems="flex-end">
                 <WorldSettingsButton />
-                <Suspense fallback={null}>
-                  <GodModeButton />
-                </Suspense>
+                <GodModeButton />
                 <SoundButton />
                 <ExitButton />
               </Grid>
@@ -99,9 +96,7 @@ export default function GameUI({ children: gameCanvas }) {
         </Grid>
         <Grid item xs={2} container direction="column" alignItems="stretch">
           <BlackFilled item xs={2}>
-            <Suspense fallback={null}>
-              <PlayerList />
-            </Suspense>
+            <PlayerList />
           </BlackFilled>
           <BlackFilledScrollDiv item xs>
             <Chat />

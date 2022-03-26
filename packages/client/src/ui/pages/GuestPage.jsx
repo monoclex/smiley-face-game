@@ -2,7 +2,7 @@ import React from "react";
 import GenericAuthenticationPage from "../../ui/components/GenericAuthenticationPage";
 import urlPlayer from "../../assets/mmmyep.png";
 import { auth } from "@smiley-face-game/api";
-import { useNavigate } from "react-router";
+import { useNavigateTo as useNavigate } from "@/hooks";
 import { tokenGlobal } from "../../state";
 
 const GuestPage = () => {

@@ -6,6 +6,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const atlas = require("rust-atlas-generator-webpack-plugin");
 const fs = require("fs");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 /**
  * @param {{ serverMode: string }} env
@@ -51,6 +52,14 @@ function config({ serverMode }, { mode }) {
         },
         { test: /\.(png|mp3)$/, use: "file-loader" },
         { test: /\.svg$/, use: "@svgr/webpack" },
+        {
+          test: /\.s?(a|c)ss$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            { loader: "css-loader", options: { importLoaders: 1, modules: true } },
+            "sass-loader",
+          ],
+        },
       ],
     },
     plugins: [
@@ -82,6 +91,7 @@ function config({ serverMode }, { mode }) {
         template: "./src/index.html",
         hash: true,
       }),
+      new MiniCssExtractPlugin(),
     ],
   };
 }

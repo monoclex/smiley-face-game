@@ -1,11 +1,13 @@
 import React from "react";
-import { Backdrop, CircularProgress, Typography, styled } from "@mui/material";
+import { CircularProgress, Typography, styled } from "@mui/material";
+import Loading from "@/brand/Loading";
+import ScrollingBackground from "@/brand/ScrollingBackground";
 
 const Centered = styled("div")({
+  height: "100vh",
   display: "flex",
+  flexDirection: "column",
   justifyContent: "center",
-  alignItems: "center",
-  height: "100%",
 });
 
 export function BigLoading({ message = "Loading..." }) {
@@ -19,8 +21,18 @@ export function BigLoading({ message = "Loading..." }) {
 
 export default function FullscreenBackdropLoading(props) {
   return (
-    <Backdrop sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
-      <BigLoading {...props} />
-    </Backdrop>
+    <ScrollingBackground>
+      <Centered>
+        <Loading />
+      </Centered>
+    </ScrollingBackground>
+  );
+}
+
+export function FullscreenBackdropLoadingWithoutScrollingBg() {
+  return (
+    <Centered>
+      <Loading />
+    </Centered>
   );
 }
