@@ -54,17 +54,18 @@ export default class SwitchTextRendering {
 
     let text = this.sprites.get(index);
     if (!text) {
-      text = new Text("", { fill: "white", fontFamily: "monospace" });
+      text = new Text("", { fill: "white", fontFamily: "monospace", fontSize: "10px" });
       text.visible = true;
-
-      const TILE_SIZE = 32;
-      text.x = x * TILE_SIZE;
-      text.y = y * TILE_SIZE;
 
       this.switchTextLayer.addChild(text);
     }
 
     text.text = `${id}`;
+
+    const TILE_SIZE = 32;
+    text.x = (x + 1) * TILE_SIZE - text.width;
+    text.y = (y + 1) * TILE_SIZE - text.height;
+
     this.sprites.set(index, text);
   }
 
