@@ -30,3 +30,15 @@ $fade-in-curve: cubic-bezier(0.2, 1, 0.2, 1);
   gap: 0.1em;
   align-items: baseline;
 }
+
+.rightmostItem {
+  margin-left: auto;
+}
+
+.energyContainer {
+  display: flex;
+  flex-direction: column;
+  margin-right: 0.25em;
+  align-items: center;
+  align-self: center;
+}

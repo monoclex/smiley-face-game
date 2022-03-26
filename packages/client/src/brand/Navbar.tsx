@@ -1,12 +1,14 @@
 import { Typography } from "@mui/material";
 import LogoutIcon from "@/ui/icons/LogoutIcon";
-import React from "react";
+import React, { useState } from "react";
 import styles from "./navbar.scss";
 import { Earth, Cart, ControllerClassic, Newspaper } from "mdi-material-ui";
 import { useNavigateTo } from "@/hooks";
 import { NavigateFunction, useNavigate as useNavigateReal } from "react-router";
-import { useSetToken } from "@/ui/hooks";
+import { useAuth, useEnergy, useSetToken, useToken } from "@/ui/hooks";
 import { useSnackbar } from "notistack";
+import { Authentication } from "@smiley-face-game/api";
+import EnergyIcon from "@/ui/icons/EnergyIcon";
 
 function useLogout(navigate: NavigateFunction) {
   const setToken = useSetToken();
@@ -48,8 +50,32 @@ export default function Navbar() {
       <NavButton onClick={shop} icon={Cart} text={"shop"} />
       <NavButton onClick={settings} icon={ControllerClassic} text={"settings"} />
       <NavButton onClick={news} icon={Newspaper} text={"news"} />
+
+      <Energy />
     </div>
   );
+}
+
+function Energy() {
+  const [token] = useToken();
+  if (!token) return null;
+
+  const auth = new Authentication(token);
+  if (auth.isGuest) return null;
+
+  function InnerComponent() {
+    const { energy, maxEnergy, timeLeft } = useEnergy();
+    return (
+      <div className={`${styles.rightmostItem} ${styles.energyContainer}`}>
+        <Typography variant="body1">
+          {energy}/{maxEnergy} <EnergyIcon />
+        </Typography>
+        <Typography variant="caption">{timeLeft}</Typography>
+      </div>
+    );
+  }
+
+  return <InnerComponent />;
 }
 
 interface NavButtonProps {
@@ -63,7 +89,9 @@ function NavButton({ icon: Icon, text, onClick }: NavButtonProps) {
   return (
     <div className={styles.item} onClick={onClick}>
       <Icon />
-      <Typography variant="h4">{text}</Typography>
+      <Typography className={styles.text} variant="h4">
+        {text}
+      </Typography>
     </div>
   );
 }
